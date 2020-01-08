@@ -1,0 +1,15 @@
+get_calendar_events:
+  # Description of the service
+  description: get_calendar_events
+  # Different fields that your service accepts
+  fields:
+    # Key of the field
+    start:
+      description: start datetime for filter in ISO8601 format
+      example: "2020-12-24T07:00:00"
+    end:
+      description: end datetime for filter in ISO8601 format
+      example: "2020-12-24T18:00:00"
+    calendar_name:
+      description: "#OPTIONAL - The name of the calendar to look in, if not set the default calendar will be used"
+      example: "OtherCalendar"
