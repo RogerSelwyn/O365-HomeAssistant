@@ -37,7 +37,7 @@ DOMAIN = "office365calendar"
 
 ICON = "mdi:office"
 
-SCOPE = ["Calendars.Read", "Calendars.Read.Shared"]
+SCOPE = ["offline_access", "User.Read", "Calendars.Read", "Calendars.Read.Shared"]
 
 TOKEN_BACKEND = FileSystemTokenBackend(token_path=DEFAULT_CACHE_PATH, token_filename="o365.token")
 
@@ -166,6 +166,7 @@ class O365Calendar(Entity):
         return
 
     def update(self):
+        # self.account.connection.refresh_token()
         self._state = self.device_state_attributes["event_active"]
 
 
