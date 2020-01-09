@@ -9,7 +9,7 @@ jobs:
       - name: create branch
         uses: peterjgrainger/action-create-branch@v1.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: 'black_formatter'
       - uses: actions/checkout@v2
         with:
