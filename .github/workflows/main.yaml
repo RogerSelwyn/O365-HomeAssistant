@@ -10,4 +10,6 @@ jobs:
       - name: Black Code Formatter
         uses: lgeiger/black-action@master
         with:
-          args: ". --check"
+          args: "."
+      - name: checkin
+        uses: repo-sync/pull-request@v2.0.1
