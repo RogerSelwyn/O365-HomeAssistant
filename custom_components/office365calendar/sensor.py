@@ -232,7 +232,6 @@ def clean_html(html):
 
 def request_configuration(hass, config, url, callback_url):
 
-    
     configurator = hass.components.configurator
     hass.data[DOMAIN] = configurator.request_config(
         DEFAULT_NAME,
