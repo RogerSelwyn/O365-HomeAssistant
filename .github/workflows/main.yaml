@@ -13,3 +13,5 @@ jobs:
           args: "."
       - name: checkin
         uses: repo-sync/pull-request@v2.0.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
