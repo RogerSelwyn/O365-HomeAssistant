@@ -1,0 +1,6 @@
+{
+    "name": "Office 365 calendar sensor",
+    "homeassistant": "0.103",
+    "persistent_directory": ".O365-token-cache",
+    "render_readme": true
+}
