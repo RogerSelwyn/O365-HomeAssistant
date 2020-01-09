@@ -18,3 +18,5 @@ jobs:
           commit-message: "Black formatted"
           title: "Black formatted submitted code"
           author: "Bot McBotty <bot@steffensen.io>"
+          branch: black_formatter
+          body: Please review and accept
