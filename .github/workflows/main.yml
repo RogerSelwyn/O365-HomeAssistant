@@ -11,4 +11,4 @@ jobs:
     - name: Black Check
       uses: jpetrucciani/black-check@19.10b0
       with:
-        path: .
+        path: ./custom_components/office365calendar/sensor.py
