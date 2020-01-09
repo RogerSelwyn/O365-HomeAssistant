@@ -1,4 +1,4 @@
-name: CI
+name: Black Check
 
 on: [push]
 
@@ -8,7 +8,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Black Check
-      uses: jpetrucciani/black-check@19.10b0
-      with:
-        path: ./custom_components/office365calendar/sensor.py
+    - name: Black Code Formatter
+      uses: lgeiger/black-action@v1.0.1
