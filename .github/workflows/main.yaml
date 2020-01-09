@@ -10,4 +10,4 @@ jobs:
       - name: Black Code Formatter
         uses: lgeiger/black-action@master
         with:
-          args: ".custom_components/office365calendar/sensor.py --check"
+          args: ". --check"
