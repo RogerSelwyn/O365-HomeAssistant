@@ -53,13 +53,11 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
     credentials = (config.get(CONF_CLIENT_ID), config.get(CONF_CLIENT_SECRET))
-    _LOGGER.info(str(credentials))
     account = Account(
         credentials,
         token_backend=TOKEN_BACKEND
     )
     is_authenticated = account.is_authenticated
-    _LOGGER.info(f"is authenticated: {is_authenticated}")
     if not is_authenticated:
         url, state = account.con.get_authorization_url(requested_scopes=SCOPE, redirect_uri=callback_url)
         _LOGGER.info("no token; requesting authorization")
@@ -193,7 +191,6 @@ class O365AuthCallbackView(HomeAssistantView):
         url = str(request.url)
         if url[:5].lower() == "http:":
             url = f"https:{url[5:]}"
-            _LOGGER.info(url)
         result = self.account.con.request_token(url, 
                                        state=self.state,
                                        redirect_uri=self.callback)
