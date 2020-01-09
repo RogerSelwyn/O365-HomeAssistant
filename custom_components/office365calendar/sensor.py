@@ -39,13 +39,17 @@ ICON = "mdi:office"
 
 SCOPE = ["offline_access", "User.Read", "Calendars.Read", "Calendars.Read.Shared"]
 
-TOKEN_BACKEND = FileSystemTokenBackend(token_path=DEFAULT_CACHE_PATH, token_filename="o365.token")
+TOKEN_BACKEND = FileSystemTokenBackend(
+    token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"
+)
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Required(CONF_CLIENT_ID): cv.string,
-    vol.Required(CONF_CLIENT_SECRET): cv.string
-})
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+    {
+        vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Required(CONF_CLIENT_ID): cv.string,
+        vol.Required(CONF_CLIENT_SECRET): cv.string,
+    }
+)
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -53,15 +57,16 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
     credentials = (config.get(CONF_CLIENT_ID), config.get(CONF_CLIENT_SECRET))
-    account = Account(
-        credentials,
-        token_backend=TOKEN_BACKEND
-    )
+    account = Account(credentials, token_backend=TOKEN_BACKEND)
     is_authenticated = account.is_authenticated
     if not is_authenticated:
-        url, state = account.con.get_authorization_url(requested_scopes=SCOPE, redirect_uri=callback_url)
+        url, state = account.con.get_authorization_url(
+            requested_scopes=SCOPE, redirect_uri=callback_url
+        )
         _LOGGER.info("no token; requesting authorization")
-        hass.http.register_view(O365AuthCallbackView(config, add_devices, account, state, callback_url))
+        hass.http.register_view(
+            O365AuthCallbackView(config, add_devices, account, state, callback_url)
+        )
         request_configuration(hass, config, url, callback_url)
         return
     if hass.data.get(DOMAIN):
@@ -72,13 +77,13 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices([cal], True)
     hass.services.register(DOMAIN, "get_calendar_events", cal.get_calendar_events)
 
+
 class O365Calendar(Entity):
     def __init__(self, account, hass):
         self.account = account
         self.hass = hass
         self._state = None
         # self.get_calendar_events(None)
-        
 
     @property
     def name(self):
@@ -100,37 +105,51 @@ class O365Calendar(Entity):
         data = []
         now = utcnow()
 
-        for event in calendar.get_events(limit=999, query=query, include_recurring=True):
-            data.append({
-                "subject":event.subject,
-                "body": clean_html(event.body),
-                "location": event.location["displayName"],
-                "categories": event.categories,
-                "sensitivity": event.sensitivity.name,
-                "show_as": event.show_as.name,
-                "is_all_day": event.is_all_day,
-                "attendees": [x.address for x in event.attendees._Attendees__attendees],
-                "start": event.start.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                "end": event.end.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                "event_active": event.start <= now and event.end >= now
-            })
+        for event in calendar.get_events(
+            limit=999, query=query, include_recurring=True
+        ):
+            data.append(
+                {
+                    "subject": event.subject,
+                    "body": clean_html(event.body),
+                    "location": event.location["displayName"],
+                    "categories": event.categories,
+                    "sensitivity": event.sensitivity.name,
+                    "show_as": event.show_as.name,
+                    "is_all_day": event.is_all_day,
+                    "attendees": [
+                        x.address for x in event.attendees._Attendees__attendees
+                    ],
+                    "start": event.start.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    "end": event.end.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    "event_active": event.start <= now and event.end >= now,
+                }
+            )
         attributes["data"] = json.dumps(data, indent=2)
         attributes["event_active"] = len([x for x in data if x["event_active"]]) > 0
         return attributes
-        
-
 
     def get_calendar_events(self, call):
         try:
             data = call.data
         except AttributeError:
             data = {}
-        call_start_time = data.get("start", datetime.now().replace(hour=0, minute=0, second=0).strftime("%Y-%m-%dT%H:%M:%S"))
+        call_start_time = data.get(
+            "start",
+            datetime.now()
+            .replace(hour=0, minute=0, second=0)
+            .strftime("%Y-%m-%dT%H:%M:%S"),
+        )
         start_date = datetime.strptime(call_start_time, "%Y-%m-%dT%H:%M:%S")
 
-        call_end_time = data.get("end", datetime.now().replace(hour=23, minute=59, second=59).strftime("%Y-%m-%dT%H:%M:%S"))
+        call_end_time = data.get(
+            "end",
+            datetime.now()
+            .replace(hour=23, minute=59, second=59)
+            .strftime("%Y-%m-%dT%H:%M:%S"),
+        )
         end_date = datetime.strptime(call_end_time, "%Y-%m-%dT%H:%M:%S")
-        
+
         calendar_name = data.get("calendar_name", None)
         schedule = self.account.schedule()
 
@@ -138,29 +157,39 @@ class O365Calendar(Entity):
             calendar = schedule.get_calendar(calendar_name=calendar_name)
         else:
             calendar = schedule.get_default_calendar()
-        
+
         query = calendar.new_query("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
-        
+
         data = []
         now = utcnow()
 
-        for event in calendar.get_events(limit=999, query=query, include_recurring=True):
-            data.append({
-                "subject":event.subject,
-                "body": clean_html(event.body),
-                "location": event.location["displayName"],
-                "categories": event.categories,
-                "sensitivity": event.sensitivity.name,
-                "show_as": event.show_as.name,
-                "is_all_day": event.is_all_day,
-                "attendees": [x.address for x in event.attendees._Attendees__attendees],
-                "start": event.start.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                "end": event.end.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                "event_active": event.start <= now and event.end >= now
-            })
+        for event in calendar.get_events(
+            limit=999, query=query, include_recurring=True
+        ):
+            data.append(
+                {
+                    "subject": event.subject,
+                    "body": clean_html(event.body),
+                    "location": event.location["displayName"],
+                    "categories": event.categories,
+                    "sensitivity": event.sensitivity.name,
+                    "show_as": event.show_as.name,
+                    "is_all_day": event.is_all_day,
+                    "attendees": [
+                        x.address for x in event.attendees._Attendees__attendees
+                    ],
+                    "start": event.start.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    "end": event.end.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                    "event_active": event.start <= now and event.end >= now,
+                }
+            )
 
-        self.hass.states.set(f"{DOMAIN}.calendar_events", f"{call_start_time}-{call_end_time}", {"data": json.dumps(data, indent=2)})
+        self.hass.states.set(
+            f"{DOMAIN}.calendar_events",
+            f"{call_start_time}-{call_end_time}",
+            {"data": json.dumps(data, indent=2)},
+        )
         return
 
     def update(self):
@@ -183,7 +212,6 @@ class O365AuthCallbackView(HomeAssistantView):
         self.state = state
         self.callback = callback_url
 
-
     @callback
     def get(self, request):
         """Receive authorization token."""
@@ -191,15 +219,16 @@ class O365AuthCallbackView(HomeAssistantView):
         url = str(request.url)
         if url[:5].lower() == "http:":
             url = f"https:{url[5:]}"
-        result = self.account.con.request_token(url, 
-                                       state=self.state,
-                                       redirect_uri=self.callback)
+        result = self.account.con.request_token(
+            url, state=self.state, redirect_uri=self.callback
+        )
         hass.async_add_job(setup_platform, hass, self.config, self.add_devices)
 
 
 def clean_html(html):
     soup = BeautifulSoup(html, features="html.parser")
     return soup.find("body").get_text(" ", strip=True)
+
 
 def request_configuration(hass, config, url, callback_url):
     """Request Spotify authorization."""
