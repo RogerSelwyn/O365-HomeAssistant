@@ -6,6 +6,8 @@ The entity attributes contains raw event information in json format.
 
 ## Installation
 
+
+
 ### Getting the client id and client secret
 To allow authentication you first need to register your application at Azure App Registrations.
 
@@ -39,14 +41,9 @@ sensor:
 ```
 
 ### Configuration variables
-**client_id**  
-  (string)(Required)  
-  Client ID from your O365 application.
 
-**client_secret**  
-  (string)(Required)  
-  Client Secret from your O365 application.
-  
-**scan_interval**  
-  (integer)(Optional)  
-  The number of seconds between updates of todays calendar events
+Key | Type | Required | Description
+-- | -- | -- | --
+`client_id` | `string` | `True` | Client ID from your O365 application.
+`client_secret` | `string` | `True` | Client Secret from your O365 application.
+`scan_interval` | `integer` | `False` | The number of seconds between updates of todays calendar events.
