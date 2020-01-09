@@ -1,0 +1,13 @@
+name: Black Check
+
+on: [push]
+
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Black Code Formatter
+        uses: lgeiger/black-action@master
+        with:
+          args: ".custom_components/office365calendar/sensor.py --check"
