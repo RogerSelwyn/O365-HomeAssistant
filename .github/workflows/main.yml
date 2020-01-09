@@ -1,0 +1,14 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Black Check
+      uses: jpetrucciani/black-check@19.10b0
+      with:
+        path: .
