@@ -1,6 +1,8 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
-
 # Office 365 sensor for Home Assistant
+The sensor will give you todays events in your Office 365 calendar and add the data to an entity called *sensor.o365_calendar*  
+This entity will have a current state of either True or False depending on whether the current time is inside an event.  
+The entity attributes contains raw event information in json format.
 
 ## Installation
 
@@ -25,7 +27,7 @@ Under "Api Permissions" add the following delegated permission from the Microsof
 * offline_access - *Maintain access to data you have given it access to*
 * Users.Read - *Sign in and read user profile*
 
-# Configuration
+## Configuration
 
 ```yaml
 # Example configuration.yaml entry
@@ -36,7 +38,7 @@ sensor:
     scan_interval: 300
 ```
 
-## Configuration variables
+### Configuration variables
 **client_id**  
   (string)(Required)  
   Client ID from your O365 application.
