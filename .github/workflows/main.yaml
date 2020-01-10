@@ -9,6 +9,7 @@ on:
 
 jobs:
   black:
+    if: github.actor != 'Bot McBotty'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
