@@ -2,12 +2,11 @@
 name: New issue
 on:
   issues:
-    types: 
-      opened:
-        author: "!@PTST"
+    types: [opened]
 jobs:
   commentOnNewIssues:
     name: Comment On New Issues
+    if: github.actor != '@PTST'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
