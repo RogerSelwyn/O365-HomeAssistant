@@ -1,6 +1,11 @@
 name: Black Check
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
+    paths:
+    - '**.py'
 
 jobs:
   black:
