@@ -2,7 +2,9 @@
 name: New issue
 on:
   issues:
-    types: [opened]
+    types: 
+      opened:
+        author: "!@PTST"
 jobs:
   commentOnNewIssues:
     name: Comment On New Issues
