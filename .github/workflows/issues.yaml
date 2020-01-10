@@ -13,10 +13,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: assign @ptst
+          args: assign @PTST
       - name: Comment On New Issue
         uses: actions/github@v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: "comment 'Thank you for posting an issue, please make sure to note the following\nInstallation method: (HACS|Manual)\nAny logs provided by home assistant if applicable'"
+          args: "comment Thank you for posting an issue, please make sure to note the following\nInstallation method: (HACS|Manual)\nAny logs provided by home assistant if applicable"
