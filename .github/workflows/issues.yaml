@@ -6,7 +6,7 @@ on:
 jobs:
   commentOnNewIssues:
     name: Comment On New Issues
-    if: github.actor != '@PTST'
+    if: github.actor != 'PTST'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -15,7 +15,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: assign @PTST
+          args: assign PTST
       - name: Comment On New Issue
         uses: actions/github@v1.0.0
         env:
