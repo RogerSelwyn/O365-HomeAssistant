@@ -1,4 +1,4 @@
-name: Assign issue
+name: New issue
 on:
   issues:
     types: [opened]
