@@ -1,10 +1,11 @@
+
 name: New issue
 on:
   issues:
     types: [opened]
 jobs:
   commentOnNewIssues:
-    name: Assign Issues
+    name: Comment On New Issues
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -14,11 +15,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: assign @PTST
-  AssignNewIssue:
-    name: Comment On New Issues
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
       - name: Comment On New Issue
         uses: actions/github@v1.0.0
         env:
