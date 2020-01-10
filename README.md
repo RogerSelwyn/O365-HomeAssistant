@@ -4,11 +4,9 @@ The sensor will give you todays events in your Office 365 calendar and add the d
 This entity will have a current state of either True or False depending on whether the current time is inside an event.  
 The entity attributes contains raw event information in json format.
 
-## Installation
+# Installation
 
-
-
-### Getting the client id and client secret
+## Getting the client id and client secret
 To allow authentication you first need to register your application at Azure App Registrations.
 
 Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade)
@@ -29,7 +27,20 @@ Under "Api Permissions" add the following delegated permission from the Microsof
 * offline_access - *Maintain access to data you have given it access to*
 * Users.Read - *Sign in and read user profile*
 
-## Configuration
+## Adding to Home Assistant
+
+### Manual installation
+1. Install this component by copying these files to custom_components/office365calendar/.
+2. Add the code to your configuration.yaml using the config options below.
+3. Restart your Home Assistant instance.
+
+### Using Home Assistant Community Store (HACS)
+1. Add this repository as a custom repository on the HACS settings tab. (Only necessary until the repository is added to the HACS default repositories list \([HACS Default PR126](https://github.com/hacs/default/pull/126)\)
+2. Find the *Office 365 calendar sensor* on the integrations tab and install it.
+3. Add the code to your configuration.yaml using the config options below.
+4. Restart your Home Assistant instance.
+
+# Configuration
 
 ```yaml
 # Example configuration.yaml entry
@@ -40,7 +51,7 @@ sensor:
     scan_interval: 300
 ```
 
-### Configuration variables
+## Configuration variables
 
 Key | Type | Required | Description
 -- | -- | -- | --
