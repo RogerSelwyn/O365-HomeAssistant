@@ -34,14 +34,14 @@ Under "Api Permissions" add the following delegated permission from the Microsof
 2. Add the code to your configuration.yaml using the config options below.
 3. Restart your Home Assistant instance.
 
-**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**
+_**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
 
 ### Using Home Assistant Community Store (HACS)
 1. Find the *Office 365 calendar sensor* on the integrations tab and install it.
 2. Add the code to your configuration.yaml using the config options below.
 3. Restart your Home Assistant instance.
 
-**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**
+_**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
 
 
 # Configuration
