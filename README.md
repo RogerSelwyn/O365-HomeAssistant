@@ -1,4 +1,4 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 # Office 365 sensor for Home Assistant
 The sensor will give you todays events in your Office 365 calendar and add the data to an entity called *sensor.o365_calendar*  
 This entity will have a current state of either True or False depending on whether the current time is inside an event.  
@@ -35,10 +35,12 @@ Under "Api Permissions" add the following delegated permission from the Microsof
 3. Restart your Home Assistant instance.
 
 ### Using Home Assistant Community Store (HACS)
-1. Add this repository as a custom repository on the HACS settings tab. (Only necessary until the repository is added to the HACS default repositories list \([HACS Default PR126](https://github.com/hacs/default/pull/126)\)
-2. Find the *Office 365 calendar sensor* on the integrations tab and install it.
-3. Add the code to your configuration.yaml using the config options below.
-4. Restart your Home Assistant instance.
+1. Find the *Office 365 calendar sensor* on the integrations tab and install it.
+2. Add the code to your configuration.yaml using the config options below.
+3. Restart your Home Assistant instance.
+
+**Please note, it home assistants give the error module not found, please try restarting home assistant once more, this should fix that**
+
 
 # Configuration
 
