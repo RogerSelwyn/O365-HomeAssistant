@@ -64,7 +64,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Spotify platform."""
-    
+
     credentials = (config.get(CONF_CLIENT_ID), config.get(CONF_CLIENT_SECRET))
     name = config.get(CONF_NAME)
     calendar_name = config.get(CONF_CALENDAR_NAME)
@@ -82,10 +82,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             requested_scopes=SCOPE, redirect_uri=callback_url
         )
         _LOGGER.info("no token; requesting authorization")
-        callback_view =  O365AuthCallbackView(config, add_devices, account, state, callback_url, hass)
-        hass.http.register_view(
-           callback_view
+        callback_view = O365AuthCallbackView(
+            config, add_devices, account, state, callback_url, hass
         )
+        hass.http.register_view(callback_view)
         if alt_config:
             request_configuration_alt(hass, config, url, callback_url, callback_view)
         else:
@@ -95,14 +95,18 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         configurator = hass.components.configurator
         configurator.request_done(hass.data.get(DOMAIN))
         del hass.data[DOMAIN]
-    cal = O365Calendar(account, hass, name, calendar_name, hours_forward, hours_backward)
+    cal = O365Calendar(
+        account, hass, name, calendar_name, hours_forward, hours_backward
+    )
     add_devices([cal], True)
     hass.services.register(DOMAIN, f"get_calendar_events", cal.get_calendar_events)
     hass.services.register(DOMAIN, f"list_calendars", cal.list_calendars)
 
 
 class O365Calendar(Entity):
-    def __init__(self, account, hass, name, calendar_name, hours_forward, hours_backward):
+    def __init__(
+        self, account, hass, name, calendar_name, hours_forward, hours_backward
+    ):
         self.account = account
         self.hass = hass
         self._state = None
@@ -123,9 +127,13 @@ class O365Calendar(Entity):
     @property
     def device_state_attributes(self):
         attributes = {}
-        start_date = (datetime.now()+timedelta(hours=self.hours_backward))
-        end_date = (datetime.now()+timedelta(hours=self.hours_forward))
-        _LOGGER.debug(start_date.strftime("%Y-%m-%dT%H:%M:%S") +" - " +end_date.strftime("%Y-%m-%dT%H:%M:%S"))
+        start_date = datetime.now() + timedelta(hours=self.hours_backward)
+        end_date = datetime.now() + timedelta(hours=self.hours_forward)
+        _LOGGER.debug(
+            start_date.strftime("%Y-%m-%dT%H:%M:%S")
+            + " - "
+            + end_date.strftime("%Y-%m-%dT%H:%M:%S")
+        )
         schedule = self.account.schedule()
         if self.calendar_name != "":
             calendar = schedule.get_calendar(calendar_name=self.calendar_name)
@@ -166,9 +174,7 @@ class O365Calendar(Entity):
         for x in schedule.list_calendars():
             data.append(x.name)
         self.hass.states.set(
-            f"{DOMAIN}.available_calendars",
-            "",
-            {"data": json.dumps(data, indent=2)},
+            f"{DOMAIN}.available_calendars", "", {"data": json.dumps(data, indent=2)},
         )
 
     def get_calendar_events(self, call):
@@ -258,6 +264,7 @@ class O365AuthCallbackView(HomeAssistantView):
     @callback
     def get(self, request):
         from aiohttp import web_response
+
         """Receive authorization token."""
         hass = request.app["hass"]
         url = str(request.url)
@@ -267,7 +274,7 @@ class O365AuthCallbackView(HomeAssistantView):
             url, state=self.state, redirect_uri=self.callback
         )
         hass.async_add_job(setup_platform, hass, self.config, self.add_devices)
-        
+
         return web_response.Response(
             headers={"content-type": "text/html"},
             text="<script>window.close()</script>Success! This window can be closed",
@@ -281,7 +288,10 @@ class O365AuthCallbackView(HomeAssistantView):
         result = self.account.con.request_token(
             url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT
         )
-        self._hass.async_add_job(setup_platform, self._hass, self.config, self.add_devices)
+        self._hass.async_add_job(
+            setup_platform, self._hass, self.config, self.add_devices
+        )
+
 
 def clean_html(html):
     soup = BeautifulSoup(html, features="html.parser")
@@ -304,10 +314,10 @@ def request_configuration(hass, config, url, callback_url):
         submit_caption=CONFIGURATOR_SUBMIT_CAPTION,
     )
 
+
 def request_configuration_alt(hass, config, url, callback_url, callback_view):
 
     configurator = hass.components.configurator
-        
 
     hass.data[DOMAIN] = configurator.request_config(
         f"{DEFAULT_NAME} - Alternative configuration",
