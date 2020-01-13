@@ -76,7 +76,7 @@ After setting up configuration.yaml and restarting home assistant a persisten no
 5. That's it.
 
 ### Alt auth flow.
-**NB. This requires the *alt_auth_flow* to be set to *True* and the following redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient"**
+**NB. This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient"**
 After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
