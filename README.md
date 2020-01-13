@@ -60,6 +60,7 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
+`name` | `string` | `False` | The name of the sensor.
 `calendar_name` | `string` | `False` | Name of the calendar to retrieve, if not set, the default calendar will be used.
 `start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
 `end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
