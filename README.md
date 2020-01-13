@@ -43,7 +43,6 @@ _**Please note, it home assistants give the error "module not found", please try
 
 _**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
 
-
 # Configuration
 
 ```yaml
@@ -61,4 +60,28 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
+`calendar_name` | `string` | `False` | Name of the calendar to retrieve, if not set, the default calendar will be used.
+`start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
+`end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
 `scan_interval` | `integer` | `False` | The number of seconds between updates of todays calendar events.
+`alt_auth_flow` | `boolean` | `False` | If True, an alternative auth flow will be provided which is not reliant on the redirect uri being reachable.
+
+## Authentication.
+### Default auth flow.
+After setting up configuration.yaml and restarting home assistant a persisten notification will be created.
+1. Click on this notification.
+2. Click the "Link O365 account" link.
+3. Login on the microsoft page.
+4. Close the window when the message "Success! This window can be closed" appears.
+5. That's it.
+
+### Alt auth flow.
+**NB. This requires the *alt_auth_flow* to be set to *True* and the following redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient"
+After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
+1. Click on this notification.
+2. Click the "Link O365 account" link.
+3. Login on the microsoft page.
+4. Copy the url from the browser url bar.
+5. Insert into the "Returned Url" field. and click Submit.
+5. That's it.
+
