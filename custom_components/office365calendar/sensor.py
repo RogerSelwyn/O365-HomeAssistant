@@ -20,10 +20,16 @@ DEFAULT_NAME = "O365 Calendar"
 AUTH_CALLBACK_NAME = "api:o365"
 AUTH_CALLBACK_PATH = "/api/o365"
 
+AUTH_CALLBACK_PATH_ALT = "https://login.microsoftonline.com/common/oauth2/nativeclient"
+
 CONF_ALIASES = "aliases"
 CONF_CACHE_PATH = "cache_path"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"
+CONF_CALENDAR_NAME = "calendar_name"
+CONF_HOURS_FORWARD_TO_GET = "end_offset"
+CONF_HOURS_BACKWARD_TO_GET = "start_offset"
+CONF_ALT_CONFIG = "alt_auth_flow"
 
 CONFIGURATOR_DESCRIPTION = (
     "To link your O365 account, click the link, login, and authorize:"
@@ -32,7 +38,7 @@ CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
 
 DEFAULT_CACHE_PATH = ".O365-token-cache"
-DEFAULT_NAME = "Office 365 Calendar"
+DEFAULT_NAME = "O365 Calendar"
 DOMAIN = "office365calendar"
 
 ICON = "mdi:office"
@@ -46,6 +52,10 @@ TOKEN_BACKEND = FileSystemTokenBackend(
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+        vol.Optional(CONF_CALENDAR_NAME, default=""): cv.string,
+        vol.Optional(CONF_ALT_CONFIG, default=False): bool,
+        vol.Optional(CONF_HOURS_FORWARD_TO_GET, default=24): int,
+        vol.Optional(CONF_HOURS_BACKWARD_TO_GET, default=0): int,
         vol.Required(CONF_CLIENT_ID): cv.string,
         vol.Required(CONF_CLIENT_SECRET): cv.string,
     }
@@ -54,9 +64,17 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the Spotify platform."""
-
-    callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
+    
     credentials = (config.get(CONF_CLIENT_ID), config.get(CONF_CLIENT_SECRET))
+    name = config.get(CONF_NAME)
+    calendar_name = config.get(CONF_CALENDAR_NAME)
+    hours_forward = config.get(CONF_HOURS_FORWARD_TO_GET)
+    hours_backward = config.get(CONF_HOURS_BACKWARD_TO_GET)
+    alt_config = config.get(CONF_ALT_CONFIG)
+    if not alt_config:
+        callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
+    else:
+        callback_url = AUTH_CALLBACK_PATH_ALT
     account = Account(credentials, token_backend=TOKEN_BACKEND)
     is_authenticated = account.is_authenticated
     if not is_authenticated:
@@ -64,30 +82,39 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
             requested_scopes=SCOPE, redirect_uri=callback_url
         )
         _LOGGER.info("no token; requesting authorization")
+        callback_view =  O365AuthCallbackView(config, add_devices, account, state, callback_url, hass)
         hass.http.register_view(
-            O365AuthCallbackView(config, add_devices, account, state, callback_url)
+           callback_view
         )
-        request_configuration(hass, config, url, callback_url)
+        if alt_config:
+            request_configuration_alt(hass, config, url, callback_url, callback_view)
+        else:
+            request_configuration(hass, config, url, callback_url)
         return
     if hass.data.get(DOMAIN):
         configurator = hass.components.configurator
         configurator.request_done(hass.data.get(DOMAIN))
         del hass.data[DOMAIN]
-    cal = O365Calendar(account, hass)
+    cal = O365Calendar(account, hass, name, calendar_name, hours_forward, hours_backward)
     add_devices([cal], True)
-    hass.services.register(DOMAIN, "get_calendar_events", cal.get_calendar_events)
+    hass.services.register(DOMAIN, f"get_calendar_events", cal.get_calendar_events)
+    hass.services.register(DOMAIN, f"list_calendars", cal.list_calendars)
 
 
 class O365Calendar(Entity):
-    def __init__(self, account, hass):
+    def __init__(self, account, hass, name, calendar_name, hours_forward, hours_backward):
         self.account = account
         self.hass = hass
         self._state = None
+        self._name = name
+        self.calendar_name = calendar_name
+        self.hours_forward = hours_forward
+        self.hours_backward = hours_backward
         # self.get_calendar_events(None)
 
     @property
     def name(self):
-        return "O365 Calendar"
+        return self._name
 
     @property
     def state(self):
@@ -96,10 +123,14 @@ class O365Calendar(Entity):
     @property
     def device_state_attributes(self):
         attributes = {}
-        start_date = datetime.now().replace(hour=0, minute=0, second=0)
-        end_date = datetime.now().replace(hour=23, minute=59, second=59)
+        start_date = (datetime.now()+timedelta(hours=self.hours_backward))
+        end_date = (datetime.now()+timedelta(hours=self.hours_forward))
+        _LOGGER.debug(start_date.strftime("%Y-%m-%dT%H:%M:%S") +" - " +end_date.strftime("%Y-%m-%dT%H:%M:%S"))
         schedule = self.account.schedule()
-        calendar = schedule.get_default_calendar()
+        if self.calendar_name != "":
+            calendar = schedule.get_calendar(calendar_name=self.calendar_name)
+        else:
+            calendar = schedule.get_default_calendar()
         query = calendar.new_query("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
         data = []
@@ -128,6 +159,17 @@ class O365Calendar(Entity):
         attributes["data"] = json.dumps(data, indent=2)
         attributes["event_active"] = len([x for x in data if x["event_active"]]) > 0
         return attributes
+
+    def list_calendars(self, call):
+        schedule = self.account.schedule()
+        data = []
+        for x in schedule.list_calendars():
+            data.append(x.name)
+        self.hass.states.set(
+            f"{DOMAIN}.available_calendars",
+            "",
+            {"data": json.dumps(data, indent=2)},
+        )
 
     def get_calendar_events(self, call):
         try:
@@ -204,18 +246,20 @@ class O365AuthCallbackView(HomeAssistantView):
     url = AUTH_CALLBACK_PATH
     name = AUTH_CALLBACK_NAME
 
-    def __init__(self, config, add_devices, account, state, callback_url):
+    def __init__(self, config, add_devices, account, state, callback_url, hass=None):
         """Initialize."""
         self.config = config
         self.add_devices = add_devices
         self.account = account
         self.state = state
         self.callback = callback_url
+        self._hass = hass
 
     @callback
     def get(self, request):
         """Receive authorization token."""
         hass = request.app["hass"]
+        _LOGGER.info(request.fields)
         url = str(request.url)
         if url[:5].lower() == "http:":
             url = f"https:{url[5:]}"
@@ -223,11 +267,29 @@ class O365AuthCallbackView(HomeAssistantView):
             url, state=self.state, redirect_uri=self.callback
         )
         hass.async_add_job(setup_platform, hass, self.config, self.add_devices)
+        
+        return web_response.Response(
+            headers={"content-type": "text/html"},
+            text="<script>window.close()</script>Success! This window can be closed",
+        )
 
+    def alt_callback(self, data):
+        """Receive authorization token."""
+        _LOGGER.info(data)
+        _LOGGER.info(data.get("tokenUrl"))
+        url = [v for k, v in data.items()][0]
+        result = self.account.con.request_token(
+            url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT
+        )
+        self._hass.async_add_job(setup_platform, self._hass, self.config, self.add_devices)
 
 def clean_html(html):
     soup = BeautifulSoup(html, features="html.parser")
-    return soup.find("body").get_text(" ", strip=True)
+    body = soup.find("body")
+    if body:
+        return soup.find("body").get_text(" ", strip=True)
+    else:
+        return html
 
 
 def request_configuration(hass, config, url, callback_url):
@@ -240,4 +302,19 @@ def request_configuration(hass, config, url, callback_url):
         link_url=url,
         description=CONFIGURATOR_DESCRIPTION,
         submit_caption=CONFIGURATOR_SUBMIT_CAPTION,
+    )
+
+def request_configuration_alt(hass, config, url, callback_url, callback_view):
+
+    configurator = hass.components.configurator
+        
+
+    hass.data[DOMAIN] = configurator.request_config(
+        f"{DEFAULT_NAME} - Alternative configuration",
+        callback_view.alt_callback,
+        link_name=CONFIGURATOR_LINK_NAME,
+        link_url=url,
+        fields=[{"id": "token", "name": "Returned Url", "type": "token"}],
+        description="Complete the configuration and copy the complete url into the this field afterwards and submit",
+        submit_caption="Submit",
     )
