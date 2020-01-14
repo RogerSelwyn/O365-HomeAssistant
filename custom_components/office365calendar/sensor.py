@@ -14,7 +14,6 @@ from homeassistant.core import callback
 from homeassistant.util.dt import utcnow
 
 
-
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_NAME = "O365 Calendar"
@@ -240,8 +239,7 @@ class O365Calendar(Entity):
         self.hass.states.set(
             f"{DOMAIN}.calendar_events",
             f"{call_start_time}-{call_end_time}",
-            {"data_repr_str": json.dumps(data, indent=2),
-            "data": data},
+            {"data_repr_str": json.dumps(data, indent=2), "data": data},
         )
         return
 
@@ -256,7 +254,6 @@ class O365AuthCallbackView(HomeAssistantView):
     requires_auth = False
     url = AUTH_CALLBACK_PATH
     name = AUTH_CALLBACK_NAME
-    
 
     def __init__(self, config, add_devices, account, state, callback_url, hass):
         """Initialize."""
@@ -304,9 +301,9 @@ class O365AuthCallbackView(HomeAssistantView):
         if not result:
             self.configurator.notify_errors(
                 self._hass.data[DOMAIN],
-                "Error while authenticating, please see logs for more info."
-            )        
-            return 
+                "Error while authenticating, please see logs for more info.",
+            )
+            return
         self._hass.async_add_job(
             setup_platform, self._hass, self.config, self.add_devices
         )
