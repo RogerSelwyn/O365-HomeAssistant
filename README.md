@@ -94,5 +94,13 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
   * Please ensure that you have set "Default client type" to Yes in your Azure app under Authentication ![Default client type img](https://user-images.githubusercontent.com/17211264/72337364-ba936a80-36c2-11ea-834d-2af9b84a8bba.png)
 * **Application {x} is not configured as a multi-tenant application.**
   * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
+* **Platform error sensor.office365calendar - No module named '{x}'**
+  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:
+  
+  
+    1\. Install the component.  
+    2\. Restart home assistant.  
+    3\. Then add the sensor to your configuration.yaml  
+    4\. Restart home assistant again.  
 
-**_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant
+**_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant_**
