@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Bash for GitHub Actions
-        uses: jcblw/bash@1.0.0,
+      - name: Bash
+        uses: fnkr/github-action-git-bash@v1.1
         with: 
           args: "echo test > test.txt"
         
