@@ -7,6 +7,8 @@ The sensor will give you todays events in your Office 365 calendar and add the d
 This entity will have a current state of either True or False depending on whether the current time is inside an event.  
 The entity attributes contains raw event information in json format.
 
+This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
+
 # Installation
 
 ## Getting the client id and client secret
