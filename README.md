@@ -1,6 +1,6 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
 [![community_forum_badge](https://img.shields.io/badge/COMMUNITY-FORUM-blue.svg?style=for-the-badge)](https://community.home-assistant.io/t/custom-component-office-365-calendar-sensor)
-[![license_badge](https://img.shields.io/github/license/PTST/O365Calendar-HomeAssistant?style=for-the-badge)](blob/master/LICENSE)
+[![license_badge](https://img.shields.io/github/license/PTST/O365Calendar-HomeAssistant?style=for-the-badge)](LICENSE)
 
 # Office 365 sensor for Home Assistant
 The sensor will give you todays events in your Office 365 calendar and add the data to an entity called *sensor.o365_calendar*  
