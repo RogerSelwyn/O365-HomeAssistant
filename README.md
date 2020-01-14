@@ -15,7 +15,8 @@ Create an app. Set a name.
 
 In Supported account types choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account.
 
-Set the redirect uri (Web) to: `https://<your_home_assistant_url_or_local_ip>/api/o365` and click register. 
+Set the redirect uri (Web) to: `https://<your_home_assistant_url_or_local_ip>/api/o365` and click register.  
+
 
 Write down the Application (client) ID. You will need this value.
 
@@ -77,7 +78,7 @@ After setting up configuration.yaml and restarting home assistant a persisten no
 5. That's it.
 
 ### Alt auth flow.
-**NB. This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient"**  
+**NB. This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient" this needs to be set as as a manual url, with type web, just checking the checkmark for it does not seem to work**  
 After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
@@ -86,3 +87,5 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 5. Insert into the "Returned Url" field. and click Submit.
 5. That's it.
 
+## Errors
+* If you get the error "redirect uri is not valid" please ensure that you have configured base_url in your http config https://www.home-assistant.io/integrations/http/#base_url
