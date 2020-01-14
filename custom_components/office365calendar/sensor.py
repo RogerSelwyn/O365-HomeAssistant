@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+from operator import itemgetter
 import logging
 import json
 from O365 import Account, FileSystemTokenBackend
@@ -11,6 +12,7 @@ from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SSL
 from homeassistant.helpers.entity import Entity
 from homeassistant.core import callback
 from homeassistant.util.dt import utcnow
+
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -63,7 +65,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Set up the Spotify platform."""
+    """Set up the O365 platform."""
 
     credentials = (config.get(CONF_CLIENT_ID), config.get(CONF_CLIENT_SECRET))
     name = config.get(CONF_NAME)
@@ -87,9 +89,9 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         )
         hass.http.register_view(callback_view)
         if alt_config:
-            request_configuration_alt(hass, config, url, callback_url, callback_view)
+            request_configuration_alt(hass, config, url, callback_view)
         else:
-            request_configuration(hass, config, url, callback_url)
+            request_configuration(hass, config, url, callback_view)
         return
     if hass.data.get(DOMAIN):
         configurator = hass.components.configurator
@@ -164,7 +166,9 @@ class O365Calendar(Entity):
                     "event_active": event.start <= now and event.end >= now,
                 }
             )
-        attributes["data"] = json.dumps(data, indent=2)
+        data.sort(key=itemgetter("start"))
+        attributes["data_str_repr"] = json.dumps(data, indent=2)
+        attributes["data"] = data
         attributes["event_active"] = len([x for x in data if x["event_active"]]) > 0
         return attributes
 
@@ -232,11 +236,12 @@ class O365Calendar(Entity):
                     "event_active": event.start <= now and event.end >= now,
                 }
             )
-
+        data.sort(key=itemgetter("start"))
         self.hass.states.set(
             f"{DOMAIN}.calendar_events",
             f"{call_start_time}-{call_end_time}",
-            {"data": json.dumps(data, indent=2)},
+            {"data_repr_str": json.dumps(data, indent=2),
+            "data": data},
         )
         return
 
@@ -251,8 +256,9 @@ class O365AuthCallbackView(HomeAssistantView):
     requires_auth = False
     url = AUTH_CALLBACK_PATH
     name = AUTH_CALLBACK_NAME
+    
 
-    def __init__(self, config, add_devices, account, state, callback_url, hass=None):
+    def __init__(self, config, add_devices, account, state, callback_url, hass):
         """Initialize."""
         self.config = config
         self.add_devices = add_devices
@@ -260,6 +266,7 @@ class O365AuthCallbackView(HomeAssistantView):
         self.state = state
         self.callback = callback_url
         self._hass = hass
+        self.configurator = self._hass.components.configurator
 
     @callback
     def get(self, request):
@@ -270,6 +277,11 @@ class O365AuthCallbackView(HomeAssistantView):
         url = str(request.url)
         if url[:5].lower() == "http:":
             url = f"https:{url[5:]}"
+        if "code" not in url:
+            return web_response.Response(
+                headers={"content-type": "text/html"},
+                text="<script>window.close()</script>Error, the originating url does not seem to be a valid microsoft redirect",
+            )
         result = self.account.con.request_token(
             url, state=self.state, redirect_uri=self.callback
         )
@@ -282,12 +294,19 @@ class O365AuthCallbackView(HomeAssistantView):
 
     def alt_callback(self, data):
         """Receive authorization token."""
-        _LOGGER.info(data)
-        _LOGGER.info(data.get("tokenUrl"))
-        url = [v for k, v in data.items()][0]
+        url = data.get("token")
+        if not url:
+            url = [v for k, v in data.items()][0]
+
         result = self.account.con.request_token(
             url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT
         )
+        if not result:
+            self.configurator.notify_errors(
+                self._hass.data[DOMAIN],
+                "Error while authenticating, please see logs for more info."
+            )        
+            return 
         self._hass.async_add_job(
             setup_platform, self._hass, self.config, self.add_devices
         )
@@ -302,10 +321,10 @@ def clean_html(html):
         return html
 
 
-def request_configuration(hass, config, url, callback_url):
+def request_configuration(hass, config, url, callback_view):
 
-    configurator = hass.components.configurator
-    hass.data[DOMAIN] = configurator.request_config(
+    configurator = callback_view.configurator
+    hass.data[DOMAIN] = configurator.async_request_config(
         DEFAULT_NAME,
         lambda _: None,
         link_name=CONFIGURATOR_LINK_NAME,
@@ -315,16 +334,14 @@ def request_configuration(hass, config, url, callback_url):
     )
 
 
-def request_configuration_alt(hass, config, url, callback_url, callback_view):
-
-    configurator = hass.components.configurator
-
-    hass.data[DOMAIN] = configurator.request_config(
+def request_configuration_alt(hass, config, url, callback_view):
+    configurator = callback_view.configurator
+    hass.data[DOMAIN] = configurator.async_request_config(
         f"{DEFAULT_NAME} - Alternative configuration",
         callback_view.alt_callback,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
         fields=[{"id": "token", "name": "Returned Url", "type": "token"}],
-        description="Complete the configuration and copy the complete url into the this field afterwards and submit",
+        description="Complete the configuration and copy the complete url into this field afterwards and submit",
         submit_caption="Submit",
     )
