@@ -88,8 +88,11 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 5. That's it.
 
 ## Errors
-* **The reply URL specified in the request does not match the reply URLs configured for the application** please ensure that you have configured base_url in your http config https://www.home-assistant.io/integrations/http/#base_url and that you have added the correct reply url to your Azure app
-* **Client is public so neither 'client_assertion' nor 'client_secret' should be presented.** Please ensure that you have set "Default client type" to Yes in your Azure app under Authentication ![Default client type img](https://user-images.githubusercontent.com/17211264/72337364-ba936a80-36c2-11ea-834d-2af9b84a8bba.png)
-* **Application {x} is not configured as a multi-tenant application** in your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
+* **The reply URL specified in the request does not match the reply URLs configured for the application.** 
+  * Please ensure that you have configured base_url in your http config https://www.home-assistant.io/integrations/http/#base_url and that you have added the correct reply url to your Azure app
+* **Client is public so neither 'client_assertion' nor 'client_secret' should be presented.**
+  * Please ensure that you have set "Default client type" to Yes in your Azure app under Authentication ![Default client type img](https://user-images.githubusercontent.com/17211264/72337364-ba936a80-36c2-11ea-834d-2af9b84a8bba.png)
+* **Application {x} is not configured as a multi-tenant application.**
+  * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
 
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant
