@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-o365 = "==2.0.0"
+o365 = "==2.0.1"
 beautifulsoup4 = "==4.8.2"
 
 [requires]
