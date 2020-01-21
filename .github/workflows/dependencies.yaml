@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-#    paths:
-#      - 'Pipfile'
+    paths:
+      - 'Pipfile'
 
 jobs:
   dep_check:
@@ -25,8 +25,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit-message: "Updated dependencies to latest version"
-          title: "Manifest.json now matches Pipfile"
+          title: "Updated dependencies to latest version"
           author: "Bot McBotty <bot@steffensen.io>"
           branch: dependencies
-          body: Please review and accept
+          body: Updated dependencies to latest version
       
