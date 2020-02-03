@@ -8,7 +8,7 @@ Due to a total rework of the integration please remove all configuration entries
 # Office 365 Integration for Home Assistant
 This integration enables 
 1. Getting calendar events from O365.
-2. Sending emails via the notify.o365 service.
+2. Sending emails via the notify.o365_email service.
 3. Getting emails from your inbox. 
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
@@ -82,6 +82,25 @@ o365:
       max_items: 2
       is_unread: True
 ```
+
+## notify.o365_email service data
+Key | Type | Required | Description
+-- | -- | -- | --
+`message` | `string` | `True` | The email body
+`title` | `string` | `False` | The email subject
+`data` | `dict<data>` | `False` | addional attributes
+
+### data
+Key | Type | Required | Description
+-- | -- | -- | --
+`target` | `string` | `False` | recipient of the email, if not set will use the configured account's email address
+`message_is_html` | `boolean` | `False` | Is the message formatted as html
+`photos` | `list<string>` | `False` | Filepaths or urls of pictures to embed into the email body
+`attachments` | `list<string>` | `False` | Filepaths to attach to email
+`zip_attachments` | `boolean` | `False` | Zip files from attachments into a zip file before sending
+`zip_name` | `string` | `False` | Name of the generated zip file
+
+
 
 ## Configuration variables
 
