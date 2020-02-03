@@ -2,10 +2,14 @@
 [![community_forum_badge](https://img.shields.io/badge/COMMUNITY-FORUM-blue.svg?style=for-the-badge)](https://community.home-assistant.io/t/custom-component-office-365-calendar-sensor)
 [![license_badge](https://img.shields.io/github/license/PTST/O365Calendar-HomeAssistant?style=for-the-badge)](LICENSE)
 
-# Office 365 sensor for Home Assistant
-The sensor will give you todays events in your Office 365 calendar and add the data to an entity called *sensor.o365_calendar*  
-This entity will have a current state of either True or False depending on whether the current time is inside an event.  
-The entity attributes contains raw event information in json format.
+# Major breaking changes between v1 and v2
+Due to a total rework of the integration please remove all configuration entries and install from new.  
+
+# Office 365 Integration for Home Assistant
+This integration enables 
+1. Getting calendar events from O365.
+2. Sending emails via the notify.o365 service.
+3. Getting emails from your inbox. 
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
@@ -32,18 +36,23 @@ Under "Api Permissions" add the following delegated permission from the Microsof
 * Calendars.Read.Shared - *Read user and shared calendars*
 * offline_access - *Maintain access to data you have given it access to*
 * Users.Read - *Sign in and read user profile*
+* email - *View users' email address*
+* Mail.ReadWrite - *Read and write access to user mail*
+* Mail.ReadWrite.Shared - *Read and write user and shared mail*
+* Mail.Send - *Send mail as a user*
+* Mail.Send.Shared - *Send mail on behalf of others*
 
 ## Adding to Home Assistant
 
 ### Manual installation
-1. Install this component by copying these files to custom_components/office365calendar/.
+1. Install this component by copying these files to custom_components/o365/.
 2. Add the code to your configuration.yaml using the config options below.
 3. Restart your Home Assistant instance.
 
 _**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
 
 ### Using Home Assistant Community Store (HACS)
-1. Find the *Office 365 calendar sensor* on the integrations tab and install it.
+1. Find the *Office 365 Integration* on the integrations tab and install it.
 2. Add the code to your configuration.yaml using the config options below.
 3. Restart your Home Assistant instance.
 
@@ -53,11 +62,25 @@ _**Please note, it home assistants give the error "module not found", please try
 
 ```yaml
 # Example configuration.yaml entry
-sensor:
-  - platform: office365calendar
-    client_id: YOUR_CLIENT_ID
-    client_secret: YOUR_CLIENT_SECRET
-    scan_interval: 300
+o365:
+  client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+  calendars:
+    - name: Private
+      calendar_name: "Private Calendar"
+    - calendar_name: default_calendar
+  email_sensor:
+    - name: inbox
+      max_items: 2
+      is_unread: True
+  query_sensors:
+    - name: "HA Notifications"
+      folder: "Inbox/Test_Inbox"
+      from: "mail@example.com"
+      subject_contains: "Notifcation from home assistant"
+      has_attachment: True
+      max_items: 2
+      is_unread: True
 ```
 
 ## Configuration variables
@@ -66,12 +89,40 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
+`alt_auth_flow` | `boolean` | `False` | If True, an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`calendars` | `list<calendars>` | `False` | List of calendar config entries
+`email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
+`query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
+
+
+### calendars config
+Key | Type | Required | Description
+-- | -- | -- | --
 `name` | `string` | `False` | The name of the sensor.
-`calendar_name` | `string` | `False` | Name of the calendar to retrieve, if not set, the default calendar will be used.
+`calendar_name` | `string` | `True` | Name of the calendar to retrieve, if set to default_calendar, the default calendar will be used.
 `start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
 `end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
-`scan_interval` | `integer` | `False` | The number of seconds between updates of todays calendar events.
-`alt_auth_flow` | `boolean` | `False` | If True, an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+
+### email_sensors
+Key | Type | Required | Description
+-- | -- | -- | --
+`name` | `string` | `True` | The name of the sensor.
+`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder"
+`max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
+`is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
+
+
+### query_sensors
+Key | Type | Required | Description
+-- | -- | -- | --
+`name` | `string` | `True` | The name of the sensor.
+`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder"
+`max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
+`is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
+`from` | `string` | `False` | Only retrieve emails from this email address
+`has_attachment` | `boolean` | `False` | True=Only get emails with attachments, False=Only get emails without attachments, Not set=Get all
+`subject_contains` | `string` | `False` | Only get emails where the subject contains this string (Mutually exclusive with `subject_is`)
+`subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
 
 ## Authentication.
 ### Default auth flow.
