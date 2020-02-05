@@ -2,6 +2,8 @@
 [![community_forum_badge](https://img.shields.io/badge/COMMUNITY-FORUM-blue.svg?style=for-the-badge)](https://community.home-assistant.io/t/custom-component-office-365-calendar-sensor)
 [![license_badge](https://img.shields.io/github/license/PTST/O365Calendar-HomeAssistant?style=for-the-badge)](LICENSE)
 
+
+
 # Major breaking changes between v1 and v2
 Due to a total rework of the integration please remove all configuration entries and install from new.  
 
