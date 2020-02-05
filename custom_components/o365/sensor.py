@@ -25,7 +25,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         return
 
     account = hass.data[DOMAIN]["account"]
-    is_authenticated = account.is_authenticate
+    is_authenticated = account.is_authenticated
     if not is_authenticated:
         return False
 
