@@ -31,7 +31,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
     for conf in unread_sensors:
-        sensor = O365UnreadSensor(account, conf)
+        sensor = O365InboxSensor(account, conf)
         add_devices([sensor], True)
 
     query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
@@ -101,7 +101,7 @@ class O365QuerySensor(Entity):
                 self.query = self.mail_folder.new_query()
             else:
                 self.query.chain("and")
-            self.query.on_attribute("IsRead").equals(self.is_unread)
+            self.query.on_attribute("IsRead").equals(not self.is_unread)
 
         self._state = None
         self._attributes = {}
@@ -130,7 +130,7 @@ class O365QuerySensor(Entity):
         self._attributes = {"data": attrs, "data_str_repr": json.dumps(attrs)}
 
 
-class O365UnreadSensor(Entity):
+class O365InboxSensor(Entity):
     def __init__(self, account, conf):
         self.account = account
         self.mailbox = account.mailbox()
@@ -157,7 +157,7 @@ class O365UnreadSensor(Entity):
                 self.query = self.mail_folder.new_query()
             else:
                 self.query.chain("and")
-            self.query.on_attribute("IsRead").equals(self.is_unread)
+            self.query.on_attribute("IsRead").equals(not self.is_unread)
 
     @property
     def name(self):
