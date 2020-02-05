@@ -15,10 +15,12 @@ from homeassistant.config import get_default_config_dir
 from O365 import FileSystemTokenBackend
 from O365.calendar import AttendeeType, EventSensitivity, EventShowAs
 
+
 class EventResponse(Enum):
     Accept = "accept"
     Tentative = "tentative"
     Decline = "decline"
+
 
 CONFIG_BASE_DIR = get_default_config_dir()
 
