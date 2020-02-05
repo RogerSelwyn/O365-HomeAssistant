@@ -1,10 +1,11 @@
-from datetime import timedelta
-
+import re
+from enum import Enum
 from homeassistant.const import CONF_NAME
 from homeassistant.components.notify import (
     ATTR_DATA,
     ATTR_TARGET,
     ATTR_TITLE,
+    ATTR_MESSAGE,
 )
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
@@ -12,7 +13,12 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.config import get_default_config_dir
 
 from O365 import FileSystemTokenBackend
+from O365.calendar import AttendeeType, EventSensitivity, EventShowAs
 
+class EventResponse(Enum):
+    Accept = "accept"
+    Tentative = "tentative"
+    Decline = "decline"
 
 CONFIG_BASE_DIR = get_default_config_dir()
 
@@ -58,13 +64,15 @@ ICON = "mdi:office"
 SCOPE = [
     "offline_access",
     "User.Read",
-    "Calendars.Read",
-    "Calendars.Read.Shared",
+    "Calendars.ReadWrite",
+    "Calendars.ReadWrite.Shared",
     "Mail.ReadWrite",
     "Mail.ReadWrite.Shared",
     "Mail.Send",
     "Mail.Send.Shared",
 ]
+
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
 TOKEN_BACKEND = FileSystemTokenBackend(
     token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"
@@ -82,20 +90,20 @@ CALENDAR_SCHEMA = vol.Schema(
 EMAIL_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Optional(CONF_MAIL_FOLDER, default=None): vol.Any(cv.string, None),
+        vol.Optional(CONF_MAIL_FOLDER): vol.Any(cv.string, None),
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
-        vol.Optional(CONF_IS_UNREAD, default=None): vol.Any(bool, None),
+        vol.Optional(CONF_IS_UNREAD): vol.Any(bool, None),
     }
 )
 
 QUERY_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Optional(CONF_MAIL_FOLDER, default=None): vol.Any(cv.string, None),
-        vol.Optional(CONF_MAIL_FROM, default=None): vol.Any(cv.string, None),
+        vol.Optional(CONF_MAIL_FOLDER): vol.Any(cv.string, None),
+        vol.Optional(CONF_MAIL_FROM): vol.Any(cv.string, None),
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
-        vol.Optional(CONF_HAS_ATTACHMENT, default=None): vol.Any(bool, None),
-        vol.Optional(CONF_IS_UNREAD, default=None): vol.Any(bool, None),
+        vol.Optional(CONF_HAS_ATTACHMENT): vol.Any(bool, None),
+        vol.Optional(CONF_IS_UNREAD): vol.Any(bool, None),
         vol.Exclusive(CONF_SUBJECT_CONTAINS, "subject_*"): vol.Any(cv.string, None),
         vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): vol.Any(cv.string, None),
     }
@@ -108,13 +116,13 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(CONF_CLIENT_ID): cv.string,
                 vol.Required(CONF_CLIENT_SECRET): cv.string,
                 vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-                vol.Optional(CONF_CALENDARS, default=None): vol.All(
+                vol.Optional(CONF_CALENDARS): vol.All(
                     cv.ensure_list, [CALENDAR_SCHEMA]
                 ),
-                vol.Optional(CONF_EMAIL_SENSORS, default=None): vol.All(
+                vol.Optional(CONF_EMAIL_SENSORS): vol.All(
                     cv.ensure_list, [EMAIL_SENSOR]
                 ),
-                vol.Optional(CONF_QUERY_SENSORS, default=None): vol.All(
+                vol.Optional(CONF_QUERY_SENSORS): vol.All(
                     cv.ensure_list, [QUERY_SENSOR]
                 ),
             },
@@ -129,12 +137,13 @@ ATTR_MESSAGE_IS_HTML = "message_is_html"
 ATTR_ZIP_ATTACHMENTS = "zip_attachments"
 ATTR_ZIP_NAME = "zip_name"
 
+
 NOTIFY_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_MESSAGE_IS_HTML, default=False): bool,
-        vol.Optional(ATTR_TARGET, default=None): vol.Any(cv.string, None),
+        vol.Optional(ATTR_TARGET): vol.Any(cv.string, None),
         vol.Optional(ATTR_ZIP_ATTACHMENTS, default=False): bool,
-        vol.Optional(ATTR_ZIP_NAME, default=None): vol.Any(cv.string, None),
+        vol.Optional(ATTR_ZIP_NAME): vol.Any(cv.string, None),
         vol.Optional(ATTR_PHOTOS, default=[]): [cv.string],
         vol.Optional(ATTR_ATTACHMENTS, default=[]): [cv.string],
     }
@@ -144,10 +153,81 @@ NOTIFY_BASE_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_TARGET, default=""): vol.All(cv.ensure_list, [cv.string]),
         vol.Optional(ATTR_TITLE, default=""): cv.string,
-        vol.Optional(ATTR_DATA, default=None): vol.Any(NOTIFY_DATA_SCHEMA, None),
+        vol.Optional(ATTR_DATA): vol.Any(NOTIFY_DATA_SCHEMA, None),
     }
 )
 
-MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=5)
+ATTR_EVENT_ID = "event_id"
+ATTR_CALENDAR_ID = "calendar_id"
+ATTR_RESPONSE = "response"
+ATTR_SEND_RESPONSE = "send_response"
+ATTR_SUBJECT = "subject"
+ATTR_BODY = "body"
+ATTR_START = "start"
+ATTR_END = "end"
+ATTR_LOCATION = "location"
+ATTR_CATEGORIES = "categories"
+ATTR_SENSITIVITY = "sensitivity"
+ATTR_SHOW_AS = "show_as"
+ATTR_IS_ALL_DAY = "is_all_day"
+ATTR_ATTENDEES = "attendees"
+ATTR_EMAIL = "email"
+ATTR_TYPE = "type"
 
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
+datetime_regex = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\+|-)\d{4}")
+
+
+CALENDAR_SERVICE_RESPOND_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_EVENT_ID): cv.string,
+        vol.Required(ATTR_CALENDAR_ID): cv.string,
+        vol.Optional(ATTR_RESPONSE, None): cv.enum(EventResponse),
+        vol.Optional(ATTR_SEND_RESPONSE, True): bool,
+        vol.Optional(ATTR_MESSAGE, None): cv.string,
+    }
+)
+
+ATTENDEE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_EMAIL): cv.string,
+        vol.Required(ATTR_TYPE): cv.enum(AttendeeType),
+    }
+)
+
+CALENDAR_SERVICE_CREATE_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_CALENDAR_ID): cv.string,
+        vol.Required(ATTR_START): cv.matches_regex(datetime_regex),
+        vol.Required(ATTR_END): cv.matches_regex(datetime_regex),
+        vol.Required(ATTR_SUBJECT): cv.string,
+        vol.Optional(ATTR_BODY): cv.string,
+        vol.Optional(ATTR_LOCATION): cv.string,
+        vol.Optional(ATTR_CATEGORIES): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
+        vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
+        vol.Optional(ATTR_IS_ALL_DAY): bool,
+        vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
+    }
+)
+
+CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_EVENT_ID): cv.string,
+        vol.Required(ATTR_CALENDAR_ID): cv.string,
+        vol.Optional(ATTR_START): cv.matches_regex(datetime_regex),
+        vol.Optional(ATTR_END): cv.matches_regex(datetime_regex),
+        vol.Required(ATTR_SUBJECT): cv.string,
+        vol.Optional(ATTR_BODY): cv.string,
+        vol.Optional(ATTR_LOCATION): cv.string,
+        vol.Optional(ATTR_CATEGORIES): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
+        vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
+        vol.Optional(ATTR_IS_ALL_DAY): bool,
+        vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
+    }
+)
+
+
+CALENDAR_SERVICE_REMOVE_SCHEMA = vol.Schema(
+    {vol.Required(ATTR_EVENT_ID): cv.string, vol.Required(ATTR_CALENDAR_ID): cv.string,}
+)
