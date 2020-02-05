@@ -127,7 +127,8 @@ class O365QuerySensor(Entity):
         attrs = [get_email_attributes(x) for x in mails]
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._state = len(mails)
-        self._attributes = {"data": attrs, "data_str_repr": json.dumps(attrs)}
+        # self._attributes = {"data": attrs, "data_str_repr": json.dumps(attrs)}
+        self._attributes = {"data": attrs}
 
 
 class O365InboxSensor(Entity):
