@@ -32,8 +32,8 @@ Write down the Application (client) ID. You will need this value.
 Under "Certificates & secrets", generate a new client secret. Set the expiration preferably to never. Write down the value of the client secret created now. It will be hidden later on.
 
 Under "Api Permissions" add the following delegated permission from the Microsoft Graph API collection
-* Calendars.Read - *Read user calendars*
-* Calendars.Read.Shared - *Read user and shared calendars*
+* Calendars.ReadWrite - *Read and write user calendars*
+* Calendars.ReadWrite.Shared - *Read and write user and shared calendars*
 * offline_access - *Maintain access to data you have given it access to*
 * Users.Read - *Sign in and read user profile*
 * email - *View users' email address*
