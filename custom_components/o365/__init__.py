@@ -139,8 +139,9 @@ class O365AuthCallbackView(HomeAssistantView):
         self.account.con.request_token(
             url, state=self.state, redirect_uri=self.callback
         )
-        do_setup(self._hass, self.config)
-        self.configurator.async_request_done(self._hass.data[DOMAIN])
+        domain_data = self._hass.data[DOMAIN]
+        do_setup(self._hass, self.config, self.account)
+        self.configurator.async_request_done(domain_data)
 
         return web_response.Response(
             headers={"content-type": "text/html"},
@@ -162,6 +163,7 @@ class O365AuthCallbackView(HomeAssistantView):
                 "Error while authenticating, please see logs for more info.",
             )
             return
-        do_setup(self._hass, self.config)
-        self.configurator.request_done(self._hass.data[DOMAIN])
+        domain_data = self._hass.data[DOMAIN]
+        do_setup(self._hass, self.config, self.account)
+        self.configurator.async_request_done(domain_data)
         return
