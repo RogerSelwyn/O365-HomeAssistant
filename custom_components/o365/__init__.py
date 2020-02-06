@@ -20,6 +20,7 @@ from .const import (
     AUTH_CALLBACK_NAME,
     CONF_QUERY_SENSORS,
     CONF_EMAIL_SENSORS,
+    CONFIG_SCHEMA,
 )
 
 from .utils import validate_permissions
@@ -31,7 +32,7 @@ def setup(hass, config):
     """Set up the O365 platform."""
     validate_permissions()
     conf = config.get(DOMAIN, {})
-
+    CONFIG_SCHEMA(conf)
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
     alt_config = conf.get(CONF_ALT_CONFIG)
     if not alt_config:
