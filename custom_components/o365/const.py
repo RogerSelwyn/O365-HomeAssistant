@@ -83,7 +83,7 @@ TOKEN_BACKEND = FileSystemTokenBackend(
 CALENDAR_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CALENDAR_NAME): cv.string,
-        vol.Optional(CONF_NAME, default="o365"): cv.string,
+        vol.Optional(CONF_NAME): cv.string,
         vol.Optional(CONF_HOURS_FORWARD_TO_GET, default=24): int,
         vol.Optional(CONF_HOURS_BACKWARD_TO_GET, default=0): int,
     }
@@ -92,22 +92,22 @@ CALENDAR_SCHEMA = vol.Schema(
 EMAIL_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Optional(CONF_MAIL_FOLDER): vol.Any(cv.string, None),
+        vol.Optional(CONF_MAIL_FOLDER): cv.string,
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
-        vol.Optional(CONF_IS_UNREAD): vol.Any(bool, None),
+        vol.Optional(CONF_IS_UNREAD): bool,
     }
 )
 
 QUERY_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
-        vol.Optional(CONF_MAIL_FOLDER): vol.Any(cv.string, None),
-        vol.Optional(CONF_MAIL_FROM): vol.Any(cv.string, None),
+        vol.Optional(CONF_MAIL_FOLDER): cv.string,
+        vol.Optional(CONF_MAIL_FROM): cv.string,
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
-        vol.Optional(CONF_HAS_ATTACHMENT): vol.Any(bool, None),
-        vol.Optional(CONF_IS_UNREAD): vol.Any(bool, None),
-        vol.Exclusive(CONF_SUBJECT_CONTAINS, "subject_*"): vol.Any(cv.string, None),
-        vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): vol.Any(cv.string, None),
+        vol.Optional(CONF_HAS_ATTACHMENT): bool,
+        vol.Optional(CONF_IS_UNREAD): bool,
+        vol.Exclusive(CONF_SUBJECT_CONTAINS, "subject_*"): cv.string,
+        vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): cv.string,
     }
 )
 
@@ -118,15 +118,9 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(CONF_CLIENT_ID): cv.string,
                 vol.Required(CONF_CLIENT_SECRET): cv.string,
                 vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-                vol.Optional(CONF_CALENDARS): vol.All(
-                    cv.ensure_list, [CALENDAR_SCHEMA]
-                ),
-                vol.Optional(CONF_EMAIL_SENSORS): vol.All(
-                    cv.ensure_list, [EMAIL_SENSOR]
-                ),
-                vol.Optional(CONF_QUERY_SENSORS): vol.All(
-                    cv.ensure_list, [QUERY_SENSOR]
-                ),
+                vol.Optional(CONF_CALENDARS, default=[]): [CALENDAR_SCHEMA],
+                vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
+                vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
             },
         )
     },
@@ -143,9 +137,9 @@ ATTR_ZIP_NAME = "zip_name"
 NOTIFY_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_MESSAGE_IS_HTML, default=False): bool,
-        vol.Optional(ATTR_TARGET): vol.Any(cv.string, None),
+        vol.Optional(ATTR_TARGET): cv.string,
         vol.Optional(ATTR_ZIP_ATTACHMENTS, default=False): bool,
-        vol.Optional(ATTR_ZIP_NAME): vol.Any(cv.string, None),
+        vol.Optional(ATTR_ZIP_NAME): cv.string,
         vol.Optional(ATTR_PHOTOS, default=[]): [cv.string],
         vol.Optional(ATTR_ATTACHMENTS, default=[]): [cv.string],
     }
@@ -153,9 +147,9 @@ NOTIFY_DATA_SCHEMA = vol.Schema(
 
 NOTIFY_BASE_SCHEMA = vol.Schema(
     {
-        vol.Optional(ATTR_TARGET, default=""): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(ATTR_TARGET, default=[]): [cv.string],
         vol.Optional(ATTR_TITLE, default=""): cv.string,
-        vol.Optional(ATTR_DATA): vol.Any(NOTIFY_DATA_SCHEMA, None),
+        vol.Optional(ATTR_DATA): NOTIFY_DATA_SCHEMA,
     }
 )
 
@@ -204,7 +198,7 @@ CALENDAR_SERVICE_CREATE_SCHEMA = vol.Schema(
         vol.Required(ATTR_SUBJECT): cv.string,
         vol.Optional(ATTR_BODY): cv.string,
         vol.Optional(ATTR_LOCATION): cv.string,
-        vol.Optional(ATTR_CATEGORIES): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(ATTR_CATEGORIES): [cv.string],
         vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
         vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
         vol.Optional(ATTR_IS_ALL_DAY): bool,
@@ -221,7 +215,7 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
         vol.Required(ATTR_SUBJECT): cv.string,
         vol.Optional(ATTR_BODY): cv.string,
         vol.Optional(ATTR_LOCATION): cv.string,
-        vol.Optional(ATTR_CATEGORIES): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(ATTR_CATEGORIES): [cv.string],
         vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
         vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
         vol.Optional(ATTR_IS_ALL_DAY): bool,
