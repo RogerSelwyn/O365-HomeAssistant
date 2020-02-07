@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'Pipfile'
+#    paths:
+#      - 'Pipfile'
 
 jobs:
   dep_check:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: create python file
-        run: printf 'import json\nimport re\n\npackage_regex = re.compile(r"(?<=\[packages\]\s)(.*)(?=\s\s)", flags=re.I|re.S)\nversion_regex = re.compile(r"(.*?)\s=\s\\"(.*?)\\"", flags=re.I)\n\nwith open("Pipfile", "r") as f:\n    pipfile = f. read()\n\npackages = package_regex.search(pipfile).group(0).split("\\n")\npackages = [version_regex.sub(r"\\1\\2", x) for x in packages]\n\nwith open("custom_components/office365calendar/manifest.json", "r+") as f:\n    _json = json.loads(f.read())\n    _json["requirements"] = packages\n    f.seek(0)\n    f.write(json.dumps(_json, indent=4))\n    f.truncate()' > dep.py
+        run: printf 'import json\nimport re\n\npackage_regex = re.compile(r"(?<=\[packages\]\s)(.*)(?=\s\s)", flags=re.I|re.S)\nversion_regex = re.compile(r"(.*?)\s=\s\\"(.*?)\\"", flags=re.I)\n\nwith open("Pipfile", "r") as f:\n    pipfile = f. read()\n\npackages = package_regex.search(pipfile).group(0).split("\\n")\npackages = [version_regex.sub(r"\\1\\2", x) for x in packages]\n\nwith open("custom_components/o365/manifest.json", "r+") as f:\n    _json = json.loads(f.read())\n    _json["requirements"] = packages\n    f.seek(0)\n    f.write(json.dumps(_json, indent=4))\n    f.truncate()' > dep.py
       - name: run python
         run: python3 dep.py
       - name: remove dep.py
