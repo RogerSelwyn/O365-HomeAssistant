@@ -2,7 +2,6 @@ import logging
 import copy
 from operator import attrgetter, itemgetter
 from datetime import timedelta, datetime
-from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 from homeassistant.components.calendar import (
     CalendarEventDevice,
@@ -20,7 +19,6 @@ from .const import (
     CALENDAR_SERVICE_MODIFY_SCHEMA,
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
-    CALENDAR_ENTITY_ID_FORMAT,
     MIN_TIME_BETWEEN_UPDATES,
     OFFSET,
     DOMAIN,
@@ -52,9 +50,6 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         cal = O365CalendarEventDevice(
             account, name, calendar_name, hours_backward, hours_forward,
         )
-        cal.entity_id = generate_entity_id(
-            CALENDAR_ENTITY_ID_FORMAT, cal.data.calendar.name, hass=hass
-        )
         devices.append(cal)
     add_devices(devices, True)
     calendar_services = CalendarServices(account)
@@ -78,7 +73,6 @@ class O365CalendarEventDevice(CalendarEventDevice):
         self.data = O365CalendarData(account, calendar_name)
         self.start_offset = start_offset
         self.end_offset = end_offset
-        self.entity_id = None
         self._event = None
         self._name = name
         if self._name is None:
