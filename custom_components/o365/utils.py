@@ -6,8 +6,9 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from .const import DEFAULT_CACHE_PATH, SCOPE, CONFIG_BASE_DIR, DATETIME_FORMAT
 from O365.calendar import Attendee
-
+from homeassistant.util import dt
 import logging
+from O365.calendar import EventSensitivity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,6 +70,29 @@ def get_email_attributes(mail):
     }
 
 
+def format_event_data(event, calendar_id):
+    data = {
+        "summary": event.subject,
+        "description": clean_html(event.body),
+        "location": event.location["displayName"],
+        "categories": event.categories,
+        "sensitivity": event.sensitivity.name,
+        "show_as": event.show_as.name,
+        "is_all_day": event.is_all_day,
+        "attendees": [
+            {"email": x.address, "type": x.attendee_type.value}
+            for x in event.attendees._Attendees__attendees
+        ],
+        "start": event.start,
+        "end": event.end,
+        "uid": event.object_id,
+        "calendar_id": calendar_id,
+    }
+    data["subject"] = data["summary"]
+    data["body"] = data["description"]
+    return data
+
+
 def add_call_data_to_event(event, event_data):
     subject = event_data.get("subject")
     if subject:
@@ -84,7 +108,6 @@ def add_call_data_to_event(event, event_data):
 
     categories = event_data.get("categories")
     if categories:
-        _LOGGER.warn(categories)
         event.categories = categories
 
     show_as = event_data.get("show_as")
@@ -103,11 +126,11 @@ def add_call_data_to_event(event, event_data):
 
     start = event_data.get("start")
     if start:
-        event.start = datetime.strptime(start, DATETIME_FORMAT)
+        event.start = dt.parse_datetime(start)
 
     end = event_data.get("end")
     if end:
-        event.end = datetime.strptime(end, DATETIME_FORMAT)
+        event.end = dt.parse_datetime(end)
 
     is_all_day = event_data.get("is_all_day")
     if is_all_day is not None:
@@ -120,4 +143,7 @@ def add_call_data_to_event(event, event_data):
                 event.end.year, event.end.month, event.end.day, 0, 0, 0
             )
 
+    sensitivity = event_data.get("sensitivity")
+    if sensitivity:
+        event.sensitivity = EventSensitivity(sensitivity.lower())
     return event
