@@ -1,23 +1,31 @@
 import logging
+import copy
+from operator import attrgetter, itemgetter
 from datetime import timedelta, datetime
-from operator import itemgetter
-from homeassistant.helpers.entity import Entity
-from homeassistant.util.dt import utcnow
+from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.util import Throttle, dt
+from homeassistant.components.calendar import (
+    CalendarEventDevice,
+    calculate_offset,
+    is_offset_reached,
+)
 from .const import (
-    DOMAIN,
     CALENDAR_SCHEMA,
     CONF_CALENDARS,
     CONF_NAME,
     CONF_CALENDAR_NAME,
     CONF_HOURS_FORWARD_TO_GET,
     CONF_HOURS_BACKWARD_TO_GET,
-    DATETIME_FORMAT,
     CALENDAR_SERVICE_CREATE_SCHEMA,
     CALENDAR_SERVICE_MODIFY_SCHEMA,
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
+    CALENDAR_ENTITY_ID_FORMAT,
+    MIN_TIME_BETWEEN_UPDATES,
+    OFFSET,
+    DOMAIN,
 )
-from .utils import clean_html, add_call_data_to_event
+from .utils import clean_html, add_call_data_to_event, format_event_data
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +41,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         return False
 
     calendars = hass.data[DOMAIN].get(CONF_CALENDARS, [])
+    devices = []
     if len(calendars) < 1:
         calendars = [CALENDAR_SCHEMA({})]
     for calendar in calendars:
@@ -40,10 +49,14 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         calendar_name = calendar.get(CONF_CALENDAR_NAME)
         hours_forward = calendar.get(CONF_HOURS_FORWARD_TO_GET, 24)
         hours_backward = calendar.get(CONF_HOURS_BACKWARD_TO_GET, 0)
-        cal = O365Calendar(
-            account, hass, name, calendar_name, hours_forward, hours_backward
+        cal = O365CalendarEventDevice(
+            account, name, calendar_name, hours_backward, hours_forward,
         )
-        add_devices([cal], True)
+        cal.entity_id = generate_entity_id(
+            CALENDAR_ENTITY_ID_FORMAT, cal.data.calendar.name, hass=hass
+        )
+        devices.append(cal)
+    add_devices(devices, True)
     calendar_services = CalendarServices(account)
     hass.services.register(
         DOMAIN, f"modify_calendar_event", calendar_services.modify_calendar_event
@@ -60,17 +73,59 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     return True
 
 
-class O365Calendar(Entity):
-    def __init__(
-        self, account, hass, name, calendar_name, hours_forward, hours_backward
-    ):
-        self.account = account
-        self.hass = hass
-        self._state = None
+class O365CalendarEventDevice(CalendarEventDevice):
+    def __init__(self, account, name, calendar_name, start_offset, end_offset):
+        self.data = O365CalendarData(account, calendar_name)
+        self.start_offset = start_offset
+        self.end_offset = end_offset
+        self.entity_id = None
+        self._event = None
         self._name = name
+        if self._name is None:
+            self._name = self.data.calendar.name
+        self._offset_reached = False
+        self._data_attribute = []
+
+    @property
+    def device_state_attributes(self):
+        return {"offset_reached": self._offset_reached, "data": self._data_attribute}
+
+    @property
+    def event(self):
+        return self._event
+
+    @property
+    def name(self):
+        return self._name
+
+    async def async_get_events(self, hass, start_date, end_date):
+        return await self.data.async_get_events(hass, start_date, end_date)
+
+    async def async_update(self):
+        self.data.update()
+        event = copy.deepcopy(self.data.event)
+        if event is None:
+            self._event = event
+            return
+        event = calculate_offset(event, OFFSET)
+        self._offset_reached = is_offset_reached(event)
+        events = list(
+            self.data.o365_get_events(
+                datetime.now() + timedelta(hours=self.start_offset),
+                datetime.now() + timedelta(hours=self.end_offset),
+            )
+        )
+        self._data_attribute = [
+            format_event_data(x, self.data.calendar.calendar_id) for x in events
+        ]
+        self._data_attribute.sort(key=itemgetter("start"))
+        self._event = event
+
+
+class O365CalendarData:
+    def __init__(self, account, calendar_name):
+        self.account = account
         self.calendar_name = calendar_name
-        self.hours_forward = hours_forward
-        self.hours_backward = hours_backward
         self.schedule = self.account.schedule()
         if self.calendar_name != "" and self.calendar_name != "default_calendar":
             self.calendar = self.schedule.get_calendar(calendar_name=self.calendar_name)
@@ -78,65 +133,92 @@ class O365Calendar(Entity):
             self.calendar = self.schedule.get_default_calendar()
         if self.calendar is None:
             raise ValueError(f"Could not find calendar called {self.calendar_name}")
-        if not self._name:
-            self._name = self.calendar.name
-        self._attributes = {}
-        # self.get_calendar_events(None)
 
-    @property
-    def name(self):
-        return self._name
+        self.event = None
 
-    @property
-    def state(self):
-        return self._state
-
-    @property
-    def device_state_attributes(self):
-        return self._attributes
-
-    def update(self):
-        self._attributes = self.update_attributes()
-        self._state = self.device_state_attributes.get("event_active", False)
-
-    def update_attributes(self):
-        attributes = {}
-        start_date = datetime.now() + timedelta(hours=self.hours_backward)
-        end_date = datetime.now() + timedelta(hours=self.hours_forward)
+    def o365_get_events(self, start_date, end_date):
         query = self.calendar.new_query("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
-        data = []
-        now = utcnow()
+        return self.calendar.get_events(limit=999, query=query, include_recurring=True)
 
-        for event in self.calendar.get_events(
-            limit=999, query=query, include_recurring=True
-        ):
-            data.append(
-                {
-                    "subject": event.subject,
-                    "body": clean_html(event.body),
-                    "location": event.location["displayName"],
-                    "categories": event.categories,
-                    "sensitivity": event.sensitivity.name,
-                    "show_as": event.show_as.name,
-                    "is_all_day": event.is_all_day,
-                    "attendees": [
-                        {"email": x.address, "type": x.attendee_type.value}
-                        for x in event.attendees._Attendees__attendees
-                    ],
-                    "start": event.start.strftime(DATETIME_FORMAT),
-                    "end": event.end.strftime(DATETIME_FORMAT),
-                    "event_active": event.start <= now and event.end >= now,
-                    "event_id": event.object_id,
-                    "calendar_id": self.calendar.calendar_id,
-                }
+    async def async_get_events(self, hass, start_date, end_date):
+        vevent_list = list(
+            await hass.async_add_job(self.o365_get_events, start_date, end_date)
+        )
+        vevent_list.sort(key=attrgetter("start"))
+        event_list = []
+        for event in vevent_list:
+            data = format_event_data(event, self.calendar.calendar_id)
+            data["start"] = self.get_hass_date(data["start"])
+            data["end"] = self.get_hass_date(data["end"])
+            event_list.append(data)
+
+        return event_list
+
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
+    def update(self):
+        results = self.o365_get_events(
+            dt.start_of_local_day(), dt.start_of_local_day() + timedelta(days=1)
+        )
+        results = list(results)
+        results.sort(key=lambda x: self.to_datetime(x.start))
+
+        vevent = next((event for event in results if not self.is_over(event)), None,)
+
+        if vevent is None:
+            _LOGGER.debug(
+                "No matching event found in the %d results for %s",
+                len(results),
+                self.calendar.name,
             )
-        data.sort(key=itemgetter("start"))
-        # attributes["data_str_repr"] = json.dumps(data, indent=2)
-        attributes["data"] = data
-        attributes["calendar_id"] = self.calendar.calendar_id
-        attributes["event_active"] = len([x for x in data if x["event_active"]]) > 0
-        return attributes
+            self.event = None
+            return
+
+        self.event = {
+            "summary": vevent.subject,
+            "start": self.get_hass_date(vevent.start),
+            "end": self.get_hass_date(self.get_end_date(vevent)),
+            "location": vevent.location,
+            "description": clean_html(vevent.body),
+        }
+
+    @staticmethod
+    def is_all_day(vevent):
+        return vevent.is_all_day
+
+    @staticmethod
+    def is_over(vevent):
+        return dt.now() >= O365CalendarData.to_datetime(
+            O365CalendarData.get_end_date(vevent)
+        )
+
+    @staticmethod
+    def get_hass_date(obj):
+        if isinstance(obj, datetime):
+            return {"dateTime": obj.isoformat()}
+
+        return {"date": obj.isoformat()}
+
+    @staticmethod
+    def to_datetime(obj):
+        if isinstance(obj, datetime):
+            if obj.tzinfo is None:
+                return obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE)
+            return obj
+        return dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
+
+    @staticmethod
+    def get_end_date(obj):
+        if hasattr(obj, "end"):
+            enddate = obj.end
+
+        elif hasattr(obj, "duration"):
+            enddate = obj.start + obj.duration.value
+
+        else:
+            enddate = obj.start + timedelta(days=1)
+
+        return enddate
 
 
 class CalendarServices:
