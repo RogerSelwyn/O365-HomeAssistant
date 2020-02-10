@@ -1,5 +1,4 @@
 import logging
-import json
 from operator import itemgetter
 from homeassistant.helpers.entity import Entity
 from .const import (
