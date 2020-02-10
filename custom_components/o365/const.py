@@ -1,5 +1,5 @@
-import re
 from enum import Enum
+from datetime import timedelta
 from homeassistant.const import CONF_NAME
 from homeassistant.components.notify import (
     ATTR_DATA,
@@ -22,47 +22,65 @@ class EventResponse(Enum):
     Decline = "decline"
 
 
-CONFIG_BASE_DIR = get_default_config_dir()
-
-DEFAULT_NAME = "O365"
-
+ATTR_ATTACHMENTS = "attachments"
+ATTR_ATTENDEES = "attendees"
+ATTR_BODY = "body"
+ATTR_CALENDAR_ID = "calendar_id"
+ATTR_CATEGORIES = "categories"
+ATTR_EMAIL = "email"
+ATTR_END = "end"
+ATTR_EVENT_ID = "event_id"
+ATTR_IS_ALL_DAY = "is_all_day"
+ATTR_LOCATION = "location"
+ATTR_MESSAGE_IS_HTML = "message_is_html"
+ATTR_PHOTOS = "photos"
+ATTR_RESPONSE = "response"
+ATTR_SEND_RESPONSE = "send_response"
+ATTR_SENSITIVITY = "sensitivity"
+ATTR_SHOW_AS = "show_as"
+ATTR_START = "start"
+ATTR_SUBJECT = "subject"
+ATTR_TYPE = "type"
+ATTR_ZIP_ATTACHMENTS = "zip_attachments"
+ATTR_ZIP_NAME = "zip_name"
 AUTH_CALLBACK_NAME = "api:o365"
 AUTH_CALLBACK_PATH = "/api/o365"
-
 AUTH_CALLBACK_PATH_ALT = "https://login.microsoftonline.com/common/oauth2/nativeclient"
-
+CALENDAR_DOMAIN = "calendar"
+CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".o365_{}"
 CONF_ALIASES = "aliases"
+CONF_ALT_CONFIG = "alt_auth_flow"
 CONF_CACHE_PATH = "cache_path"
+CONF_CALENDAR_NAME = "calendar_name"
+CONF_CALENDARS = "calendars"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"
-CONF_CALENDAR_NAME = "calendar_name"
-CONF_HOURS_FORWARD_TO_GET = "end_offset"
-DEFAULT_HOURS_FORWARD_TO_GET = 24
-CONF_HOURS_BACKWARD_TO_GET = "start_offset"
-DEFAULT_HOURS_BACKWARD_TO_GET = 0
-CONF_ALT_CONFIG = "alt_auth_flow"
-CONF_CALENDARS = "calendars"
 CONF_EMAIL_SENSORS = "email_sensor"
-CONF_MAIL_FOLDER = "folder"
-CONF_QUERY_SENSORS = "query_sensors"
-CONF_MAX_ITEMS = "max_items"
 CONF_HAS_ATTACHMENT = "has_attachment"
+CONF_HOURS_BACKWARD_TO_GET = "start_offset"
+CONF_HOURS_FORWARD_TO_GET = "end_offset"
+CONF_IS_UNREAD = "is_unread"
+CONF_MAIL_FOLDER = "folder"
+CONF_MAIL_FROM = "from"
+CONF_MAX_ITEMS = "max_items"
+CONF_QUERY_SENSORS = "query_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
-CONF_MAIL_FROM = "from"
-CONF_IS_UNREAD = "is_unread"
-
+CONFIG_BASE_DIR = get_default_config_dir()
 CONFIGURATOR_DESCRIPTION = (
     "To link your O365 account, click the link, login, and authorize:"
 )
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
-
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
+DEFAULT_HOURS_BACKWARD_TO_GET = 0
+DEFAULT_HOURS_FORWARD_TO_GET = 24
+DEFAULT_NAME = "O365"
 DOMAIN = "o365"
-
 ICON = "mdi:office"
-
+MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
+OFFSET = "!!"
 SCOPE = [
     "offline_access",
     "User.Read",
@@ -73,13 +91,9 @@ SCOPE = [
     "Mail.Send",
     "Mail.Send.Shared",
 ]
-
-DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
-
 TOKEN_BACKEND = FileSystemTokenBackend(
     token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"
 )
-
 CALENDAR_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CALENDAR_NAME): cv.string,
@@ -88,7 +102,6 @@ CALENDAR_SCHEMA = vol.Schema(
         vol.Optional(CONF_HOURS_BACKWARD_TO_GET, default=0): int,
     }
 )
-
 EMAIL_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
@@ -97,7 +110,6 @@ EMAIL_SENSOR = vol.Schema(
         vol.Optional(CONF_IS_UNREAD): bool,
     }
 )
-
 QUERY_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
@@ -110,7 +122,6 @@ QUERY_SENSOR = vol.Schema(
         vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): cv.string,
     }
 )
-
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
@@ -126,14 +137,6 @@ CONFIG_SCHEMA = vol.Schema(
     },
     extra=vol.ALLOW_EXTRA,
 )
-
-ATTR_ATTACHMENTS = "attachments"
-ATTR_PHOTOS = "photos"
-ATTR_MESSAGE_IS_HTML = "message_is_html"
-ATTR_ZIP_ATTACHMENTS = "zip_attachments"
-ATTR_ZIP_NAME = "zip_name"
-
-
 NOTIFY_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_MESSAGE_IS_HTML, default=False): bool,
@@ -152,26 +155,6 @@ NOTIFY_BASE_SCHEMA = vol.Schema(
         vol.Optional(ATTR_DATA): NOTIFY_DATA_SCHEMA,
     }
 )
-
-ATTR_EVENT_ID = "event_id"
-ATTR_CALENDAR_ID = "calendar_id"
-ATTR_RESPONSE = "response"
-ATTR_SEND_RESPONSE = "send_response"
-ATTR_SUBJECT = "subject"
-ATTR_BODY = "body"
-ATTR_START = "start"
-ATTR_END = "end"
-ATTR_LOCATION = "location"
-ATTR_CATEGORIES = "categories"
-ATTR_SENSITIVITY = "sensitivity"
-ATTR_SHOW_AS = "show_as"
-ATTR_IS_ALL_DAY = "is_all_day"
-ATTR_ATTENDEES = "attendees"
-ATTR_EMAIL = "email"
-ATTR_TYPE = "type"
-
-datetime_regex = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\+|-)\d{4}")
-
 
 CALENDAR_SERVICE_RESPOND_SCHEMA = vol.Schema(
     {
@@ -193,8 +176,8 @@ ATTENDEE_SCHEMA = vol.Schema(
 CALENDAR_SERVICE_CREATE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_CALENDAR_ID): cv.string,
-        vol.Required(ATTR_START): cv.matches_regex(datetime_regex),
-        vol.Required(ATTR_END): cv.matches_regex(datetime_regex),
+        vol.Required(ATTR_START): cv.datetime,
+        vol.Required(ATTR_END): cv.datetime,
         vol.Required(ATTR_SUBJECT): cv.string,
         vol.Optional(ATTR_BODY): cv.string,
         vol.Optional(ATTR_LOCATION): cv.string,
@@ -210,8 +193,8 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_EVENT_ID): cv.string,
         vol.Required(ATTR_CALENDAR_ID): cv.string,
-        vol.Optional(ATTR_START): cv.matches_regex(datetime_regex),
-        vol.Optional(ATTR_END): cv.matches_regex(datetime_regex),
+        vol.Optional(ATTR_START): cv.datetime,
+        vol.Optional(ATTR_END): cv.datetime,
         vol.Required(ATTR_SUBJECT): cv.string,
         vol.Optional(ATTR_BODY): cv.string,
         vol.Optional(ATTR_LOCATION): cv.string,
