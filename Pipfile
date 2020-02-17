@@ -1,0 +1,13 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+o365 = "==2.0.7"
+beautifulsoup4 = "==4.8.2"
+
+[requires]
+python_version = "3.7.5"
