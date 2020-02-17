@@ -1,0 +1,8 @@
+{
+    "domain": "o365",
+    "name": "Office 365 Calendar",
+    "documentation": "https://github.com/PTST/O365Calendar-HomeAssistant",
+    "dependencies": ["configurator", "http"],
+    "codeowners": ["@PTST"],
+    "requirements": ["O365==2.0.6", "BeautifulSoup4==4.8.2"]
+  }
