@@ -92,7 +92,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
         )
         self._event = None
         self._name = entity.get(CONF_NAME)
-        self.device_id = entity.get(CONF_DEVICE_ID)
+        self.entity_id = entity.get(CONF_DEVICE_ID)
         self._offset_reached = False
         self._data_attribute = []
 
