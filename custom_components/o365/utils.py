@@ -15,6 +15,7 @@ from .const import (
     CONF_TRACK,
     CONF_NAME,
     CONF_DEVICE_ID,
+    CALENDAR_ENTITY_ID_FORMAT,
 )
 from O365.calendar import Attendee
 from homeassistant.util import dt
@@ -196,7 +197,9 @@ def get_calendar_info(hass, calendar, track_new_devices):
                 {
                     CONF_TRACK: track_new_devices,
                     CONF_NAME: calendar.name,
-                    CONF_DEVICE_ID: generate_entity_id("{}", calendar.name, hass=hass),
+                    CONF_DEVICE_ID: generate_entity_id(
+                        CALENDAR_ENTITY_ID_FORMAT, calendar.name, hass=hass
+                    ),
                 }
             ],
         }
