@@ -65,9 +65,18 @@ def setup(hass, config):
 
 def do_setup(hass, config, account):
     """Run the setup after we have everything configured."""
+    if config.get(CONF_CALENDARS, None):
+        import warnings
+
+        _LOGGER.warning(
+            "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed"
+        )
+        warnings.warn(
+            "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed",
+            FutureWarning,
+        )
     hass.data[DOMAIN] = {
         "account": account,
-        CONF_CALENDARS: config.get(CONF_CALENDARS, []),
         CONF_EMAIL_SENSORS: config.get(CONF_EMAIL_SENSORS, []),
         CONF_QUERY_SENSORS: config.get(CONF_QUERY_SENSORS, []),
     }

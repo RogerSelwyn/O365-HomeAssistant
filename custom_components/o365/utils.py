@@ -4,11 +4,26 @@ import zipfile
 from datetime import datetime
 from pathlib import Path
 from bs4 import BeautifulSoup
-from .const import DEFAULT_CACHE_PATH, SCOPE, CONFIG_BASE_DIR, DATETIME_FORMAT
+from .const import (
+    DEFAULT_CACHE_PATH,
+    SCOPE,
+    CONFIG_BASE_DIR,
+    DATETIME_FORMAT,
+    CALENDAR_DEVICE_SCHEMA,
+    CONF_CAL_ID,
+    CONF_ENTITIES,
+    CONF_TRACK,
+    CONF_NAME,
+    CONF_DEVICE_ID,
+)
 from O365.calendar import Attendee
 from homeassistant.util import dt
 import logging
 from O365.calendar import EventSensitivity
+import yaml
+from voluptuous.error import Error as VoluptuousError
+from homeassistant.helpers.entity import generate_entity_id
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -147,3 +162,53 @@ def add_call_data_to_event(event, event_data):
     if sensitivity:
         event.sensitivity = EventSensitivity(sensitivity.lower())
     return event
+
+
+def load_calendars(path):
+    """Load the o365_calendar_devices.yaml."""
+    calendars = {}
+    try:
+        with open(path) as file:
+            data = yaml.safe_load(file)
+            if data is None:
+                return {}
+            for calendar in data:
+                try:
+                    calendars.update(
+                        {calendar[CONF_CAL_ID]: CALENDAR_DEVICE_SCHEMA(calendar)}
+                    )
+                except VoluptuousError as exception:
+                    # keep going
+                    _LOGGER.warning("Calendar Invalid Data: %s", exception)
+    except FileNotFoundError:
+        # When YAML file could not be loaded/did not contain a dict
+        return {}
+
+    return calendars
+
+
+def get_calendar_info(hass, calendar, track_new_devices):
+    """Convert data from Google into DEVICE_SCHEMA."""
+    calendar_info = CALENDAR_DEVICE_SCHEMA(
+        {
+            CONF_CAL_ID: calendar.calendar_id,
+            CONF_ENTITIES: [
+                {
+                    CONF_TRACK: track_new_devices,
+                    CONF_NAME: calendar.name,
+                    CONF_DEVICE_ID: generate_entity_id("{}", calendar.name, hass=hass),
+                }
+            ],
+        }
+    )
+    return calendar_info
+
+
+def update_calendar_file(path, calendar, hass, track_new_devices):
+    existing_calendars = load_calendars(path)
+    cal = get_calendar_info(hass, calendar, track_new_devices)
+    if cal[CONF_CAL_ID] in existing_calendars:
+        return
+    with open(path, "a", encoding="UTF8") as out:
+        out.write("\n")
+        yaml.dump([cal], out, default_flow_style=False, encoding="UTF8")
