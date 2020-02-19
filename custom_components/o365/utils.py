@@ -41,12 +41,16 @@ def clean_html(html):
 def validate_permissions(token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"):
     full_token_path = os.path.join(token_path, token_filename)
     if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
+        _LOGGER.warning(f"Could not loacte token at {full_token_path}")
         return False
     with open(full_token_path, "r", encoding="UTF-8") as fh:
         raw = fh.read()
         permissions = json.loads(raw)["scope"]
     scope = [x for x in SCOPE if x != "offline_access"]
-    return all([x in permissions for x in scope])
+    all_permissions_grated = all([x in permissions for x in scope])
+    if not all_permissions_grated:
+        _LOGGER.warning(f"All permissions granted: {all_permissions_grated}")
+    return all_permissions_granted
 
 
 def get_ha_filepath(filepath):
