@@ -47,9 +47,9 @@ def validate_permissions(token_path=DEFAULT_CACHE_PATH, token_filename="o365.tok
         raw = fh.read()
         permissions = json.loads(raw)["scope"]
     scope = [x for x in SCOPE if x != "offline_access"]
-    all_permissions_grated = all([x in permissions for x in scope])
-    if not all_permissions_grated:
-        _LOGGER.warning(f"All permissions granted: {all_permissions_grated}")
+    all_permissions_granted = all([x in permissions for x in scope])
+    if not all_permissions_granted:
+        _LOGGER.warning(f"All permissions granted: {all_permissions_granted}")
     return all_permissions_granted
 
 
