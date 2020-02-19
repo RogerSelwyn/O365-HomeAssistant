@@ -101,6 +101,12 @@ SCOPE = [
     "Mail.Send",
     "Mail.Send.Shared",
 ]
+MINIMUM_REQUIRED_SCOPES = [
+    "User.Read",
+    "Calendars.ReadWrite",
+    "Mail.ReadWrite",
+    "Mail.Send",
+]
 TOKEN_BACKEND = FileSystemTokenBackend(
     token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"
 )

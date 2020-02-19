@@ -6,7 +6,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from .const import (
     DEFAULT_CACHE_PATH,
-    SCOPE,
+    MINIMUM_REQUIRED_SCOPES,
     CONFIG_BASE_DIR,
     DATETIME_FORMAT,
     CALENDAR_DEVICE_SCHEMA,
@@ -46,7 +46,7 @@ def validate_permissions(token_path=DEFAULT_CACHE_PATH, token_filename="o365.tok
     with open(full_token_path, "r", encoding="UTF-8") as fh:
         raw = fh.read()
         permissions = json.loads(raw)["scope"]
-    scope = [x for x in SCOPE if x != "offline_access"]
+    scope = [x for x in MINIMUM_REQUIRED_SCOPES]
     all_permissions_granted = all([x in permissions for x in scope])
     if not all_permissions_granted:
         _LOGGER.warning(f"All permissions granted: {all_permissions_granted}")
