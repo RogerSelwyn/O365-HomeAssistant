@@ -27,6 +27,7 @@ from .const import (
     CONF_SEARCH,
     CONF_MAX_RESULTS,
     CALENDAR_ENTITY_ID_FORMAT,
+    CONF_TRACK_NEW,
 )
 from .utils import (
     clean_html,
@@ -45,11 +46,12 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         return
 
     account = hass.data[DOMAIN]["account"]
+    track_new = hass.data[DOMAIN][CONF_TRACK_NEW]
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return False
 
-    calendar_services = CalendarServices(account, True, hass)
+    calendar_services = CalendarServices(account, track_new, hass)
     calendar_services.scan_for_calendars(None)
 
     calendars = load_calendars(YAML_CALENDARS)

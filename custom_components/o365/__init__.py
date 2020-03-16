@@ -21,6 +21,7 @@ from .const import (
     CONF_QUERY_SENSORS,
     CONF_EMAIL_SENSORS,
     CONFIG_SCHEMA,
+    CONF_TRACK_NEW,
 )
 
 from .utils import validate_permissions
@@ -79,6 +80,7 @@ def do_setup(hass, config, account):
         "account": account,
         CONF_EMAIL_SENSORS: config.get(CONF_EMAIL_SENSORS, []),
         CONF_QUERY_SENSORS: config.get(CONF_QUERY_SENSORS, []),
+        CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
     }
     hass.async_create_task(
         discovery.async_load_platform(hass, "calendar", DOMAIN, {}, config)
