@@ -15,7 +15,6 @@ from .const import (
     CONF_TRACK,
     CONF_NAME,
     CONF_DEVICE_ID,
-    CALENDAR_ENTITY_ID_FORMAT,
 )
 from O365.calendar import Attendee
 from homeassistant.util import dt
@@ -23,8 +22,6 @@ import logging
 from O365.calendar import EventSensitivity
 import yaml
 from voluptuous.error import Error as VoluptuousError
-from homeassistant.helpers.entity import generate_entity_id
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -193,7 +190,7 @@ def load_calendars(path):
 
 
 def get_calendar_info(hass, calendar, track_new_devices):
-    """Convert data from Google into DEVICE_SCHEMA."""
+    """Convert data from O365 into DEVICE_SCHEMA."""
     calendar_info = CALENDAR_DEVICE_SCHEMA(
         {
             CONF_CAL_ID: calendar.calendar_id,
@@ -201,9 +198,7 @@ def get_calendar_info(hass, calendar, track_new_devices):
                 {
                     CONF_TRACK: track_new_devices,
                     CONF_NAME: calendar.name,
-                    CONF_DEVICE_ID: generate_entity_id(
-                        CALENDAR_ENTITY_ID_FORMAT, calendar.name, hass=hass
-                    ),
+                    CONF_DEVICE_ID: calendar.name,
                 }
             ],
         }

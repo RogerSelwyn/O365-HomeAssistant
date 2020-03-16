@@ -8,6 +8,7 @@ from homeassistant.components.calendar import (
     calculate_offset,
     is_offset_reached,
 )
+from homeassistant.helpers.entity import generate_entity_id
 from .const import (
     CONF_NAME,
     CONF_HOURS_FORWARD_TO_GET,
@@ -25,6 +26,7 @@ from .const import (
     CONF_TRACK,
     CONF_SEARCH,
     CONF_MAX_RESULTS,
+    CALENDAR_ENTITY_ID_FORMAT,
 )
 from .utils import (
     clean_html,
@@ -57,7 +59,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         for entity in calendar.get(CONF_ENTITIES):
             if not entity[CONF_TRACK]:
                 continue
-            cal = O365CalendarEventDevice(account, cal_id, entity)
+            entity_id = generate_entity_id(
+                CALENDAR_ENTITY_ID_FORMAT, entity.get(CONF_DEVICE_ID), hass=hass
+            )
+            cal = O365CalendarEventDevice(account, cal_id, entity, entity_id)
             devices.append(cal)
     add_devices(devices, True)
 
@@ -81,7 +86,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 
 class O365CalendarEventDevice(CalendarEventDevice):
-    def __init__(self, account, calendar_id, entity):
+    def __init__(self, account, calendar_id, entity, entity_id):
         self.entity = entity
         self.max_results = entity.get(CONF_MAX_RESULTS)
         self.start_offset = entity.get(CONF_HOURS_BACKWARD_TO_GET)
@@ -92,7 +97,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
         )
         self._event = None
         self._name = entity.get(CONF_NAME)
-        self.entity_id = entity.get(CONF_DEVICE_ID)
+        self.entity_id = entity_id
         self._offset_reached = False
         self._data_attribute = []
 
