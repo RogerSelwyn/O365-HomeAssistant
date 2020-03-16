@@ -162,6 +162,7 @@ Key | Type | Required | Description
 `device_id` | `string` | `True` | The entity_id will be "calendar.{device_id}"
 `name` | `string` | `True` | What is the name of your sensor that you’ll see in the frontend.
 `track` | `boolean` | `True` | Should we create a sensor true or ignore it false?
+`search` | `string` | `False` | Only get events if subject contains this string
 `start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
 `end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
 
