@@ -2,8 +2,6 @@
 [![community_forum_badge](https://img.shields.io/badge/COMMUNITY-FORUM-blue.svg?style=for-the-badge)](https://community.home-assistant.io/t/custom-component-office-365-calendar-sensor)
 
 
-# Major breaking changes between v1 and v2
-Due to a total rework of the integration please remove all configuration entries and install from new.  
 
 # Office 365 Integration for Home Assistant
 This integration enables 
@@ -65,10 +63,6 @@ _**Please note, it home assistants give the error "module not found", please try
 o365:
   client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
-  calendars:
-    - name: Private
-      calendar_name: "Private Calendar"
-    - calendar_name: default_calendar
   email_sensor:
     - name: inbox
       max_items: 2
@@ -89,6 +83,7 @@ Key | Type | Required | Description
 `message` | `string` | `True` | The email body
 `title` | `string` | `False` | The email subject
 `data` | `dict<data>` | `False` | addional attributes
+`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 
 ### data
 Key | Type | Required | Description
@@ -113,15 +108,6 @@ Key | Type | Required | Description
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 
-
-### calendars config
-Key | Type | Required | Description
--- | -- | -- | --
-`name` | `string` | `False` | The name of the sensor.
-`calendar_name` | `string` | `True` | Name of the calendar to retrieve, if set to default_calendar, the default calendar will be used.
-`start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
-`end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
-
 ### email_sensors
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -142,6 +128,43 @@ Key | Type | Required | Description
 `has_attachment` | `boolean` | `False` | True=Only get emails with attachments, False=Only get emails without attachments, Not set=Get all
 `subject_contains` | `string` | `False` | Only get emails where the subject contains this string (Mutually exclusive with `subject_is`)
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
+
+## Calendar configuration
+This component has changed to now using an external o365_calendars.yaml file, this is done to align this component more with the official Google Calendar Event integration.
+### example o365_calendar.yaml:
+```yaml
+- cal_id: xxxx
+  entities:
+  - device_id: work_calendar
+    end_offset: 24
+    name: My Work Calendar
+    start_offset: 0
+    track: true
+
+- cal_id: xxxx
+  entities:
+  - device_id: birthdays
+    end_offset: 24
+    name: Birthdays
+    start_offset: 0
+    track: true
+```
+
+### o365_calendars.yaml
+Key | Type | Required | Description
+-- | -- | -- | --
+`cal_id` | `string` | `True` | O365 generated unique ID, DO NOT CHANGE
+`entities` | `list<entity>` | `True` | List of entities to generate from this calendar
+
+### Entity configuration
+Key | Type | Required | Description
+-- | -- | -- | --
+`device_id` | `string` | `True` | The entity_id will be "calendar.{device_id}"
+`name` | `string` | `True` | What is the name of your sensor that you’ll see in the frontend.
+`track` | `boolean` | `True` | Should we create a sensor true or ignore it false?
+`search` | `string` | `False` | Only get events if subject contains this string
+`start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
+`end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
 
 ## Authentication.
 ### Default auth flow.
