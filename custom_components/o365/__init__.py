@@ -70,7 +70,7 @@ def do_setup(hass, config, account):
         import warnings
 
         _LOGGER.warning(
-            "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed:\nhttps://github.com/PTST/O365-HomeAssistant/blob/v2.1.5-final/README.md#calendar-configuration"
+            "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed:\nhttps://github.com/PTST/O365-HomeAssistant/tree/master#calendar-configuration"
         )
         warnings.warn(
             "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed",
