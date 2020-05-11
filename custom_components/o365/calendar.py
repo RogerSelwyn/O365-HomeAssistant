@@ -127,7 +127,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
             return
         event = calculate_offset(event, DEFAULT_OFFSET)
         self._offset_reached = is_offset_reached(event)
-        events = list(await hass.async_add_executor_job(self.data.o365_get_events,
+        events = list(await self.hass.async_add_executor_job(self.data.o365_get_events,
                 datetime.now() + timedelta(hours=self.start_offset),
                 datetime.now() + timedelta(hours=self.end_offset),
             )
