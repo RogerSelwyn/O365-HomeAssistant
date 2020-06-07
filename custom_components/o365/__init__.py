@@ -3,6 +3,10 @@ from O365 import Account
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.helpers import discovery
 from homeassistant.core import callback
+try:
+    from homeassistant.helpers.network import get_url
+except ImportError:
+    pass
 from .const import (
     DOMAIN,
     CONF_CLIENT_ID,
@@ -37,7 +41,10 @@ def setup(hass, config):
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
     alt_config = conf.get(CONF_ALT_CONFIG)
     if not alt_config:
-        callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
+        try:
+            callback_url = f"{get_url(hass)}{AUTH_CALLBACK_PATH}"
+        except NameError:
+            callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
     else:
         callback_url = AUTH_CALLBACK_PATH_ALT
 
