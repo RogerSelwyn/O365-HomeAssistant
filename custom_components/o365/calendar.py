@@ -96,9 +96,9 @@ class O365CalendarEventDevice(CalendarEventDevice):
         self.end_offset = entity.get(CONF_HOURS_FORWARD_TO_GET)
         self.search = entity.get(CONF_SEARCH)
         self.data = O365CalendarData(
-            account, calendar_id, self.search, self.max_results
+            account, calendar_id, self.search, self.max_results, self.start_offset, self.end_offset
         )
-        self._event = None
+        self._event = {}
         self._name = entity.get(CONF_NAME)
         self.entity_id = entity_id
         self._offset_reached = False
@@ -106,7 +106,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
 
     @property
     def device_state_attributes(self):
-        return {"offset_reached": self._offset_reached, "data": self._data_attribute}
+        return {"all_day": self._event.get("is_all_day", False) if self.data.event is not None else False, "offset_reached": self._offset_reached, "data": self._data_attribute}
 
     @property
     def event(self):
@@ -140,10 +140,12 @@ class O365CalendarEventDevice(CalendarEventDevice):
 
 
 class O365CalendarData:
-    def __init__(self, account, calendar_id, search=None, limit=999):
+    def __init__(self, account, calendar_id, search=None, limit=999, start_offset=None, end_offset=None):
         self.account = account
         self.calendar_id = calendar_id
         self.limit = limit
+        self.start_offset = start_offset
+        self.end_offset = end_offset
         self.schedule = self.account.schedule()
         self.calendar = self.schedule.get_calendar(calendar_id=self.calendar_id)
         self.search = search
@@ -174,6 +176,17 @@ class O365CalendarData:
 
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def async_update(self, hass):
+        if self.start_offset is None:
+            start = dt.start_of_local_day()
+        else:
+            start = dt.now() + timedelta(hours=self.start_offset)
+        if self.end_offset is None:
+            end = start + timedelta(days=1)
+        else:
+            end = dt.now() + timedelta(hours=self.end_offset)
+            
+
+
         results = await hass.async_add_executor_job(self.o365_get_events,
             dt.start_of_local_day(), dt.start_of_local_day() + timedelta(days=1)
         )
@@ -190,7 +203,7 @@ class O365CalendarData:
             )
             self.event = None
             return
-
+        
         self.event = {
             "summary": vevent.subject,
             "start": self.get_hass_date(vevent.start),
@@ -234,7 +247,7 @@ class O365CalendarData:
 
         else:
             enddate = obj.start + timedelta(days=1)
-
+            
         return enddate
 
 
