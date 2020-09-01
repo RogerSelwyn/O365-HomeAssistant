@@ -3,6 +3,7 @@ from O365 import Account
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.helpers import discovery
 from homeassistant.core import callback
+
 try:
     from homeassistant.helpers.network import get_url
 except ImportError:
