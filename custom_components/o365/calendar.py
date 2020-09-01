@@ -98,7 +98,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
         self.data = O365CalendarData(
             account, calendar_id, self.search, self.max_results
         )
-        self._event = None
+        self._event = {}
         self._name = entity.get(CONF_NAME)
         self.entity_id = entity_id
         self._offset_reached = False
@@ -106,7 +106,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
 
     @property
     def device_state_attributes(self):
-        return {"offset_reached": self._offset_reached, "data": self._data_attribute}
+        return {"all_day": self._event.get("is_all_day", False) if self.data.event is not None else False, "offset_reached": self._offset_reached, "data": self._data_attribute}
 
     @property
     def event(self):
@@ -190,7 +190,7 @@ class O365CalendarData:
             )
             self.event = None
             return
-
+        
         self.event = {
             "summary": vevent.subject,
             "start": self.get_hass_date(vevent.start),
@@ -234,7 +234,7 @@ class O365CalendarData:
 
         else:
             enddate = obj.start + timedelta(days=1)
-
+            
         return enddate
 
 

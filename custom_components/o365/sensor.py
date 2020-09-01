@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from operator import itemgetter
 from homeassistant.helpers.entity import Entity
 from .const import (
@@ -101,7 +102,7 @@ class O365QuerySensor(Entity):
             else:
                 self.query.chain("and")
             self.query.on_attribute("IsRead").equals(not self.is_unread)
-
+        self.query.order_by("receivedDateTime", ascending=False)
         self._state = None
         self._attributes = {}
 
