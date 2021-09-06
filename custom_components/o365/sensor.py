@@ -1,19 +1,21 @@
+"""Sensor processing."""
 import logging
-from datetime import datetime
 from operator import itemgetter
+
 from homeassistant.helpers.entity import Entity
+
 from .const import (
-    DOMAIN,
-    CONF_NAME,
-    CONF_MAIL_FOLDER,
-    CONF_MAX_ITEMS,
+    CONF_EMAIL_SENSORS,
     CONF_HAS_ATTACHMENT,
+    CONF_IS_UNREAD,
+    CONF_MAIL_FOLDER,
+    CONF_MAIL_FROM,
+    CONF_MAX_ITEMS,
+    CONF_NAME,
+    CONF_QUERY_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
-    CONF_MAIL_FROM,
-    CONF_IS_UNREAD,
-    CONF_EMAIL_SENSORS,
-    CONF_QUERY_SENSORS,
+    DOMAIN,
 )
 from .utils import get_email_attributes
 
@@ -21,6 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
+    """O365 platform definition."""
     if discovery_info is None:
         return
 
@@ -41,7 +44,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 
 class O365QuerySensor(Entity):
+    """O365 Query sensor processing."""
+
     def __init__(self, account, conf):
+        """Initialise the O365 Query."""
         self.account = account
         self.mailbox = account.mailbox()
         self.mail_folder = None
@@ -57,9 +63,7 @@ class O365QuerySensor(Entity):
         else:
             self.mail_folder = self.mailbox.inbox_folder()
 
-        self._name = conf.get(
-            CONF_NAME, f"{self.account.get_current_user().mail}-{self.mail_folder}"
-        )
+        self._name = conf.get(CONF_NAME, f"{self.account.get_current_user().mail}-{self.mail_folder}")
 
         self.max_items = conf.get(CONF_MAX_ITEMS, 5)
         self.subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
@@ -108,22 +112,22 @@ class O365QuerySensor(Entity):
 
     @property
     def name(self):
+        """Name property."""
         return self._name
 
     @property
     def state(self):
+        """State property."""
         return self._state
 
     @property
     def device_state_attributes(self):
+        """Device state attributes."""
         return self._attributes
 
     def update(self):
-        mails = list(
-            self.mail_folder.get_messages(
-                limit=self.max_items, query=self.query, download_attachments=True
-            )
-        )
+        """Update code."""
+        mails = list(self.mail_folder.get_messages(limit=self.max_items, query=self.query, download_attachments=True))
         attrs = [get_email_attributes(x) for x in mails]
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._state = len(mails)
@@ -132,7 +136,10 @@ class O365QuerySensor(Entity):
 
 
 class O365InboxSensor(Entity):
+    """O365 Inboox processing."""
+
     def __init__(self, account, conf):
+        """Initialise the O365 Inbox."""
         self.account = account
         self.mailbox = account.mailbox()
         mail_folder = conf.get(CONF_MAIL_FOLDER)
@@ -147,9 +154,7 @@ class O365InboxSensor(Entity):
         else:
             self.mail_folder = self.mailbox.inbox_folder()
 
-        self._name = conf.get(
-            CONF_NAME, f"{self.account.get_current_user().mail}-{self.mail_folder}"
-        )
+        self._name = conf.get(CONF_NAME, f"{self.account.get_current_user().mail}-{self.mail_folder}")
         self._state = 0
         self._attributes = {}
         self.query = None
@@ -162,22 +167,22 @@ class O365InboxSensor(Entity):
 
     @property
     def name(self):
+        """Name property."""
         return self._name
 
     @property
     def state(self):
+        """State property."""
         return self._state
 
     @property
     def device_state_attributes(self):
+        """Device state attributes."""
         return self._attributes
 
     def update(self):
-        mails = list(
-            self.mail_folder.get_messages(
-                limit=self.max_items, query=self.query, download_attachments=True
-            )
-        )
+        """Update code."""
+        mails = list(self.mail_folder.get_messages(limit=self.max_items, query=self.query, download_attachments=True))
         attrs = [get_email_attributes(x) for x in mails]
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._state = len(mails)

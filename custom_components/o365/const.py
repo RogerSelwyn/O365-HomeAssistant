@@ -1,22 +1,19 @@
-from enum import Enum
+"""Constantants."""
 from datetime import timedelta
-from homeassistant.const import CONF_NAME
-from homeassistant.components.notify import (
-    ATTR_DATA,
-    ATTR_TARGET,
-    ATTR_TITLE,
-    ATTR_MESSAGE,
-)
-import voluptuous as vol
+from enum import Enum
+
 import homeassistant.helpers.config_validation as cv
-
+import voluptuous as vol
+from homeassistant.components.notify import ATTR_DATA, ATTR_MESSAGE, ATTR_TARGET, ATTR_TITLE
 from homeassistant.config import get_default_config_dir
-
+from homeassistant.const import CONF_NAME
 from O365 import FileSystemTokenBackend
 from O365.calendar import AttendeeType, EventSensitivity, EventShowAs
 
 
 class EventResponse(Enum):
+    """Event response."""
+
     Accept = "accept"
     Tentative = "tentative"
     Decline = "decline"
@@ -77,9 +74,7 @@ CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TRACK_NEW = "track_new_calendar"
 CONFIG_BASE_DIR = get_default_config_dir()
-CONFIGURATOR_DESCRIPTION = (
-    "To link your O365 account, click the link, login, and authorize:"
-)
+CONFIGURATOR_DESCRIPTION = "To link your O365 account, click the link, login, and authorize:"
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
@@ -107,9 +102,7 @@ MINIMUM_REQUIRED_SCOPES = [
     "Mail.ReadWrite",
     "Mail.Send",
 ]
-TOKEN_BACKEND = FileSystemTokenBackend(
-    token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"
-)
+TOKEN_BACKEND = FileSystemTokenBackend(token_path=DEFAULT_CACHE_PATH, token_filename="o365.token")
 YAML_CALENDARS = f"{DOMAIN}_calendars.yaml"
 
 CALENDAR_SCHEMA = vol.Schema(
@@ -227,7 +220,10 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
 
 
 CALENDAR_SERVICE_REMOVE_SCHEMA = vol.Schema(
-    {vol.Required(ATTR_EVENT_ID): cv.string, vol.Required(ATTR_CALENDAR_ID): cv.string,}
+    {
+        vol.Required(ATTR_EVENT_ID): cv.string,
+        vol.Required(ATTR_CALENDAR_ID): cv.string,
+    }
 )
 
 SINGLE_CALSEARCH_CONFIG = vol.Schema(
@@ -245,9 +241,7 @@ SINGLE_CALSEARCH_CONFIG = vol.Schema(
 CALENDAR_DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CAL_ID): cv.string,
-        vol.Required(CONF_ENTITIES, None): vol.All(
-            cv.ensure_list, [SINGLE_CALSEARCH_CONFIG]
-        ),
+        vol.Required(CONF_ENTITIES, None): vol.All(cv.ensure_list, [SINGLE_CALSEARCH_CONFIG]),
     },
     extra=vol.ALLOW_EXTRA,
 )

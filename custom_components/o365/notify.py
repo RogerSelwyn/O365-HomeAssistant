@@ -1,24 +1,28 @@
-import os
+"""Ntoification processing."""
 import logging
+import os
+
 from homeassistant.components.notify import BaseNotificationService
-from .utils import get_ha_filepath, zip_files
+
 from .const import (
-    DOMAIN,
-    ATTR_TITLE,
-    ATTR_DATA,
-    ATTR_TARGET,
-    ATTR_MESSAGE_IS_HTML,
     ATTR_ATTACHMENTS,
+    ATTR_DATA,
+    ATTR_MESSAGE_IS_HTML,
     ATTR_PHOTOS,
+    ATTR_TARGET,
+    ATTR_TITLE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
+    DOMAIN,
     NOTIFY_BASE_SCHEMA,
 )
+from .utils import get_ha_filepath, zip_files
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_get_service(hass, config, discovery_info=None):
+    """Get the service."""
     if discovery_info is None:
         return
     account = hass.data[DOMAIN]["account"]
@@ -38,6 +42,7 @@ class O365EmailService(BaseNotificationService):
 
     @property
     def targets(self):
+        """Targets property."""
         return {"_email": ""}
 
     def send_message(self, message="", **kwargs):

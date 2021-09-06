@@ -1,41 +1,45 @@
-import os
+"""urility processes."""
 import json
+import logging
+import os
 import zipfile
 from datetime import datetime
 from pathlib import Path
+
+import yaml
 from bs4 import BeautifulSoup
+from homeassistant.util import dt
+from O365.calendar import Attendee, EventSensitivity
+from voluptuous.error import Error as VoluptuousError
+
 from .const import (
-    DEFAULT_CACHE_PATH,
-    MINIMUM_REQUIRED_SCOPES,
-    CONFIG_BASE_DIR,
-    DATETIME_FORMAT,
     CALENDAR_DEVICE_SCHEMA,
     CONF_CAL_ID,
-    CONF_ENTITIES,
-    CONF_TRACK,
-    CONF_NAME,
     CONF_DEVICE_ID,
+    CONF_ENTITIES,
+    CONF_NAME,
+    CONF_TRACK,
+    CONFIG_BASE_DIR,
+    DATETIME_FORMAT,
+    DEFAULT_CACHE_PATH,
+    MINIMUM_REQUIRED_SCOPES,
 )
-from O365.calendar import Attendee
-from homeassistant.util import dt
-import logging
-from O365.calendar import EventSensitivity
-import yaml
-from voluptuous.error import Error as VoluptuousError
 
 _LOGGER = logging.getLogger(__name__)
 
 
 def clean_html(html):
+    """Clean the HTML."""
     soup = BeautifulSoup(html, features="html.parser")
     body = soup.find("body")
     if body:
         return soup.find("body").get_text(" ", strip=True)
-    else:
-        return html
+
+    return html
 
 
 def validate_permissions(token_path=DEFAULT_CACHE_PATH, token_filename="o365.token"):
+    """Validate the permissions."""
     full_token_path = os.path.join(token_path, token_filename)
     if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
         _LOGGER.warning(f"Could not loacte token at {full_token_path}")
@@ -51,6 +55,7 @@ def validate_permissions(token_path=DEFAULT_CACHE_PATH, token_filename="o365.tok
 
 
 def get_ha_filepath(filepath):
+    """Get the file path."""
     _filepath = Path(filepath)
     if _filepath.parts[0] == "/" and _filepath.parts[1] == "config":
         _filepath = os.path.join(CONFIG_BASE_DIR, *_filepath.parts[2:])
@@ -58,12 +63,12 @@ def get_ha_filepath(filepath):
     if not os.path.isfile(_filepath):
         if not os.path.isfile(filepath):
             raise ValueError(f"Could not access file {filepath}")
-        else:
-            return filepath
+        return filepath
     return _filepath
 
 
 def zip_files(filespaths, zip_name="archive.zip"):
+    """Zip the files."""
     if Path(zip_name).suffix != ".zip":
         zip_name += ".zip"
 
@@ -74,6 +79,7 @@ def zip_files(filespaths, zip_name="archive.zip"):
 
 
 def get_email_attributes(mail):
+    """Get the email attributes."""
     return {
         "subject": mail.subject,
         "body": clean_html(mail.body),
@@ -88,6 +94,7 @@ def get_email_attributes(mail):
 
 
 def format_event_data(event, calendar_id):
+    """Format the event data."""
     data = {
         "summary": event.subject,
         "description": clean_html(event.body),
@@ -97,8 +104,7 @@ def format_event_data(event, calendar_id):
         "show_as": event.show_as.name,
         "is_all_day": event.is_all_day,
         "attendees": [
-            {"email": x.address, "type": x.attendee_type.value}
-            for x in event.attendees._Attendees__attendees
+            {"email": x.address, "type": x.attendee_type.value} for x in event.attendees._Attendees__attendees
         ],
         "start": event.start,
         "end": event.end,
@@ -111,6 +117,7 @@ def format_event_data(event, calendar_id):
 
 
 def add_call_data_to_event(event, event_data):
+    """Add the call data."""
     subject = event_data.get("subject")
     if subject:
         event.subject = subject
@@ -134,12 +141,7 @@ def add_call_data_to_event(event, event_data):
     attendees = event_data.get("attendees")
     if attendees:
         event.attendees.clear()
-        event.attendees.add(
-            [
-                Attendee(x["email"], attendee_type=x["type"], event=event)
-                for x in attendees
-            ]
-        )
+        event.attendees.add([Attendee(x["email"], attendee_type=x["type"], event=event) for x in attendees])
 
     start = event_data.get("start")
     if start:
@@ -153,12 +155,8 @@ def add_call_data_to_event(event, event_data):
     if is_all_day is not None:
         event.is_all_day = is_all_day
         if event.is_all_day:
-            event.start = datetime(
-                event.start.year, event.start.month, event.start.day, 0, 0, 0
-            )
-            event.end = datetime(
-                event.end.year, event.end.month, event.end.day, 0, 0, 0
-            )
+            event.start = datetime(event.start.year, event.start.month, event.start.day, 0, 0, 0)
+            event.end = datetime(event.end.year, event.end.month, event.end.day, 0, 0, 0)
 
     sensitivity = event_data.get("sensitivity")
     if sensitivity:
@@ -176,9 +174,7 @@ def load_calendars(path):
                 return {}
             for calendar in data:
                 try:
-                    calendars.update(
-                        {calendar[CONF_CAL_ID]: CALENDAR_DEVICE_SCHEMA(calendar)}
-                    )
+                    calendars.update({calendar[CONF_CAL_ID]: CALENDAR_DEVICE_SCHEMA(calendar)})
                 except VoluptuousError as exception:
                     # keep going
                     _LOGGER.warning("Calendar Invalid Data: %s", exception)
@@ -207,6 +203,7 @@ def get_calendar_info(hass, calendar, track_new_devices):
 
 
 def update_calendar_file(path, calendar, hass, track_new_devices):
+    """Update the calendar file."""
     existing_calendars = load_calendars(path)
     cal = get_calendar_info(hass, calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:

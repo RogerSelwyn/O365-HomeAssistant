@@ -1,7 +1,7 @@
 respond_calendar_event:
   description: "Respond to calendar event/invite"
   fields:
-    event_id: 
+    event_id:
       description: ID for event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     calendar_id:
@@ -20,30 +20,30 @@ respond_calendar_event:
 create_calendar_event:
   description: Create new calendar event
   fields:
-    calendar_id: 
+    calendar_id:
       description: ID for the calendar to create the event in, can be found as an attribute on you calendar entity
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    subject: 
+    subject:
       description: The subject of the created event
       example: Clean up the garage
     start:
       description: The start time of the event
       example: "2020-01-01T12:00:00+0000"
-    end: 
+    end:
       description: The end time of the event
       example: "2020-01-01T12:30:00+0000"
-    body: 
+    body:
       description: The body text for the event (optional)
       example: Remember to also clean out the gutters
-    location: 
+    location:
       description: The location for the event (optional)
       example: "1600 Pennsylvania Ave Nw, Washington, DC 20500"
-    categories: 
+    categories:
       description: list of categories for the event (optional)
     sensitivity:
       description: "The sensitivity for the event (optional) [Normal, Personal, Private, Confidential]"
       example: Normal
-    show_as: 
+    show_as:
       description: "Show event as (optional) [Free, Tentative, Busy, Oof, WorkingElsewhere, Unknown]"
       example: Busy
     is_all_day:
@@ -55,33 +55,33 @@ create_calendar_event:
 modify_calendar_event:
   description: Modify existing calendar event, all properties except event_id and calendar_id is optional.
   fields:
-    event_id: 
+    event_id:
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    calendar_id: 
+    calendar_id:
       description: ID for the calendar to create the event in, can be found as an attribute on you calendar entity
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    subject: 
+    subject:
       description: The subject of the created event
       example: Clean up the garage
     start:
       description: The start time of the event
       example: "2020-01-01T12:00:00+0000"
-    end: 
+    end:
       description: The end time of the event
       example: "2020-01-01T12:30:00+0000"
-    body: 
+    body:
       description: The body text for the event
       example: Remember to also clean out the gutters
-    location: 
+    location:
       description: The location for the event
       example: "1600 Pennsylvania Ave Nw, Washington, DC 20500"
-    categories: 
+    categories:
       description: list of categories for the event
     sensitivity:
       description: "The sensitivity for the event[Normal, Personal, Private, Confidential]"
       example: Normal
-    show_as: 
+    show_as:
       description: "Show event as [Free, Tentative, Busy, Oof, WorkingElsewhere, Unknown]"
       example: Busy
     is_all_day:
@@ -94,9 +94,9 @@ modify_calendar_event:
 remove_calendar_event:
   description: Delete calendar event
   fields:
-    event_id: 
+    event_id:
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    calendar_id: 
+    calendar_id:
       description: ID for the calendar to create the event in, can be found as an attribute on you calendar entity
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
