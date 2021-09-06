@@ -1,0 +1,85 @@
+name: O365 Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release_zip_file:
+    name: Prepare release asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v1
+
+      - name: switching from HTTPS to SSH
+        run: git remote set-url origin git@github.com:RogerSelwyn/O365-HomeAssistant.git
+      - name: Update requirements.txt
+        run: python3 /home/runner/work/O365-HomeAssistant/O365-HomeAssistant/manage/update_requirements.py
+      - name: check for changes
+        run: git status
+      - name: stage changed files
+        run: git add requirements.txt
+      - name: commit changed files
+        continue-on-error: true
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Auto update requirements.txt"
+      - name: Update manifest.json
+        run: python3 /home/runner/work/O365-HomeAssistant/O365-HomeAssistant/manage/update_version.py --tag ${{ github.ref }}
+      - name: check for changes
+        run: git status
+      - name: stage changed files
+        run: git add ./custom_components/o365/manifest.json
+      - name: commit changed files
+        continue-on-error: true
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Auto update manifest.json"
+          git tag -fa ${{ github.event.release.tag_name }} -m "Update version number ${{ github.event.release.tag_name }}"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push tag change
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+          tags: true
+      # Pack the O365 dir as a zip and upload to the release
+      - name: ZIP O365 Dir
+        run: |
+          cd /home/runner/work/O365-HomeAssistant/O365-HomeAssistant/custom_components/o365
+          zip o365.zip -r ./
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@v1-release
+
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /home/runner/work/O365-HomeAssistant/O365-HomeAssistant/custom_components/o365/o365.zip
+          asset_name: o365.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  releasenotes:
+    name: Prepare release notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v1
+
+      - name: Enable version 3.7 of Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Install requirements
+        run: |
+          python3 -m pip install setuptools wheel
+          python3 -m pip install -r /home/runner/work/O365-HomeAssistant/O365-HomeAssistant/requirements_release.txt
+
+      - name: Update release notes
+        run: python3 /home/runner/work/O365-HomeAssistant/O365-HomeAssistant/manage/generate_releasenotes.py --token ${{ secrets.GITHUB_TOKEN }} --release yes --tag ${{ github.ref }}
