@@ -100,4 +100,3 @@ class O365EmailService(BaseNotificationService):
         m.send()
         for x in cleanup_files:
             os.remove(x)
-        return
