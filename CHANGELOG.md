@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.2.1 (2021/08/07)
+### Fixes
+- [Fix issue with authentication I/O within the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2dfa7859c1a29f775965b3d73b323093bb8848db) - @RogerSelwyn
+
+### Maintenance
+- [Deconstrain requirements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3a546ec608eb07bfdca22645481911ad41a8b43b) - @RogerSelwyn
+- [Correct version](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7631c0a4a64f55d198a4b0cda1ba7db2bad766d8) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f4690f8a133c652cdaa15f95c62f6d15bf7d4c03) - @actions-user
+
 ## v2.2.0 (2021/08/06)
 ### Maintenance
 
