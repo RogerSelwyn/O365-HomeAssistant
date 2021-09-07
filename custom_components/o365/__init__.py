@@ -1,5 +1,6 @@
 """Main initialisation code."""
 import logging
+from functools import partial
 
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import callback
@@ -35,7 +36,7 @@ from .utils import validate_permissions
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup(hass, config):
+async def async_setup(hass, config):
     """Set up the O365 platform."""
     validate_permissions()
     conf = config.get(DOMAIN, {})
@@ -137,7 +138,7 @@ class O365AuthCallbackView(HomeAssistantView):
         self.configurator = self._hass.components.configurator
 
     @callback
-    def get(self, request):
+    async def get(self, request):
         """Receive authorization token."""
         from aiohttp import web_response
 
@@ -149,7 +150,9 @@ class O365AuthCallbackView(HomeAssistantView):
                 headers={"content-type": "text/html"},
                 text="<script>window.close()</script>Error, the originating url does not seem to be a valid microsoft redirect",
             )
-        self.account.con.request_token(url, state=self.state, redirect_uri=self.callback)
+        await self._hass.async_add_executor_job(
+            partial(self.account.con.request_token, url, state=self.state, redirect_uri=self.callback)
+        )
         domain_data = self._hass.data[DOMAIN]
         do_setup(self._hass, self.config, self.account)
         self.configurator.async_request_done(domain_data)
