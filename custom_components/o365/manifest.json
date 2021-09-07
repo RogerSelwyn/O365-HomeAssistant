@@ -12,9 +12,9 @@
   ],
   "requirements": [
     "O365==2.0.9",
-    "BeautifulSoup4==4.8.2",
-    "tzlocal==2.1"
+    "BeautifulSoup4>=4.8.2",
+    "tzlocal<2.2"
   ],
-  "version": "2.2.0",
+  "version": ".2.0",
   "iot_class": "cloud_polling"
 }
