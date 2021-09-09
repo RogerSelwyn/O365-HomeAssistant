@@ -4,6 +4,8 @@
 ### Maintenance
 - [Change code owner](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c31333fd0b9fd8115f92a776e025b9d78bc5b07b) - @RogerSelwyn
 - [Update update_version.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e47746b0055a11870b4bd106681cf3c201d9451c) - @RogerSelwyn
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6326d079b97c52f91d60f9de2a6b96894a56402c) - @RogerSelwyn
+- [Correct hacs.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/61edff5bcb2a32463d8c3d32ae5bd7791ced912a) - @RogerSelwyn
 
 ## v2.2.1 (2021/08/07)
 ### Fixes
