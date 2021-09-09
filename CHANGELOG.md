@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.2.2 (2021/08/09)
+### Maintenance
+- [Change code owner](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c31333fd0b9fd8115f92a776e025b9d78bc5b07b) - @RogerSelwyn
+- [Update update_version.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e47746b0055a11870b4bd106681cf3c201d9451c) - @RogerSelwyn
+
 ## v2.2.1 (2021/08/07)
 ### Fixes
 - [Fix issue with authentication I/O within the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2dfa7859c1a29f775965b3d73b323093bb8848db) - @RogerSelwyn
