@@ -6,6 +6,7 @@ import sys
 COMPONENT = "o365"
 
 version = str(sys.argv[2]).replace("refs/tags/", "")
+version = version[1 : len(version)]
 
 print(f"Version to update to {version}")
 
