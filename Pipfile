@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 o365 = "==2.0.9"
-beautifulsoup4 = "==4.9.0"
+beautifulsoup4 = "==4.10.0"
 
 [requires]
 python_version = "3.7.5"
