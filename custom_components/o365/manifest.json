@@ -15,6 +15,6 @@
     "BeautifulSoup4>=4.10.0",
     "tzlocal<2.2"
   ],
-  "version": "2.2.2",
+  "version": "2.2.3",
   "iot_class": "cloud_polling"
 }
