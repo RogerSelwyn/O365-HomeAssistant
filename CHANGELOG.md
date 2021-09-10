@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.2.2 (2021/09/10)
+## v2.2.3 (2021/09/10)
 ### Maintenance
 - [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2aaad7bcb86ddd5c700c59b171c2866f6e6b7c3b) - @RogerSelwyn
 - [Create dependabot.yml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/601fce70844b150ea5c8bf1d1f654a8e35e52e99) - @RogerSelwyn
