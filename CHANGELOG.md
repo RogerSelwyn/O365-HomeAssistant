@@ -1,13 +1,21 @@
 # Changelog
 
-## v2.2.2 (2021/08/09)
+## v2.2.2 (2021/09/10)
+### Maintenance
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2aaad7bcb86ddd5c700c59b171c2866f6e6b7c3b) - @RogerSelwyn
+- [Create dependabot.yml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/601fce70844b150ea5c8bf1d1f654a8e35e52e99) - @RogerSelwyn
+- [Correct dependency versions](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/48d0634123cb30ad878b8c2565af911760e964ec) - @RogerSelwyn
+- [Bump to v2.2.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/792872bdf9db8adf8fb9028f83d10068a6871cfa) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/973c13e500a55d6d7b11856f3c2cb85dd376e1bc) - @actions-user
+
+## v2.2.2 (2021/09/09)
 ### Maintenance
 - [Change code owner](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c31333fd0b9fd8115f92a776e025b9d78bc5b07b) - @RogerSelwyn
 - [Update update_version.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e47746b0055a11870b4bd106681cf3c201d9451c) - @RogerSelwyn
 - [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6326d079b97c52f91d60f9de2a6b96894a56402c) - @RogerSelwyn
 - [Correct hacs.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/61edff5bcb2a32463d8c3d32ae5bd7791ced912a) - @RogerSelwyn
 
-## v2.2.1 (2021/08/07)
+## v2.2.1 (2021/09/07)
 ### Fixes
 - [Fix issue with authentication I/O within the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2dfa7859c1a29f775965b3d73b323093bb8848db) - @RogerSelwyn
 
@@ -16,7 +24,7 @@
 - [Correct version](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7631c0a4a64f55d198a4b0cda1ba7db2bad766d8) - @RogerSelwyn
 - [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f4690f8a133c652cdaa15f95c62f6d15bf7d4c03) - @actions-user
 
-## v2.2.0 (2021/08/06)
+## v2.2.0 (2021/09/06)
 ### Maintenance
 
 - [Updated to remove deprecation warning on base_url use](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/afb9e98203c405cfdb41b98c3bb46aedc946279f) - @RogerSelwyn
