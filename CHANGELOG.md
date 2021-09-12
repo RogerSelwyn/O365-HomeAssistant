@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.2.3 (2021/09/12)
+## v2.2.4 (2021/09/12)
 ### Maintenance
 - [Update for recommendations by sourcery](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/475cc4de0a5624dc9e320afaca44c16e6b184663) - @RogerSelwyn
 - [Code recommendations from codefactor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d290dadfe7e67e53bb3bb15a7e04d3b892168f31) - @RogerSelwyn
