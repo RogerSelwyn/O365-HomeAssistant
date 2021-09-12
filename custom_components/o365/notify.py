@@ -29,8 +29,7 @@ async def async_get_service(hass, config, discovery_info=None):
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return
-    email_service = O365EmailService(account)
-    return email_service
+    return O365EmailService(account)
 
 
 class O365EmailService(BaseNotificationService):

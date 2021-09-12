@@ -43,18 +43,20 @@ async def async_setup(hass, config):
     CONFIG_SCHEMA(conf)
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
     alt_config = conf.get(CONF_ALT_CONFIG)
-    if not alt_config:
+    if alt_config:
+        callback_url = AUTH_CALLBACK_PATH_ALT
+    else:
         try:
             callback_url = f"{get_url(hass)}{AUTH_CALLBACK_PATH}"
         except NameError:
             callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
-    else:
-        callback_url = AUTH_CALLBACK_PATH_ALT
 
     account = Account(credentials, token_backend=TOKEN_BACKEND)
     is_authenticated = account.is_authenticated
     permissions = validate_permissions()
-    if not is_authenticated or not permissions:
+    if is_authenticated and permissions:
+        do_setup(hass, conf, account)
+    else:
         url, state = account.con.get_authorization_url(requested_scopes=SCOPE, redirect_uri=callback_url)
         _LOGGER.info("no token; requesting authorization")
         callback_view = O365AuthCallbackView(conf, None, account, state, callback_url, hass)
@@ -63,9 +65,6 @@ async def async_setup(hass, config):
             request_configuration_alt(hass, conf, url, callback_view)
         else:
             request_configuration(hass, conf, url, callback_view)
-        return True
-
-    do_setup(hass, conf, account)
 
     return True
 
