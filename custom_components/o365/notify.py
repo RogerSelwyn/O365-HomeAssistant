@@ -57,11 +57,18 @@ class O365EmailService(BaseNotificationService):
         else:
             target = account.get_current_user().mail
 
-        is_html = data.get(ATTR_MESSAGE_IS_HTML, False) if data else False
-        photos = data.get(ATTR_PHOTOS, []) if data else []
-        attachments = data.get(ATTR_ATTACHMENTS, []) if data else []
-        zip_attachments = data.get(ATTR_ZIP_ATTACHMENTS, False) if data else False
-        zip_name = data.get(ATTR_ZIP_NAME, None) if data else None
+        is_html = False
+        photos = []
+        attachments = []
+        zip_attachments = False
+        zip_name = None
+        if data:
+            is_html = data.get(ATTR_MESSAGE_IS_HTML, False)
+            photos = data.get(ATTR_PHOTOS, [])
+            attachments = data.get(ATTR_ATTACHMENTS, [])
+            zip_attachments = data.get(ATTR_ZIP_ATTACHMENTS, False)
+            zip_name = data.get(ATTR_ZIP_NAME, None)
+
         if isinstance(photos, str):
             photos = [photos]
 
