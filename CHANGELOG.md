@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.2.5 (2021/09/13)
+### Fixes
+- [Prefer external url for authentication over internal](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5a949bb78b20c80e69994537c9774b614f2e3e09) - @RogerSelwyn - [#5](https://github.com/RogerSelwyn/O365-HomeAssistant/issues/5) 
+
+### Maintenance
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6c1f569be2d846748c9ec7039704b0537462555f) - @RogerSelwyn
+- [Bump o365 from 2.0.15 to 2.0.16](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/01f4124e4f2a6b99d24cfdead8f3f3376e0da8cc) - @dependabot[bot]
+- [Bump to 2.2.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b1957443ade157614a84492e953905e718d318a7) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/76c1fc94b654c02e5bd7eef02d72750c308bf8c1) - @actions-user
+
 ## v2.2.4 (2021/09/12)
 ### Maintenance
 - [Update for recommendations by sourcery](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/475cc4de0a5624dc9e320afaca44c16e6b184663) - @RogerSelwyn
