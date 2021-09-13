@@ -47,7 +47,7 @@ async def async_setup(hass, config):
         callback_url = AUTH_CALLBACK_PATH_ALT
     else:
         try:
-            callback_url = f"{get_url(hass)}{AUTH_CALLBACK_PATH}"
+            callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
         except NameError:
             callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
 
