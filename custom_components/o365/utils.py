@@ -47,7 +47,7 @@ def validate_permissions(token_path=DEFAULT_CACHE_PATH, filename="o365.token"):
     with open(full_token_path, "r", encoding="UTF-8") as fh:
         raw = fh.read()
         permissions = json.loads(raw)["scope"]
-    scope = [x for x in MINIMUM_REQUIRED_SCOPES]
+    scope = [x for x in MINIMUM_REQUIRED_SCOPES]  # noqa: C416
     all_permissions_granted = all(x in permissions for x in scope)
     if not all_permissions_granted:
         _LOGGER.warning(f"All permissions granted: {all_permissions_granted}")
