@@ -5,7 +5,6 @@
     "homeassistant": "0.103",
     "content_in_root": false,
     "domains": ["calendar"],
-    "iot_class": "Cloud Polling",
     "persistent_directory": ".O365-token-cache",
     "render_readme": true
 }
