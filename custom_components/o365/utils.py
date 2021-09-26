@@ -102,7 +102,7 @@ def format_event_data(event, calendar_id):
         "categories": event.categories,
         "sensitivity": event.sensitivity.name,
         "show_as": event.show_as.name,
-        "is_all_day": event.is_all_day,
+        "all_day": event.is_all_day,
         "attendees": [
             {"email": x.address, "type": x.attendee_type.value} for x in event.attendees._Attendees__attendees
         ],

@@ -97,7 +97,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
     def device_state_attributes(self):
         """Device state property."""
         return {
-            "all_day": self._event.get("is_all_day", False) if self.data.event is not None else False,
+            "all_day": self._event.get("all_day", False) if self.data.event is not None else False,
             "offset_reached": self._offset_reached,
             "data": self._data_attribute,
         }
@@ -175,8 +175,8 @@ class O365CalendarData:
         event_list = []
         for event in vevent_list:
             data = format_event_data(event, self.calendar.calendar_id)
-            data["start"] = self.get_hass_date(data["start"])
-            data["end"] = self.get_hass_date(data["end"])
+            data["start"] = self.get_hass_date(data["start"], event.is_all_day)
+            data["end"] = self.get_hass_date(data["end"], event.is_all_day)
             event_list.append(data)
 
         return event_list
@@ -208,10 +208,11 @@ class O365CalendarData:
 
         self.event = {
             "summary": vevent.subject,
-            "start": self.get_hass_date(vevent.start),
-            "end": self.get_hass_date(self.get_end_date(vevent)),
+            "start": self.get_hass_date(vevent.start, vevent.is_all_day),
+            "end": self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
             "location": vevent.location,
             "description": clean_html(vevent.body),
+            "all_day": vevent.is_all_day,
         }
 
     @staticmethod
@@ -225,12 +226,12 @@ class O365CalendarData:
         return dt.now() >= O365CalendarData.to_datetime(O365CalendarData.get_end_date(vevent))
 
     @staticmethod
-    def get_hass_date(obj):
+    def get_hass_date(obj, is_all_day):
         """Get the date."""
-        if isinstance(obj, datetime):
+        if isinstance(obj, datetime) and not is_all_day:
             return {"dateTime": obj.isoformat()}
 
-        return {"date": obj.isoformat()}
+        return {"date": obj.date().isoformat()}
 
     @staticmethod
     def to_datetime(obj):

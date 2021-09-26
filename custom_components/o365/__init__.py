@@ -51,7 +51,7 @@ async def async_setup(hass, config):
         except NameError:
             callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
 
-    account = Account(credentials, token_backend=TOKEN_BACKEND)
+    account = Account(credentials, token_backend=TOKEN_BACKEND, timezone="UTC")
     is_authenticated = account.is_authenticated
     permissions = validate_permissions()
     if is_authenticated and permissions:
