@@ -2,7 +2,13 @@
 
 ## v2.2.6 Beta 1 (2021/09/26)
 ### Fixes
-- [Fix incorrect handling of all day events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a8d02bf63e727f27e32ac88f3295e4ba2df3643c) - @RogerSelwyn  - [#6](https://github.com/RogerSelwyn/O365-HomeAssistant/issues/6) 
+- [Fix incorrect handling of all day events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a8d02bf63e727f27e32ac88f3295e4ba2df3643c) - @RogerSelwyn
+
+### Maintenance
+- [Remove unrequired iot_class](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d56fcf68832979a82df7de4de732f417c438f409) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1ea49358593dddf588c261075ddb8365a58c8e20) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/03a9de89f00a1718840c1b9df397d10b4609b686) - @actions-user
+
 
 ## v2.2.5 (2021/09/13)
 ### Fixes
