@@ -187,7 +187,9 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 3. Login on the microsoft page.
 4. Copy the url from the browser url bar.
 5. Insert into the "Returned Url" field. and click Submit.
-5. That's it.
+6. That's it.
+
+If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
 
 ## Errors
 * **The reply URL specified in the request does not match the reply URLs configured for the application.** 
