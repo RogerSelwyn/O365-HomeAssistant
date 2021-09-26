@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.6 Beta 1 (2021/09/26)
+### Fixes
+- [Fix incorrect handling of all day events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a8d02bf63e727f27e32ac88f3295e4ba2df3643c) - @RogerSelwyn  - #6 
+
 ## v2.2.5 (2021/09/13)
 ### Fixes
 - [Prefer external url for authentication over internal](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5a949bb78b20c80e69994537c9774b614f2e3e09) - @RogerSelwyn - [#5](https://github.com/RogerSelwyn/O365-HomeAssistant/issues/5) 
