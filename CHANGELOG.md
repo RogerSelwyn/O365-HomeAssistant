@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.2.7 (2021/12/12)
+### Fixes
+- [Fix device_state_attributes warning](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4ba056b01c8dcc824cd39256d0751009ce49740a) - @RogerSelwyn
+
+### Maintenance
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/25a9e248362042daa0fad8541ea77f17c82f9a59) - @RogerSelwyn
+- [Bump to 2.2.7](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/674d398e5af1c92764e270c15e6a28d085c9715a) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/296fc51bad89cc0f57ad32c04e0f9bcbd91d8530) - @actions-user
+
 ## v2.2.6 (2021/09/28)
 ### Fixes
 - [Fix incorrect handling of all days events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a8d02bf63e727f27e32ac88f3295e4ba2df3643c) - @RogerSelwyn - [#6](https://github.com/RogerSelwyn/O365-HomeAssistant/issues/6) 
