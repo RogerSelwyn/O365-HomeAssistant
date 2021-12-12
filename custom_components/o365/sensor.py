@@ -121,7 +121,7 @@ class O365QuerySensor(Entity):
         return self._state
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Device state attributes."""
         return self._attributes
 
@@ -176,7 +176,7 @@ class O365InboxSensor(Entity):
         return self._state
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Device state attributes."""
         return self._attributes
 

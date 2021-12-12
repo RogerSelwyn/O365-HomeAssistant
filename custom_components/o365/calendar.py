@@ -94,7 +94,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
         self._data_attribute = []
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Device state property."""
         return {
             "all_day": self._event.get("all_day", False) if self.data.event is not None else False,
