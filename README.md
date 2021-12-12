@@ -54,9 +54,10 @@ Under "Api Permissions" add the following delegated permission from the Microsof
 _**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
 
 ### Using Home Assistant Community Store (HACS)
-1. Find the *Office 365 Integration* on the integrations tab and install it.
-2. Add the code to your configuration.yaml using the config options below.
-3. Restart your Home Assistant instance.
+1. Add this repository as a custom Integration repository in HACS settings
+2. Find the *Office 365 Integration* on the integrations tab and install it.
+3. Add the code to your configuration.yaml using the config options below.
+4. Restart your Home Assistant instance.
 
 _**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
 
