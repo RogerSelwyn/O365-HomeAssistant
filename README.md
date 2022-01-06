@@ -22,43 +22,35 @@ To allow authentication you first need to register your application at Azure App
 
 Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade)
 
-Create an app. Set a name.
+Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
 
-In Supported account types choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account.
+Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://<your_home_assistant_url_or_local_ip>/api/o365`, leave the other fields blank and click Configure.  
+Note: if you use Nabu Casa for remote support, use that URL as the base.
 
-Set the redirect uri (Web) to: `https://<your_home_assistant_url_or_local_ip>/api/o365` and click register.  
+From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
 
+Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret; return here to generate a new one.  
 
-Write down the Application (client) ID. You will need this value.
-
-Under "Certificates & secrets", generate a new client secret. Set the expiration preferably to never. Write down the value of the client secret created now. It will be hidden later on.
-
-Under "Api Permissions" add the following delegated permission from the Microsoft Graph API collection
+Under "Api Permissions" click Add a permission and add the following delegated permission from the Microsoft Graph API collection
+* email - *View users' email address*
+* offline_access - *Maintain access to data you have given it access to*
 * Calendars.ReadWrite - *Read and write user calendars*
 * Calendars.ReadWrite.Shared - *Read and write user and shared calendars*
-* offline_access - *Maintain access to data you have given it access to*
-* Users.Read - *Sign in and read user profile*
-* email - *View users' email address*
 * Mail.ReadWrite - *Read and write access to user mail*
 * Mail.ReadWrite.Shared - *Read and write user and shared mail*
 * Mail.Send - *Send mail as a user*
 * Mail.Send.Shared - *Send mail on behalf of others*
-
+* Users.Read - *Sign in and read user profile*
+* 
 ## Adding to Home Assistant
+
+### Using Home Assistant Community Store (HACS)
 
 ### Manual installation
 1. Install this component by copying these files to custom_components/o365/.
 2. Add the code to your configuration.yaml using the config options below.
 3. Restart your Home Assistant instance.
-
-_**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
-
-### Using Home Assistant Community Store (HACS)
-1. Find the *Office 365 Integration* on the integrations tab of HACS and install it.
-2. Add the code to your configuration.yaml using the config options below.
-3. Restart your Home Assistant instance.
-
-_**Please note, it home assistants give the error "module not found", please try restarting home assistant once more, this should fix that**_
+_**Please note, if home assistants give the error "module not found", try restarting home assistant once more.**_
 
 # Configuration
 
@@ -98,7 +90,6 @@ Key | Type | Required | Description
 `attachments` | `list<string>` | `False` | Filepaths to attach to email
 `zip_attachments` | `boolean` | `False` | Zip files from attachments into a zip file before sending
 `zip_name` | `string` | `False` | Name of the generated zip file
-
 
 
 ## Configuration variables
@@ -175,7 +166,7 @@ Key | Type | Required | Description
 After setting up configuration.yaml and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
-3. Login on the microsoft page.
+3. Login on the microsoft page; when prompted, authorize the app you created
 4. Close the window when the message "Success! This window can be closed" appears.
 5. That's it.
 
