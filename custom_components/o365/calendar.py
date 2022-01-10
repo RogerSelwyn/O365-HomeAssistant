@@ -96,11 +96,16 @@ class O365CalendarEventDevice(CalendarEventDevice):
     @property
     def extra_state_attributes(self):
         """Device state property."""
-        return {
-            "all_day": self._event.get("all_day", False) if self.data.event is not None else False,
-            "offset_reached": self._offset_reached,
-            "data": self._data_attribute,
-        }
+        if self._event:
+            return {
+                "all_day": self._event.get("all_day", False) if self.data.event is not None else False,
+                "offset_reached": self._offset_reached,
+                "data": self._data_attribute,
+            }
+        else:
+            return {
+                "data": self._data_attribute,
+            }
 
     @property
     def event(self):
@@ -120,11 +125,9 @@ class O365CalendarEventDevice(CalendarEventDevice):
         """Do the update."""
         await self.data.async_update(self.hass)
         event = copy.deepcopy(self.data.event)
-        if event is None:
-            self._event = event
-            return
-        event = calculate_offset(event, DEFAULT_OFFSET)
-        self._offset_reached = is_offset_reached(event)
+        if event:
+            event = calculate_offset(event, DEFAULT_OFFSET)
+            self._offset_reached = is_offset_reached(event)
         events = list(
             await self.hass.async_add_executor_job(
                 self.data.o365_get_events,
