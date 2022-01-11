@@ -65,6 +65,7 @@ CONF_ENTITIES = "entities"
 CONF_HAS_ATTACHMENT = "has_attachment"
 CONF_HOURS_BACKWARD_TO_GET = "start_offset"
 CONF_HOURS_FORWARD_TO_GET = "end_offset"
+CONF_IMPORTANCE = "importance"
 CONF_IS_UNREAD = "is_unread"
 CONF_MAIL_FOLDER = "folder"
 CONF_MAIL_FROM = "from"
@@ -128,6 +129,7 @@ QUERY_SENSOR = vol.Schema(
         vol.Optional(CONF_MAIL_FROM): cv.string,
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
         vol.Optional(CONF_HAS_ATTACHMENT): bool,
+        vol.Optional(CONF_IMPORTANCE): cv.string,
         vol.Optional(CONF_IS_UNREAD): bool,
         vol.Exclusive(CONF_SUBJECT_CONTAINS, "subject_*"): cv.string,
         vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): cv.string,

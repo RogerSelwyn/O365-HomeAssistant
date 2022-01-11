@@ -8,10 +8,10 @@
 
 *If issues are identified I will endeavour to fix, but I do not plan to add extra functionality. If someone wishes to take on full support, then they would be welcome to change the references within core Home Assistant.*
 
-This integration enables 
+This integration enables
 1. Getting calendar events from O365.
 2. Sending emails via the notify.o365_email service.
-3. Getting emails from your inbox. 
+3. Getting emails from your inbox.
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
@@ -24,12 +24,12 @@ Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Micr
 
 Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
 
-Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://<your_home_assistant_url_or_local_ip>/api/o365`, leave the other fields blank and click Configure.  
+Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://<your_home_assistant_url_or_local_ip>/api/o365`, leave the other fields blank and click Configure.
 Note: if you use Nabu Casa for remote support, use that URL as the base.
 
 From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
 
-Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret; return here to generate a new one.  
+Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret; return here to generate a new one.
 
 Under "Api Permissions" click Add a permission and add the following delegated permission from the Microsoft Graph API collection
 * email - *View users' email address*
@@ -41,7 +41,7 @@ Under "Api Permissions" click Add a permission and add the following delegated p
 * Mail.Send - *Send mail as a user*
 * Mail.Send.Shared - *Send mail on behalf of others*
 * Users.Read - *Sign in and read user profile*
-* 
+*
 ## Adding to Home Assistant
 
 ### Using Home Assistant Community Store (HACS)
@@ -121,6 +121,7 @@ Key | Type | Required | Description
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `from` | `string` | `False` | Only retrieve emails from this email address
 `has_attachment` | `boolean` | `False` | True=Only get emails with attachments, False=Only get emails without attachments, Not set=Get all
+`importance` | `string` | `False` | Only get items with 'low'/'normal'/'high' importance
 `subject_contains` | `string` | `False` | Only get emails where the subject contains this string (Mutually exclusive with `subject_is`)
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
 
@@ -171,7 +172,7 @@ After setting up configuration.yaml and restarting home assistant a persisten no
 5. That's it.
 
 ### Alt auth flow.
-**NB. This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient" this needs to be set as as a manual url, with type web, just checking the checkmark for it does not seem to work**  
+**NB. This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient" this needs to be set as as a manual url, with type web, just checking the checkmark for it does not seem to work**
 After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
@@ -183,7 +184,7 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
 
 ## Errors
-* **The reply URL specified in the request does not match the reply URLs configured for the application.** 
+* **The reply URL specified in the request does not match the reply URLs configured for the application.**
   * Please ensure that you have configured base_url in your http config https://www.home-assistant.io/integrations/http/#base_url and that you have added the correct reply url to your Azure app
 * **Client is public so neither 'client_assertion' nor 'client_secret' should be presented.**
   * Please ensure that you have set "Default client type" to Yes in your Azure app under Authentication ![Default client type img](https://user-images.githubusercontent.com/17211264/72337364-ba936a80-36c2-11ea-834d-2af9b84a8bba.png)
@@ -191,11 +192,11 @@ If you are using Multi-factor Authentication (MFA), you may find you also need t
   * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
 * **Platform error sensor.office365calendar - No module named '{x}'**
   * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:
-  
-  
-    1\. Install the component.  
-    2\. Restart home assistant.  
-    3\. Then add the sensor to your configuration.yaml  
-    4\. Restart home assistant again.  
+
+
+    1\. Install the component.
+    2\. Restart home assistant.
+    3\. Then add the sensor to your configuration.yaml
+    4\. Restart home assistant again.
 
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant_**

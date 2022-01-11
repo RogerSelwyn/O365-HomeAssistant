@@ -89,6 +89,8 @@ def get_email_attributes(mail):
         "bcc": [x.address for x in mail.bcc],
         "sender": mail.sender.address,
         "has_attachments": mail.has_attachments,
+        "importance": mail.importance.value,
+        "is_read": mail.is_read,
         "attachments": [x.name for x in mail.attachments],
     }
 

@@ -9,6 +9,7 @@ from homeassistant.helpers.entity import Entity
 from .const import (
     CONF_EMAIL_SENSORS,
     CONF_HAS_ATTACHMENT,
+    CONF_IMPORTANCE,
     CONF_IS_UNREAD,
     CONF_MAIL_FOLDER,
     CONF_MAIL_FROM,
@@ -79,6 +80,7 @@ class O365QuerySensor(Entity):
         self.subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
         self.subject_is = conf.get(CONF_SUBJECT_IS)
         self.has_attachment = conf.get(CONF_HAS_ATTACHMENT)
+        self.importance = conf.get(CONF_IMPORTANCE)
         self.email_from = conf.get(CONF_MAIL_FROM)
         self.is_unread = conf.get(CONF_IS_UNREAD)
         self.query = self.mail_folder.new_query()
@@ -88,6 +90,7 @@ class O365QuerySensor(Entity):
             self.subject_contains is not None
             or self.subject_is is not None
             or self.has_attachment is not None
+            or self.importance is not None
             or self.email_from is not None
             or self.is_unread is not None
         ):
@@ -97,6 +100,7 @@ class O365QuerySensor(Entity):
         self._add_to_query("equals", "hasAttachments", self.has_attachment)
         self._add_to_query("equals", "from", self.email_from)
         self._add_to_query("equals", "IsRead", not self.is_unread, self.is_unread)
+        self._add_to_query("equals", "importance", self.importance)
 
         _LOGGER.debug(self.query)
         self._state = None
