@@ -1,7 +1,9 @@
 """Sensor processing."""
+import datetime as dt
 import logging
 from operator import itemgetter
 
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.entity import Entity
 
 from .const import (
@@ -55,10 +57,18 @@ class O365QuerySensor(Entity):
         mail_folder = conf.get(CONF_MAIL_FOLDER)
         if mail_folder:
             for i, folder in enumerate(mail_folder.split("/")):
+                _LOGGER.debug(f"Processing folder - {folder}")
                 if i == 0:
                     self.mail_folder = self.mailbox.get_folder(folder_name=folder)
                 else:
                     self.mail_folder = self.mail_folder.get_folder(folder_name=folder)
+
+                if not self.mail_folder:
+                    _LOGGER.error(f"Folder - {folder} - not found")
+                    raise ConfigEntryNotReady
+                    return
+
+                _LOGGER.debug(f"Got folder id - {self.mail_folder.folder_id}")
 
         else:
             self.mail_folder = self.mailbox.inbox_folder()
@@ -71,42 +81,24 @@ class O365QuerySensor(Entity):
         self.has_attachment = conf.get(CONF_HAS_ATTACHMENT)
         self.email_from = conf.get(CONF_MAIL_FROM)
         self.is_unread = conf.get(CONF_IS_UNREAD)
-
-        if self.subject_contains is not None:
-            if not self.query:
-                self.query = self.mail_folder.new_query()
-            else:
-                self.query.chain("and")
-            self.query.on_attribute("subject").contains(self.subject_contains)
-
-        if self.subject_is is not None:
-            if not self.query:
-                self.query = self.mail_folder.new_query()
-            else:
-                self.query.chain("and")
-            self.query.on_attribute("subject").equals(self.subject_is)
-
-        if self.has_attachment is not None:
-            if not self.query:
-                self.query = self.mail_folder.new_query()
-            else:
-                self.query.chain("and")
-            self.query.on_attribute("hasAttachments").equals(self.has_attachment)
-
-        if self.email_from is not None:
-            if not self.query:
-                self.query = self.mail_folder.new_query()
-            else:
-                self.query.chain("and")
-            self.query.on_attribute("from").equals(self.email_from)
-
-        if self.is_unread is not None:
-            if not self.query:
-                self.query = self.mail_folder.new_query()
-            else:
-                self.query.chain("and")
-            self.query.on_attribute("IsRead").equals(not self.is_unread)
+        self.query = self.mail_folder.new_query()
         self.query.order_by("receivedDateTime", ascending=False)
+
+        if (
+            self.subject_contains is not None
+            or self.subject_is is not None
+            or self.has_attachment is not None
+            or self.email_from is not None
+            or self.is_unread is not None
+        ):
+            self._add_to_query("ge", "receivedDateTime", dt.datetime(1900, 5, 1))
+        self._add_to_query("contains", "subject", self.subject_contains)
+        self._add_to_query("equals", "subject", self.subject_is)
+        self._add_to_query("equals", "hasAttachments", self.has_attachment)
+        self._add_to_query("equals", "from", self.email_from)
+        self._add_to_query("equals", "IsRead", not self.is_unread, self.is_unread)
+
+        _LOGGER.debug(self.query)
         self._state = None
         self._attributes = {}
 
@@ -134,6 +126,17 @@ class O365QuerySensor(Entity):
         # self._attributes = {"data": attrs, "data_str_repr": json.dumps(attrs)}
         self._attributes = {"data": attrs}
 
+    def _add_to_query(self, type, attribute_name, attribute_value, check_value=True):
+        if attribute_value is None or check_value is None:
+            return
+
+        if type == "ge":
+            self.query.chain("and").on_attribute(attribute_name).greater_equal(attribute_value)
+        if type == "contains":
+            self.query.chain("and").on_attribute(attribute_name).contains(attribute_value)
+        if type == "equals":
+            self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
+
 
 class O365InboxSensor(Entity):
     """O365 Inboox processing."""
@@ -151,6 +154,12 @@ class O365InboxSensor(Entity):
                     self.mail_folder = self.mailbox.get_folder(folder_name=folder)
                 else:
                     self.mail_folder = self.mail_folder.get_folder(folder_name=folder)
+
+                if not self.mail_folder:
+                    _LOGGER.error(f"Folder - {folder} - not found")
+                    raise ConfigEntryNotReady
+                    return
+
         else:
             self.mail_folder = self.mailbox.inbox_folder()
 
