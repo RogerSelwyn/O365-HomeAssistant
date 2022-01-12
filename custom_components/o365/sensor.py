@@ -3,7 +3,6 @@ import datetime as dt
 import logging
 from operator import itemgetter
 
-from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.entity import Entity
 
 from .const import (
@@ -37,44 +36,51 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
     for conf in unread_sensors:
-        sensor = O365InboxSensor(account, conf)
-        add_devices([sensor], True)
+        mail_folder = get_mail_folder(hass, account, conf, CONF_EMAIL_SENSORS)
+        if mail_folder:
+            sensor = O365InboxSensor(conf, mail_folder)
+            add_devices([sensor], True)
 
     query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
     for conf in query_sensors:
-        sensor = O365QuerySensor(account, conf)
-        add_devices([sensor], True)
+        mail_folder = get_mail_folder(hass, account, conf, CONF_QUERY_SENSORS)
+        if mail_folder:
+            sensor = O365QuerySensor(conf, mail_folder)
+            add_devices([sensor], True)
+
+
+def get_mail_folder(hass, account, conf, sensor_type):
+    """Get the configured folder."""
+    mailbox = account.mailbox()
+    mail_folder = None
+    mail_folder_conf = conf.get(CONF_MAIL_FOLDER)
+    if mail_folder_conf:
+        for i, folder in enumerate(mail_folder_conf.split("/")):
+            _LOGGER.debug(f"Processing folder - {folder}")
+            if i == 0:
+                mail_folder = mailbox.get_folder(folder_name=folder)
+            else:
+                mail_folder = mail_folder.get_folder(folder_name=folder)
+
+            if not mail_folder:
+                _LOGGER.error(f"Folder - {folder} - not found from {sensor_type} config entry- {mail_folder_conf}")
+                return None
+
+            _LOGGER.debug(f"Got folder id - {mail_folder.folder_id}")
+
+    else:
+        mail_folder = mailbox.inbox_folder()
+
+    return mail_folder
 
 
 class O365QuerySensor(Entity):
     """O365 Query sensor processing."""
 
-    def __init__(self, account, conf):
+    def __init__(self, conf, mail_folder):
         """Initialise the O365 Query."""
-        self.account = account
-        self.mailbox = account.mailbox()
-        self.mail_folder = None
-        self.query = None
-        mail_folder = conf.get(CONF_MAIL_FOLDER)
-        if mail_folder:
-            for i, folder in enumerate(mail_folder.split("/")):
-                _LOGGER.debug(f"Processing folder - {folder}")
-                if i == 0:
-                    self.mail_folder = self.mailbox.get_folder(folder_name=folder)
-                else:
-                    self.mail_folder = self.mail_folder.get_folder(folder_name=folder)
-
-                if not self.mail_folder:
-                    _LOGGER.error(f"Folder - {folder} - not found")
-                    raise ConfigEntryNotReady
-                    return
-
-                _LOGGER.debug(f"Got folder id - {self.mail_folder.folder_id}")
-
-        else:
-            self.mail_folder = self.mailbox.inbox_folder()
-
-        self._name = conf.get(CONF_NAME, f"{self.account.get_current_user().mail}-{self.mail_folder}")
+        self.mail_folder = mail_folder
+        self._name = conf.get(CONF_NAME)
 
         self.max_items = conf.get(CONF_MAX_ITEMS, 5)
         self.subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
@@ -145,29 +151,13 @@ class O365QuerySensor(Entity):
 class O365InboxSensor(Entity):
     """O365 Inboox processing."""
 
-    def __init__(self, account, conf):
+    def __init__(self, conf, mail_folder):
         """Initialise the O365 Inbox."""
-        self.account = account
-        self.mailbox = account.mailbox()
-        mail_folder = conf.get(CONF_MAIL_FOLDER)
+        self.mail_folder = mail_folder
         self.max_items = conf.get(CONF_MAX_ITEMS, 5)
         self.is_unread = conf.get(CONF_IS_UNREAD)
-        if mail_folder:
-            for i, folder in enumerate(mail_folder.split("/")):
-                if i == 0:
-                    self.mail_folder = self.mailbox.get_folder(folder_name=folder)
-                else:
-                    self.mail_folder = self.mail_folder.get_folder(folder_name=folder)
 
-                if not self.mail_folder:
-                    _LOGGER.error(f"Folder - {folder} - not found")
-                    raise ConfigEntryNotReady
-                    return
-
-        else:
-            self.mail_folder = self.mailbox.inbox_folder()
-
-        self._name = conf.get(CONF_NAME, f"{self.account.get_current_user().mail}-{self.mail_folder}")
+        self._name = conf.get(CONF_NAME)
         self._state = 0
         self._attributes = {}
         self.query = None
