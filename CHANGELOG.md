@@ -1,5 +1,27 @@
 # Changelog
 
+## v2.2.8 (2022/01/19)
+### Enhancements
+- [Add importance as query filter](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cf1055bca377c2dc42fd5337693b88fc305a4b0e) - @RogerSelwyn
+
+### Fixes
+- [Fix issue with no events retrieved if none in next 24h](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/80e99833d7aada408911c7ac7d878530f62a83a4) - @RogerSelwyn - [#13](https://github.com/RogerSelwyn/O365-HomeAssistant/issues/13) 
+- [Fix error with filter not including receivedDateTime](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/26fcb30be5be22c84f66b7e8297ae66776eeacbe) - @RogerSelwyn
+
+### Maintenance
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ca2b3190c6fd80c904a7129c530471f0709a768a) - @RogerSelwyn
+- [Documenation clarifications](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/aab090a53b65e01cde91aebd01dfe7c406d5587a) - @uSlackr
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4cfb23620b7466dd38278496c8bd1d705b0466a5) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d1d231192ea7f0a870be8730afbf38ef58c20dcc) - @RogerSelwyn
+- [Bump to 2.2.8 Beta 1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c5cef0214a8db234bdfc0f0a193f3fa9a277f775) - @RogerSelwyn
+- [Revert "Bump to 2.2.8 Beta 1"](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/19829afe5bdfcc441e775fb334115f4eb90a3439) - @RogerSelwyn
+- [Bump to 2.2.8 Beta 1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/beafec4c46923a1aa290aed5a02374bd41d567aa) - @RogerSelwyn
+- [Bump to 2.2.8 Beta 2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/726ac8c03dac1e49beb0cd7869b506c69f07cc5d) - @RogerSelwyn
+- [Simplify Code](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/14a1f1945a2147d2e1633a785f0d761c323ac578) - @RogerSelwyn
+- [Remove duplicate code](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b917935c6f572f43b2045ff3cff30bcc3514a104) - @RogerSelwyn
+- [Bump to 2.2.8 Beta 3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1c3a4f3e034f6a554f4fd032933db7deab8e6307) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c8d28ff0da03651e7d2ce964a235b3467f6a70a1) - @actions-user
+
 ## v2.2.7 (2021/12/12)
 ### Fixes
 - [Fix device_state_attributes warning](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4ba056b01c8dcc824cd39256d0751009ce49740a) - @RogerSelwyn
