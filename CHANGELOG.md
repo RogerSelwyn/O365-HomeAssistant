@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.8 (2022/02/02)
+### Maintenance
+- [Bump o365 from 2.0.16 to 2.0.17](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/66f669314668130d78c81568f5edad520c50b456) - @dependabot[bot]
+- [Update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d465d61c1bb3aef551f35b1acbf262668389871d) - @RogerSelwyn
+- [Bump to v2.2.9](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b236ab93c2594f5af6f8cb1e88019af0b071dec3) - @RogerSelwyn
+
 ## v2.2.8 (2022/01/19)
 ### Enhancements
 - [Add importance as query filter](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cf1055bca377c2dc42fd5337693b88fc305a4b0e) - @RogerSelwyn
