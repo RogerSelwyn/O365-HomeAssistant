@@ -18,8 +18,8 @@ from .const import (CALENDAR_ENTITY_ID_FORMAT, CALENDAR_SERVICE_CREATE_SCHEMA,
                     CONF_HOURS_FORWARD_TO_GET, CONF_MAX_RESULTS, CONF_NAME,
                     CONF_SEARCH, CONF_TRACK, CONF_TRACK_NEW, DEFAULT_OFFSET,
                     DOMAIN, MIN_TIME_BETWEEN_UPDATES, YAML_CALENDARS)
-from .utils import (add_call_data_to_event, clean_html, format_event_data,
-                    load_calendars, update_calendar_file)
+from .utils import (add_call_data_to_event, build_config_file_path, clean_html,
+                    format_event_data, load_calendars, update_calendar_file)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,10 +38,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     calendar_services = CalendarServices(account, track_new, hass)
     calendar_services.scan_for_calendars(None)
 
-    root = hass.config.config_dir
-    if root[-1] != "/":
-        root += "/"
-    calendars = load_calendars(root + YAML_CALENDARS)
+    calendars = load_calendars(build_config_file_path(hass, YAML_CALENDARS))
     devices = []
 
     for cal_id, calendar in calendars.items():

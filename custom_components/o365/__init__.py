@@ -5,40 +5,27 @@ from functools import partial
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
-from O365 import Account
+from O365 import Account, FileSystemTokenBackend
 
 try:
     from homeassistant.helpers.network import get_url
 except ImportError:
     pass
-from .const import (
-    AUTH_CALLBACK_NAME,
-    AUTH_CALLBACK_PATH,
-    AUTH_CALLBACK_PATH_ALT,
-    CONF_ALT_CONFIG,
-    CONF_CALENDARS,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    CONF_EMAIL_SENSORS,
-    CONF_QUERY_SENSORS,
-    CONF_TRACK_NEW,
-    CONFIG_SCHEMA,
-    CONFIGURATOR_DESCRIPTION,
-    CONFIGURATOR_LINK_NAME,
-    CONFIGURATOR_SUBMIT_CAPTION,
-    DEFAULT_NAME,
-    DOMAIN,
-    SCOPE,
-    TOKEN_BACKEND,
-)
-from .utils import validate_permissions
+from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
+                    AUTH_CALLBACK_PATH_ALT, CONF_ALT_CONFIG, CONF_CALENDARS,
+                    CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_EMAIL_SENSORS,
+                    CONF_QUERY_SENSORS, CONF_TRACK_NEW, CONFIG_SCHEMA,
+                    CONFIGURATOR_DESCRIPTION, CONFIGURATOR_LINK_NAME,
+                    CONFIGURATOR_SUBMIT_CAPTION, DEFAULT_CACHE_PATH,
+                    DEFAULT_NAME, DOMAIN, SCOPE, TOKEN_FILENAME)
+from .utils import build_config_file_path, validate_permissions
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass, config):
     """Set up the O365 platform."""
-    validate_permissions()
+    validate_permissions(hass)
     conf = config.get(DOMAIN, {})
     CONFIG_SCHEMA(conf)
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
@@ -50,10 +37,12 @@ async def async_setup(hass, config):
             callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
         except NameError:
             callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
+    token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
+    token_backend = FileSystemTokenBackend(token_path=token_path, token_filename=TOKEN_FILENAME)
 
-    account = Account(credentials, token_backend=TOKEN_BACKEND, timezone="UTC")
+    account = Account(credentials, token_backend=token_backend, timezone="UTC")
     is_authenticated = account.is_authenticated
-    permissions = validate_permissions()
+    permissions = validate_permissions(hass)
     if is_authenticated and permissions:
         do_setup(hass, conf, account)
     else:

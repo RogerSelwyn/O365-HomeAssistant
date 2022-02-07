@@ -4,10 +4,10 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import ATTR_DATA, ATTR_MESSAGE, ATTR_TARGET, ATTR_TITLE
+from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
+                                             ATTR_TARGET, ATTR_TITLE)
 from homeassistant.config import get_default_config_dir
 from homeassistant.const import CONF_NAME
-from O365 import FileSystemTokenBackend
 from O365.calendar import AttendeeType, EventSensitivity, EventShowAs
 
 
@@ -80,6 +80,7 @@ CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
+TOKEN_FILENAME = "o365.token"
 DEFAULT_HOURS_BACKWARD_TO_GET = 0
 DEFAULT_HOURS_FORWARD_TO_GET = 24
 DEFAULT_NAME = "O365"
@@ -103,7 +104,6 @@ MINIMUM_REQUIRED_SCOPES = [
     "Mail.ReadWrite",
     "Mail.Send",
 ]
-TOKEN_BACKEND = FileSystemTokenBackend(token_path=DEFAULT_CACHE_PATH, token_filename="o365.token")
 YAML_CALENDARS = f"{DOMAIN}_calendars.yaml"
 
 CALENDAR_SCHEMA = vol.Schema(

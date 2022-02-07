@@ -15,7 +15,7 @@ from voluptuous.error import Error as VoluptuousError
 from .const import (CALENDAR_DEVICE_SCHEMA, CONF_CAL_ID, CONF_DEVICE_ID,
                     CONF_ENTITIES, CONF_NAME, CONF_TRACK, CONFIG_BASE_DIR,
                     DATETIME_FORMAT, DEFAULT_CACHE_PATH,
-                    MINIMUM_REQUIRED_SCOPES)
+                    MINIMUM_REQUIRED_SCOPES, TOKEN_FILENAME)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,9 +30,10 @@ def clean_html(html):
     return html
 
 
-def validate_permissions(token_path=DEFAULT_CACHE_PATH, filename="o365.token"):
+def validate_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME):
     """Validate the permissions."""
-    full_token_path = os.path.join(token_path, filename)
+    config_path = build_config_file_path(hass, token_path)
+    full_token_path = os.path.join(config_path, filename)
     if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
         _LOGGER.warning(f"Could not loacte token at {full_token_path}")
         return False
@@ -197,14 +198,17 @@ def get_calendar_info(hass, calendar, track_new_devices):
 
 def update_calendar_file(path, calendar, hass, track_new_devices):
     """Update the calendar file."""
-    root = hass.config.config_dir
-    if root[-1] != "/":
-        root += "/"
-
-    existing_calendars = load_calendars(root + path)
+    existing_calendars = load_calendars(build_config_file_path(hass, path))
     cal = get_calendar_info(hass, calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
         return
     with open(path, "a", encoding="UTF8") as out:
         out.write("\n")
         yaml.dump([cal], out, default_flow_style=False, encoding="UTF8")
+
+
+def build_config_file_path(hass, filename):
+    """Create filename in config path."""
+    root = hass.config.config_dir
+
+    return os.path.join(root, filename)
