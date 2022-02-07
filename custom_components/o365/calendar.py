@@ -4,31 +4,22 @@ import logging
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-from homeassistant.components.calendar import CalendarEventDevice, calculate_offset, is_offset_reached
+from homeassistant.components.calendar import (CalendarEventDevice,
+                                               calculate_offset,
+                                               is_offset_reached)
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 
-from .const import (
-    CALENDAR_ENTITY_ID_FORMAT,
-    CALENDAR_SERVICE_CREATE_SCHEMA,
-    CALENDAR_SERVICE_MODIFY_SCHEMA,
-    CALENDAR_SERVICE_REMOVE_SCHEMA,
-    CALENDAR_SERVICE_RESPOND_SCHEMA,
-    CONF_DEVICE_ID,
-    CONF_ENTITIES,
-    CONF_HOURS_BACKWARD_TO_GET,
-    CONF_HOURS_FORWARD_TO_GET,
-    CONF_MAX_RESULTS,
-    CONF_NAME,
-    CONF_SEARCH,
-    CONF_TRACK,
-    CONF_TRACK_NEW,
-    DEFAULT_OFFSET,
-    DOMAIN,
-    MIN_TIME_BETWEEN_UPDATES,
-    YAML_CALENDARS,
-)
-from .utils import add_call_data_to_event, clean_html, format_event_data, load_calendars, update_calendar_file
+from .const import (CALENDAR_ENTITY_ID_FORMAT, CALENDAR_SERVICE_CREATE_SCHEMA,
+                    CALENDAR_SERVICE_MODIFY_SCHEMA,
+                    CALENDAR_SERVICE_REMOVE_SCHEMA,
+                    CALENDAR_SERVICE_RESPOND_SCHEMA, CONF_DEVICE_ID,
+                    CONF_ENTITIES, CONF_HOURS_BACKWARD_TO_GET,
+                    CONF_HOURS_FORWARD_TO_GET, CONF_MAX_RESULTS, CONF_NAME,
+                    CONF_SEARCH, CONF_TRACK, CONF_TRACK_NEW, DEFAULT_OFFSET,
+                    DOMAIN, MIN_TIME_BETWEEN_UPDATES, YAML_CALENDARS)
+from .utils import (add_call_data_to_event, clean_html, format_event_data,
+                    load_calendars, update_calendar_file)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,7 +38,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     calendar_services = CalendarServices(account, track_new, hass)
     calendar_services.scan_for_calendars(None)
 
-    calendars = load_calendars(YAML_CALENDARS)
+    root = hass.config.config_dir
+    if root[-1] != "/":
+        root += "/"
+    calendars = load_calendars(root + YAML_CALENDARS)
     devices = []
 
     for cal_id, calendar in calendars.items():

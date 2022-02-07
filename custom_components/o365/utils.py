@@ -12,18 +12,10 @@ from homeassistant.util import dt
 from O365.calendar import Attendee, EventSensitivity
 from voluptuous.error import Error as VoluptuousError
 
-from .const import (
-    CALENDAR_DEVICE_SCHEMA,
-    CONF_CAL_ID,
-    CONF_DEVICE_ID,
-    CONF_ENTITIES,
-    CONF_NAME,
-    CONF_TRACK,
-    CONFIG_BASE_DIR,
-    DATETIME_FORMAT,
-    DEFAULT_CACHE_PATH,
-    MINIMUM_REQUIRED_SCOPES,
-)
+from .const import (CALENDAR_DEVICE_SCHEMA, CONF_CAL_ID, CONF_DEVICE_ID,
+                    CONF_ENTITIES, CONF_NAME, CONF_TRACK, CONFIG_BASE_DIR,
+                    DATETIME_FORMAT, DEFAULT_CACHE_PATH,
+                    MINIMUM_REQUIRED_SCOPES)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -205,7 +197,11 @@ def get_calendar_info(hass, calendar, track_new_devices):
 
 def update_calendar_file(path, calendar, hass, track_new_devices):
     """Update the calendar file."""
-    existing_calendars = load_calendars(path)
+    root = hass.config.config_dir
+    if root[-1] != "/":
+        root += "/"
+
+    existing_calendars = load_calendars(root + path)
     cal = get_calendar_info(hass, calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
         return
