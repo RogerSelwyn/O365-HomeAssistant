@@ -2,7 +2,7 @@
     "name": "Office 365 Integration",
     "zip_release": true,
     "filename": "o365.zip",
-    "homeassistant": "0.103",
+    "homeassistant": "0.110",
     "content_in_root": false,
     "domains": ["calendar"],
     "persistent_directory": ".O365-token-cache",

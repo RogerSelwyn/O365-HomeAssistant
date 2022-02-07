@@ -1,16 +1,15 @@
 """Main initialisation code."""
 import logging
+import warnings
 from functools import partial
 
+from aiohttp import web_response
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
+from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-try:
-    from homeassistant.helpers.network import get_url
-except ImportError:
-    pass
 from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
                     AUTH_CALLBACK_PATH_ALT, CONF_ALT_CONFIG, CONF_CALENDARS,
                     CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_EMAIL_SENSORS,
@@ -33,10 +32,7 @@ async def async_setup(hass, config):
     if alt_config:
         callback_url = AUTH_CALLBACK_PATH_ALT
     else:
-        try:
-            callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
-        except NameError:
-            callback_url = f"{hass.config.api.base_url}{AUTH_CALLBACK_PATH}"
+        callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_backend = FileSystemTokenBackend(token_path=token_path, token_filename=TOKEN_FILENAME)
 
@@ -46,14 +42,17 @@ async def async_setup(hass, config):
     if is_authenticated and permissions:
         do_setup(hass, conf, account)
     else:
-        url, state = account.con.get_authorization_url(requested_scopes=SCOPE, redirect_uri=callback_url)
+        url, state = account.con.get_authorization_url(
+            requested_scopes=SCOPE,
+            redirect_uri=callback_url
+        )
         _LOGGER.info("no token; requesting authorization")
         callback_view = O365AuthCallbackView(conf, None, account, state, callback_url, hass)
         hass.http.register_view(callback_view)
         if alt_config:
-            request_configuration_alt(hass, conf, url, callback_view)
+            request_configuration_alt(hass, url, callback_view)
         else:
-            request_configuration(hass, conf, url, callback_view)
+            request_configuration(hass, url, callback_view)
 
     return True
 
@@ -61,13 +60,15 @@ async def async_setup(hass, config):
 def do_setup(hass, config, account):
     """Run the setup after we have everything configured."""
     if config.get(CONF_CALENDARS, None):
-        import warnings
-
         _LOGGER.warning(
-            "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed:\nhttps://github.com/PTST/O365-HomeAssistant/tree/master#calendar-configuration"
+            "Configuring calendars through configuration.yaml has been deprecated, "
+            "and will be removed in a future release. Please see the docs for how "
+            "to proceed:"
+            "\nhttps://github.com/PTST/O365-HomeAssistant/tree/master#calendar-configuration"
         )
         warnings.warn(
-            "Configuring calendars trough configuration.yaml has been deprecated, and will be removed in a future release. Please see the docs for how to proceed",
+            "Configuring calendars through configuration.yaml has been deprecated, "
+            "and will be removed in a future release. Please see the docs for how to proceed",
             FutureWarning,
         )
     hass.data[DOMAIN] = {
@@ -81,7 +82,7 @@ def do_setup(hass, config, account):
     hass.async_create_task(discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config))
 
 
-def request_configuration(hass, config, url, callback_view):
+def request_configuration(hass, url, callback_view):
     """Request the config."""
     configurator = callback_view.configurator
     hass.data[DOMAIN] = configurator.async_request_config(
@@ -94,7 +95,7 @@ def request_configuration(hass, config, url, callback_view):
     )
 
 
-def request_configuration_alt(hass, config, url, callback_view):
+def request_configuration_alt(hass, url, callback_view):
     """Request the alternate config."""
     configurator = callback_view.configurator
     hass.data[DOMAIN] = configurator.async_request_config(
@@ -103,7 +104,8 @@ def request_configuration_alt(hass, config, url, callback_view):
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
         fields=[{"id": "token", "name": "Returned Url", "type": "token"}],
-        description="Complete the configuration and copy the complete url into this field afterwards and submit",
+        description="Complete the configuration and copy the complete url "
+        "into this field afterwards and submit",
         submit_caption="Submit",
     )
 
@@ -128,18 +130,22 @@ class O365AuthCallbackView(HomeAssistantView):
     @callback
     async def get(self, request):
         """Receive authorization token."""
-        from aiohttp import web_response
-
         url = str(request.url)
         if url[:5].lower() == "http:":
             url = f"https:{url[5:]}"
         if "code" not in url:
             return web_response.Response(
                 headers={"content-type": "text/html"},
-                text="<script>window.close()</script>Error, the originating url does not seem to be a valid microsoft redirect",
+                text="<script>window.close()</script>Error, the "
+                "originating url does not seem to be a valid microsoft redirect",
             )
         await self._hass.async_add_executor_job(
-            partial(self.account.con.request_token, url, state=self.state, redirect_uri=self.callback)
+            partial(
+                self.account.con.request_token,
+                url,
+                state=self.state,
+                redirect_uri=self.callback
+            )
         )
         domain_data = self._hass.data[DOMAIN]
         do_setup(self._hass, self.config, self.account)
@@ -156,7 +162,11 @@ class O365AuthCallbackView(HomeAssistantView):
         if not url:
             url = [v for k, v in data.items()][0]
 
-        result = self.account.con.request_token(url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT)
+        result = self.account.con.request_token(
+            url,
+            state=self.state,
+            redirect_uri=AUTH_CALLBACK_PATH_ALT
+        )
         if not result:
             self.configurator.notify_errors(
                 self._hass.data[DOMAIN],
