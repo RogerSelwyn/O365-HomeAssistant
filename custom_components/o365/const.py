@@ -4,12 +4,8 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (
-    ATTR_DATA,
-    ATTR_MESSAGE,
-    ATTR_TARGET,
-    ATTR_TITLE,
-)
+from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
+                                             ATTR_TARGET, ATTR_TITLE)
 from homeassistant.config import get_default_config_dir
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
@@ -76,6 +72,7 @@ CONF_IS_UNREAD = "is_unread"
 CONF_MAIL_FOLDER = "folder"
 CONF_MAIL_FROM = "from"
 CONF_MAX_ITEMS = "max_items"
+CONF_STATUS_SENSORS = "status_sensors"
 CONF_QUERY_SENSORS = "query_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
@@ -130,6 +127,11 @@ EMAIL_SENSOR = vol.Schema(
         vol.Optional(CONF_IS_UNREAD): bool,
     }
 )
+STATUS_SENSOR = vol.Schema(
+    {
+        vol.Required(CONF_NAME): cv.string,
+    }
+)
 QUERY_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
@@ -154,6 +156,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(CONF_CALENDARS, default=[]): [CALENDAR_SCHEMA],
                 vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
                 vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
+                vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
             },
         )
     },

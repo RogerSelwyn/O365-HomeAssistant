@@ -10,27 +10,14 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (
-    AUTH_CALLBACK_NAME,
-    AUTH_CALLBACK_PATH,
-    AUTH_CALLBACK_PATH_ALT,
-    CONF_ALT_CONFIG,
-    CONF_CALENDARS,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    CONF_EMAIL_SENSORS,
-    CONF_QUERY_SENSORS,
-    CONF_TRACK_NEW,
-    CONFIG_SCHEMA,
-    CONFIGURATOR_DESCRIPTION,
-    CONFIGURATOR_LINK_NAME,
-    CONFIGURATOR_SUBMIT_CAPTION,
-    DEFAULT_CACHE_PATH,
-    DEFAULT_NAME,
-    DOMAIN,
-    SCOPE,
-    TOKEN_FILENAME,
-)
+from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
+                    AUTH_CALLBACK_PATH_ALT, CONF_ALT_CONFIG, CONF_CALENDARS,
+                    CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_EMAIL_SENSORS,
+                    CONF_STATUS_SENSORS, CONF_QUERY_SENSORS, CONF_TRACK_NEW,
+                    CONFIG_SCHEMA, CONFIGURATOR_DESCRIPTION,
+                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
+                    DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN, SCOPE,
+                    TOKEN_FILENAME)
 from .utils import build_config_file_path, validate_permissions
 
 _LOGGER = logging.getLogger(__name__)
@@ -92,6 +79,7 @@ def do_setup(hass, config, account):
         "account": account,
         CONF_EMAIL_SENSORS: config.get(CONF_EMAIL_SENSORS, []),
         CONF_QUERY_SENSORS: config.get(CONF_QUERY_SENSORS, []),
+        CONF_STATUS_SENSORS: config.get(CONF_STATUS_SENSORS, []),
         CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
     }
     hass.async_create_task(

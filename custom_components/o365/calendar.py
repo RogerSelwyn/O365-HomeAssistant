@@ -115,10 +115,10 @@ class O365CalendarEventDevice(CalendarEventDevice):
                 "offset_reached": self._offset_reached,
                 "data": self._data_attribute,
             }
-        else:
-            return {
-                "data": self._data_attribute,
-            }
+
+        return {
+            "data": self._data_attribute,
+        }
 
     @property
     def event(self):

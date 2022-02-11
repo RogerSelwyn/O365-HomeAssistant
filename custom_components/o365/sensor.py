@@ -8,7 +8,8 @@ from homeassistant.helpers.entity import Entity
 from .const import (CONF_EMAIL_SENSORS, CONF_HAS_ATTACHMENT, CONF_IMPORTANCE,
                     CONF_IS_UNREAD, CONF_MAIL_FOLDER, CONF_MAIL_FROM,
                     CONF_MAX_ITEMS, CONF_NAME, CONF_QUERY_SENSORS,
-                    CONF_SUBJECT_CONTAINS, CONF_SUBJECT_IS, DOMAIN)
+                    CONF_STATUS_SENSORS, CONF_SUBJECT_CONTAINS,
+                    CONF_SUBJECT_IS, DOMAIN)
 from .utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,6 +29,7 @@ def setup_platform(
 
     _unread_sensors(hass, account, add_devices)
     _query_sensors(hass, account, add_devices)
+    _status_sensors(hass, account, add_devices)
 
     return True
 
@@ -46,6 +48,13 @@ def _query_sensors(hass, account, add_devices):
         if mail_folder := _get_mail_folder(account, conf, CONF_QUERY_SENSORS):
             sensor = O365QuerySensor(conf, mail_folder)
             add_devices([sensor], True)
+
+
+def _status_sensors(hass, account, add_devices):
+    status_sensors = hass.data[DOMAIN].get(CONF_STATUS_SENSORS, [])
+    for conf in status_sensors:
+        teams_status_sensor = O365TeamsStatusSensor(account, conf)
+        add_devices([teams_status_sensor], True)
 
 
 def _get_mail_folder(account, conf, sensor_type):
@@ -73,7 +82,7 @@ def _get_mail_folder(account, conf, sensor_type):
     return mail_folder
 
 
-class O365Sensor:
+class O365MailSensor:
     """O365 generic Sensor class."""
 
     def __init__(self, conf, mail_folder):
@@ -114,7 +123,7 @@ class O365Sensor:
         self._attributes = {"data": attrs}
 
 
-class O365QuerySensor(O365Sensor, Entity):
+class O365QuerySensor(O365MailSensor, Entity):
     """O365 Query sensor processing."""
 
     def __init__(self, conf, mail_folder):
@@ -164,8 +173,8 @@ class O365QuerySensor(O365Sensor, Entity):
             self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
 
 
-class O365InboxSensor(O365Sensor, Entity):
-    """O365 Inboox processing."""
+class O365InboxSensor(O365MailSensor, Entity):
+    """O365 Inbox processing."""
 
     def __init__(self, conf, mail_folder):
         """Initialise the O365 Inbox."""
@@ -177,3 +186,27 @@ class O365InboxSensor(O365Sensor, Entity):
         if self.is_unread is not None:
             self.query = self.mail_folder.new_query()
             self.query.chain("and").on_attribute("IsRead").equals(not self.is_unread)
+
+
+class O365TeamsStatusSensor(Entity):
+    """O365 Teams sensor processing."""
+
+    def __init__(self, account, conf):
+        """Initialise the Teams Sensor."""
+        self.teams = account.teams()
+        self._name = conf.get(CONF_NAME)
+        self._state = None
+
+    @property
+    def name(self):
+        """Sensor name."""
+        return self._name
+
+    @property
+    def state(self):
+        """Sensor state."""
+        return self._state
+
+    def update(self):
+        """Update state."""
+        self._state = self.teams.get_my_presence().activity

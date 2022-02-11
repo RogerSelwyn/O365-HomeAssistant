@@ -41,7 +41,7 @@ Under "Api Permissions" click Add a permission and add the following delegated p
 * Mail.Send - *Send mail as a user*
 * Mail.Send.Shared - *Send mail on behalf of others*
 * Users.Read - *Sign in and read user profile*
-*
+* Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor)
 ## Adding to Home Assistant
 
 ### Using Home Assistant Community Store (HACS)
@@ -71,6 +71,8 @@ o365:
       has_attachment: True
       max_items: 2
       is_unread: True
+  status_sensors:
+    - name: "User Teams Status"
 ```
 
 ## notify.o365_email service data
@@ -124,6 +126,11 @@ Key | Type | Required | Description
 `importance` | `string` | `False` | Only get items with 'low'/'normal'/'high' importance
 `subject_contains` | `string` | `False` | Only get emails where the subject contains this string (Mutually exclusive with `subject_is`)
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
+
+### status_sensors
+Key | Type | Required | Description
+-- | -- | -- | --
+`name` | `string` | `True` | The name of the sensor.
 
 ## Calendar configuration
 This component has changed to now using an external o365_calendars.yaml file, this is done to align this component more with the official Google Calendar Event integration.
