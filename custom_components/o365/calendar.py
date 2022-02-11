@@ -4,30 +4,52 @@ import logging
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-from homeassistant.components.calendar import (CalendarEventDevice,
-                                               calculate_offset,
-                                               is_offset_reached)
+from homeassistant.components.calendar import (
+    CalendarEventDevice,
+    calculate_offset,
+    is_offset_reached,
+)
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 
-from .const import (CALENDAR_ENTITY_ID_FORMAT, CALENDAR_SERVICE_CREATE_SCHEMA,
-                    CALENDAR_SERVICE_MODIFY_SCHEMA,
-                    CALENDAR_SERVICE_REMOVE_SCHEMA,
-                    CALENDAR_SERVICE_RESPOND_SCHEMA, CONF_DEVICE_ID,
-                    CONF_ENTITIES, CONF_HOURS_BACKWARD_TO_GET,
-                    CONF_HOURS_FORWARD_TO_GET, CONF_MAX_RESULTS, CONF_NAME,
-                    CONF_SEARCH, CONF_TRACK, CONF_TRACK_NEW, DEFAULT_OFFSET,
-                    DOMAIN, MIN_TIME_BETWEEN_UPDATES, YAML_CALENDARS)
-from .utils import (add_call_data_to_event, build_config_file_path, clean_html,
-                    format_event_data, load_calendars, update_calendar_file)
+from .const import (
+    CALENDAR_ENTITY_ID_FORMAT,
+    CALENDAR_SERVICE_CREATE_SCHEMA,
+    CALENDAR_SERVICE_MODIFY_SCHEMA,
+    CALENDAR_SERVICE_REMOVE_SCHEMA,
+    CALENDAR_SERVICE_RESPOND_SCHEMA,
+    CONF_DEVICE_ID,
+    CONF_ENTITIES,
+    CONF_HOURS_BACKWARD_TO_GET,
+    CONF_HOURS_FORWARD_TO_GET,
+    CONF_MAX_RESULTS,
+    CONF_NAME,
+    CONF_SEARCH,
+    CONF_TRACK,
+    CONF_TRACK_NEW,
+    DEFAULT_OFFSET,
+    DOMAIN,
+    MIN_TIME_BETWEEN_UPDATES,
+    YAML_CALENDARS,
+)
+from .utils import (
+    add_call_data_to_event,
+    build_config_file_path,
+    clean_html,
+    format_event_data,
+    load_calendars,
+    update_calendar_file,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(
+    hass, config, add_devices, discovery_info=None
+):  # pylint: disable=unused-argument
     """Set up the O365 platform."""
     if discovery_info is None:
-        return
+        return None
 
     account = hass.data[DOMAIN]["account"]
     track_new = hass.data[DOMAIN][CONF_TRACK_NEW]
@@ -45,16 +67,28 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         for entity in calendar.get(CONF_ENTITIES):
             if not entity[CONF_TRACK]:
                 continue
-            entity_id = generate_entity_id(CALENDAR_ENTITY_ID_FORMAT, entity.get(CONF_DEVICE_ID), hass=hass)
+            entity_id = generate_entity_id(
+                CALENDAR_ENTITY_ID_FORMAT, entity.get(CONF_DEVICE_ID), hass=hass
+            )
             cal = O365CalendarEventDevice(hass, account, cal_id, entity, entity_id)
             devices.append(cal)
     add_devices(devices, True)
 
-    hass.services.register(DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event)
-    hass.services.register(DOMAIN, "create_calendar_event", calendar_services.create_calendar_event)
-    hass.services.register(DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event)
-    hass.services.register(DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event)
-    hass.services.register(DOMAIN, "scan_for_calendars", calendar_services.scan_for_calendars)
+    hass.services.register(
+        DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
+    )
+    hass.services.register(
+        DOMAIN, "create_calendar_event", calendar_services.create_calendar_event
+    )
+    hass.services.register(
+        DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event
+    )
+    hass.services.register(
+        DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event
+    )
+    hass.services.register(
+        DOMAIN, "scan_for_calendars", calendar_services.scan_for_calendars
+    )
 
     return True
 
@@ -89,7 +123,9 @@ class O365CalendarEventDevice(CalendarEventDevice):
         """Device state property."""
         if self._event:
             return {
-                "all_day": self._event.get("all_day", False) if self.data.event is not None else False,
+                "all_day": self._event.get("all_day", False)
+                if self.data.event is not None
+                else False,
                 "offset_reached": self._offset_reached,
                 "data": self._data_attribute,
             }
@@ -126,7 +162,9 @@ class O365CalendarEventDevice(CalendarEventDevice):
                 datetime.now() + timedelta(hours=self.end_offset),
             )
         )
-        self._data_attribute = [format_event_data(x, self.data.calendar.calendar_id) for x in events]
+        self._data_attribute = [
+            format_event_data(x, self.data.calendar.calendar_id) for x in events
+        ]
         self._data_attribute.sort(key=itemgetter("start"))
         self._event = event
 
@@ -160,11 +198,17 @@ class O365CalendarData:
         query.chain("and").on_attribute("end").less_equal(end_date)
         if self.search is not None:
             query.chain("and").on_attribute("subject").contains(self.search)
-        return self.calendar.get_events(limit=self.limit, query=query, include_recurring=True)
+        return self.calendar.get_events(
+            limit=self.limit, query=query, include_recurring=True
+        )
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get the via async."""
-        vevent_list = list(await hass.async_add_executor_job(self.o365_get_events, start_date, end_date))
+        vevent_list = list(
+            await hass.async_add_executor_job(
+                self.o365_get_events, start_date, end_date
+            )
+        )
         vevent_list.sort(key=attrgetter("start"))
         event_list = []
         for event in vevent_list:
@@ -217,7 +261,9 @@ class O365CalendarData:
     @staticmethod
     def is_over(vevent):
         """Is it over."""
-        return dt.now() >= O365CalendarData.to_datetime(O365CalendarData.get_end_date(vevent))
+        return dt.now() >= O365CalendarData.to_datetime(
+            O365CalendarData.get_end_date(vevent)
+        )
 
     @staticmethod
     def get_hass_date(obj, is_all_day):
@@ -303,12 +349,14 @@ class CalendarServices:
             event.accept_event(event_data.get("message"), send_response=send_response)
 
         elif response.lower() == "tentative":
-            event.accept_event(event_data.get("message"), tentatively=True, send_response=send_response)
+            event.accept_event(
+                event_data.get("message"), tentatively=True, send_response=send_response
+            )
 
         elif response.lower() == "decline":
             event.decline_event(event_data.get("message"), send_response=send_response)
 
-    def scan_for_calendars(self, call):
+    def scan_for_calendars(self, call):  # pylint: disable=unused-argument
         """Scan for new calendars."""
         calendars = self.schedule.list_calendars()
         for calendar in calendars:

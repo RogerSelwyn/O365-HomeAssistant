@@ -4,19 +4,25 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
-                                             ATTR_TARGET, ATTR_TITLE)
+from homeassistant.components.notify import (
+    ATTR_DATA,
+    ATTR_MESSAGE,
+    ATTR_TARGET,
+    ATTR_TITLE,
+)
 from homeassistant.config import get_default_config_dir
 from homeassistant.const import CONF_NAME
-from O365.calendar import AttendeeType, EventSensitivity, EventShowAs
+from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
+from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
+from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
 
 
 class EventResponse(Enum):
     """Event response."""
 
-    Accept = "accept"
-    Tentative = "tentative"
-    Decline = "decline"
+    Accept = "accept"  # pylint: disable=invalid-name
+    Tentative = "tentative"  # pylint: disable=invalid-name
+    Decline = "decline"  # pylint: disable=invalid-name
 
 
 ATTR_ATTACHMENTS = "attachments"
@@ -51,7 +57,7 @@ CONF_CACHE_PATH = "cache_path"
 CONF_CALENDAR_NAME = "calendar_name"
 CONF_CALENDARS = "calendars"
 CONF_CLIENT_ID = "client_id"
-CONF_CLIENT_SECRET = "client_secret"
+CONF_CLIENT_SECRET = "client_secret"  # nosec
 CONF_DEVICE_ID = "device_id"
 CONF_EMAIL_SENSORS = "email_sensor"
 CONF_IGNORE_AVAILABILITY = "ignore_availability"
@@ -75,12 +81,14 @@ CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TRACK_NEW = "track_new_calendar"
 CONFIG_BASE_DIR = get_default_config_dir()
-CONFIGURATOR_DESCRIPTION = "To link your O365 account, click the link, login, and authorize:"
+CONFIGURATOR_DESCRIPTION = (
+    "To link your O365 account, click the link, login, and authorize:"
+)
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
-TOKEN_FILENAME = "o365.token"
+TOKEN_FILENAME = "o365.token"  # nosec
 DEFAULT_HOURS_BACKWARD_TO_GET = 0
 DEFAULT_HOURS_FORWARD_TO_GET = 24
 DEFAULT_NAME = "O365"
@@ -243,7 +251,9 @@ SINGLE_CALSEARCH_CONFIG = vol.Schema(
 CALENDAR_DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CAL_ID): cv.string,
-        vol.Required(CONF_ENTITIES, None): vol.All(cv.ensure_list, [SINGLE_CALSEARCH_CONFIG]),
+        vol.Required(CONF_ENTITIES, None): vol.All(
+            cv.ensure_list, [SINGLE_CALSEARCH_CONFIG]
+        ),
     },
     extra=vol.ALLOW_EXTRA,
 )

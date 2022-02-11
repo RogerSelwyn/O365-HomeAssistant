@@ -10,13 +10,27 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
-                    AUTH_CALLBACK_PATH_ALT, CONF_ALT_CONFIG, CONF_CALENDARS,
-                    CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_EMAIL_SENSORS,
-                    CONF_QUERY_SENSORS, CONF_TRACK_NEW, CONFIG_SCHEMA,
-                    CONFIGURATOR_DESCRIPTION, CONFIGURATOR_LINK_NAME,
-                    CONFIGURATOR_SUBMIT_CAPTION, DEFAULT_CACHE_PATH,
-                    DEFAULT_NAME, DOMAIN, SCOPE, TOKEN_FILENAME)
+from .const import (
+    AUTH_CALLBACK_NAME,
+    AUTH_CALLBACK_PATH,
+    AUTH_CALLBACK_PATH_ALT,
+    CONF_ALT_CONFIG,
+    CONF_CALENDARS,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+    CONF_EMAIL_SENSORS,
+    CONF_QUERY_SENSORS,
+    CONF_TRACK_NEW,
+    CONFIG_SCHEMA,
+    CONFIGURATOR_DESCRIPTION,
+    CONFIGURATOR_LINK_NAME,
+    CONFIGURATOR_SUBMIT_CAPTION,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_NAME,
+    DOMAIN,
+    SCOPE,
+    TOKEN_FILENAME,
+)
 from .utils import build_config_file_path, validate_permissions
 
 _LOGGER = logging.getLogger(__name__)
@@ -34,7 +48,9 @@ async def async_setup(hass, config):
     else:
         callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
-    token_backend = FileSystemTokenBackend(token_path=token_path, token_filename=TOKEN_FILENAME)
+    token_backend = FileSystemTokenBackend(
+        token_path=token_path, token_filename=TOKEN_FILENAME
+    )
 
     account = Account(credentials, token_backend=token_backend, timezone="UTC")
     is_authenticated = account.is_authenticated
@@ -43,11 +59,12 @@ async def async_setup(hass, config):
         do_setup(hass, conf, account)
     else:
         url, state = account.con.get_authorization_url(
-            requested_scopes=SCOPE,
-            redirect_uri=callback_url
+            requested_scopes=SCOPE, redirect_uri=callback_url
         )
         _LOGGER.info("no token; requesting authorization")
-        callback_view = O365AuthCallbackView(conf, None, account, state, callback_url, hass)
+        callback_view = O365AuthCallbackView(
+            conf, None, account, state, callback_url, hass
+        )
         hass.http.register_view(callback_view)
         if alt_config:
             request_configuration_alt(hass, url, callback_view)
@@ -77,9 +94,15 @@ def do_setup(hass, config, account):
         CONF_QUERY_SENSORS: config.get(CONF_QUERY_SENSORS, []),
         CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
     }
-    hass.async_create_task(discovery.async_load_platform(hass, "calendar", DOMAIN, {}, config))
-    hass.async_create_task(discovery.async_load_platform(hass, "notify", DOMAIN, {}, config))
-    hass.async_create_task(discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config))
+    hass.async_create_task(
+        discovery.async_load_platform(hass, "calendar", DOMAIN, {}, config)
+    )
+    hass.async_create_task(
+        discovery.async_load_platform(hass, "notify", DOMAIN, {}, config)
+    )
+    hass.async_create_task(
+        discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config)
+    )
 
 
 def request_configuration(hass, url, callback_view):
@@ -144,7 +167,7 @@ class O365AuthCallbackView(HomeAssistantView):
                 self.account.con.request_token,
                 url,
                 state=self.state,
-                redirect_uri=self.callback
+                redirect_uri=self.callback,
             )
         )
         domain_data = self._hass.data[DOMAIN]
@@ -163,9 +186,7 @@ class O365AuthCallbackView(HomeAssistantView):
             url = [v for k, v in data.items()][0]
 
         result = self.account.con.request_token(
-            url,
-            state=self.state,
-            redirect_uri=AUTH_CALLBACK_PATH_ALT
+            url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT
         )
         if not result:
             self.configurator.notify_errors(

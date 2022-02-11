@@ -21,7 +21,9 @@ from .utils import get_ha_filepath, zip_files
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_get_service(hass, config, discovery_info=None):
+async def async_get_service(
+    hass, config, discovery_info=None
+):  # pylint: disable=unused-argument
     """Get the service."""
     if discovery_info is None:
         return
@@ -72,7 +74,7 @@ class O365EmailService(BaseNotificationService):
         if isinstance(photos, str):
             photos = [photos]
 
-        m = account.new_message()
+        new_message = account.new_message()
         if is_html or photos:
             message = f"""
                 <html>
@@ -83,8 +85,8 @@ class O365EmailService(BaseNotificationService):
                     message += f'<br><img src="{photo}">'
                 else:
                     photo = get_ha_filepath(photo)
-                    m.attachments.add(photo)
-                    att = m.attachments[-1]
+                    new_message.attachments.add(photo)
+                    att = new_message.attachments[-1]
                     att.is_inline = True
                     att.content_id = "1"
                     message += f'<br><img src="cid:{1}">'
@@ -93,16 +95,16 @@ class O365EmailService(BaseNotificationService):
         attachments = [get_ha_filepath(x) for x in attachments]
         if attachments and zip_attachments:
             z_file = zip_files(attachments, zip_name)
-            m.attachments.add(z_file)
+            new_message.attachments.add(z_file)
             cleanup_files.append(z_file)
 
         else:
             for attachment in attachments:
-                m.attachments.add(attachment)
+                new_message.attachments.add(attachment)
 
-        m.to.add(target)
-        m.subject = title
-        m.body = message
-        m.send()
-        for x in cleanup_files:
-            os.remove(x)
+        new_message.to.add(target)
+        new_message.subject = title
+        new_message.body = message
+        new_message.send()
+        for filename in cleanup_files:
+            os.remove(filename)

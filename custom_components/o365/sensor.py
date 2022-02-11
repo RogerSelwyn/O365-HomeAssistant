@@ -24,7 +24,9 @@ from .utils import get_email_attributes
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(hass, config, add_devices, discovery_info=None):
+def setup_platform(
+    hass, config, add_devices, discovery_info=None
+):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
         return
@@ -36,27 +38,32 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
     for conf in unread_sensors:
-        mail_folder = _get_mail_folder(hass, account, conf, CONF_EMAIL_SENSORS)
+        mail_folder = _get_mail_folder(account, conf, CONF_EMAIL_SENSORS)
         if mail_folder:
             sensor = O365InboxSensor(conf, mail_folder)
             add_devices([sensor], True)
 
     query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
     for conf in query_sensors:
-        mail_folder = _get_mail_folder(hass, account, conf, CONF_QUERY_SENSORS)
+        mail_folder = _get_mail_folder(account, conf, CONF_QUERY_SENSORS)
         if mail_folder:
             sensor = O365QuerySensor(conf, mail_folder)
             add_devices([sensor], True)
 
 
-def _get_mail_folder(hass, account, conf, sensor_type):
+def _get_mail_folder(account, conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
     mail_folder = None
     mail_folder_conf = conf.get(CONF_MAIL_FOLDER)
     if mail_folder_conf:
         for i, folder in enumerate(mail_folder_conf.split("/")):
-            _LOGGER.debug(f"Processing folder - {folder} - from {sensor_type} config entry - {mail_folder_conf} ")
+            _LOGGER.debug(
+                "Processing folder - %s - from %s config entry - %s ",
+                folder,
+                sensor_type,
+                mail_folder_conf,
+            )
             if i == 0:
                 mail_folder = mailbox.get_folder(folder_name=folder)
             else:
@@ -64,7 +71,10 @@ def _get_mail_folder(hass, account, conf, sensor_type):
 
             if not mail_folder:
                 _LOGGER.error(
-                    f"Folder - {folder} - not found from {sensor_type} config entry - {mail_folder_conf} - entity not created"
+                    "Folder - %s - not found from %s config entry - %s - entity not created",
+                    folder,
+                    sensor_type,
+                    mail_folder_conf,
                 )
                 return None
 
@@ -86,6 +96,7 @@ class O365Sensor:
         self.max_items = conf.get(CONF_MAX_ITEMS, 5)
         self._state = 0
         self._attributes = {}
+        self.query = None
 
     @property
     def name(self):
@@ -104,7 +115,11 @@ class O365Sensor:
 
     def update(self):
         """Update code."""
-        mails = list(self.mail_folder.get_messages(limit=self.max_items, query=self.query, download_attachments=True))
+        mails = list(
+            self.mail_folder.get_messages(
+                limit=self.max_items, query=self.query, download_attachments=True
+            )
+        )
         attrs = [get_email_attributes(x) for x in mails]
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._state = len(mails)
@@ -146,15 +161,19 @@ class O365QuerySensor(O365Sensor, Entity):
 
         # _LOGGER.debug(self.query)
 
-    def _add_to_query(self, type, attribute_name, attribute_value, check_value=True):
+    def _add_to_query(self, qtype, attribute_name, attribute_value, check_value=True):
         if attribute_value is None or check_value is None:
             return
 
-        if type == "ge":
-            self.query.chain("and").on_attribute(attribute_name).greater_equal(attribute_value)
-        if type == "contains":
-            self.query.chain("and").on_attribute(attribute_name).contains(attribute_value)
-        if type == "equals":
+        if qtype == "ge":
+            self.query.chain("and").on_attribute(attribute_name).greater_equal(
+                attribute_value
+            )
+        if qtype == "contains":
+            self.query.chain("and").on_attribute(attribute_name).contains(
+                attribute_value
+            )
+        if qtype == "equals":
             self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
 
 
