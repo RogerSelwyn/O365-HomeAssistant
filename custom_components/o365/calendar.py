@@ -307,7 +307,7 @@ class CalendarServices:
     def modify_calendar_event(self, call):
         """Modify the event."""
         event_data = call.data
-        CALENDAR_SERVICE_MODIFY_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_MODIFY_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.get_event(event_data["event_id"])
         event = add_call_data_to_event(event, call.data)
@@ -316,7 +316,7 @@ class CalendarServices:
     def create_calendar_event(self, call):
         """Create the event."""
         event_data = call.data
-        CALENDAR_SERVICE_CREATE_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_CREATE_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.new_event()
         event = add_call_data_to_event(event, call.data)
@@ -325,7 +325,7 @@ class CalendarServices:
     def remove_calendar_event(self, call):
         """Remove the event."""
         event_data = call.data
-        CALENDAR_SERVICE_REMOVE_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_REMOVE_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.get_event(event_data["event_id"])
         event.delete()
@@ -333,7 +333,7 @@ class CalendarServices:
     def respond_calendar_event(self, call):
         """Respond to calendar event."""
         event_data = call.data
-        CALENDAR_SERVICE_RESPOND_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_RESPOND_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.get_event(event_data["event_id"])
         response = event_data.get("response")

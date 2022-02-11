@@ -33,8 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 def clean_html(html):
     """Clean the HTML."""
     soup = BeautifulSoup(html, features="html.parser")
-    body = soup.find("body")
-    if body:
+    if body := soup.find("body"):
         return soup.find("body").get_text(" ", strip=True)
 
     return html
@@ -50,7 +49,7 @@ def validate_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FIL
     with open(full_token_path, "r", encoding="UTF-8") as file_handle:
         raw = file_handle.read()
         permissions = json.loads(raw)["scope"]
-    scope = [x for x in MINIMUM_REQUIRED_SCOPES]  # noqa: C416
+    scope = list(MINIMUM_REQUIRED_SCOPES)
     all_permissions_granted = all(x in permissions for x in scope)
     if not all_permissions_granted:
         _LOGGER.warning("All permissions granted: %s", all_permissions_granted)
@@ -124,28 +123,22 @@ def format_event_data(event, calendar_id):
 
 def add_call_data_to_event(event, event_data):
     """Add the call data."""
-    subject = event_data.get("subject")
-    if subject:
+    if subject := event_data.get("subject"):
         event.subject = subject
 
-    body = event_data.get("body")
-    if body:
+    if body := event_data.get("body"):
         event.body = body
 
-    location = event_data.get("location")
-    if location:
+    if location := event_data.get("location"):
         event.location = location
 
-    categories = event_data.get("categories")
-    if categories:
+    if categories := event_data.get("categories"):
         event.categories = categories
 
-    show_as = event_data.get("show_as")
-    if show_as:
+    if show_as := event_data.get("show_as"):
         event.show_as = show_as
 
-    attendees = event_data.get("attendees")
-    if attendees:
+    if attendees := event_data.get("attendees"):
         event.attendees.clear()
         event.attendees.add(
             [
@@ -154,12 +147,10 @@ def add_call_data_to_event(event, event_data):
             ]
         )
 
-    start = event_data.get("start")
-    if start:
+    if start := event_data.get("start"):
         event.start = dt.parse_datetime(start)
 
-    end = event_data.get("end")
-    if end:
+    if end := event_data.get("end"):
         event.end = dt.parse_datetime(end)
 
     is_all_day = event_data.get("is_all_day")
@@ -173,8 +164,7 @@ def add_call_data_to_event(event, event_data):
                 event.end.year, event.end.month, event.end.day, 0, 0, 0
             )
 
-    sensitivity = event_data.get("sensitivity")
-    if sensitivity:
+    if sensitivity := event_data.get("sensitivity"):
         event.sensitivity = EventSensitivity(sensitivity.lower())
     return event
 
@@ -189,9 +179,7 @@ def load_calendars(path):
                 return {}
             for calendar in data:
                 try:
-                    calendars.update(
-                        {calendar[CONF_CAL_ID]: CALENDAR_DEVICE_SCHEMA(calendar)}
-                    )
+                    calendars[calendar[CONF_CAL_ID]] = CALENDAR_DEVICE_SCHEMA(calendar)
                 except VoluptuousError as exception:
                     # keep going
                     _LOGGER.warning("Calendar Invalid Data: %s", exception)

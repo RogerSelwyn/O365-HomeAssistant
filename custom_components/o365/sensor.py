@@ -26,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def setup_platform(
     hass, config, add_devices, discovery_info=None
-):  # pylint: disable=unused-argument
+):    # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
         return
@@ -38,15 +38,13 @@ def setup_platform(
 
     unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
     for conf in unread_sensors:
-        mail_folder = _get_mail_folder(account, conf, CONF_EMAIL_SENSORS)
-        if mail_folder:
+        if mail_folder := _get_mail_folder(account, conf, CONF_EMAIL_SENSORS):
             sensor = O365InboxSensor(conf, mail_folder)
             add_devices([sensor], True)
 
     query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
     for conf in query_sensors:
-        mail_folder = _get_mail_folder(account, conf, CONF_QUERY_SENSORS)
-        if mail_folder:
+        if mail_folder := _get_mail_folder(account, conf, CONF_QUERY_SENSORS):
             sensor = O365QuerySensor(conf, mail_folder)
             add_devices([sensor], True)
 
@@ -55,8 +53,7 @@ def _get_mail_folder(account, conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
     mail_folder = None
-    mail_folder_conf = conf.get(CONF_MAIL_FOLDER)
-    if mail_folder_conf:
+    if mail_folder_conf := conf.get(CONF_MAIL_FOLDER):
         for i, folder in enumerate(mail_folder_conf.split("/")):
             _LOGGER.debug(
                 "Processing folder - %s - from %s config entry - %s ",
