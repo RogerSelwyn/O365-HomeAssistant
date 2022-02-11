@@ -5,20 +5,10 @@ from operator import itemgetter
 
 from homeassistant.helpers.entity import Entity
 
-from .const import (
-    CONF_EMAIL_SENSORS,
-    CONF_HAS_ATTACHMENT,
-    CONF_IMPORTANCE,
-    CONF_IS_UNREAD,
-    CONF_MAIL_FOLDER,
-    CONF_MAIL_FROM,
-    CONF_MAX_ITEMS,
-    CONF_NAME,
-    CONF_QUERY_SENSORS,
-    CONF_SUBJECT_CONTAINS,
-    CONF_SUBJECT_IS,
-    DOMAIN,
-)
+from .const import (CONF_EMAIL_SENSORS, CONF_HAS_ATTACHMENT, CONF_IMPORTANCE,
+                    CONF_IS_UNREAD, CONF_MAIL_FOLDER, CONF_MAIL_FROM,
+                    CONF_MAX_ITEMS, CONF_NAME, CONF_QUERY_SENSORS,
+                    CONF_SUBJECT_CONTAINS, CONF_SUBJECT_IS, DOMAIN)
 from .utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,27 +16,34 @@ _LOGGER = logging.getLogger(__name__)
 
 def setup_platform(
     hass, config, add_devices, discovery_info=None
-):  # pylint: disable=unused-argument
+):    # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
-        return
+        return None
 
     account = hass.data[DOMAIN]["account"]
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return False
 
+    _unread_sensors(hass, account, add_devices)
+    _query_sensors(hass, account, add_devices)
+
+    return True
+
+
+def _unread_sensors(hass, account, add_devices):
     unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
     for conf in unread_sensors:
-        mail_folder = _get_mail_folder(account, conf, CONF_EMAIL_SENSORS)
-        if mail_folder:
+        if mail_folder := _get_mail_folder(account, conf, CONF_EMAIL_SENSORS):
             sensor = O365InboxSensor(conf, mail_folder)
             add_devices([sensor], True)
 
+
+def _query_sensors(hass, account, add_devices):
     query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
     for conf in query_sensors:
-        mail_folder = _get_mail_folder(account, conf, CONF_QUERY_SENSORS)
-        if mail_folder:
+        if mail_folder := _get_mail_folder(account, conf, CONF_QUERY_SENSORS):
             sensor = O365QuerySensor(conf, mail_folder)
             add_devices([sensor], True)
 
@@ -55,15 +52,8 @@ def _get_mail_folder(account, conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
     mail_folder = None
-    mail_folder_conf = conf.get(CONF_MAIL_FOLDER)
-    if mail_folder_conf:
+    if mail_folder_conf := conf.get(CONF_MAIL_FOLDER):
         for i, folder in enumerate(mail_folder_conf.split("/")):
-            _LOGGER.debug(
-                "Processing folder - %s - from %s config entry - %s ",
-                folder,
-                sensor_type,
-                mail_folder_conf,
-            )
             if i == 0:
                 mail_folder = mailbox.get_folder(folder_name=folder)
             else:
@@ -77,9 +67,6 @@ def _get_mail_folder(account, conf, sensor_type):
                     mail_folder_conf,
                 )
                 return None
-
-            # _LOGGER.debug(f"Got folder id - {mail_folder.folder_id}")
-
     else:
         mail_folder = mailbox.inbox_folder()
 

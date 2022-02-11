@@ -4,42 +4,22 @@ import logging
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-from homeassistant.components.calendar import (
-    CalendarEventDevice,
-    calculate_offset,
-    is_offset_reached,
-)
+from homeassistant.components.calendar import (CalendarEventDevice,
+                                               calculate_offset,
+                                               is_offset_reached)
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 
-from .const import (
-    CALENDAR_ENTITY_ID_FORMAT,
-    CALENDAR_SERVICE_CREATE_SCHEMA,
-    CALENDAR_SERVICE_MODIFY_SCHEMA,
-    CALENDAR_SERVICE_REMOVE_SCHEMA,
-    CALENDAR_SERVICE_RESPOND_SCHEMA,
-    CONF_DEVICE_ID,
-    CONF_ENTITIES,
-    CONF_HOURS_BACKWARD_TO_GET,
-    CONF_HOURS_FORWARD_TO_GET,
-    CONF_MAX_RESULTS,
-    CONF_NAME,
-    CONF_SEARCH,
-    CONF_TRACK,
-    CONF_TRACK_NEW,
-    DEFAULT_OFFSET,
-    DOMAIN,
-    MIN_TIME_BETWEEN_UPDATES,
-    YAML_CALENDARS,
-)
-from .utils import (
-    add_call_data_to_event,
-    build_config_file_path,
-    clean_html,
-    format_event_data,
-    load_calendars,
-    update_calendar_file,
-)
+from .const import (CALENDAR_ENTITY_ID_FORMAT, CALENDAR_SERVICE_CREATE_SCHEMA,
+                    CALENDAR_SERVICE_MODIFY_SCHEMA,
+                    CALENDAR_SERVICE_REMOVE_SCHEMA,
+                    CALENDAR_SERVICE_RESPOND_SCHEMA, CONF_DEVICE_ID,
+                    CONF_ENTITIES, CONF_HOURS_BACKWARD_TO_GET,
+                    CONF_HOURS_FORWARD_TO_GET, CONF_MAX_RESULTS, CONF_NAME,
+                    CONF_SEARCH, CONF_TRACK, CONF_TRACK_NEW, DEFAULT_OFFSET,
+                    DOMAIN, MIN_TIME_BETWEEN_UPDATES, YAML_CALENDARS)
+from .utils import (add_call_data_to_event, build_config_file_path, clean_html,
+                    format_event_data, load_calendars, update_calendar_file)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,14 +32,16 @@ def setup_platform(
         return None
 
     account = hass.data[DOMAIN]["account"]
-    track_new = hass.data[DOMAIN][CONF_TRACK_NEW]
-    is_authenticated = account.is_authenticated
-    if not is_authenticated:
+    if not account.is_authenticated:
         return False
 
-    calendar_services = CalendarServices(account, track_new, hass)
-    calendar_services.scan_for_calendars(None)
+    _setup_add_devices(hass, account, add_devices)
+    _setup_register_services(hass, account)
 
+    return True
+
+
+def _setup_add_devices(hass, account, add_devices):
     calendars = load_calendars(build_config_file_path(hass, YAML_CALENDARS))
     devices = []
 
@@ -73,6 +55,12 @@ def setup_platform(
             cal = O365CalendarEventDevice(hass, account, cal_id, entity, entity_id)
             devices.append(cal)
     add_devices(devices, True)
+
+
+def _setup_register_services(hass, account):
+    track_new = hass.data[DOMAIN][CONF_TRACK_NEW]
+    calendar_services = CalendarServices(account, track_new, hass)
+    calendar_services.scan_for_calendars(None)
 
     hass.services.register(
         DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
@@ -89,8 +77,6 @@ def setup_platform(
     hass.services.register(
         DOMAIN, "scan_for_calendars", calendar_services.scan_for_calendars
     )
-
-    return True
 
 
 class O365CalendarEventDevice(CalendarEventDevice):
@@ -307,7 +293,7 @@ class CalendarServices:
     def modify_calendar_event(self, call):
         """Modify the event."""
         event_data = call.data
-        CALENDAR_SERVICE_MODIFY_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_MODIFY_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.get_event(event_data["event_id"])
         event = add_call_data_to_event(event, call.data)
@@ -316,7 +302,7 @@ class CalendarServices:
     def create_calendar_event(self, call):
         """Create the event."""
         event_data = call.data
-        CALENDAR_SERVICE_CREATE_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_CREATE_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.new_event()
         event = add_call_data_to_event(event, call.data)
@@ -325,7 +311,7 @@ class CalendarServices:
     def remove_calendar_event(self, call):
         """Remove the event."""
         event_data = call.data
-        CALENDAR_SERVICE_REMOVE_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_REMOVE_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.get_event(event_data["event_id"])
         event.delete()
@@ -333,7 +319,7 @@ class CalendarServices:
     def respond_calendar_event(self, call):
         """Respond to calendar event."""
         event_data = call.data
-        CALENDAR_SERVICE_RESPOND_SCHEMA({k: v for k, v in event_data.items()})
+        CALENDAR_SERVICE_RESPOND_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
         event = calendar.get_event(event_data["event_id"])
         response = event_data.get("response")
