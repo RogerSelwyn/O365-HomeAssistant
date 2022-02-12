@@ -5,11 +5,11 @@ from operator import itemgetter
 
 from homeassistant.helpers.entity import Entity
 
-from .const import (CONF_EMAIL_SENSORS, CONF_HAS_ATTACHMENT, CONF_IMPORTANCE,
-                    CONF_IS_UNREAD, CONF_MAIL_FOLDER, CONF_MAIL_FROM,
-                    CONF_MAX_ITEMS, CONF_NAME, CONF_QUERY_SENSORS,
-                    CONF_STATUS_SENSORS, CONF_SUBJECT_CONTAINS,
-                    CONF_SUBJECT_IS, DOMAIN)
+from .const import (CONF_DOWNLOAD_ATTACHMENTS, CONF_EMAIL_SENSORS,
+                    CONF_HAS_ATTACHMENT, CONF_IMPORTANCE, CONF_IS_UNREAD,
+                    CONF_MAIL_FOLDER, CONF_MAIL_FROM, CONF_MAX_ITEMS,
+                    CONF_NAME, CONF_QUERY_SENSORS, CONF_STATUS_SENSORS,
+                    CONF_SUBJECT_CONTAINS, CONF_SUBJECT_IS, DOMAIN)
 from .utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -89,6 +89,7 @@ class O365MailSensor:
         """Initialise the O365 Sensor."""
         self.mail_folder = mail_folder
         self._name = conf.get(CONF_NAME)
+        self._download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
         self.max_items = conf.get(CONF_MAX_ITEMS, 5)
         self._state = 0
         self._attributes = {}
@@ -111,15 +112,13 @@ class O365MailSensor:
 
     def update(self):
         """Update code."""
-        mails = list(
-            self.mail_folder.get_messages(
-                limit=self.max_items, query=self.query, download_attachments=True
-            )
+        data = self.mail_folder.get_messages(
+            limit=self.max_items, query=self.query, download_attachments=self._download_attachments
         )
-        attrs = [get_email_attributes(x) for x in mails]
+
+        attrs = [get_email_attributes(x, self._download_attachments) for x in data]
         attrs.sort(key=itemgetter("received"), reverse=True)
-        self._state = len(mails)
-        # self._attributes = {"data": attrs, "data_str_repr": json.dumps(attrs)}
+        self._state = len(attrs)
         self._attributes = {"data": attrs}
 
 

@@ -55,6 +55,7 @@ CONF_CALENDARS = "calendars"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"  # nosec
 CONF_DEVICE_ID = "device_id"
+CONF_DOWNLOAD_ATTACHMENTS = "download_attachments"
 CONF_EMAIL_SENSORS = "email_sensor"
 CONF_IGNORE_AVAILABILITY = "ignore_availability"
 CONF_OFFSET = "offset"
@@ -125,6 +126,7 @@ EMAIL_SENSOR = vol.Schema(
         vol.Optional(CONF_MAIL_FOLDER): cv.string,
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
         vol.Optional(CONF_IS_UNREAD): bool,
+        vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
     }
 )
 STATUS_SENSOR = vol.Schema(
@@ -143,6 +145,7 @@ QUERY_SENSOR = vol.Schema(
         vol.Optional(CONF_IS_UNREAD): bool,
         vol.Exclusive(CONF_SUBJECT_CONTAINS, "subject_*"): cv.string,
         vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): cv.string,
+        vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
     }
 )
 CONFIG_SCHEMA = vol.Schema(

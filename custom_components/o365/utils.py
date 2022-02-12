@@ -72,9 +72,9 @@ def zip_files(filespaths, zip_name="archive.zip"):
     return zip_name
 
 
-def get_email_attributes(mail):
+def get_email_attributes(mail, download_attachments = True):
     """Get the email attributes."""
-    return {
+    data = {
         "subject": mail.subject,
         "body": clean_html(mail.body),
         "received": mail.received.strftime(DATETIME_FORMAT),
@@ -85,8 +85,11 @@ def get_email_attributes(mail):
         "has_attachments": mail.has_attachments,
         "importance": mail.importance.value,
         "is_read": mail.is_read,
-        "attachments": [x.name for x in mail.attachments],
     }
+    if download_attachments:
+        data["attachments"] = [x.name for x in mail.attachments]
+
+    return data
 
 
 def format_event_data(event, calendar_id):
