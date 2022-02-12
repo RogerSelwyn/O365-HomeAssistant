@@ -72,7 +72,7 @@ def zip_files(filespaths, zip_name="archive.zip"):
     return zip_name
 
 
-def get_email_attributes(mail, download_attachments = True):
+def get_email_attributes(mail, download_attachments):
     """Get the email attributes."""
     data = {
         "subject": mail.subject,
