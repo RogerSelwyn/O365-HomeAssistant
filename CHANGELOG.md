@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.3.1 (2022/02/12)
+### Enhancements
+- [Add ability to stop dowloading of attachments (to increase performance)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/37ad1b7cb6b6aeb1de0b7a17216719311a9b5407) - @RogerSelwyn
+
+### Maintenance
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/28c7da2c7d2e2de5bd57e8219592e2f4f6eb4bce) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/55360e0c2a559501304c5c8fe83b4a58a25def30) - @RogerSelwyn
+- [Minor code tidy up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a14564d46e8c6ce70e1f4f2f6c0acc0dafd8dd34) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8d75bc665389feb4f9ab55ea664f374853974e0c) - @RogerSelwyn
+- [Bump to v2.3.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/32eb8d0140bf5763d365ec36a45ee02f09a77b73) - @RogerSelwyn
+
 ## v2.3.0 (2022/02/11)
 ### Enhancements
 - [Add Teams Presence Sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a92a0a66cc140bca33fcbc81593e52579d1efa21) - @RogerSelwyn
