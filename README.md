@@ -63,6 +63,7 @@ o365:
     - name: inbox
       max_items: 2
       is_unread: True
+      download_attachments: False
   query_sensors:
     - name: "HA Notifications"
       folder: "Inbox/Test_Inbox"
@@ -112,6 +113,7 @@ Key | Type | Required | Description
 `folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder"
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
+`download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
 
 ### query_sensors
@@ -126,6 +128,7 @@ Key | Type | Required | Description
 `importance` | `string` | `False` | Only get items with 'low'/'normal'/'high' importance
 `subject_contains` | `string` | `False` | Only get emails where the subject contains this string (Mutually exclusive with `subject_is`)
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
+`download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
 ### status_sensors
 Key | Type | Required | Description
