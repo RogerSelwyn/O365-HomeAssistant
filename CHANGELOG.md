@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.3.0 (2022/02/11)
+### Enhancements
+- [Add Teams Presence Sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a92a0a66cc140bca33fcbc81593e52579d1efa21) - @RogerSelwyn
+
+### Fixes
+- [Fix storing of o365_calendars.yaml to store/retrieve from config directory](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7ccc053beb6b0aed88d4005570ec7ff2e2241e35) - @RogerSelwyn
+- [Fix storing of token in the config directory](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/42a2f3fa38d433b00d8271ce1eef8ed434ea2d3a) - @RogerSelwyn
+
+### Maintenance
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/323b3396c61817f4f354c938a068c1d72ebc0bb1) - @RogerSelwyn
+- [Bump O365 to 2.0.18.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/57dc3ded8231cd0243f5c9757d74af4746681efb) - @RogerSelwyn
+- [Code tidy up to remove redundant code](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1e95e1dc00dcfa6a3ddbb936c7748adb4418b240) - @RogerSelwyn
+- [Pylint code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4e5f2f7a19cc193a448a7e8c3ffa40d8d35964d0) - @RogerSelwyn
+- [Code simplification from sourcery](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5734711729d017a08e19f86b120049314d3e99d0) - @RogerSelwyn
+- [Bump to v2.3.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3fd836647092e0d1f1c8de5e8508dda71e345326) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/55a592bfad9dba11b3ed0caaf456a8d8842d5015) - @actions-user
+
 ## v2.2.8 (2022/02/02)
 ### Maintenance
 - [Bump o365 from 2.0.16 to 2.0.17](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/66f669314668130d78c81568f5edad520c50b456) - @dependabot[bot]
