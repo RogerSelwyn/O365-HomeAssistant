@@ -1,5 +1,6 @@
 """Main calendar processing."""
 import copy
+import functools as ft
 import logging
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
@@ -142,8 +143,8 @@ class O365CalendarEventDevice(CalendarEventDevice):
             event = calculate_offset(event, DEFAULT_OFFSET)
             self._offset_reached = is_offset_reached(event)
         events = list(
-            await self.hass.async_add_executor_job(
-                self.data.o365_get_events,
+            await self.data.async_o365_get_events(
+                self.hass,
                 datetime.now() + timedelta(hours=self.start_offset),
                 datetime.now() + timedelta(hours=self.end_offset),
             )
@@ -178,23 +179,24 @@ class O365CalendarData:
         self.search = search
         self.event = None
 
-    def o365_get_events(self, start_date, end_date):
+    async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
         query = self.calendar.new_query("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
         if self.search is not None:
             query.chain("and").on_attribute("subject").contains(self.search)
-        return self.calendar.get_events(
-            limit=self.limit, query=query, include_recurring=True
+        return await hass.async_add_executor_job(
+            ft.partial(
+                self.calendar.get_events,
+                limit=self.limit,
+                query=query,
+                include_recurring=True,
+            )
         )
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get the via async."""
-        vevent_list = list(
-            await hass.async_add_executor_job(
-                self.o365_get_events, start_date, end_date
-            )
-        )
+        vevent_list = list(await self.async_o365_get_events(hass, start_date, end_date))
         vevent_list.sort(key=attrgetter("start"))
         event_list = []
         for event in vevent_list:
@@ -208,8 +210,8 @@ class O365CalendarData:
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def async_update(self, hass):
         """Do the update."""
-        results = await hass.async_add_executor_job(
-            self.o365_get_events,
+        results = await self.async_o365_get_events(
+            hass,
             dt.start_of_local_day(),
             dt.start_of_local_day() + timedelta(days=1),
         )

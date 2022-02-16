@@ -10,14 +10,22 @@ import yaml
 from bs4 import BeautifulSoup
 from homeassistant.util import dt
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
-from O365.calendar import \
-    EventSensitivity  # pylint: disable=no-name-in-module)
+from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module)
 from voluptuous.error import Error as VoluptuousError
 
-from .const import (CALENDAR_DEVICE_SCHEMA, CONF_CAL_ID, CONF_DEVICE_ID,
-                    CONF_ENTITIES, CONF_NAME, CONF_TRACK, CONFIG_BASE_DIR,
-                    DATETIME_FORMAT, DEFAULT_CACHE_PATH,
-                    MINIMUM_REQUIRED_SCOPES, TOKEN_FILENAME)
+from .const import (
+    CALENDAR_DEVICE_SCHEMA,
+    CONF_CAL_ID,
+    CONF_DEVICE_ID,
+    CONF_ENTITIES,
+    CONF_NAME,
+    CONF_TRACK,
+    CONFIG_BASE_DIR,
+    DATETIME_FORMAT,
+    DEFAULT_CACHE_PATH,
+    MINIMUM_REQUIRED_SCOPES,
+    TOKEN_FILENAME,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
