@@ -15,8 +15,15 @@ from .const import (
     ATTR_ZIP_NAME,
     DOMAIN,
     NOTIFY_BASE_SCHEMA,
+    PERM_MAIL_SEND,
+    PERM_MINIMUM_SEND,
 )
-from .utils import get_ha_filepath, zip_files
+from .utils import (
+    get_ha_filepath,
+    get_permissions,
+    validate_minimum_permission,
+    zip_files,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,15 +38,16 @@ async def async_get_service(
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return
-    return O365EmailService(account)
+    return O365EmailService(account, hass)
 
 
 class O365EmailService(BaseNotificationService):
     """Implement the notification service for O365."""
 
-    def __init__(self, account):
+    def __init__(self, account, hass):
         """Initialize the service."""
         self.account = account
+        self._permissions = get_permissions(hass)
 
     @property
     def targets(self):
@@ -48,6 +56,12 @@ class O365EmailService(BaseNotificationService):
 
     def send_message(self, message="", **kwargs):
         """Send a message to a user."""
+        if not validate_minimum_permission(PERM_MINIMUM_SEND, self._permissions):
+            _LOGGER.error(
+                "Not authorisied to send mail - requires permission: %s", PERM_MAIL_SEND
+            )
+            return
+
         cleanup_files = []
         account = self.account
         NOTIFY_BASE_SCHEMA(kwargs)

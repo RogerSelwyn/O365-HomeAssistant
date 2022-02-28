@@ -10,22 +10,40 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
-                    AUTH_CALLBACK_PATH_ALT, CONF_ALT_CONFIG, CONF_CALENDARS,
-                    CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_EMAIL_SENSORS,
-                    CONF_STATUS_SENSORS, CONF_QUERY_SENSORS, CONF_TRACK_NEW,
-                    CONFIG_SCHEMA, CONFIGURATOR_DESCRIPTION,
-                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
-                    DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN, SCOPE,
-                    TOKEN_FILENAME)
-from .utils import build_config_file_path, validate_permissions
+from .const import (
+    AUTH_CALLBACK_NAME,
+    AUTH_CALLBACK_PATH,
+    AUTH_CALLBACK_PATH_ALT,
+    CONF_ALT_CONFIG,
+    CONF_CALENDARS,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+    CONF_EMAIL_SENSORS,
+    CONF_QUERY_SENSORS,
+    CONF_STATUS_SENSORS,
+    CONF_TRACK_NEW,
+    CONFIG_SCHEMA,
+    CONFIGURATOR_DESCRIPTION,
+    CONFIGURATOR_LINK_NAME,
+    CONFIGURATOR_SUBMIT_CAPTION,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_NAME,
+    DOMAIN,
+    TOKEN_FILENAME,
+)
+from .utils import (
+    build_config_file_path,
+    build_minimum_permissions,
+    build_requested_permissions,
+    validate_permissions,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup(hass, config):
     """Set up the O365 platform."""
-    validate_permissions(hass)
+    # validate_permissions(hass)
     conf = config.get(DOMAIN, {})
     CONFIG_SCHEMA(conf)
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
@@ -41,12 +59,14 @@ async def async_setup(hass, config):
 
     account = Account(credentials, token_backend=token_backend, timezone="UTC")
     is_authenticated = account.is_authenticated
-    permissions = validate_permissions(hass)
+    minimum_permissions = build_minimum_permissions(conf)
+    permissions = validate_permissions(hass, minimum_permissions)
     if is_authenticated and permissions:
         do_setup(hass, conf, account)
     else:
+        scope = build_requested_permissions(conf)
         url, state = account.con.get_authorization_url(
-            requested_scopes=SCOPE, redirect_uri=callback_url
+            requested_scopes=scope, redirect_uri=callback_url
         )
         _LOGGER.info("no token; requesting authorization")
         callback_view = O365AuthCallbackView(
@@ -75,11 +95,15 @@ def do_setup(hass, config, account):
             "and will be removed in a future release. Please see the docs for how to proceed",
             FutureWarning,
         )
+    email_sensors = config.get(CONF_EMAIL_SENSORS, [])
+    query_sensors = config.get(CONF_QUERY_SENSORS, [])
+    status_sensors = config.get(CONF_STATUS_SENSORS, [])
+
     hass.data[DOMAIN] = {
         "account": account,
-        CONF_EMAIL_SENSORS: config.get(CONF_EMAIL_SENSORS, []),
-        CONF_QUERY_SENSORS: config.get(CONF_QUERY_SENSORS, []),
-        CONF_STATUS_SENSORS: config.get(CONF_STATUS_SENSORS, []),
+        CONF_EMAIL_SENSORS: email_sensors,
+        CONF_QUERY_SENSORS: query_sensors,
+        CONF_STATUS_SENSORS: status_sensors,
         CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
     }
     hass.async_create_task(
@@ -88,9 +112,10 @@ def do_setup(hass, config, account):
     hass.async_create_task(
         discovery.async_load_platform(hass, "notify", DOMAIN, {}, config)
     )
-    hass.async_create_task(
-        discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config)
-    )
+    if len(email_sensors) > 0 or len(query_sensors) > 0 or len(status_sensors) > 0:
+        hass.async_create_task(
+            discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config)
+        )
 
 
 def request_configuration(hass, url, callback_view):
