@@ -32,16 +32,18 @@ From the Overview page, write down the Application (client) ID. You will need th
 Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret; return here to generate a new one.
 
 Under "Api Permissions" click Add a permission and add the following delegated permission from the Microsoft Graph API collection
-* email - *View users' email address*
 * offline_access - *Maintain access to data you have given it access to*
-* Calendars.ReadWrite - *Read and write user calendars*
-* Calendars.ReadWrite.Shared - *Read and write user and shared calendars*
-* Mail.ReadWrite - *Read and write access to user mail*
-* Mail.ReadWrite.Shared - *Read and write user and shared mail*
-* Mail.Send - *Send mail as a user*
-* Mail.Send.Shared - *Send mail on behalf of others*
+* Calendars.Read - *Read user calendars*
+* Mail.Read - *Read access to user mail*
 * Users.Read - *Sign in and read user profile*
 * Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor)
+
+If 'enable_update' is set to True, (it defaults to True so as not to break existing installs), then the follow permissions are also required:
+* Calendars.ReadWrite - *Read and write user calendars*
+* Mail.ReadWrite - *Read and write access to user mail*
+* Mail.Send - *Send mail as a user*
+
+
 ## Adding to Home Assistant
 
 ### Using Home Assistant Community Store (HACS)
@@ -59,6 +61,7 @@ _**Please note, if home assistants give the error "module not found", try restar
 o365:
   client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+  enable_update: False
   email_sensor:
     - name: inbox
       max_items: 2
@@ -82,7 +85,6 @@ Key | Type | Required | Description
 `message` | `string` | `True` | The email body
 `title` | `string` | `False` | The email subject
 `data` | `dict<data>` | `False` | addional attributes
-`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 
 ### data
 Key | Type | Required | Description
@@ -101,7 +103,9 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
-`alt_auth_flow` | `boolean` | `False` | If True, an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`enable_update` | `boolean` | `False` | If True (default), this will enable the various services that allow the sending of emails and updates to calendars
+`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `calendars` | `list<calendars>` | `False` | List of calendar config entries
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries

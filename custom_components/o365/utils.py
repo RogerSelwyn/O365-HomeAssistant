@@ -18,6 +18,7 @@ from .const import (
     CONF_CAL_ID,
     CONF_DEVICE_ID,
     CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
     CONF_NAME,
     CONF_QUERY_SENSORS,
@@ -26,6 +27,7 @@ from .const import (
     CONFIG_BASE_DIR,
     DATETIME_FORMAT,
     DEFAULT_CACHE_PATH,
+    PERM_CALENDARS_READ,
     PERM_CALENDARS_READWRITE,
     PERM_MAIL_READ,
     PERM_MAIL_SEND,
@@ -70,12 +72,16 @@ def build_requested_permissions(config):
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    enable_update = config.get(CONF_ENABLE_UPDATE, True)
     scope = [
         PERM_OFFLINE_ACCESS,
         PERM_USER_READ,
-        PERM_CALENDARS_READWRITE,
-        PERM_MAIL_SEND,
     ]
+    if enable_update:
+        scope.append(PERM_MAIL_SEND)
+        scope.append(PERM_CALENDARS_READWRITE)
+    else:
+        scope.append(PERM_CALENDARS_READ)
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         scope.append(PERM_MAIL_READ)
     if len(status_sensors) > 0:

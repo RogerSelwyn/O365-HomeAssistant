@@ -1,4 +1,4 @@
-"""Ntoification processing."""
+"""Notification processing."""
 import logging
 import os
 

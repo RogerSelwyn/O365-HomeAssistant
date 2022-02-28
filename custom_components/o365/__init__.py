@@ -19,6 +19,7 @@ from .const import (
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TRACK_NEW,
@@ -68,7 +69,9 @@ async def async_setup(hass, config):
         url, state = account.con.get_authorization_url(
             requested_scopes=scope, redirect_uri=callback_url
         )
-        _LOGGER.info("no token; requesting authorization")
+        _LOGGER.info(
+            "No token, or token doesn't have all required permissions; requesting authorization"
+        )
         callback_view = O365AuthCallbackView(
             conf, None, account, state, callback_url, hass
         )
@@ -98,20 +101,24 @@ def do_setup(hass, config, account):
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    enable_update = config.get(CONF_ENABLE_UPDATE, True)
+    track_new = config.get(CONF_TRACK_NEW, True)
 
     hass.data[DOMAIN] = {
         "account": account,
         CONF_EMAIL_SENSORS: email_sensors,
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,
-        CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
+        CONF_ENABLE_UPDATE: enable_update,
+        CONF_TRACK_NEW: track_new,
     }
     hass.async_create_task(
         discovery.async_load_platform(hass, "calendar", DOMAIN, {}, config)
     )
-    hass.async_create_task(
-        discovery.async_load_platform(hass, "notify", DOMAIN, {}, config)
-    )
+    if enable_update:
+        hass.async_create_task(
+            discovery.async_load_platform(hass, "notify", DOMAIN, {}, config)
+        )
     if len(email_sensors) > 0 or len(query_sensors) > 0 or len(status_sensors) > 0:
         hass.async_create_task(
             discovery.async_load_platform(hass, "sensor", DOMAIN, {}, config)

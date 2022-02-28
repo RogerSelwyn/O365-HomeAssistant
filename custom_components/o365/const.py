@@ -67,6 +67,7 @@ CONF_SEARCH = "search"
 CONF_TRACK = "track"
 CONF_MAX_RESULTS = "max_results"
 CONF_CAL_ID = "cal_id"
+CONF_ENABLE_UPDATE = "enable_update"
 CONF_ENTITIES = "entities"
 
 CONF_HAS_ATTACHMENT = "has_attachment"
@@ -181,6 +182,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(CONF_CLIENT_ID): cv.string,
                 vol.Required(CONF_CLIENT_SECRET): cv.string,
                 vol.Optional(CONF_TRACK_NEW, default=True): bool,
+                vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
                 vol.Optional(CONF_ALT_CONFIG, default=False): bool,
                 vol.Optional(CONF_CALENDARS, default=[]): [CALENDAR_SCHEMA],
                 vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],

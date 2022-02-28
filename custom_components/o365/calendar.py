@@ -20,6 +20,7 @@ from .const import (
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
     CONF_DEVICE_ID,
+    CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
     CONF_HOURS_BACKWARD_TO_GET,
     CONF_HOURS_FORWARD_TO_GET,
@@ -87,18 +88,19 @@ def _setup_register_services(hass, account):
     calendar_services = CalendarServices(account, track_new, hass)
     calendar_services.scan_for_calendars(None)
 
-    hass.services.register(
-        DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
-    )
-    hass.services.register(
-        DOMAIN, "create_calendar_event", calendar_services.create_calendar_event
-    )
-    hass.services.register(
-        DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event
-    )
-    hass.services.register(
-        DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event
-    )
+    if hass.data[DOMAIN][CONF_ENABLE_UPDATE]:
+        hass.services.register(
+            DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
+        )
+        hass.services.register(
+            DOMAIN, "create_calendar_event", calendar_services.create_calendar_event
+        )
+        hass.services.register(
+            DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event
+        )
+        hass.services.register(
+            DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event
+        )
     hass.services.register(
         DOMAIN, "scan_for_calendars", calendar_services.scan_for_calendars
     )
