@@ -1,6 +1,5 @@
 """Main initialisation code."""
 import logging
-import warnings
 from functools import partial
 
 from aiohttp import web_response
@@ -10,15 +9,33 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
-                    AUTH_CALLBACK_PATH_ALT, CONF_ALT_CONFIG, CONF_CLIENT_ID,
-                    CONF_CLIENT_SECRET, CONF_EMAIL_SENSORS, CONF_ENABLE_UPDATE,
-                    CONF_QUERY_SENSORS, CONF_STATUS_SENSORS, CONF_TRACK_NEW,
-                    CONFIG_SCHEMA, CONFIGURATOR_DESCRIPTION,
-                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
-                    DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN, TOKEN_FILENAME)
-from .utils import (build_config_file_path, build_minimum_permissions,
-                    build_requested_permissions, validate_permissions)
+from .const import (
+    AUTH_CALLBACK_NAME,
+    AUTH_CALLBACK_PATH,
+    AUTH_CALLBACK_PATH_ALT,
+    CONF_ALT_CONFIG,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+    CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
+    CONF_QUERY_SENSORS,
+    CONF_STATUS_SENSORS,
+    CONF_TRACK_NEW,
+    CONFIG_SCHEMA,
+    CONFIGURATOR_DESCRIPTION,
+    CONFIGURATOR_LINK_NAME,
+    CONFIGURATOR_SUBMIT_CAPTION,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_NAME,
+    DOMAIN,
+    TOKEN_FILENAME,
+)
+from .utils import (
+    build_config_file_path,
+    build_minimum_permissions,
+    build_requested_permissions,
+    validate_permissions,
+)
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -95,6 +95,8 @@ def validate_permissions(
 ):
     """Validate the permissions."""
     permissions = get_permissions(hass, token_path, filename)
+    if not permissions:
+        return False
 
     for minimum_perm in minimum_permissions:
         permission_granted = validate_minimum_permission(minimum_perm, permissions)
