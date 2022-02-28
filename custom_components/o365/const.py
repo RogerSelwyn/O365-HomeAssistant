@@ -55,7 +55,6 @@ CONF_ALIASES = "aliases"
 CONF_ALT_CONFIG = "alt_auth_flow"
 CONF_CACHE_PATH = "cache_path"
 CONF_CALENDAR_NAME = "calendar_name"
-CONF_CALENDARS = "calendars"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"  # nosec
 CONF_DEVICE_ID = "device_id"
@@ -139,14 +138,6 @@ PERM_MINIMUM_SEND = [
 
 YAML_CALENDARS = f"{DOMAIN}_calendars.yaml"
 
-CALENDAR_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_CALENDAR_NAME): cv.string,
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_HOURS_FORWARD_TO_GET, default=24): int,
-        vol.Optional(CONF_HOURS_BACKWARD_TO_GET, default=0): int,
-    }
-)
 EMAIL_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
@@ -184,7 +175,6 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Optional(CONF_TRACK_NEW, default=True): bool,
                 vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
                 vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-                vol.Optional(CONF_CALENDARS, default=[]): [CALENDAR_SCHEMA],
                 vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
                 vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
                 vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
