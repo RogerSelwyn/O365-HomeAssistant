@@ -4,7 +4,6 @@
 **Note:** This release has a radical change to the permissions structure to reduce the scope of the permissions requested. To further reduce the permissions please set 'enables_update' to False in your configuration. This will disable the various update services and remove the request for write access to calendars and send access to mail.
 
 ### Enhancements
-- [Move more of calendar and sensor to async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/becf8454a60aab3cc50a3c38ff92715a064f3263) - @RogerSelwyn
 - [Initial change to permissions](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0d3eeb064745b0d70a75893ea31b2cbf76200500) - @RogerSelwyn
 - [Add 'enable_update' switch so update capability can be disabled.](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8ceccffec922caf95fdb82ee2d94813e4118b6e8) - @RogerSelwyn
 
