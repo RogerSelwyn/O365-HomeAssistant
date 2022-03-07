@@ -78,8 +78,7 @@ def build_requested_permissions(config):
         PERM_USER_READ,
     ]
     if enable_update:
-        scope.append(PERM_MAIL_SEND)
-        scope.append(PERM_CALENDARS_READWRITE)
+        scope.extend((PERM_MAIL_SEND, PERM_CALENDARS_READWRITE))
     else:
         scope.append(PERM_CALENDARS_READ)
     if len(email_sensors) > 0 or len(query_sensors) > 0:
@@ -114,11 +113,7 @@ def validate_minimum_permission(minimum_perm, permissions):
     if minimum_perm[0] in permissions:
         return True
 
-    for alternate_perm in minimum_perm[1]:
-        if alternate_perm in permissions:
-            return True
-
-    return False
+    return any(alternate_perm in permissions for alternate_perm in minimum_perm[1])
 
 
 def get_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME):

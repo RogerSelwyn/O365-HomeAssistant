@@ -46,11 +46,6 @@ async def async_setup(hass, config):
     conf = config.get(DOMAIN, {})
     CONFIG_SCHEMA(conf)
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
-    alt_config = conf.get(CONF_ALT_CONFIG)
-    if alt_config:
-        callback_url = AUTH_CALLBACK_PATH_ALT
-    else:
-        callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_backend = FileSystemTokenBackend(
         token_path=token_path, token_filename=TOKEN_FILENAME
@@ -63,21 +58,7 @@ async def async_setup(hass, config):
     if is_authenticated and permissions:
         do_setup(hass, conf, account)
     else:
-        scope = build_requested_permissions(conf)
-        url, state = account.con.get_authorization_url(
-            requested_scopes=scope, redirect_uri=callback_url
-        )
-        _LOGGER.info(
-            "No token, or token doesn't have all required permissions; requesting authorization"
-        )
-        callback_view = O365AuthCallbackView(
-            conf, None, account, state, callback_url, hass
-        )
-        hass.http.register_view(callback_view)
-        if alt_config:
-            request_configuration_alt(hass, url, callback_view)
-        else:
-            request_configuration(hass, url, callback_view)
+        _request_authorization(hass, conf, account)
 
     return True
 
@@ -137,6 +118,27 @@ def request_configuration_alt(hass, url, callback_view):
         "into this field afterwards and submit",
         submit_caption="Submit",
     )
+
+
+def _request_authorization(hass, conf, account):
+    alt_config = conf.get(CONF_ALT_CONFIG)
+    if alt_config:
+        callback_url = AUTH_CALLBACK_PATH_ALT
+    else:
+        callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
+    scope = build_requested_permissions(conf)
+    url, state = account.con.get_authorization_url(
+        requested_scopes=scope, redirect_uri=callback_url
+    )
+    _LOGGER.info(
+        "No token, or token doesn't have all required permissions; requesting authorization"
+    )
+    callback_view = O365AuthCallbackView(conf, None, account, state, callback_url, hass)
+    hass.http.register_view(callback_view)
+    if alt_config:
+        request_configuration_alt(hass, url, callback_view)
+    else:
+        request_configuration(hass, url, callback_view)
 
 
 class O365AuthCallbackView(HomeAssistantView):
