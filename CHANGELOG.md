@@ -1,16 +1,23 @@
 # Changelog
 
-## v2.4.0 Beta 1 (2022/02/28)
+## v2.4.0 (2022/03/07)
 **Note:** This release has a radical change to the permissions structure to reduce the scope of the permissions requested. To further reduce the permissions please set 'enables_update' to False in your configuration. This will disable the various update services and remove the request for write access to calendars and send access to mail.
 
 ### Enhancements
 - [Initial change to permissions](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0d3eeb064745b0d70a75893ea31b2cbf76200500) - @RogerSelwyn
 - [Add 'enable_update' switch so update capability can be disabled.](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8ceccffec922caf95fdb82ee2d94813e4118b6e8) - @RogerSelwyn
 
-### Maintenance
+### Fixes
+- [Remove extraneous error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f0adb5067c6fde20c6d4b750f6c9018685695d2f) - @RogerSelwyn
 
+### Maintenance
 - [Move more of calendar and sensor to async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/becf8454a60aab3cc50a3c38ff92715a064f3263) - @RogerSelwyn
 - [Remove the already deprecated YAML Calendar configuration](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6cb631078b628e6bf4dd0b67adb2232ef6430f39) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1bbc3e4627d66a4b62a147b0a7a65a702d41d5c2) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1832b3094a7064e1652df34a1042dbb752210e5b) - @RogerSelwyn
+- [Code tidy up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4ffaf6779057b0a694a00e89467c679a48128cfa) - @RogerSelwyn
+- [Bump to v2.4.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9d2cb2744daa06798a1a846497bef91f60851f5b) - @RogerSelwyn
+
 
 ## v2.3.1 (2022/02/12)
 ### Enhancements
