@@ -5,22 +5,47 @@ import logging
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-from homeassistant.components.calendar import (CalendarEventDevice,
-                                               calculate_offset,
-                                               is_offset_reached)
+from homeassistant.components.calendar import (
+    CalendarEventDevice,
+    calculate_offset,
+    is_offset_reached,
+)
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 
-from .const import (CALENDAR_ENTITY_ID_FORMAT, CALENDAR_SERVICE_CREATE_SCHEMA,
-                    CALENDAR_SERVICE_MODIFY_SCHEMA,
-                    CALENDAR_SERVICE_REMOVE_SCHEMA,
-                    CALENDAR_SERVICE_RESPOND_SCHEMA, CONF_DEVICE_ID,
-                    CONF_ENTITIES, CONF_HOURS_BACKWARD_TO_GET,
-                    CONF_HOURS_FORWARD_TO_GET, CONF_MAX_RESULTS, CONF_NAME,
-                    CONF_SEARCH, CONF_TRACK, CONF_TRACK_NEW, DEFAULT_OFFSET,
-                    DOMAIN, MIN_TIME_BETWEEN_UPDATES, YAML_CALENDARS)
-from .utils import (add_call_data_to_event, build_config_file_path, clean_html,
-                    format_event_data, load_calendars, update_calendar_file)
+from .const import (
+    CALENDAR_ENTITY_ID_FORMAT,
+    CALENDAR_SERVICE_CREATE_SCHEMA,
+    CALENDAR_SERVICE_MODIFY_SCHEMA,
+    CALENDAR_SERVICE_REMOVE_SCHEMA,
+    CALENDAR_SERVICE_RESPOND_SCHEMA,
+    CONF_DEVICE_ID,
+    CONF_ENABLE_UPDATE,
+    CONF_ENTITIES,
+    CONF_HOURS_BACKWARD_TO_GET,
+    CONF_HOURS_FORWARD_TO_GET,
+    CONF_MAX_RESULTS,
+    CONF_NAME,
+    CONF_SEARCH,
+    CONF_TRACK,
+    CONF_TRACK_NEW,
+    DEFAULT_OFFSET,
+    DOMAIN,
+    MIN_TIME_BETWEEN_UPDATES,
+    PERM_CALENDARS_READWRITE,
+    PERM_MINIMUM_CALENDAR_WRITE,
+    YAML_CALENDARS,
+)
+from .utils import (
+    add_call_data_to_event,
+    build_config_file_path,
+    clean_html,
+    format_event_data,
+    get_permissions,
+    load_calendars,
+    update_calendar_file,
+    validate_minimum_permission,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,18 +88,19 @@ def _setup_register_services(hass, account):
     calendar_services = CalendarServices(account, track_new, hass)
     calendar_services.scan_for_calendars(None)
 
-    hass.services.register(
-        DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
-    )
-    hass.services.register(
-        DOMAIN, "create_calendar_event", calendar_services.create_calendar_event
-    )
-    hass.services.register(
-        DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event
-    )
-    hass.services.register(
-        DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event
-    )
+    if hass.data[DOMAIN][CONF_ENABLE_UPDATE]:
+        hass.services.register(
+            DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
+        )
+        hass.services.register(
+            DOMAIN, "create_calendar_event", calendar_services.create_calendar_event
+        )
+        hass.services.register(
+            DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event
+        )
+        hass.services.register(
+            DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event
+        )
     hass.services.register(
         DOMAIN, "scan_for_calendars", calendar_services.scan_for_calendars
     )
@@ -291,9 +317,13 @@ class CalendarServices:
         self.schedule = self.account.schedule()
         self.track_new_found_calendars = track_new_found_calendars
         self._hass = hass
+        self._permissions = get_permissions(self._hass)
 
     def modify_calendar_event(self, call):
         """Modify the event."""
+        if not self._validate_permissions("modify"):
+            return
+
         event_data = call.data
         CALENDAR_SERVICE_MODIFY_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
@@ -303,6 +333,9 @@ class CalendarServices:
 
     def create_calendar_event(self, call):
         """Create the event."""
+        if not self._validate_permissions("create"):
+            return
+
         event_data = call.data
         CALENDAR_SERVICE_CREATE_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
@@ -312,6 +345,9 @@ class CalendarServices:
 
     def remove_calendar_event(self, call):
         """Remove the event."""
+        if not self._validate_permissions("delete"):
+            return
+
         event_data = call.data
         CALENDAR_SERVICE_REMOVE_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
@@ -320,6 +356,9 @@ class CalendarServices:
 
     def respond_calendar_event(self, call):
         """Respond to calendar event."""
+        if not self._validate_permissions("respond to"):
+            return
+
         event_data = call.data
         CALENDAR_SERVICE_RESPOND_SCHEMA(dict(event_data.items()))
         calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
@@ -350,3 +389,15 @@ class CalendarServices:
         for calendar in calendars:
             track = self.track_new_found_calendars
             update_calendar_file(YAML_CALENDARS, calendar, self._hass, track)
+
+    def _validate_permissions(self, error_message):
+        if not validate_minimum_permission(
+            PERM_MINIMUM_CALENDAR_WRITE, self._permissions
+        ):
+            _LOGGER.error(
+                "Not authorisied to %s calendar event - requires permission: %s",
+                error_message,
+                PERM_CALENDARS_READWRITE,
+            )
+            return False
+        return True

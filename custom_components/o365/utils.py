@@ -17,13 +17,27 @@ from .const import (
     CALENDAR_DEVICE_SCHEMA,
     CONF_CAL_ID,
     CONF_DEVICE_ID,
+    CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
     CONF_NAME,
+    CONF_QUERY_SENSORS,
+    CONF_STATUS_SENSORS,
     CONF_TRACK,
     CONFIG_BASE_DIR,
     DATETIME_FORMAT,
     DEFAULT_CACHE_PATH,
-    MINIMUM_REQUIRED_SCOPES,
+    PERM_CALENDARS_READ,
+    PERM_CALENDARS_READWRITE,
+    PERM_MAIL_READ,
+    PERM_MAIL_SEND,
+    PERM_MINIMUM_CALENDAR,
+    PERM_MINIMUM_MAIL,
+    PERM_MINIMUM_PRESENCE,
+    PERM_MINIMUM_USER,
+    PERM_OFFLINE_ACCESS,
+    PERM_PRESENCE_READ,
+    PERM_USER_READ,
     TOKEN_FILENAME,
 )
 
@@ -39,21 +53,81 @@ def clean_html(html):
     return html
 
 
-def validate_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME):
+def build_minimum_permissions(config):
+    """Build the minimum permissions required to operate."""
+    email_sensors = config.get(CONF_EMAIL_SENSORS, [])
+    query_sensors = config.get(CONF_QUERY_SENSORS, [])
+    status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    minimum_permissions = [PERM_MINIMUM_USER, PERM_MINIMUM_CALENDAR]
+    if len(email_sensors) > 0 or len(query_sensors) > 0:
+        minimum_permissions.append(PERM_MINIMUM_MAIL)
+    if len(status_sensors) > 0:
+        minimum_permissions.append(PERM_MINIMUM_PRESENCE)
+
+    return minimum_permissions
+
+
+def build_requested_permissions(config):
+    """Build the requested permissions for the scope."""
+    email_sensors = config.get(CONF_EMAIL_SENSORS, [])
+    query_sensors = config.get(CONF_QUERY_SENSORS, [])
+    status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    enable_update = config.get(CONF_ENABLE_UPDATE, True)
+    scope = [
+        PERM_OFFLINE_ACCESS,
+        PERM_USER_READ,
+    ]
+    if enable_update:
+        scope.extend((PERM_MAIL_SEND, PERM_CALENDARS_READWRITE))
+    else:
+        scope.append(PERM_CALENDARS_READ)
+    if len(email_sensors) > 0 or len(query_sensors) > 0:
+        scope.append(PERM_MAIL_READ)
+    if len(status_sensors) > 0:
+        scope.append(PERM_PRESENCE_READ)
+
+    return scope
+
+
+def validate_permissions(
+    hass, minimum_permissions, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME
+):
     """Validate the permissions."""
+    permissions = get_permissions(hass, token_path, filename)
+    if not permissions:
+        return False
+
+    for minimum_perm in minimum_permissions:
+        permission_granted = validate_minimum_permission(minimum_perm, permissions)
+        if not permission_granted:
+            _LOGGER.warning(
+                "Minimum required permissions not granted: %s", minimum_perm
+            )
+            return False
+
+    return True
+
+
+def validate_minimum_permission(minimum_perm, permissions):
+    """Validate the minimum permissions."""
+    if minimum_perm[0] in permissions:
+        return True
+
+    return any(alternate_perm in permissions for alternate_perm in minimum_perm[1])
+
+
+def get_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME):
+    """Get the permissions from the token file."""
     config_path = build_config_file_path(hass, token_path)
     full_token_path = os.path.join(config_path, filename)
     if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
         _LOGGER.warning("Could not locate token at %s", full_token_path)
-        return False
+        return []
     with open(full_token_path, "r", encoding="UTF-8") as file_handle:
         raw = file_handle.read()
         permissions = json.loads(raw)["scope"]
-    scope = list(MINIMUM_REQUIRED_SCOPES)
-    all_permissions_granted = all(x in permissions for x in scope)
-    if not all_permissions_granted:
-        _LOGGER.warning("All permissions granted: %s", all_permissions_granted)
-    return all_permissions_granted
+
+    return permissions
 
 
 def get_ha_filepath(filepath):

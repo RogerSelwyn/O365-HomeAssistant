@@ -4,8 +4,12 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
-                                             ATTR_TARGET, ATTR_TITLE)
+from homeassistant.components.notify import (
+    ATTR_DATA,
+    ATTR_MESSAGE,
+    ATTR_TARGET,
+    ATTR_TITLE,
+)
 from homeassistant.config import get_default_config_dir
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
@@ -51,7 +55,6 @@ CONF_ALIASES = "aliases"
 CONF_ALT_CONFIG = "alt_auth_flow"
 CONF_CACHE_PATH = "cache_path"
 CONF_CALENDAR_NAME = "calendar_name"
-CONF_CALENDARS = "calendars"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"  # nosec
 CONF_DEVICE_ID = "device_id"
@@ -63,6 +66,7 @@ CONF_SEARCH = "search"
 CONF_TRACK = "track"
 CONF_MAX_RESULTS = "max_results"
 CONF_CAL_ID = "cal_id"
+CONF_ENABLE_UPDATE = "enable_update"
 CONF_ENTITIES = "entities"
 
 CONF_HAS_ATTACHMENT = "has_attachment"
@@ -94,32 +98,46 @@ DOMAIN = "o365"
 ICON = "mdi:office"
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
 DEFAULT_OFFSET = "!!"
-SCOPE = [
-    "offline_access",
-    "User.Read",
-    "Calendars.ReadWrite",
-    "Calendars.ReadWrite.Shared",
-    "Mail.ReadWrite",
-    "Mail.ReadWrite.Shared",
-    "Mail.Send",
-    "Mail.Send.Shared",
+PERM_CALENDARS_READ = "Calendars.Read"
+PERM_CALENDARS_READ_SHARED = "Calendars.Read.Shared"
+PERM_CALENDARS_READWRITE = "Calendars.ReadWrite"
+PERM_CALENDARS_READWRITE_SHARED = "Calendars.ReadWrite.Shared"
+PERM_MAIL_READ = "Mail.Read"
+PERM_MAIL_READ_SHARED = "Mail.Read.Shared"
+PERM_MAIL_READWRITE = "Mail.ReadWrite"
+PERM_MAIL_READWRITE_SHARED = "Mail.ReadWrite.Shared"
+PERM_MAIL_SEND = "Mail.Send"
+PERM_MAIL_SEND_SHARED = "Mail.Send.Shared"
+PERM_OFFLINE_ACCESS = "offline_access"
+PERM_PRESENCE_READ = "Presence.Read"
+PERM_USER_READ = "User.Read"
+PERM_MINIMUM_PRESENCE = [PERM_PRESENCE_READ, []]
+PERM_MINIMUM_USER = [PERM_USER_READ, []]
+PERM_MINIMUM_MAIL = [
+    PERM_MAIL_READ,
+    [PERM_MAIL_READ_SHARED, PERM_MAIL_READWRITE, PERM_MAIL_READWRITE_SHARED],
 ]
-MINIMUM_REQUIRED_SCOPES = [
-    "User.Read",
-    "Calendars.ReadWrite",
-    "Mail.ReadWrite",
-    "Mail.Send",
+PERM_MINIMUM_CALENDAR = [
+    PERM_CALENDARS_READ,
+    [
+        PERM_CALENDARS_READ_SHARED,
+        PERM_CALENDARS_READWRITE,
+        PERM_CALENDARS_READWRITE_SHARED,
+    ],
 ]
+PERM_MINIMUM_CALENDAR_WRITE = [
+    PERM_CALENDARS_READWRITE,
+    [
+        PERM_CALENDARS_READWRITE_SHARED,
+    ],
+]
+PERM_MINIMUM_SEND = [
+    PERM_MAIL_SEND,
+    [PERM_MAIL_SEND_SHARED],
+]
+
 YAML_CALENDARS = f"{DOMAIN}_calendars.yaml"
 
-CALENDAR_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_CALENDAR_NAME): cv.string,
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_HOURS_FORWARD_TO_GET, default=24): int,
-        vol.Optional(CONF_HOURS_BACKWARD_TO_GET, default=0): int,
-    }
-)
 EMAIL_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
@@ -155,8 +173,8 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(CONF_CLIENT_ID): cv.string,
                 vol.Required(CONF_CLIENT_SECRET): cv.string,
                 vol.Optional(CONF_TRACK_NEW, default=True): bool,
+                vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
                 vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-                vol.Optional(CONF_CALENDARS, default=[]): [CALENDAR_SCHEMA],
                 vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
                 vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
                 vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
