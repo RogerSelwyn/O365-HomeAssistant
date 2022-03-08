@@ -24,7 +24,6 @@ from .const import (
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TRACK,
-    CONFIG_BASE_DIR,
     DATETIME_FORMAT,
     DEFAULT_CACHE_PATH,
     PERM_CALENDARS_READ,
@@ -130,21 +129,23 @@ def get_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME
     return permissions
 
 
-def get_ha_filepath(filepath):
+def get_ha_filepath(hass, filepath):
     """Get the file path."""
     _filepath = Path(filepath)
     if _filepath.parts[0] == "/" and _filepath.parts[1] == "config":
-        _filepath = os.path.join(CONFIG_BASE_DIR, *_filepath.parts[2:])
+        _filepath = build_config_file_path(hass, *_filepath.parts[2:])
 
     if not os.path.isfile(_filepath):
         if not os.path.isfile(filepath):
-            raise ValueError(f"Could not access file {filepath}")
+            raise ValueError("Could not access file " + filepath + " at " + _filepath)
         return filepath
     return _filepath
 
 
-def zip_files(filespaths, zip_name="archive.zip"):
+def zip_files(filespaths, zip_name):
     """Zip the files."""
+    if not zip_name:
+        zip_name = "archive.zip"
     if Path(zip_name).suffix != ".zip":
         zip_name += ".zip"
 

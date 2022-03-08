@@ -4,13 +4,8 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (
-    ATTR_DATA,
-    ATTR_MESSAGE,
-    ATTR_TARGET,
-    ATTR_TITLE,
-)
-from homeassistant.config import get_default_config_dir
+from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
+                                             ATTR_TARGET, ATTR_TITLE)
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -82,7 +77,6 @@ CONF_QUERY_SENSORS = "query_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TRACK_NEW = "track_new_calendar"
-CONFIG_BASE_DIR = get_default_config_dir()
 CONFIGURATOR_DESCRIPTION = (
     "To link your O365 account, click the link, login, and authorize:"
 )

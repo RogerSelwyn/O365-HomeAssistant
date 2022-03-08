@@ -48,6 +48,8 @@ class O365EmailService(BaseNotificationService):
         """Initialize the service."""
         self.account = account
         self._permissions = get_permissions(hass)
+        self._cleanup_files = []
+        self._hass = hass
 
     @property
     def targets(self):
@@ -62,63 +64,84 @@ class O365EmailService(BaseNotificationService):
             )
             return
 
-        cleanup_files = []
-        account = self.account
+        self._cleanup_files = []
+        data = kwargs.get(ATTR_DATA)
+        if data is None:
+            kwargs.pop(ATTR_DATA)
+
         NOTIFY_BASE_SCHEMA(kwargs)
+
         title = kwargs.get(ATTR_TITLE, "Notification from Home Assistant")
 
-        data = kwargs.get(ATTR_DATA)
         if data and data.get(ATTR_TARGET, None):
             target = data.get(ATTR_TARGET)
         else:
-            target = account.get_current_user().mail
+            target = self.account.get_current_user().mail
 
+        new_message = self.account.new_message()
+        message = self._build_message(data, message, new_message.attachments)
+        self._build_attachments(data, new_message.attachments)
+        new_message.to.add(target)
+        new_message.subject = title
+        new_message.body = message
+        new_message.send()
+
+        self._cleanup()
+
+    def _build_message(self, data, message, new_message_attachments):
         is_html = False
         photos = []
-        attachments = []
-        zip_attachments = False
-        zip_name = None
         if data:
             is_html = data.get(ATTR_MESSAGE_IS_HTML, False)
             photos = data.get(ATTR_PHOTOS, [])
-            attachments = data.get(ATTR_ATTACHMENTS, [])
-            zip_attachments = data.get(ATTR_ZIP_ATTACHMENTS, False)
-            zip_name = data.get(ATTR_ZIP_NAME, None)
-
-        if isinstance(photos, str):
-            photos = [photos]
-
-        new_message = account.new_message()
         if is_html or photos:
             message = f"""
                 <html>
                     <body>
                         {message}"""
-            for photo in photos:
-                if photo.startswith("http"):
-                    message += f'<br><img src="{photo}">'
-                else:
-                    photo = get_ha_filepath(photo)
-                    new_message.attachments.add(photo)
-                    att = new_message.attachments[-1]
-                    att.is_inline = True
-                    att.content_id = "1"
-                    message += f'<br><img src="cid:{1}">'
+            message += self._build_photo_content(photos, new_message_attachments)
             message += "</body></html>"
 
-        attachments = [get_ha_filepath(x) for x in attachments]
+        return message
+
+    def _build_photo_content(self, photos, new_message_attachments):
+        if isinstance(photos, str):
+            photos = [photos]
+
+        photos_content = ""
+        for photo in photos:
+            if photo.startswith("http"):
+                photos_content += f'<br><img src="{photo}">'
+            else:
+                photo = get_ha_filepath(self._hass, photo)
+                new_message_attachments.add(photo)
+                att = new_message_attachments[-1]
+                att.is_inline = True
+                att.content_id = "1"
+                photos_content += f'<br><img src="cid:{1}">'
+
+        return photos_content
+
+    def _build_attachments(self, data, new_message_attachments):
+
+        attachments = []
+        zip_attachments = False
+        zip_name = None
+        if data:
+            attachments = data.get(ATTR_ATTACHMENTS, [])
+            zip_attachments = data.get(ATTR_ZIP_ATTACHMENTS, False)
+            zip_name = data.get(ATTR_ZIP_NAME, None)
+
+        attachments = [get_ha_filepath(self._hass, x) for x in attachments]
         if attachments and zip_attachments:
             z_file = zip_files(attachments, zip_name)
-            new_message.attachments.add(z_file)
-            cleanup_files.append(z_file)
+            new_message_attachments.add(z_file)
+            self._cleanup_files.append(z_file)
 
         else:
             for attachment in attachments:
-                new_message.attachments.add(attachment)
+                new_message_attachments.add(attachment)
 
-        new_message.to.add(target)
-        new_message.subject = title
-        new_message.body = message
-        new_message.send()
-        for filename in cleanup_files:
+    def _cleanup(self):
+        for filename in self._cleanup_files:
             os.remove(filename)
