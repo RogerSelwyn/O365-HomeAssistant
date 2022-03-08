@@ -137,7 +137,7 @@ def get_ha_filepath(hass, filepath):
 
     if not os.path.isfile(_filepath):
         if not os.path.isfile(filepath):
-            raise ValueError("Could not access file " + filepath + " at " + _filepath)
+            raise ValueError(f"Could not access file {filepath} at {_filepath}")
         return filepath
     return _filepath
 
