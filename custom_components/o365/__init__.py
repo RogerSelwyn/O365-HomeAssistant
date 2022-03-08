@@ -189,9 +189,7 @@ class O365AuthCallbackView(HomeAssistantView):
 
     def alt_callback(self, data):
         """Receive authorization token."""
-        url = data.get("token")
-        if not url:
-            url = [v for k, v in data.items()][0]
+        url = data.get("token") or [v for k, v in data.items()][0]
 
         result = self.account.con.request_token(
             url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT
