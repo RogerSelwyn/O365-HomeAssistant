@@ -4,8 +4,12 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
-                                             ATTR_TARGET, ATTR_TITLE)
+from homeassistant.components.notify import (
+    ATTR_DATA,
+    ATTR_MESSAGE,
+    ATTR_TARGET,
+    ATTR_TITLE,
+)
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -27,6 +31,7 @@ ATTR_CALENDAR_ID = "calendar_id"
 ATTR_CATEGORIES = "categories"
 ATTR_EMAIL = "email"
 ATTR_END = "end"
+ATTR_ENTITY_ID = "entity_id"
 ATTR_EVENT_ID = "event_id"
 ATTR_IS_ALL_DAY = "is_all_day"
 ATTR_LOCATION = "location"
@@ -205,6 +210,7 @@ NOTIFY_BASE_SCHEMA = vol.Schema(
 
 CALENDAR_SERVICE_RESPOND_SCHEMA = vol.Schema(
     {
+        vol.Optional(ATTR_ENTITY_ID): cv.string,
         vol.Required(ATTR_EVENT_ID): cv.string,
         vol.Required(ATTR_CALENDAR_ID): cv.string,
         vol.Optional(ATTR_RESPONSE, None): cv.enum(EventResponse),
@@ -222,6 +228,7 @@ ATTENDEE_SCHEMA = vol.Schema(
 
 CALENDAR_SERVICE_CREATE_SCHEMA = vol.Schema(
     {
+        vol.Optional(ATTR_ENTITY_ID): cv.string,
         vol.Required(ATTR_CALENDAR_ID): cv.string,
         vol.Required(ATTR_START): cv.datetime,
         vol.Required(ATTR_END): cv.datetime,
@@ -238,6 +245,7 @@ CALENDAR_SERVICE_CREATE_SCHEMA = vol.Schema(
 
 CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
     {
+        vol.Optional(ATTR_ENTITY_ID): cv.string,
         vol.Required(ATTR_EVENT_ID): cv.string,
         vol.Required(ATTR_CALENDAR_ID): cv.string,
         vol.Optional(ATTR_START): cv.datetime,
@@ -256,6 +264,7 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
 
 CALENDAR_SERVICE_REMOVE_SCHEMA = vol.Schema(
     {
+        vol.Optional(ATTR_ENTITY_ID): cv.string,
         vol.Required(ATTR_EVENT_ID): cv.string,
         vol.Required(ATTR_CALENDAR_ID): cv.string,
     }

@@ -1,6 +1,13 @@
 respond_calendar_event:
   description: "Respond to calendar event/invite"
   fields:
+    entity_id:
+      name: Entity
+      description: The zone's entity_id.
+      required: true
+      selector:
+        entity:
+          domain: calendar
     event_id:
       description: ID for event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -20,6 +27,13 @@ respond_calendar_event:
 create_calendar_event:
   description: Create new calendar event
   fields:
+    entity_id:
+      name: Entity
+      description: The zone's entity_id.
+      required: true
+      selector:
+        entity:
+          domain: calendar
     calendar_id:
       description: ID for the calendar to create the event in, can be found as an attribute on you calendar entity
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -55,6 +69,13 @@ create_calendar_event:
 modify_calendar_event:
   description: Modify existing calendar event, all properties except event_id and calendar_id is optional.
   fields:
+    entity_id:
+      name: Entity
+      description: The zone's entity_id.
+      required: true
+      selector:
+        entity:
+          domain: calendar
     event_id:
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -94,6 +115,13 @@ modify_calendar_event:
 remove_calendar_event:
   description: Delete calendar event
   fields:
+    entity_id:
+      name: Entity
+      description: The zone's entity_id.
+      required: true
+      selector:
+        entity:
+          domain: calendar
     event_id:
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

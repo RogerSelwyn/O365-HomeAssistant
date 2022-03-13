@@ -14,6 +14,8 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 
 from .const import (
+    ATTR_CALENDAR_ID,
+    ATTR_ENTITY_ID,
     CALENDAR_ENTITY_ID_FORMAT,
     CALENDAR_SERVICE_CREATE_SCHEMA,
     CALENDAR_SERVICE_MODIFY_SCHEMA,
@@ -30,6 +32,7 @@ from .const import (
     CONF_SEARCH,
     CONF_TRACK,
     CONF_TRACK_NEW,
+    CONST_PRIMARY,
     DEFAULT_OFFSET,
     DOMAIN,
     MIN_TIME_BETWEEN_UPDATES,
@@ -65,7 +68,8 @@ def setup_platform(
     if not account.is_authenticated:
         return False
 
-    _setup_add_entities(hass, account, add_entities, conf)
+    cal_ids = _setup_add_entities(hass, account, add_entities, conf)
+    conf["cal_ids"] = cal_ids
     _setup_register_services(hass, account, conf)
 
     return True
@@ -75,6 +79,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
     yaml_filename = build_yaml_filename(conf)
     calendars = load_calendars(build_config_file_path(hass, yaml_filename))
     entities = []
+    cal_ids = {}
 
     for cal_id, calendar in calendars.items():
         for entity in calendar.get(CONF_ENTITIES):
@@ -92,8 +97,10 @@ def _setup_add_entities(hass, account, add_entities, conf):
             cal = O365CalendarEventDevice(
                 hass, account, cal_id, entity, entity_id, conf
             )
+            cal_ids[entity_id] = cal_id
             entities.append(cal)
     add_entities(entities, True)
+    return cal_ids
 
 
 def _setup_register_services(hass, account, conf):
@@ -339,9 +346,13 @@ class CalendarServices:
         if not self._validate_permissions("modify"):
             return
 
-        event_data = call.data
-        CALENDAR_SERVICE_MODIFY_SCHEMA(dict(event_data.items()))
-        calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
+        config = self._get_config(call.data)
+        event_data = self._setup_event_data(call.data, config)
+        CALENDAR_SERVICE_MODIFY_SCHEMA(event_data)
+
+        calendar = self.schedule.get_calendar(
+            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
+        )
         event = calendar.get_event(event_data["event_id"])
         event = add_call_data_to_event(event, call.data)
         event.save()
@@ -351,9 +362,15 @@ class CalendarServices:
         if not self._validate_permissions("create"):
             return
 
-        event_data = call.data
-        CALENDAR_SERVICE_CREATE_SCHEMA(dict(event_data.items()))
-        calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
+        config = self._get_config(call.data)
+        event_data = self._setup_event_data(call.data, config)
+        if not event_data:
+            return
+        CALENDAR_SERVICE_CREATE_SCHEMA(event_data)
+        schedule = config["account"].schedule()
+        calendar = schedule.get_calendar(
+            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
+        )
         event = calendar.new_event()
         event = add_call_data_to_event(event, call.data)
         event.save()
@@ -363,9 +380,12 @@ class CalendarServices:
         if not self._validate_permissions("delete"):
             return
 
-        event_data = call.data
-        CALENDAR_SERVICE_REMOVE_SCHEMA(dict(event_data.items()))
-        calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
+        config = self._get_config(call.data)
+        event_data = self._setup_event_data(call.data, config)
+        CALENDAR_SERVICE_REMOVE_SCHEMA(event_data)
+        calendar = self.schedule.get_calendar(
+            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
+        )
         event = calendar.get_event(event_data["event_id"])
         event.delete()
 
@@ -374,9 +394,12 @@ class CalendarServices:
         if not self._validate_permissions("respond to"):
             return
 
-        event_data = call.data
-        CALENDAR_SERVICE_RESPOND_SCHEMA(dict(event_data.items()))
-        calendar = self.schedule.get_calendar(calendar_id=event_data.get("calendar_id"))
+        config = self._get_config(call.data)
+        event_data = self._setup_event_data(call.data, config)
+        CALENDAR_SERVICE_RESPOND_SCHEMA(event_data)
+        calendar = self.schedule.get_calendar(
+            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
+        )
         event = calendar.get_event(event_data["event_id"])
         response = event_data.get("response")
 
@@ -421,3 +444,31 @@ class CalendarServices:
             )
             return False
         return True
+
+    def _setup_event_data(self, call_data, config):
+        event_data = dict(call_data.items())
+        if entity_id := call_data.get(ATTR_ENTITY_ID, None):
+            calendar_id = config.get("cal_ids").get(entity_id)
+            event_data[ATTR_CALENDAR_ID] = calendar_id
+        elif config[CONF_ACCOUNT_NAME] != CONST_PRIMARY:
+            event_data[ATTR_CALENDAR_ID] = None
+            _LOGGER.error(
+                "Must use entity_id for service calls to calendars in secondary accounts"
+            )
+            return None
+
+        return event_data
+
+    def _get_config(self, event_data):
+        for config in self._hass.data[DOMAIN]:
+            config_data = self._hass.data[DOMAIN][config]
+            if entity_id := event_data.get(ATTR_ENTITY_ID, None):
+                if entity_id in config_data["cal_ids"]:
+                    return config_data
+            else:
+                for cal in config_data["cal_ids"]:
+                    if config_data["cal_ids"][cal] == event_data.get(
+                        ATTR_CALENDAR_ID, None
+                    ):
+                        return config_data
+        return None
