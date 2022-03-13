@@ -13,6 +13,7 @@ from .const import (
     ATTR_TITLE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
+    CONF_ACCOUNT_NAME,
     DOMAIN,
     NOTIFY_BASE_SCHEMA,
     PERM_MAIL_SEND,
@@ -35,22 +36,22 @@ async def async_get_service(
     """Get the service."""
     if discovery_info is None:
         return
-    account = hass.data[DOMAIN]["account"]
+    account_name = discovery_info[CONF_ACCOUNT_NAME]
+    conf = hass.data[DOMAIN][account_name]
+    account = conf["account"]
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return
-    return O365EmailService(account, hass)
+    return O365EmailService(account, hass, conf)
 
 
 class O365EmailService(BaseNotificationService):
     """Implement the notification service for O365."""
 
-    def __init__(self, account, hass):
+    def __init__(self, account, hass, config):
         """Initialize the service."""
         self.account = account
-        self._permissions = get_permissions(
-            hass, filename=build_token_filename(hass.data[DOMAIN])
-        )
+        self._permissions = get_permissions(hass, filename=build_token_filename(config))
         self._cleanup_files = []
         self._hass = hass
 

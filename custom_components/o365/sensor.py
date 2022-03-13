@@ -7,6 +7,7 @@ from operator import itemgetter
 from homeassistant.helpers.entity import Entity
 
 from .const import (
+    CONF_ACCOUNT_NAME,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
     CONF_HAS_ATTACHMENT,
@@ -28,56 +29,59 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(
-    hass, config, add_devices, discovery_info=None
+    hass, config, entities, discovery_info=None
 ):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
         return None
 
-    account = hass.data[DOMAIN]["account"]
+    account_name = discovery_info[CONF_ACCOUNT_NAME]
+    conf = hass.data[DOMAIN][account_name]
+    account = conf["account"]
+
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return False
 
-    await _async_unread_sensors(hass, account, add_devices)
-    await _async_query_sensors(hass, account, add_devices)
-    _status_sensors(hass, account, add_devices)
+    await _async_unread_sensors(hass, account, entities, conf)
+    await _async_query_sensors(hass, account, entities, conf)
+    _status_sensors(account, entities, conf)
 
     return True
 
 
-async def _async_unread_sensors(hass, account, add_devices):
-    unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
-    for conf in unread_sensors:
+async def _async_unread_sensors(hass, account, add_entities, conf):
+    unread_sensors = conf.get(CONF_EMAIL_SENSORS, [])
+    for sensor_conf in unread_sensors:
         if mail_folder := await hass.async_add_executor_job(
-            _get_mail_folder, account, conf, CONF_EMAIL_SENSORS
+            _get_mail_folder, account, sensor_conf, CONF_EMAIL_SENSORS
         ):
-            sensor = O365InboxSensor(conf, mail_folder)
-            add_devices([sensor], True)
+            sensor_conf = O365InboxSensor(sensor_conf, mail_folder)
+            add_entities([sensor_conf], True)
 
 
-async def _async_query_sensors(hass, account, add_devices):
-    query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
-    for conf in query_sensors:
+async def _async_query_sensors(hass, account, add_entities, conf):
+    query_sensors = conf.get(CONF_QUERY_SENSORS, [])
+    for sensor_conf in query_sensors:
         if mail_folder := await hass.async_add_executor_job(
-            _get_mail_folder, account, conf, CONF_QUERY_SENSORS
+            _get_mail_folder, account, sensor_conf, CONF_QUERY_SENSORS
         ):
-            sensor = O365QuerySensor(conf, mail_folder)
-            add_devices([sensor], True)
+            sensor_conf = O365QuerySensor(sensor_conf, mail_folder)
+            add_entities([sensor_conf], True)
 
 
-def _status_sensors(hass, account, add_devices):
-    status_sensors = hass.data[DOMAIN].get(CONF_STATUS_SENSORS, [])
-    for conf in status_sensors:
-        teams_status_sensor = O365TeamsStatusSensor(account, conf)
-        add_devices([teams_status_sensor], True)
+def _status_sensors(account, add_entities, conf):
+    status_sensors = conf.get(CONF_STATUS_SENSORS, [])
+    for sensor_conf in status_sensors:
+        teams_status_sensor = O365TeamsStatusSensor(account, sensor_conf)
+        add_entities([teams_status_sensor], True)
 
 
-def _get_mail_folder(account, conf, sensor_type):
+def _get_mail_folder(account, sensor_conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
     mail_folder = None
-    if mail_folder_conf := conf.get(CONF_MAIL_FOLDER):
+    if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
         for i, folder in enumerate(mail_folder_conf.split("/")):
             if i == 0:
                 mail_folder = mailbox.get_folder(folder_name=folder)

@@ -19,6 +19,7 @@ from .const import (
     CALENDAR_SERVICE_MODIFY_SCHEMA,
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
+    CONF_ACCOUNT_NAME,
     CONF_DEVICE_ID,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
@@ -52,45 +53,55 @@ _LOGGER = logging.getLogger(__name__)
 
 
 def setup_platform(
-    hass, config, add_devices, discovery_info=None
+    hass, config, add_entities, discovery_info=None
 ):  # pylint: disable=unused-argument
     """Set up the O365 platform."""
     if discovery_info is None:
         return None
 
-    account = hass.data[DOMAIN]["account"]
+    account_name = discovery_info[CONF_ACCOUNT_NAME]
+    conf = hass.data[DOMAIN][account_name]
+    account = conf["account"]
     if not account.is_authenticated:
         return False
 
-    _setup_add_devices(hass, account, add_devices)
-    _setup_register_services(hass, account)
+    _setup_add_entities(hass, account, add_entities, conf)
+    _setup_register_services(hass, account, conf)
 
     return True
 
 
-def _setup_add_devices(hass, account, add_devices):
-    yaml_filename = build_yaml_filename(hass.data[DOMAIN])
+def _setup_add_entities(hass, account, add_entities, conf):
+    yaml_filename = build_yaml_filename(conf)
     calendars = load_calendars(build_config_file_path(hass, yaml_filename))
-    devices = []
+    entities = []
 
     for cal_id, calendar in calendars.items():
         for entity in calendar.get(CONF_ENTITIES):
             if not entity[CONF_TRACK]:
                 continue
+            if entity_suffix := conf[CONF_ACCOUNT_NAME]:
+                entity_suffix = f"_{entity_suffix}"
+            else:
+                entity_suffix = ""
             entity_id = generate_entity_id(
-                CALENDAR_ENTITY_ID_FORMAT, entity.get(CONF_DEVICE_ID), hass=hass
+                CALENDAR_ENTITY_ID_FORMAT,
+                f"{entity.get(CONF_DEVICE_ID)}{entity_suffix}",
+                hass=hass,
             )
-            cal = O365CalendarEventDevice(hass, account, cal_id, entity, entity_id)
-            devices.append(cal)
-    add_devices(devices, True)
+            cal = O365CalendarEventDevice(
+                hass, account, cal_id, entity, entity_id, conf
+            )
+            entities.append(cal)
+    add_entities(entities, True)
 
 
-def _setup_register_services(hass, account):
-    track_new = hass.data[DOMAIN][CONF_TRACK_NEW]
-    calendar_services = CalendarServices(account, track_new, hass)
+def _setup_register_services(hass, account, conf):
+    track_new = conf[CONF_TRACK_NEW]
+    calendar_services = CalendarServices(account, track_new, hass, conf)
     calendar_services.scan_for_calendars(None)
 
-    if hass.data[DOMAIN][CONF_ENABLE_UPDATE]:
+    if conf[CONF_ENABLE_UPDATE]:
         hass.services.register(
             DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
         )
@@ -111,9 +122,10 @@ def _setup_register_services(hass, account):
 class O365CalendarEventDevice(CalendarEventDevice):
     """O365 Calendar Event Processing."""
 
-    def __init__(self, hass, account, calendar_id, entity, entity_id):
+    def __init__(self, hass, account, calendar_id, entity, entity_id, config):
         """Initialise the O365 Calendar Event."""
         self.hass = hass
+        self._config = config
         self.entity = entity
         self.max_results = entity.get(CONF_MAX_RESULTS)
         self.start_offset = entity.get(CONF_HOURS_BACKWARD_TO_GET)
@@ -128,7 +140,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
             self.end_offset,
         )
         self._event = {}
-        self._name = entity.get(CONF_NAME)
+        self._name = f"{entity.get(CONF_NAME)}"
         self.entity_id = entity_id
         self._offset_reached = False
         self._data_attribute = []
@@ -313,15 +325,14 @@ class O365CalendarData:
 class CalendarServices:
     """Calendar Services."""
 
-    def __init__(self, account, track_new_found_calendars, hass):
+    def __init__(self, account, track_new_found_calendars, hass, config):
         """Initialise the calendar services."""
         self.account = account
         self.schedule = self.account.schedule()
         self.track_new_found_calendars = track_new_found_calendars
         self._hass = hass
-        self._permissions = get_permissions(
-            hass, filename=build_token_filename(hass.data[DOMAIN])
-        )
+        self._config = config
+        self._permissions = get_permissions(hass, filename=build_token_filename(config))
 
     def modify_calendar_event(self, call):
         """Modify the event."""
@@ -393,7 +404,7 @@ class CalendarServices:
         for calendar in calendars:
             track = self.track_new_found_calendars
             update_calendar_file(
-                build_yaml_filename(self._hass.data[DOMAIN]),
+                build_yaml_filename(self._config),
                 calendar,
                 self._hass,
                 track,

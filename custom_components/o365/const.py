@@ -4,12 +4,8 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (
-    ATTR_DATA,
-    ATTR_MESSAGE,
-    ATTR_TARGET,
-    ATTR_TITLE,
-)
+from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
+                                             ATTR_TARGET, ATTR_TITLE)
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -50,6 +46,7 @@ AUTH_CALLBACK_PATH = "/api/o365"
 AUTH_CALLBACK_PATH_ALT = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 CALENDAR_DOMAIN = "calendar"
 CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".{}"
+CONF_ACCOUNT_NAME = "account_name"
 CONF_ALIASES = "aliases"
 CONF_ALT_CONFIG = "alt_auth_flow"
 CONF_CACHE_PATH = "cache_path"
@@ -65,7 +62,6 @@ CONF_SEARCH = "search"
 CONF_TRACK = "track"
 CONF_MAX_RESULTS = "max_results"
 CONF_CAL_ID = "cal_id"
-CONF_CONFIG_FILE = "config_file"
 CONF_ENABLE_UPDATE = "enable_update"
 CONF_ENTITIES = "entities"
 
@@ -79,6 +75,7 @@ CONF_MAIL_FROM = "from"
 CONF_MAX_ITEMS = "max_items"
 CONF_STATUS_SENSORS = "status_sensors"
 CONF_QUERY_SENSORS = "query_sensors"
+CONF_SECONDARY_ACCOUNTS = "secondary_accounts"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TRACK_NEW = "track_new_calendar"
@@ -87,6 +84,7 @@ CONFIGURATOR_DESCRIPTION = (
 )
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
+CONST_PRIMARY = "primary"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
 TOKEN_FILENAME = "o365{0}.token"  # nosec
@@ -165,20 +163,23 @@ QUERY_SENSOR = vol.Schema(
         vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
     }
 )
+DOMAIN_SCHEMA = {
+    vol.Required(CONF_CLIENT_ID): cv.string,
+    vol.Required(CONF_CLIENT_SECRET): cv.string,
+    vol.Optional(CONF_TRACK_NEW, default=True): bool,
+    vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
+    vol.Optional(CONF_ACCOUNT_NAME, ""): cv.string,
+    vol.Optional(CONF_ALT_CONFIG, default=False): bool,
+    vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
+    vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
+    vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
+}
+PRIMARY_SCHEMA = dict(DOMAIN_SCHEMA)
+PRIMARY_SCHEMA[vol.Optional(CONF_SECONDARY_ACCOUNTS)] = [DOMAIN_SCHEMA]
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_CLIENT_ID): cv.string,
-                vol.Required(CONF_CLIENT_SECRET): cv.string,
-                vol.Optional(CONF_TRACK_NEW, default=True): bool,
-                vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
-                vol.Optional(CONF_CONFIG_FILE, ""): cv.string,
-                vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-                vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
-                vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
-                vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
-            },
+            PRIMARY_SCHEMA,
         )
     },
     extra=vol.ALLOW_EXTRA,

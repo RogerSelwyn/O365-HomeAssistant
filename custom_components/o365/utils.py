@@ -10,38 +10,20 @@ import yaml
 from bs4 import BeautifulSoup
 from homeassistant.util import dt
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
-from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module)
+from O365.calendar import \
+    EventSensitivity  # pylint: disable=no-name-in-module)
 from voluptuous.error import Error as VoluptuousError
 
-from .const import (
-    CALENDAR_DEVICE_SCHEMA,
-    CONF_CAL_ID,
-    CONF_CONFIG_FILE,
-    CONF_DEVICE_ID,
-    CONF_EMAIL_SENSORS,
-    CONF_ENABLE_UPDATE,
-    CONF_ENTITIES,
-    CONF_NAME,
-    CONF_QUERY_SENSORS,
-    CONF_STATUS_SENSORS,
-    CONF_TRACK,
-    DATETIME_FORMAT,
-    DEFAULT_CACHE_PATH,
-    DOMAIN,
-    PERM_CALENDARS_READ,
-    PERM_CALENDARS_READWRITE,
-    PERM_MAIL_READ,
-    PERM_MAIL_SEND,
-    PERM_MINIMUM_CALENDAR,
-    PERM_MINIMUM_MAIL,
-    PERM_MINIMUM_PRESENCE,
-    PERM_MINIMUM_USER,
-    PERM_OFFLINE_ACCESS,
-    PERM_PRESENCE_READ,
-    PERM_USER_READ,
-    TOKEN_FILENAME,
-    YAML_CALENDARS,
-)
+from .const import (CALENDAR_DEVICE_SCHEMA, CONF_ACCOUNT_NAME, CONF_CAL_ID,
+                    CONF_DEVICE_ID, CONF_EMAIL_SENSORS, CONF_ENABLE_UPDATE,
+                    CONF_ENTITIES, CONF_NAME, CONF_QUERY_SENSORS,
+                    CONF_STATUS_SENSORS, CONF_TRACK, DATETIME_FORMAT,
+                    DEFAULT_CACHE_PATH, DOMAIN, PERM_CALENDARS_READ,
+                    PERM_CALENDARS_READWRITE, PERM_MAIL_READ, PERM_MAIL_SEND,
+                    PERM_MINIMUM_CALENDAR, PERM_MINIMUM_MAIL,
+                    PERM_MINIMUM_PRESENCE, PERM_MINIMUM_USER,
+                    PERM_OFFLINE_ACCESS, PERM_PRESENCE_READ, PERM_USER_READ,
+                    TOKEN_FILENAME, YAML_CALENDARS)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -309,13 +291,13 @@ def build_config_file_path(hass, filename):
 
 def build_token_filename(conf):
     """Create the token file name."""
-    if config_file := conf.get(CONF_CONFIG_FILE, ""):
+    if config_file := conf.get(CONF_ACCOUNT_NAME, ""):
         config_file = f"_{config_file}"
     return TOKEN_FILENAME.format(config_file)
 
 
 def build_yaml_filename(conf):
     """Create the token file name."""
-    if config_file := conf.get(CONF_CONFIG_FILE, ""):
+    if config_file := conf.get(CONF_ACCOUNT_NAME, ""):
         config_file = f"_{config_file}"
     return YAML_CALENDARS.format(DOMAIN, config_file)
