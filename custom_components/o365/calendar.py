@@ -34,11 +34,12 @@ from .const import (
     MIN_TIME_BETWEEN_UPDATES,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
-    YAML_CALENDARS,
 )
 from .utils import (
     add_call_data_to_event,
     build_config_file_path,
+    build_token_filename,
+    build_yaml_filename,
     clean_html,
     format_event_data,
     get_permissions,
@@ -68,7 +69,8 @@ def setup_platform(
 
 
 def _setup_add_devices(hass, account, add_devices):
-    calendars = load_calendars(build_config_file_path(hass, YAML_CALENDARS))
+    yaml_filename = build_yaml_filename(hass.data[DOMAIN])
+    calendars = load_calendars(build_config_file_path(hass, yaml_filename))
     devices = []
 
     for cal_id, calendar in calendars.items():
@@ -317,7 +319,9 @@ class CalendarServices:
         self.schedule = self.account.schedule()
         self.track_new_found_calendars = track_new_found_calendars
         self._hass = hass
-        self._permissions = get_permissions(self._hass)
+        self._permissions = get_permissions(
+            hass, filename=build_token_filename(hass.data[DOMAIN])
+        )
 
     def modify_calendar_event(self, call):
         """Modify the event."""
@@ -388,7 +392,12 @@ class CalendarServices:
         calendars = self.schedule.list_calendars()
         for calendar in calendars:
             track = self.track_new_found_calendars
-            update_calendar_file(YAML_CALENDARS, calendar, self._hass, track)
+            update_calendar_file(
+                build_yaml_filename(self._hass.data[DOMAIN]),
+                calendar,
+                self._hass,
+                track,
+            )
 
     def _validate_permissions(self, error_message):
         if not validate_minimum_permission(

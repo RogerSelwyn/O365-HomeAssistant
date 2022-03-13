@@ -4,8 +4,12 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
-                                             ATTR_TARGET, ATTR_TITLE)
+from homeassistant.components.notify import (
+    ATTR_DATA,
+    ATTR_MESSAGE,
+    ATTR_TARGET,
+    ATTR_TITLE,
+)
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -61,6 +65,7 @@ CONF_SEARCH = "search"
 CONF_TRACK = "track"
 CONF_MAX_RESULTS = "max_results"
 CONF_CAL_ID = "cal_id"
+CONF_CONFIG_FILE = "config_file"
 CONF_ENABLE_UPDATE = "enable_update"
 CONF_ENTITIES = "entities"
 
@@ -84,7 +89,7 @@ CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
-TOKEN_FILENAME = "o365.token"  # nosec
+TOKEN_FILENAME = "o365{0}.token"  # nosec
 DEFAULT_HOURS_BACKWARD_TO_GET = 0
 DEFAULT_HOURS_FORWARD_TO_GET = 24
 DEFAULT_NAME = "O365"
@@ -130,7 +135,7 @@ PERM_MINIMUM_SEND = [
     [PERM_MAIL_SEND_SHARED],
 ]
 
-YAML_CALENDARS = f"{DOMAIN}_calendars.yaml"
+YAML_CALENDARS = "{0}{1}_calendars.yaml"
 
 EMAIL_SENSOR = vol.Schema(
     {
@@ -168,6 +173,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(CONF_CLIENT_SECRET): cv.string,
                 vol.Optional(CONF_TRACK_NEW, default=True): bool,
                 vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
+                vol.Optional(CONF_CONFIG_FILE, ""): cv.string,
                 vol.Optional(CONF_ALT_CONFIG, default=False): bool,
                 vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
                 vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],

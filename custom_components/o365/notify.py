@@ -19,6 +19,7 @@ from .const import (
     PERM_MINIMUM_SEND,
 )
 from .utils import (
+    build_token_filename,
     get_ha_filepath,
     get_permissions,
     validate_minimum_permission,
@@ -47,7 +48,9 @@ class O365EmailService(BaseNotificationService):
     def __init__(self, account, hass):
         """Initialize the service."""
         self.account = account
-        self._permissions = get_permissions(hass)
+        self._permissions = get_permissions(
+            hass, filename=build_token_filename(hass.data[DOMAIN])
+        )
         self._cleanup_files = []
         self._hass = hass
 

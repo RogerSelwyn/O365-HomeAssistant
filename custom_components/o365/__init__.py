@@ -16,6 +16,7 @@ from .const import (
     CONF_ALT_CONFIG,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
+    CONF_CONFIG_FILE,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_QUERY_SENSORS,
@@ -28,12 +29,12 @@ from .const import (
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
-    TOKEN_FILENAME,
 )
 from .utils import (
     build_config_file_path,
     build_minimum_permissions,
     build_requested_permissions,
+    build_token_filename,
     validate_permissions,
 )
 
@@ -47,14 +48,15 @@ async def async_setup(hass, config):
     CONFIG_SCHEMA(conf)
     credentials = (conf.get(CONF_CLIENT_ID), conf.get(CONF_CLIENT_SECRET))
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
+    token_file = build_token_filename(conf)
     token_backend = FileSystemTokenBackend(
-        token_path=token_path, token_filename=TOKEN_FILENAME
+        token_path=token_path, token_filename=token_file
     )
 
     account = Account(credentials, token_backend=token_backend, timezone="UTC")
     is_authenticated = account.is_authenticated
     minimum_permissions = build_minimum_permissions(conf)
-    permissions = validate_permissions(hass, minimum_permissions)
+    permissions = validate_permissions(hass, minimum_permissions, filename=token_file)
     if is_authenticated and permissions:
         do_setup(hass, conf, account)
     else:
@@ -70,6 +72,7 @@ def do_setup(hass, config, account):
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
     track_new = config.get(CONF_TRACK_NEW, True)
+    config_file = config.get(CONF_CONFIG_FILE, "")
 
     hass.data[DOMAIN] = {
         "account": account,
@@ -78,6 +81,7 @@ def do_setup(hass, config, account):
         CONF_STATUS_SENSORS: status_sensors,
         CONF_ENABLE_UPDATE: enable_update,
         CONF_TRACK_NEW: track_new,
+        CONF_CONFIG_FILE: config_file,
     }
     hass.async_create_task(
         discovery.async_load_platform(hass, "calendar", DOMAIN, {}, config)
