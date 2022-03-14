@@ -5,6 +5,7 @@ respond_calendar_event:
       name: Entity
       description: The zone's entity_id.
       required: true
+      example: calendar.calendar
       selector:
         entity:
           domain: calendar
@@ -31,6 +32,7 @@ create_calendar_event:
       name: Entity
       description: The zone's entity_id.
       required: true
+      example: calendar.calendar
       selector:
         entity:
           domain: calendar
@@ -73,7 +75,8 @@ modify_calendar_event:
       name: Entity
       description: The zone's entity_id.
       required: true
-      selector:
+      example: calendar.calendar
+    selector:
         entity:
           domain: calendar
     event_id:
@@ -118,6 +121,7 @@ remove_calendar_event:
       name: Entity
       description: The zone's entity_id.
       required: true
+      example: calendar.calendar
       selector:
         entity:
           domain: calendar
@@ -125,5 +129,5 @@ remove_calendar_event:
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     calendar_id:
-      description: (Deprecated) ID for the calendar to create the event in, can be found as an attribute on you calendar entity
+      description: (Deprecated) ID for the calendar to create the event in, can be found as an attribute on your calendar entity
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
