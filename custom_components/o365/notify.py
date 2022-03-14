@@ -54,11 +54,14 @@ class O365EmailService(BaseNotificationService):
         self._permissions = get_permissions(hass, filename=build_token_filename(config))
         self._cleanup_files = []
         self._hass = hass
+        if account_name := config.get(CONF_ACCOUNT_NAME, None):
+            account_name = f"_{account_name}"
+        self._account_name = account_name
 
     @property
     def targets(self):
         """Targets property."""
-        return {"_email": ""}
+        return {f"_email{self._account_name}": ""}
 
     def send_message(self, message="", **kwargs):
         """Send a message to a user."""

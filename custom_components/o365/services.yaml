@@ -111,7 +111,6 @@ modify_calendar_event:
     attendees:
       description: "list of attendees formatted as email: example@example.com type: Required, Optional, or Resource"
 
-
 remove_calendar_event:
   description: Delete calendar event
   fields:

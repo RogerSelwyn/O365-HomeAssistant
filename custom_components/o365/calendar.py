@@ -22,6 +22,7 @@ from .const import (
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
     CONF_ACCOUNT_NAME,
+    CONF_CAL_IDS,
     CONF_DEVICE_ID,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
@@ -69,8 +70,8 @@ def setup_platform(
         return False
 
     cal_ids = _setup_add_entities(hass, account, add_entities, conf)
-    conf["cal_ids"] = cal_ids
-    _setup_register_services(hass, account, conf)
+    hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
+    _setup_register_services(hass, conf)
 
     return True
 
@@ -103,9 +104,8 @@ def _setup_add_entities(hass, account, add_entities, conf):
     return cal_ids
 
 
-def _setup_register_services(hass, account, conf):
-    track_new = conf[CONF_TRACK_NEW]
-    calendar_services = CalendarServices(account, track_new, hass, conf)
+def _setup_register_services(hass, conf):
+    calendar_services = CalendarServices(hass)
     calendar_services.scan_for_calendars(None)
 
     if conf[CONF_ENABLE_UPDATE]:
@@ -332,21 +332,17 @@ class O365CalendarData:
 class CalendarServices:
     """Calendar Services."""
 
-    def __init__(self, account, track_new_found_calendars, hass, config):
+    def __init__(self, hass):
         """Initialise the calendar services."""
-        self.account = account
-        self.schedule = self.account.schedule()
-        self.track_new_found_calendars = track_new_found_calendars
         self._hass = hass
-        self._config = config
-        self._permissions = get_permissions(hass, filename=build_token_filename(config))
 
     def modify_calendar_event(self, call):
         """Modify the event."""
-        if not self._validate_permissions("modify"):
+        config = self._get_config(call.data)
+
+        if not self._validate_permissions("modify", config):
             return
 
-        config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_MODIFY_SCHEMA(event_data)
         schedule = config["account"].schedule()
@@ -359,10 +355,11 @@ class CalendarServices:
 
     def create_calendar_event(self, call):
         """Create the event."""
-        if not self._validate_permissions("create"):
+        config = self._get_config(call.data)
+
+        if not self._validate_permissions("create", config):
             return
 
-        config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         if not event_data:
             return
@@ -377,10 +374,11 @@ class CalendarServices:
 
     def remove_calendar_event(self, call):
         """Remove the event."""
-        if not self._validate_permissions("delete"):
+        config = self._get_config(call.data)
+
+        if not self._validate_permissions("delete", config):
             return
 
-        config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_REMOVE_SCHEMA(event_data)
         schedule = config["account"].schedule()
@@ -392,10 +390,10 @@ class CalendarServices:
 
     def respond_calendar_event(self, call):
         """Respond to calendar event."""
-        if not self._validate_permissions("respond to"):
+        config = self._get_config(call.data)
+        if not self._validate_permissions("respond to", config):
             return
 
-        config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_RESPOND_SCHEMA(event_data)
         schedule = config["account"].schedule()
@@ -438,10 +436,9 @@ class CalendarServices:
                     track,
                 )
 
-    def _validate_permissions(self, error_message):
-        if not validate_minimum_permission(
-            PERM_MINIMUM_CALENDAR_WRITE, self._permissions
-        ):
+    def _validate_permissions(self, error_message, config):
+        permissions = get_permissions(self._hass, filename=build_token_filename(config))
+        if not validate_minimum_permission(PERM_MINIMUM_CALENDAR_WRITE, permissions):
             _LOGGER.error(
                 "Not authorisied to %s calendar event - requires permission: %s",
                 error_message,
@@ -453,7 +450,7 @@ class CalendarServices:
     def _setup_event_data(self, call_data, config):
         event_data = dict(call_data.items())
         if entity_id := call_data.get(ATTR_ENTITY_ID, None):
-            calendar_id = config.get("cal_ids").get(entity_id)
+            calendar_id = config.get(CONF_CAL_IDS).get(entity_id)
             event_data[ATTR_CALENDAR_ID] = calendar_id
         elif config[CONF_ACCOUNT_NAME] != CONST_PRIMARY:
             event_data[ATTR_CALENDAR_ID] = None
@@ -468,11 +465,11 @@ class CalendarServices:
         for config in self._hass.data[DOMAIN]:
             config_data = self._hass.data[DOMAIN][config]
             if entity_id := event_data.get(ATTR_ENTITY_ID, None):
-                if entity_id in config_data["cal_ids"]:
+                if entity_id in config_data[CONF_CAL_IDS]:
                     return config_data
             else:
-                for cal in config_data["cal_ids"]:
-                    if config_data["cal_ids"][cal] == event_data.get(
+                for cal in config_data[CONF_CAL_IDS]:
+                    if config_data[CONF_CAL_IDS][cal] == event_data.get(
                         ATTR_CALENDAR_ID, None
                     ):
                         return config_data

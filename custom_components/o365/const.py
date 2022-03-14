@@ -56,6 +56,7 @@ CONF_ALIASES = "aliases"
 CONF_ALT_CONFIG = "alt_auth_flow"
 CONF_CACHE_PATH = "cache_path"
 CONF_CALENDAR_NAME = "calendar_name"
+CONF_CAL_IDS = "cal_ids"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"  # nosec
 CONF_DEVICE_ID = "device_id"
