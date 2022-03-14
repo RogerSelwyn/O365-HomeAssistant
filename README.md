@@ -77,27 +77,11 @@ o365:
       is_unread: True
   status_sensors:
     - name: "User Teams Status"
+  secondary_accounts:
+    - account_name: "second_account"
 ```
 
-## notify.o365_email service data
-Key | Type | Required | Description
--- | -- | -- | --
-`message` | `string` | `True` | The email body
-`title` | `string` | `False` | The email subject
-`data` | `dict<data>` | `False` | addional attributes
-
-### data
-Key | Type | Required | Description
--- | -- | -- | --
-`target` | `string` | `False` | recipient of the email, if not set will use the configured account's email address
-`message_is_html` | `boolean` | `False` | Is the message formatted as html
-`photos` | `list<string>` | `False` | Filepaths or urls of pictures to embed into the email body
-`attachments` | `list<string>` | `False` | Filepaths to attach to email
-`zip_attachments` | `boolean` | `False` | Zip files from attachments into a zip file before sending
-`zip_name` | `string` | `False` | Name of the generated zip file
-
-
-## Configuration variables
+## Configuration variables for primary account
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -106,9 +90,10 @@ Key | Type | Required | Description
 `alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
 `enable_update` | `boolean` | `False` | If True (default), this will enable the various services that allow the sending of emails and updates to calendars
 `track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
-`calendars` | `list<calendars>` | `False` | List of calendar config entries
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
+`secondary_accounts` | `list<secondary_accounts>` | `False` | List of secondary_account config entries
 
 ### email_sensors
 Key | Type | Required | Description
@@ -138,6 +123,20 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
+
+## secondary_accounts
+
+Key | Type | Required | Description
+-- | -- | -- | --
+`account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. e.g `calendar.calendar_secondary_account`
+`client_id` | `string` | `False` | Client ID from your O365 application.
+`client_secret` | `string` | `False` | Client Secret from your O365 application.
+`alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`enable_update` | `boolean` | `False` | If True (default), this will enable the various services that allow the sending of emails and updates to calendars
+`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
+`email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
+`query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
 
 ## Calendar configuration
 This component has changed to now using an external o365_calendars.yaml file, this is done to align this component more with the official Google Calendar Event integration.
@@ -196,6 +195,53 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 6. That's it.
 
 If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
+
+## Services
+### notify.o365_email
+#### Service data
+Key | Type | Required | Description
+-- | -- | -- | --
+`message` | `string` | `True` | The email body
+`title` | `string` | `False` | The email subject
+`data` | `dict<data>` | `False` | Addional attributes - see table below
+
+#### Extended data
+Key | Type | Required | Description
+-- | -- | -- | --
+`target` | `string` | `False` | recipient of the email, if not set will use the configured account's email address
+`message_is_html` | `boolean` | `False` | Is the message formatted as html
+`photos` | `list<string>` | `False` | Filepaths or urls of pictures to embed into the email body
+`attachments` | `list<string>` | `False` | Filepaths to attach to email
+`zip_attachments` | `boolean` | `False` | Zip files from attachments into a zip file before sending
+`zip_name` | `string` | `False` | Name of the generated zip file
+
+#### Example notify service call
+
+```
+service: notify.o365_email
+data:
+  message: The garage door has been open for 10 minutes.
+  title: Your Garage Door Friend
+  data:
+    message_is_html: true
+    attachments:
+      - "/config/documents/sendfile.txt"
+    zip_attachments: true
+    zip_name: "zipfile.zip"
+    photos:
+      - "/config/documents/image.jpg"
+```
+### o365.create_calendar_event
+Create an event in the specified calendar - All paremeters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.modify_calendar_event
+Modify an event in the specified calendar - All paremeters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.remove_calendar_event
+Remove an event in the specified calendar - All paremeters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.respond_calendar_event
+Respond to an event in the specified calendar - All paremeters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.scan_for_calendars
+Scan for new calendars and add to o365_calendars.yaml - No parameters.
+
 
 ## Errors
 * **The reply URL specified in the request does not match the reply URLs configured for the application.**
