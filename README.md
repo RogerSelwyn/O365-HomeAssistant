@@ -198,6 +198,7 @@ If you are using Multi-factor Authentication (MFA), you may find you also need t
 
 ## Services
 ### notify.o365_email
+
 #### Service data
 Key | Type | Required | Description
 -- | -- | -- | --
