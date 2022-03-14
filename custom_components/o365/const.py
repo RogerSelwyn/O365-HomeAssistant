@@ -4,12 +4,8 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (
-    ATTR_DATA,
-    ATTR_MESSAGE,
-    ATTR_TARGET,
-    ATTR_TITLE,
-)
+from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
+                                             ATTR_TARGET, ATTR_TITLE)
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -51,6 +47,7 @@ AUTH_CALLBACK_PATH = "/api/o365"
 AUTH_CALLBACK_PATH_ALT = "https://login.microsoftonline.com/common/oauth2/nativeclient"
 CALENDAR_DOMAIN = "calendar"
 CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".{}"
+CONF_ACCOUNT = "account"
 CONF_ACCOUNT_NAME = "account_name"
 CONF_ALIASES = "aliases"
 CONF_ALT_CONFIG = "alt_auth_flow"

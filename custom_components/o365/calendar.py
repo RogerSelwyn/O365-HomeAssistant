@@ -21,6 +21,7 @@ from .const import (
     CALENDAR_SERVICE_MODIFY_SCHEMA,
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
+    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_CAL_IDS,
     CONF_DEVICE_ID,
@@ -64,7 +65,7 @@ def setup_platform(
 
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
-    account = conf["account"]
+    account = conf[CONF_ACCOUNT]
     if not account.is_authenticated:
         return False
 
@@ -344,7 +345,7 @@ class CalendarServices:
 
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_MODIFY_SCHEMA(event_data)
-        schedule = config["account"].schedule()
+        schedule = config[CONF_ACCOUNT].schedule()
         calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
@@ -363,7 +364,7 @@ class CalendarServices:
         if not event_data:
             return
         CALENDAR_SERVICE_CREATE_SCHEMA(event_data)
-        schedule = config["account"].schedule()
+        schedule = config[CONF_ACCOUNT].schedule()
         calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
@@ -380,7 +381,7 @@ class CalendarServices:
 
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_REMOVE_SCHEMA(event_data)
-        schedule = config["account"].schedule()
+        schedule = config[CONF_ACCOUNT].schedule()
         calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
@@ -395,7 +396,7 @@ class CalendarServices:
 
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_RESPOND_SCHEMA(event_data)
-        schedule = config["account"].schedule()
+        schedule = config[CONF_ACCOUNT].schedule()
         calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
@@ -424,8 +425,8 @@ class CalendarServices:
         """Scan for new calendars."""
         for config in self._hass.data[DOMAIN]:
             config = self._hass.data[DOMAIN][config]
-            if "account" in config:
-                schedule = config["account"].schedule()
+            if CONF_ACCOUNT in config:
+                schedule = config[CONF_ACCOUNT].schedule()
                 calendars = schedule.list_calendars()
                 track = config.get(CONF_TRACK_NEW, True)
                 for calendar in calendars:

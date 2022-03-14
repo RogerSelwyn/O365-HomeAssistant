@@ -14,6 +14,7 @@ from .const import (
     AUTH_CALLBACK_NAME,
     AUTH_CALLBACK_PATH,
     AUTH_CALLBACK_PATH_ALT,
+    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_ALT_CONFIG,
     CONF_CLIENT_ID,
@@ -98,7 +99,7 @@ def do_setup(hass, config, account, account_name):
     config_file = config.get(CONF_ACCOUNT_NAME, "")
 
     account_config = {
-        "account": account,
+        CONF_ACCOUNT: account,
         CONF_EMAIL_SENSORS: email_sensors,
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,

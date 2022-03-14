@@ -7,6 +7,7 @@ from operator import itemgetter
 from homeassistant.helpers.entity import Entity
 
 from .const import (
+    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
@@ -37,7 +38,7 @@ async def async_setup_platform(
 
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
-    account = conf["account"]
+    account = conf[CONF_ACCOUNT]
 
     is_authenticated = account.is_authenticated
     if not is_authenticated:

@@ -13,6 +13,7 @@ from .const import (
     ATTR_TITLE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
+    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     DOMAIN,
     NOTIFY_BASE_SCHEMA,
@@ -38,7 +39,7 @@ async def async_get_service(
         return
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
-    account = conf["account"]
+    account = conf[CONF_ACCOUNT]
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return
