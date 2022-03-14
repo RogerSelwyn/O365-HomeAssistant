@@ -1,7 +1,7 @@
 """Main calendar processing."""
-import copy
 import functools as ft
 import logging
+from copy import deepcopy
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
@@ -86,7 +86,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
             if not entity[CONF_TRACK]:
                 continue
             entity_id = _build_entity_id(hass, entity, conf)
-            cal = O365CalendarEventDevice(hass, account, cal_id, entity, entity_id)
+            cal = O365CalendarEventDevice(account, cal_id, entity, entity_id)
             cal_ids[entity_id] = cal_id
             add_entities([cal], True)
     return cal_ids
@@ -129,9 +129,8 @@ def _setup_register_services(hass, conf):
 class O365CalendarEventDevice(CalendarEventDevice):
     """O365 Calendar Event Processing."""
 
-    def __init__(self, hass, account, calendar_id, entity, entity_id):
+    def __init__(self, account, calendar_id, entity, entity_id):
         """Initialise the O365 Calendar Event."""
-        self.hass = hass
         self._start_offset = entity.get(CONF_HOURS_BACKWARD_TO_GET)
         self._end_offset = entity.get(CONF_HOURS_FORWARD_TO_GET)
         self._event = {}
@@ -150,8 +149,6 @@ class O365CalendarEventDevice(CalendarEventDevice):
             calendar_id,
             search,
             max_results,
-            self._start_offset,
-            self._end_offset,
         )
 
     @property
@@ -187,7 +184,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
     async def async_update(self):
         """Do the update."""
         await self.data.async_update(self.hass)
-        event = copy.deepcopy(self.data.event)
+        event = deepcopy(self.data.event)
         if event:
             event = calculate_offset(event, DEFAULT_OFFSET)
             self._offset_reached = is_offset_reached(event)
@@ -214,30 +211,24 @@ class O365CalendarData:
         calendar_id,
         search=None,
         limit=999,
-        start_offset=None,
-        end_offset=None,
     ):
         """Initialise the O365 Calendar Data."""
-        self.account = account
-        self.calendar_id = calendar_id
-        self.limit = limit
-        self.start_offset = start_offset
-        self.end_offset = end_offset
-        self.schedule = self.account.schedule()
-        self.calendar = self.schedule.get_calendar(calendar_id=self.calendar_id)
-        self.search = search
+        self._limit = limit
+        schedule = account.schedule()
+        self.calendar = schedule.get_calendar(calendar_id=calendar_id)
+        self._search = search
         self.event = None
 
     async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
         query = self.calendar.new_query("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
-        if self.search is not None:
-            query.chain("and").on_attribute("subject").contains(self.search)
+        if self._search is not None:
+            query.chain("and").on_attribute("subject").contains(self._search)
         return await hass.async_add_executor_job(
             ft.partial(
                 self.calendar.get_events,
-                limit=self.limit,
+                limit=self._limit,
                 query=query,
                 include_recurring=True,
             )

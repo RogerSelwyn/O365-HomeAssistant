@@ -112,13 +112,13 @@ class O365MailSensor:
 
     def __init__(self, conf, mail_folder):
         """Initialise the O365 Sensor."""
-        self.mail_folder = mail_folder
+        self._mail_folder = mail_folder
         self._name = conf.get(CONF_NAME)
         self._download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
-        self.max_items = conf.get(CONF_MAX_ITEMS, 5)
+        self._max_items = conf.get(CONF_MAX_ITEMS, 5)
         self._state = 0
         self._attributes = {}
-        self.query = None
+        self._query = None
 
     @property
     def name(self):
@@ -139,9 +139,9 @@ class O365MailSensor:
         """Update code."""
         data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
             ft.partial(
-                self.mail_folder.get_messages,
-                limit=self.max_items,
-                query=self.query,
+                self._mail_folder.get_messages,
+                limit=self._max_items,
+                query=self._query,
                 download_attachments=self._download_attachments,
             )
         )
@@ -158,30 +158,30 @@ class O365QuerySensor(O365MailSensor, Entity):
         """Initialise the O365 Query."""
         super().__init__(conf, mail_folder)
 
-        self.subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
-        self.subject_is = conf.get(CONF_SUBJECT_IS)
-        self.has_attachment = conf.get(CONF_HAS_ATTACHMENT)
-        self.importance = conf.get(CONF_IMPORTANCE)
-        self.email_from = conf.get(CONF_MAIL_FROM)
-        self.is_unread = conf.get(CONF_IS_UNREAD)
-        self.query = self.mail_folder.new_query()
-        self.query.order_by("receivedDateTime", ascending=False)
+        self._subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
+        self._subject_is = conf.get(CONF_SUBJECT_IS)
+        self._has_attachment = conf.get(CONF_HAS_ATTACHMENT)
+        self._importance = conf.get(CONF_IMPORTANCE)
+        self._email_from = conf.get(CONF_MAIL_FROM)
+        self._is_unread = conf.get(CONF_IS_UNREAD)
+        self._query = self._mail_folder.new_query()
+        self._query.order_by("receivedDateTime", ascending=False)
 
         if (
-            self.subject_contains is not None
-            or self.subject_is is not None
-            or self.has_attachment is not None
-            or self.importance is not None
-            or self.email_from is not None
-            or self.is_unread is not None
+            self._subject_contains is not None
+            or self._subject_is is not None
+            or self._has_attachment is not None
+            or self._importance is not None
+            or self._email_from is not None
+            or self._is_unread is not None
         ):
             self._add_to_query("ge", "receivedDateTime", dt.datetime(1900, 5, 1))
-        self._add_to_query("contains", "subject", self.subject_contains)
-        self._add_to_query("equals", "subject", self.subject_is)
-        self._add_to_query("equals", "hasAttachments", self.has_attachment)
-        self._add_to_query("equals", "from", self.email_from)
-        self._add_to_query("equals", "IsRead", not self.is_unread, self.is_unread)
-        self._add_to_query("equals", "importance", self.importance)
+        self._add_to_query("contains", "subject", self._subject_contains)
+        self._add_to_query("equals", "subject", self._subject_is)
+        self._add_to_query("equals", "hasAttachments", self._has_attachment)
+        self._add_to_query("equals", "from", self._email_from)
+        self._add_to_query("equals", "IsRead", not self._is_unread, self._is_unread)
+        self._add_to_query("equals", "importance", self._importance)
 
         # _LOGGER.debug(self.query)
 
@@ -190,15 +190,17 @@ class O365QuerySensor(O365MailSensor, Entity):
             return
 
         if qtype == "ge":
-            self.query.chain("and").on_attribute(attribute_name).greater_equal(
+            self._query.chain("and").on_attribute(attribute_name).greater_equal(
                 attribute_value
             )
         if qtype == "contains":
-            self.query.chain("and").on_attribute(attribute_name).contains(
+            self._query.chain("and").on_attribute(attribute_name).contains(
                 attribute_value
             )
         if qtype == "equals":
-            self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
+            self._query.chain("and").on_attribute(attribute_name).equals(
+                attribute_value
+            )
 
 
 class O365InboxSensor(O365MailSensor, Entity):
@@ -208,12 +210,12 @@ class O365InboxSensor(O365MailSensor, Entity):
         """Initialise the O365 Inbox."""
         super().__init__(conf, mail_folder)
 
-        self.is_unread = conf.get(CONF_IS_UNREAD)
+        is_unread = conf.get(CONF_IS_UNREAD)
 
-        self.query = None
-        if self.is_unread is not None:
-            self.query = self.mail_folder.new_query()
-            self.query.chain("and").on_attribute("IsRead").equals(not self.is_unread)
+        self._query = None
+        if is_unread is not None:
+            self._query = self._mail_folder.new_query()
+            self._query.chain("and").on_attribute("IsRead").equals(not is_unread)
 
 
 class O365TeamsStatusSensor(Entity):
@@ -221,7 +223,7 @@ class O365TeamsStatusSensor(Entity):
 
     def __init__(self, account, conf):
         """Initialise the Teams Sensor."""
-        self.teams = account.teams()
+        self._teams = account.teams()
         self._name = conf.get(CONF_NAME)
         self._state = None
 
@@ -237,5 +239,5 @@ class O365TeamsStatusSensor(Entity):
 
     async def async_update(self):
         """Update state."""
-        data = await self.hass.async_add_executor_job(self.teams.get_my_presence)
+        data = await self.hass.async_add_executor_job(self._teams.get_my_presence)
         self._state = data.activity
