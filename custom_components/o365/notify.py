@@ -4,29 +4,12 @@ import os
 
 from homeassistant.components.notify import BaseNotificationService
 
-from .const import (
-    ATTR_ATTACHMENTS,
-    ATTR_DATA,
-    ATTR_MESSAGE_IS_HTML,
-    ATTR_PHOTOS,
-    ATTR_TARGET,
-    ATTR_TITLE,
-    ATTR_ZIP_ATTACHMENTS,
-    ATTR_ZIP_NAME,
-    CONF_ACCOUNT,
-    CONF_ACCOUNT_NAME,
-    DOMAIN,
-    NOTIFY_BASE_SCHEMA,
-    PERM_MAIL_SEND,
-    PERM_MINIMUM_SEND,
-)
-from .utils import (
-    build_token_filename,
-    get_ha_filepath,
-    get_permissions,
-    validate_minimum_permission,
-    zip_files,
-)
+from .const import (ATTR_ATTACHMENTS, ATTR_DATA, ATTR_MESSAGE_IS_HTML,
+                    ATTR_PHOTOS, ATTR_TARGET, ATTR_TITLE, ATTR_ZIP_ATTACHMENTS,
+                    ATTR_ZIP_NAME, CONF_ACCOUNT, CONF_ACCOUNT_NAME, DOMAIN,
+                    NOTIFY_BASE_SCHEMA, PERM_MAIL_SEND, PERM_MINIMUM_SEND)
+from .utils import (build_token_filename, get_ha_filepath, get_permissions,
+                    validate_minimum_permission, zip_files)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -126,7 +109,7 @@ class O365EmailService(BaseNotificationService):
                 att = new_message_attachments[-1]
                 att.is_inline = True
                 att.content_id = "1"
-                photos_content += f'<br><img src="cid:{1}">'
+                photos_content += f'<br><img src="cid:{photo}">'
 
         return photos_content
 
