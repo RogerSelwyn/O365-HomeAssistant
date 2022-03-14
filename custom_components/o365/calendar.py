@@ -86,15 +86,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
         for entity in calendar.get(CONF_ENTITIES):
             if not entity[CONF_TRACK]:
                 continue
-            if entity_suffix := conf[CONF_ACCOUNT_NAME]:
-                entity_suffix = f"_{entity_suffix}"
-            else:
-                entity_suffix = ""
-            entity_id = generate_entity_id(
-                CALENDAR_ENTITY_ID_FORMAT,
-                f"{entity.get(CONF_DEVICE_ID)}{entity_suffix}",
-                hass=hass,
-            )
+            entity_id = _build_entity_id(hass, entity, conf)
             cal = O365CalendarEventDevice(
                 hass, account, cal_id, entity, entity_id, conf
             )
@@ -102,6 +94,18 @@ def _setup_add_entities(hass, account, add_entities, conf):
             entities.append(cal)
     add_entities(entities, True)
     return cal_ids
+
+
+def _build_entity_id(hass, entity, conf):
+    if entity_suffix := conf[CONF_ACCOUNT_NAME]:
+        entity_suffix = f"_{entity_suffix}"
+    else:
+        entity_suffix = ""
+    return generate_entity_id(
+        CALENDAR_ENTITY_ID_FORMAT,
+        f"{entity.get(CONF_DEVICE_ID)}{entity_suffix}",
+        hass=hass,
+    )
 
 
 def _setup_register_services(hass, conf):
@@ -402,24 +406,8 @@ class CalendarServices:
         )
         event = calendar.get_event(event_data["event_id"])
         response = event_data.get("response")
-
-        responses = ["accept", "tentative", "decline"]
-        if response is None:
-            raise ValueError("response not set")
-        if response.lower() not in responses:
-            raise ValueError(f"response must be one of {', '.join(responses)}")
-
-        send_response = event_data.get("send_response", True)
-        if response.lower() == "accept":
-            event.accept_event(event_data.get("message"), send_response=send_response)
-
-        elif response.lower() == "tentative":
-            event.accept_event(
-                event_data.get("message"), tentatively=True, send_response=send_response
-            )
-
-        elif response.lower() == "decline":
-            event.decline_event(event_data.get("message"), send_response=send_response)
+        _validate_response(response)
+        _send_response(event, event_data, response)
 
     def scan_for_calendars(self, call):  # pylint: disable=unused-argument
         """Scan for new calendars."""
@@ -487,3 +475,25 @@ class CalendarServices:
             event_data.get(ATTR_CALENDAR_ID, None),
         )
         return None
+
+
+def _validate_response(response):
+    responses = ["accept", "tentative", "decline"]
+    if response is None:
+        raise ValueError("response not set")
+    if response.lower() not in responses:
+        raise ValueError(f"response must be one of {', '.join(responses)}")
+
+
+def _send_response(event, event_data, response):
+    send_response = event_data.get("send_response", True)
+    if response.lower() == "accept":
+        event.accept_event(event_data.get("message"), send_response=send_response)
+
+    elif response.lower() == "tentative":
+        event.accept_event(
+            event_data.get("message"), tentatively=True, send_response=send_response
+        )
+
+    elif response.lower() == "decline":
+        event.decline_event(event_data.get("message"), send_response=send_response)

@@ -95,8 +95,6 @@ def do_setup(hass, config, account, account_name):
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
-    track_new = config.get(CONF_TRACK_NEW, True)
-    config_file = config.get(CONF_ACCOUNT_NAME, "")
 
     account_config = {
         CONF_ACCOUNT: account,
@@ -104,24 +102,33 @@ def do_setup(hass, config, account, account_name):
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,
         CONF_ENABLE_UPDATE: enable_update,
-        CONF_TRACK_NEW: track_new,
-        CONF_ACCOUNT_NAME: config_file,
+        CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
+        CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
     }
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][account_name] = account_config
+
+    _load_platforms(hass, account_name, config, account_config)
+
+
+def _load_platforms(hass, account_name, config, account_config):
     hass.async_create_task(
         discovery.async_load_platform(
             hass, "calendar", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
         )
     )
-    if enable_update:
+    if account_config[CONF_ENABLE_UPDATE]:
         hass.async_create_task(
             discovery.async_load_platform(
                 hass, "notify", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
             )
         )
-    if len(email_sensors) > 0 or len(query_sensors) > 0 or len(status_sensors) > 0:
+    if (
+        len(account_config[CONF_EMAIL_SENSORS]) > 0
+        or len(account_config[CONF_QUERY_SENSORS]) > 0
+        or len(account_config[CONF_STATUS_SENSORS]) > 0
+    ):
         hass.async_create_task(
             discovery.async_load_platform(
                 hass, "sensor", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
