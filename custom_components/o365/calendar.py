@@ -312,9 +312,7 @@ class O365CalendarData:
     def to_datetime(obj):
         """To datetime."""
         if isinstance(obj, datetime):
-            if obj.tzinfo is None:
-                return obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE)
-            return obj
+            return obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE) if obj.tzinfo is None else obj
         return dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
 
     @staticmethod
