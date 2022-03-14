@@ -81,24 +81,28 @@ def _status_sensors(account, add_entities, conf):
 def _get_mail_folder(account, sensor_conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
-    mail_folder = None
     if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
-        for i, folder in enumerate(mail_folder_conf.split("/")):
-            if i == 0:
-                mail_folder = mailbox.get_folder(folder_name=folder)
-            else:
-                mail_folder = mail_folder.get_folder(folder_name=folder)
-
-            if not mail_folder:
-                _LOGGER.error(
-                    "Folder - %s - not found from %s config entry - %s - entity not created",
-                    folder,
-                    sensor_type,
-                    mail_folder_conf,
-                )
-                return None
+        return _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type)
     else:
-        mail_folder = mailbox.inbox_folder()
+        return mailbox.inbox_folder()
+
+
+def _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type):
+    mail_folder = None
+    for i, folder in enumerate(mail_folder_conf.split("/")):
+        if i == 0:
+            mail_folder = mailbox.get_folder(folder_name=folder)
+        else:
+            mail_folder = mail_folder.get_folder(folder_name=folder)
+
+        if not mail_folder:
+            _LOGGER.error(
+                "Folder - %s - not found from %s config entry - %s - entity not created",
+                folder,
+                sensor_type,
+                mail_folder_conf,
+            )
+            return None
 
     return mail_folder
 

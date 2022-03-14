@@ -10,18 +10,39 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
-                    AUTH_CALLBACK_PATH_ALT, CONF_ACCOUNT, CONF_ACCOUNT_NAME,
-                    CONF_ALT_CONFIG, CONF_CLIENT_ID, CONF_CLIENT_SECRET,
-                    CONF_EMAIL_SENSORS, CONF_ENABLE_UPDATE, CONF_QUERY_SENSORS,
-                    CONF_SECONDARY_ACCOUNTS, CONF_STATUS_SENSORS,
-                    CONF_TRACK_NEW, CONFIG_SCHEMA, CONFIGURATOR_DESCRIPTION,
-                    CONFIGURATOR_DESCRIPTION_ALT, CONFIGURATOR_FIELDS,
-                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
-                    CONST_PRIMARY, DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN)
-from .utils import (build_config_file_path, build_minimum_permissions,
-                    build_requested_permissions, build_token_filename,
-                    validate_permissions)
+from .const import (
+    AUTH_CALLBACK_NAME,
+    AUTH_CALLBACK_PATH,
+    AUTH_CALLBACK_PATH_ALT,
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
+    CONF_ALT_CONFIG,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+    CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
+    CONF_QUERY_SENSORS,
+    CONF_SECONDARY_ACCOUNTS,
+    CONF_STATUS_SENSORS,
+    CONF_TRACK_NEW,
+    CONFIG_SCHEMA,
+    CONFIGURATOR_DESCRIPTION,
+    CONFIGURATOR_DESCRIPTION_ALT,
+    CONFIGURATOR_FIELDS,
+    CONFIGURATOR_LINK_NAME,
+    CONFIGURATOR_SUBMIT_CAPTION,
+    CONST_PRIMARY,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_NAME,
+    DOMAIN,
+)
+from .utils import (
+    build_config_file_path,
+    build_minimum_permissions,
+    build_requested_permissions,
+    build_token_filename,
+    validate_permissions,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -117,7 +138,7 @@ def _load_platforms(hass, account_name, config, account_config):
         )
 
 
-def request_configuration(hass, url, callback_view, account_name):
+def _request_configuration(hass, url, callback_view, account_name):
     """Request the config."""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
@@ -126,7 +147,7 @@ def request_configuration(hass, url, callback_view, account_name):
     hass.data[DOMAIN][account_name] = request_content
 
 
-def request_configuration_alt(hass, url, callback_view, account_name):
+def _request_configuration_alt(hass, url, callback_view, account_name):
     """Request the alternate config."""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
@@ -165,10 +186,7 @@ def _create_request_content_alt(url, callback_view, account_name):
 
 def _request_authorization(hass, conf, account, account_name):
     alt_config = conf.get(CONF_ALT_CONFIG)
-    if alt_config:
-        callback_url = AUTH_CALLBACK_PATH_ALT
-    else:
-        callback_url = f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
+    callback_url = _get_callback_url(hass, alt_config)
     scope = build_requested_permissions(conf)
     url, state = account.con.get_authorization_url(
         requested_scopes=scope, redirect_uri=callback_url
@@ -181,9 +199,16 @@ def _request_authorization(hass, conf, account, account_name):
     )
     hass.http.register_view(callback_view)
     if alt_config:
-        request_configuration_alt(hass, url, callback_view, account_name)
+        _request_configuration_alt(hass, url, callback_view, account_name)
     else:
-        request_configuration(hass, url, callback_view, account_name)
+        _request_configuration(hass, url, callback_view, account_name)
+
+
+def _get_callback_url(hass, alt_config):
+    if alt_config:
+        return AUTH_CALLBACK_PATH_ALT
+    else:
+        return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
 
 
 class O365AuthCallbackView(HomeAssistantView):
