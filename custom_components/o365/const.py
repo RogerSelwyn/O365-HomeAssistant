@@ -89,6 +89,11 @@ CONF_TRACK_NEW = "track_new_calendar"
 CONFIGURATOR_DESCRIPTION = (
     "To link your O365 account, click the link, login, and authorize:"
 )
+CONFIGURATOR_DESCRIPTION_ALT = (
+    "Complete the configuration and copy the complete url into "
+    + "this field afterwards and submit"
+)
+CONFIGURATOR_FIELDS = [{"id": "token", "name": "Returned Url", "type": "token"}]
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
 CONST_PRIMARY = "$o365-primary$"

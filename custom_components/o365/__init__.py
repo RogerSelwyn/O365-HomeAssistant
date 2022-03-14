@@ -10,37 +10,18 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (
-    AUTH_CALLBACK_NAME,
-    AUTH_CALLBACK_PATH,
-    AUTH_CALLBACK_PATH_ALT,
-    CONF_ACCOUNT,
-    CONF_ACCOUNT_NAME,
-    CONF_ALT_CONFIG,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    CONF_EMAIL_SENSORS,
-    CONF_ENABLE_UPDATE,
-    CONF_QUERY_SENSORS,
-    CONF_SECONDARY_ACCOUNTS,
-    CONF_STATUS_SENSORS,
-    CONF_TRACK_NEW,
-    CONFIG_SCHEMA,
-    CONFIGURATOR_DESCRIPTION,
-    CONFIGURATOR_LINK_NAME,
-    CONFIGURATOR_SUBMIT_CAPTION,
-    CONST_PRIMARY,
-    DEFAULT_CACHE_PATH,
-    DEFAULT_NAME,
-    DOMAIN,
-)
-from .utils import (
-    build_config_file_path,
-    build_minimum_permissions,
-    build_requested_permissions,
-    build_token_filename,
-    validate_permissions,
-)
+from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH,
+                    AUTH_CALLBACK_PATH_ALT, CONF_ACCOUNT, CONF_ACCOUNT_NAME,
+                    CONF_ALT_CONFIG, CONF_CLIENT_ID, CONF_CLIENT_SECRET,
+                    CONF_EMAIL_SENSORS, CONF_ENABLE_UPDATE, CONF_QUERY_SENSORS,
+                    CONF_SECONDARY_ACCOUNTS, CONF_STATUS_SENSORS,
+                    CONF_TRACK_NEW, CONFIG_SCHEMA, CONFIGURATOR_DESCRIPTION,
+                    CONFIGURATOR_DESCRIPTION_ALT, CONFIGURATOR_FIELDS,
+                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
+                    CONST_PRIMARY, DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN)
+from .utils import (build_config_file_path, build_minimum_permissions,
+                    build_requested_permissions, build_token_filename,
+                    validate_permissions)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -138,11 +119,28 @@ def _load_platforms(hass, account_name, config, account_config):
 
 def request_configuration(hass, url, callback_view, account_name):
     """Request the config."""
-    configurator = callback_view.configurator
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][account_name] = configurator.async_request_config(
-        f"{DEFAULT_NAME} - {account_name}",
+
+    request_content = _create_request_content(url, callback_view, account_name)
+    hass.data[DOMAIN][account_name] = request_content
+
+
+def request_configuration_alt(hass, url, callback_view, account_name):
+    """Request the alternate config."""
+    if DOMAIN not in hass.data:
+        hass.data[DOMAIN] = {}
+
+    request_content = _create_request_content_alt(url, callback_view, account_name)
+    hass.data[DOMAIN][account_name] = request_content
+
+
+def _create_request_content(url, callback_view, account_name):
+    configurator = callback_view.configurator
+
+    view_name = f"{DEFAULT_NAME} - {account_name}"
+    return configurator.async_request_config(
+        view_name,
         lambda _: None,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
@@ -151,19 +149,16 @@ def request_configuration(hass, url, callback_view, account_name):
     )
 
 
-def request_configuration_alt(hass, url, callback_view, account_name):
-    """Request the alternate config."""
+def _create_request_content_alt(url, callback_view, account_name):
     configurator = callback_view.configurator
-    if DOMAIN not in hass.data:
-        hass.data[DOMAIN] = {}
-    hass.data[DOMAIN][account_name] = configurator.async_request_config(
-        f"{DEFAULT_NAME} - {account_name} - Alternative configuration",
+    view_name = f"{DEFAULT_NAME} - {account_name} - Alternative configuration"
+    return configurator.async_request_config(
+        view_name,
         callback_view.alt_callback,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
-        fields=[{"id": "token", "name": "Returned Url", "type": "token"}],
-        description="Complete the configuration and copy the complete url "
-        "into this field afterwards and submit",
+        fields=CONFIGURATOR_FIELDS,
+        description=CONFIGURATOR_DESCRIPTION_ALT,
         submit_caption="Submit",
     )
 

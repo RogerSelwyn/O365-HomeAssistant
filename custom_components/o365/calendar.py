@@ -79,7 +79,6 @@ def setup_platform(
 def _setup_add_entities(hass, account, add_entities, conf):
     yaml_filename = build_yaml_filename(conf)
     calendars = load_calendars(build_config_file_path(hass, yaml_filename))
-    entities = []
     cal_ids = {}
 
     for cal_id, calendar in calendars.items():
@@ -91,8 +90,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
                 hass, account, cal_id, entity, entity_id, conf
             )
             cal_ids[entity_id] = cal_id
-            entities.append(cal)
-    add_entities(entities, True)
+            add_entities([cal], True)
     return cal_ids
 
 
