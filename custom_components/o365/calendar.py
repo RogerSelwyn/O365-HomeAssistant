@@ -86,9 +86,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
             if not entity[CONF_TRACK]:
                 continue
             entity_id = _build_entity_id(hass, entity, conf)
-            cal = O365CalendarEventDevice(
-                hass, account, cal_id, entity, entity_id, conf
-            )
+            cal = O365CalendarEventDevice(hass, account, cal_id, entity, entity_id)
             cal_ids[entity_id] = cal_id
             add_entities([cal], True)
     return cal_ids
@@ -131,28 +129,30 @@ def _setup_register_services(hass, conf):
 class O365CalendarEventDevice(CalendarEventDevice):
     """O365 Calendar Event Processing."""
 
-    def __init__(self, hass, account, calendar_id, entity, entity_id, config):
+    def __init__(self, hass, account, calendar_id, entity, entity_id):
         """Initialise the O365 Calendar Event."""
         self.hass = hass
-        self._config = config
-        self.entity = entity
-        self.max_results = entity.get(CONF_MAX_RESULTS)
-        self.start_offset = entity.get(CONF_HOURS_BACKWARD_TO_GET)
-        self.end_offset = entity.get(CONF_HOURS_FORWARD_TO_GET)
-        self.search = entity.get(CONF_SEARCH)
-        self.data = O365CalendarData(
-            account,
-            calendar_id,
-            self.search,
-            self.max_results,
-            self.start_offset,
-            self.end_offset,
-        )
+        self._start_offset = entity.get(CONF_HOURS_BACKWARD_TO_GET)
+        self._end_offset = entity.get(CONF_HOURS_FORWARD_TO_GET)
         self._event = {}
         self._name = f"{entity.get(CONF_NAME)}"
         self.entity_id = entity_id
         self._offset_reached = False
         self._data_attribute = []
+
+        self.data = self._init_data(account, calendar_id, entity)
+
+    def _init_data(self, account, calendar_id, entity):
+        max_results = entity.get(CONF_MAX_RESULTS)
+        search = entity.get(CONF_SEARCH)
+        return O365CalendarData(
+            account,
+            calendar_id,
+            search,
+            max_results,
+            self._start_offset,
+            self._end_offset,
+        )
 
     @property
     def extra_state_attributes(self):
@@ -194,8 +194,8 @@ class O365CalendarEventDevice(CalendarEventDevice):
         events = list(
             await self.data.async_o365_get_events(
                 self.hass,
-                datetime.now() + timedelta(hours=self.start_offset),
-                datetime.now() + timedelta(hours=self.end_offset),
+                datetime.now() + timedelta(hours=self._start_offset),
+                datetime.now() + timedelta(hours=self._end_offset),
             )
         )
         self._data_attribute = [
