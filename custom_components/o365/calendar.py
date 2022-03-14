@@ -33,7 +33,6 @@ from .const import (
     CONF_SEARCH,
     CONF_TRACK,
     CONF_TRACK_NEW,
-    CONST_PRIMARY,
     DEFAULT_OFFSET,
     DOMAIN,
     MIN_TIME_BETWEEN_UPDATES,
@@ -425,16 +424,17 @@ class CalendarServices:
         """Scan for new calendars."""
         for config in self._hass.data[DOMAIN]:
             config = self._hass.data[DOMAIN][config]
-            schedule = config["account"].schedule()
-            calendars = schedule.list_calendars()
-            track = config.get(CONF_TRACK_NEW, True)
-            for calendar in calendars:
-                update_calendar_file(
-                    build_yaml_filename(config),
-                    calendar,
-                    self._hass,
-                    track,
-                )
+            if "account" in config:
+                schedule = config["account"].schedule()
+                calendars = schedule.list_calendars()
+                track = config.get(CONF_TRACK_NEW, True)
+                for calendar in calendars:
+                    update_calendar_file(
+                        build_yaml_filename(config),
+                        calendar,
+                        self._hass,
+                        track,
+                    )
 
     def _validate_permissions(self, error_message, config):
         permissions = get_permissions(self._hass, filename=build_token_filename(config))
@@ -452,12 +452,19 @@ class CalendarServices:
         if entity_id := call_data.get(ATTR_ENTITY_ID, None):
             calendar_id = config.get(CONF_CAL_IDS).get(entity_id)
             event_data[ATTR_CALENDAR_ID] = calendar_id
-        elif config[CONF_ACCOUNT_NAME] != CONST_PRIMARY:
+        elif config[CONF_ACCOUNT_NAME]:
             event_data[ATTR_CALENDAR_ID] = None
             _LOGGER.error(
-                "Must use entity_id for service calls to calendars in secondary accounts"
+                "Must use entity_id for service calls to calendars in secondary accounts."
             )
-            return None
+            raise ValueError(
+                "Must use entity_id for service calls to calendars in secondary accounts."
+            )
+        else:
+            _LOGGER.warning(
+                "Use of calendar_id for service calls has been deprecated and will be "
+                "removed in a future release. Please use entity_id instead."
+            )
 
         return event_data
 
@@ -473,4 +480,9 @@ class CalendarServices:
                         ATTR_CALENDAR_ID, None
                     ):
                         return config_data
+        _LOGGER.error(
+            "Invalid Entity_ID (%s) or Calendar_ID (%s)",
+            event_data.get(ATTR_ENTITY_ID, None),
+            event_data.get(ATTR_CALENDAR_ID, None),
+        )
         return None

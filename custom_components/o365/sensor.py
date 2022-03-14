@@ -29,7 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(
-    hass, config, entities, discovery_info=None
+    hass, config, add_entities, discovery_info=None
 ):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
@@ -43,9 +43,9 @@ async def async_setup_platform(
     if not is_authenticated:
         return False
 
-    await _async_unread_sensors(hass, account, entities, conf)
-    await _async_query_sensors(hass, account, entities, conf)
-    _status_sensors(account, entities, conf)
+    await _async_unread_sensors(hass, account, add_entities, conf)
+    await _async_query_sensors(hass, account, add_entities, conf)
+    _status_sensors(account, add_entities, conf)
 
     return True
 
