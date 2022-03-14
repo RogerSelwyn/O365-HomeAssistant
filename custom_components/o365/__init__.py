@@ -1,5 +1,6 @@
 """Main initialisation code."""
 import logging
+from copy import deepcopy
 from functools import partial
 
 from aiohttp import web_response
@@ -49,18 +50,28 @@ async def async_setup(hass, config):
     conf = config.get(DOMAIN, {})
     CONFIG_SCHEMA(conf)
 
-    _setup_account(hass, conf, CONST_PRIMARY)
+    primary_credentials = (
+        conf.get(CONF_CLIENT_ID),
+        conf.get(CONF_CLIENT_SECRET),
+    )
+    _setup_account(hass, conf, CONST_PRIMARY, primary_credentials)
     if CONF_SECONDARY_ACCOUNTS in conf:
         for account_conf in conf[CONF_SECONDARY_ACCOUNTS]:
-            _setup_account(hass, account_conf, account_conf[CONF_ACCOUNT_NAME])
+            _setup_account(
+                hass, account_conf, account_conf[CONF_ACCOUNT_NAME], primary_credentials
+            )
     return True
 
 
-def _setup_account(hass, account_conf, account_name):
-    credentials = (
-        account_conf.get(CONF_CLIENT_ID),
-        account_conf.get(CONF_CLIENT_SECRET),
-    )
+def _setup_account(hass, account_conf, account_name, primary_credentials):
+    if CONF_CLIENT_ID in account_conf and CONF_CLIENT_SECRET in account_conf:
+        credentials = (
+            account_conf.get(CONF_CLIENT_ID),
+            account_conf.get(CONF_CLIENT_SECRET),
+        )
+    else:
+        credentials = deepcopy(primary_credentials)
+
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_file = build_token_filename(account_conf)
     token_backend = FileSystemTokenBackend(

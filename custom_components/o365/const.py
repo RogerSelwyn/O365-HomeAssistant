@@ -169,9 +169,9 @@ QUERY_SENSOR = vol.Schema(
         vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
     }
 )
-DOMAIN_SCHEMA = {
-    vol.Required(CONF_CLIENT_ID): cv.string,
-    vol.Required(CONF_CLIENT_SECRET): cv.string,
+SECONDARY_DOMAIN_SCHEMA = {
+    vol.Optional(CONF_CLIENT_ID): cv.string,
+    vol.Optional(CONF_CLIENT_SECRET): cv.string,
     vol.Optional(CONF_TRACK_NEW, default=True): bool,
     vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
     vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
@@ -180,17 +180,26 @@ DOMAIN_SCHEMA = {
     vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
     vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
 }
-PRIMARY_SCHEMA = dict(DOMAIN_SCHEMA)
-PRIMARY_SCHEMA[vol.Optional(CONF_SECONDARY_ACCOUNTS)] = [DOMAIN_SCHEMA]
-PRIMARY_SCHEMA.pop(vol.Required(CONF_ACCOUNT_NAME, ""))
+PRIMARY_DOMAIN_SCHEMA = {
+    vol.Required(CONF_CLIENT_ID): cv.string,
+    vol.Required(CONF_CLIENT_SECRET): cv.string,
+    vol.Optional(CONF_TRACK_NEW, default=True): bool,
+    vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
+    vol.Optional(CONF_ALT_CONFIG, default=False): bool,
+    vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
+    vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
+    vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
+    vol.Optional(CONF_SECONDARY_ACCOUNTS): [SECONDARY_DOMAIN_SCHEMA],
+}
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
-            PRIMARY_SCHEMA,
+            PRIMARY_DOMAIN_SCHEMA,
         )
     },
     extra=vol.ALLOW_EXTRA,
 )
+
 NOTIFY_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_MESSAGE_IS_HTML, default=False): bool,
