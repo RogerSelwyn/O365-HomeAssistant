@@ -349,8 +349,8 @@ class CalendarServices:
         config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_MODIFY_SCHEMA(event_data)
-
-        calendar = self.schedule.get_calendar(
+        schedule = config["account"].schedule()
+        calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
         event = calendar.get_event(event_data["event_id"])
@@ -383,7 +383,8 @@ class CalendarServices:
         config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_REMOVE_SCHEMA(event_data)
-        calendar = self.schedule.get_calendar(
+        schedule = config["account"].schedule()
+        calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
         event = calendar.get_event(event_data["event_id"])
@@ -397,7 +398,8 @@ class CalendarServices:
         config = self._get_config(call.data)
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_RESPOND_SCHEMA(event_data)
-        calendar = self.schedule.get_calendar(
+        schedule = config["account"].schedule()
+        calendar = schedule.get_calendar(
             calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
         )
         event = calendar.get_event(event_data["event_id"])
@@ -423,15 +425,18 @@ class CalendarServices:
 
     def scan_for_calendars(self, call):  # pylint: disable=unused-argument
         """Scan for new calendars."""
-        calendars = self.schedule.list_calendars()
-        for calendar in calendars:
-            track = self.track_new_found_calendars
-            update_calendar_file(
-                build_yaml_filename(self._config),
-                calendar,
-                self._hass,
-                track,
-            )
+        for config in self._hass.data[DOMAIN]:
+            config = self._hass.data[DOMAIN][config]
+            schedule = config["account"].schedule()
+            calendars = schedule.list_calendars()
+            track = config.get(CONF_TRACK_NEW, True)
+            for calendar in calendars:
+                update_calendar_file(
+                    build_yaml_filename(config),
+                    calendar,
+                    self._hass,
+                    track,
+                )
 
     def _validate_permissions(self, error_message):
         if not validate_minimum_permission(

@@ -89,7 +89,7 @@ CONFIGURATOR_DESCRIPTION = (
 )
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
-CONST_PRIMARY = "primary"
+CONST_PRIMARY = "$o365-primary$"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
 TOKEN_FILENAME = "o365{0}.token"  # nosec
@@ -173,7 +173,7 @@ DOMAIN_SCHEMA = {
     vol.Required(CONF_CLIENT_SECRET): cv.string,
     vol.Optional(CONF_TRACK_NEW, default=True): bool,
     vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
-    vol.Optional(CONF_ACCOUNT_NAME, ""): cv.string,
+    vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
     vol.Optional(CONF_ALT_CONFIG, default=False): bool,
     vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
     vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
@@ -181,6 +181,7 @@ DOMAIN_SCHEMA = {
 }
 PRIMARY_SCHEMA = dict(DOMAIN_SCHEMA)
 PRIMARY_SCHEMA[vol.Optional(CONF_SECONDARY_ACCOUNTS)] = [DOMAIN_SCHEMA]
+PRIMARY_SCHEMA.pop(vol.Required(CONF_ACCOUNT_NAME, ""))
 CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.Schema(
