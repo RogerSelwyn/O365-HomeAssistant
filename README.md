@@ -89,7 +89,7 @@ Key | Type | Required | Description
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
 `alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
 `enable_update` | `boolean` | `False` | If True (default), this will enable the various services that allow the sending of emails and updates to calendars
-`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
+`track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
@@ -132,8 +132,8 @@ Key | Type | Required | Description
 `client_id` | `string` | `False` | Client ID from your O365 application.
 `client_secret` | `string` | `False` | Client Secret from your O365 application.
 `alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
-`enable_update` | `boolean` | `False` | If True (default), this will enable the various services that allow the sending of emails and updates to calendars
-`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
+`enable_update` | `boolean` | `False` | If True (default is False), this will enable the various services that allow the sending of emails and updates to calendars
+`track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries

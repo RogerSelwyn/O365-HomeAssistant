@@ -4,8 +4,12 @@ from enum import Enum
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant.components.notify import (ATTR_DATA, ATTR_MESSAGE,
-                                             ATTR_TARGET, ATTR_TITLE)
+from homeassistant.components.notify import (
+    ATTR_DATA,
+    ATTR_MESSAGE,
+    ATTR_TARGET,
+    ATTR_TITLE,
+)
 from homeassistant.const import CONF_NAME
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -170,7 +174,7 @@ SECONDARY_DOMAIN_SCHEMA = {
     vol.Optional(CONF_CLIENT_ID): cv.string,
     vol.Optional(CONF_CLIENT_SECRET): cv.string,
     vol.Optional(CONF_TRACK_NEW, default=True): bool,
-    vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
+    vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
     vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
     vol.Optional(CONF_ALT_CONFIG, default=False): bool,
     vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
