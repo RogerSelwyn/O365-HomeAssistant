@@ -118,7 +118,7 @@ class O365EmailService(BaseNotificationService):
                 att = new_message_attachments[-1]
                 att.is_inline = True
                 att.content_id = "1"
-                photos_content += f'<br><img src="cid:{1}">'
+                photos_content += '<br><img src="cid:1">'
 
         return photos_content
 
