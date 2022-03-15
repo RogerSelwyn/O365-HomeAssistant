@@ -195,7 +195,7 @@ def _request_authorization(hass, conf, account, account_name):
         "No token, or token doesn't have all required permissions; requesting authorization"
     )
     callback_view = O365AuthCallbackView(
-        conf, None, account, state, callback_url, hass, account_name
+        conf, account, state, callback_url, hass, account_name
     )
     hass.http.register_view(callback_view)
     if alt_config:
@@ -218,15 +218,12 @@ class O365AuthCallbackView(HomeAssistantView):
     url = AUTH_CALLBACK_PATH
     name = AUTH_CALLBACK_NAME
 
-    def __init__(
-        self, config, add_devices, account, state, callback_url, hass, account_name
-    ):
+    def __init__(self, config, account, state, callback_url, hass, account_name):
         """Initialize."""
-        self.config = config
-        self.add_devices = add_devices
-        self.account = account
-        self.state = state
-        self.callback = callback_url
+        self._config = config
+        self._account = account
+        self._state = state
+        self._callback = callback_url
         self._hass = hass
         self._account_name = account_name
         self.configurator = self._hass.components.configurator
@@ -245,14 +242,14 @@ class O365AuthCallbackView(HomeAssistantView):
             )
         await self._hass.async_add_executor_job(
             partial(
-                self.account.con.request_token,
+                self._account.con.request_token,
                 url,
-                state=self.state,
-                redirect_uri=self.callback,
+                state=self._state,
+                redirect_uri=self._callback,
             )
         )
         account_data = self._hass.data[DOMAIN][self._account_name]
-        do_setup(self._hass, self.config, self.account, self._account_name)
+        do_setup(self._hass, self._config, self._account, self._account_name)
         self.configurator.async_request_done(account_data)
 
         return web_response.Response(
@@ -264,8 +261,8 @@ class O365AuthCallbackView(HomeAssistantView):
         """Receive authorization token."""
         url = data.get("token") or [v for k, v in data.items()][0]
 
-        result = self.account.con.request_token(
-            url, state=self.state, redirect_uri=AUTH_CALLBACK_PATH_ALT
+        result = self._account.con.request_token(
+            url, state=self._state, redirect_uri=AUTH_CALLBACK_PATH_ALT
         )
         if not result:
             self.configurator.notify_errors(
@@ -274,6 +271,6 @@ class O365AuthCallbackView(HomeAssistantView):
             )
             return
         account_data = self._hass.data[DOMAIN][self._account_name]
-        do_setup(self._hass, self.config, self.account, self._account_name)
+        do_setup(self._hass, self._config, self._account, self._account_name)
         self.configurator.async_request_done(account_data)
         return
