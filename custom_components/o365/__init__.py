@@ -207,8 +207,8 @@ def _request_authorization(hass, conf, account, account_name):
 def _get_callback_url(hass, alt_config):
     if alt_config:
         return AUTH_CALLBACK_PATH_ALT
-    else:
-        return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
+
+    return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
 
 
 class O365AuthCallbackView(HomeAssistantView):

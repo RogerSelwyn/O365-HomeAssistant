@@ -83,8 +83,8 @@ def _get_mail_folder(account, sensor_conf, sensor_type):
     mailbox = account.mailbox()
     if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
         return _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type)
-    else:
-        return mailbox.inbox_folder()
+
+    return mailbox.inbox_folder()
 
 
 def _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type):
@@ -182,8 +182,6 @@ class O365QuerySensor(O365MailSensor, Entity):
         self._add_to_query("equals", "from", self._email_from)
         self._add_to_query("equals", "IsRead", not self._is_unread, self._is_unread)
         self._add_to_query("equals", "importance", self._importance)
-
-        # _LOGGER.debug(self.query)
 
     def _add_to_query(self, qtype, attribute_name, attribute_value, check_value=True):
         if attribute_value is None or check_value is None:
