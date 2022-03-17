@@ -4,13 +4,26 @@ import functools as ft
 import logging
 from operator import itemgetter
 
+from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import Entity
 
-from .const import (CONF_ACCOUNT, CONF_ACCOUNT_NAME, CONF_DOWNLOAD_ATTACHMENTS,
-                    CONF_EMAIL_SENSORS, CONF_HAS_ATTACHMENT, CONF_IMPORTANCE,
-                    CONF_IS_UNREAD, CONF_MAIL_FOLDER, CONF_MAIL_FROM,
-                    CONF_MAX_ITEMS, CONF_QUERY_SENSORS, CONF_STATUS_SENSORS,
-                    CONF_SUBJECT_CONTAINS, CONF_SUBJECT_IS, DOMAIN)
+from .const import (
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
+    CONF_DOWNLOAD_ATTACHMENTS,
+    CONF_EMAIL_SENSORS,
+    CONF_HAS_ATTACHMENT,
+    CONF_IMPORTANCE,
+    CONF_IS_UNREAD,
+    CONF_MAIL_FOLDER,
+    CONF_MAIL_FROM,
+    CONF_MAX_ITEMS,
+    CONF_QUERY_SENSORS,
+    CONF_STATUS_SENSORS,
+    CONF_SUBJECT_CONTAINS,
+    CONF_SUBJECT_IS,
+    DOMAIN,
+)
 from .utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -100,7 +113,7 @@ class O365MailSensor:
     def __init__(self, conf, mail_folder):
         """Initialise the O365 Sensor."""
         self._mail_folder = mail_folder
-        self._name = conf.get(CONF_ACCOUNT_NAME)
+        self._name = conf.get(CONF_NAME)
         self._download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
         self._max_items = conf.get(CONF_MAX_ITEMS, 5)
         self._state = 0
@@ -209,7 +222,7 @@ class O365TeamsStatusSensor(Entity):
     def __init__(self, account, conf):
         """Initialise the Teams Sensor."""
         self._teams = account.teams()
-        self._name = conf.get(CONF_ACCOUNT_NAME)
+        self._name = conf.get(CONF_NAME)
         self._state = None
 
     @property
