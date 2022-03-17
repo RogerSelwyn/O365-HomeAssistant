@@ -52,6 +52,7 @@ AUTH_CALLBACK_PATH_ALT = "https://login.microsoftonline.com/common/oauth2/native
 CALENDAR_DOMAIN = "calendar"
 CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".{}"
 CONF_ACCOUNT = "account"
+CONF_ACCOUNTS = "accounts"
 CONF_ACCOUNT_NAME = "account_name"
 CONF_ALIASES = "aliases"
 CONF_ALT_CONFIG = "alt_auth_flow"
@@ -60,6 +61,7 @@ CONF_CALENDAR_NAME = "calendar_name"
 CONF_CAL_IDS = "cal_ids"
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"  # nosec
+CONF_CONFIG_TYPE = "config_type"
 CONF_DEVICE_ID = "device_id"
 CONF_DOWNLOAD_ATTACHMENTS = "download_attachments"
 CONF_EMAIL_SENSORS = "email_sensor"
@@ -82,7 +84,6 @@ CONF_MAIL_FROM = "from"
 CONF_MAX_ITEMS = "max_items"
 CONF_STATUS_SENSORS = "status_sensors"
 CONF_QUERY_SENSORS = "query_sensors"
-CONF_SECONDARY_ACCOUNTS = "secondary_accounts"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TRACK_NEW = "track_new_calendar"
@@ -96,6 +97,8 @@ CONFIGURATOR_DESCRIPTION_ALT = (
 CONFIGURATOR_FIELDS = [{"id": "token", "name": "Returned Url", "type": "token"}]
 CONFIGURATOR_LINK_NAME = "Link O365 account"
 CONFIGURATOR_SUBMIT_CAPTION = "I authorized successfully"
+CONST_CONFIG_TYPE_DICT = "dict"
+CONST_CONFIG_TYPE_LIST = "list"
 CONST_PRIMARY = "$o365-primary$"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
@@ -145,7 +148,7 @@ PERM_MINIMUM_SEND = [
     [PERM_MAIL_SEND_SHARED],
 ]
 
-YAML_CALENDARS = "{0}{1}_calendars.yaml"
+YAML_CALENDARS = "{0}_calendars{1}.yaml"
 
 EMAIL_SENSOR = vol.Schema(
     {
@@ -175,35 +178,37 @@ QUERY_SENSOR = vol.Schema(
         vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
     }
 )
-SECONDARY_DOMAIN_SCHEMA = {
-    vol.Optional(CONF_CLIENT_ID): cv.string,
-    vol.Optional(CONF_CLIENT_SECRET): cv.string,
-    vol.Optional(CONF_TRACK_NEW, default=True): bool,
-    vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
-    vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
-    vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-    vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
-    vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
-    vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
-}
-PRIMARY_DOMAIN_SCHEMA = {
-    vol.Required(CONF_CLIENT_ID): cv.string,
-    vol.Required(CONF_CLIENT_SECRET): cv.string,
-    vol.Optional(CONF_TRACK_NEW, default=True): bool,
-    vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
-    vol.Optional(CONF_ALT_CONFIG, default=False): bool,
-    vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
-    vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
-    vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
-    vol.Optional(CONF_SECONDARY_ACCOUNTS): [SECONDARY_DOMAIN_SCHEMA],
-}
-CONFIG_SCHEMA = vol.Schema(
+
+PRIMARY_DOMAIN_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema(
-            PRIMARY_DOMAIN_SCHEMA,
+        vol.Required(CONF_CLIENT_ID): cv.string,
+        vol.Required(CONF_CLIENT_SECRET): cv.string,
+        vol.Optional(CONF_TRACK_NEW, default=True): bool,
+        vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
+        vol.Optional(CONF_ALT_CONFIG, default=False): bool,
+        vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
+        vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
+        vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
+    }
+)
+SECONDARY_DOMAIN_SCHEMA = vol.Schema(
+    {
+        CONF_ACCOUNTS: vol.Schema(
+            [
+                {
+                    vol.Required(CONF_CLIENT_ID): cv.string,
+                    vol.Required(CONF_CLIENT_SECRET): cv.string,
+                    vol.Optional(CONF_TRACK_NEW, default=True): bool,
+                    vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
+                    vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
+                    vol.Optional(CONF_ALT_CONFIG, default=False): bool,
+                    vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
+                    vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
+                    vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
+                }
+            ]
         )
-    },
-    extra=vol.ALLOW_EXTRA,
+    }
 )
 
 NOTIFY_DATA_SCHEMA = vol.Schema(

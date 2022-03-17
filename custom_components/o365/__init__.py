@@ -1,6 +1,5 @@
 """Main initialisation code."""
 import logging
-from copy import deepcopy
 from functools import partial
 
 from aiohttp import web_response
@@ -16,25 +15,29 @@ from .const import (
     AUTH_CALLBACK_PATH_ALT,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_ACCOUNTS,
     CONF_ALT_CONFIG,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
+    CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_QUERY_SENSORS,
-    CONF_SECONDARY_ACCOUNTS,
     CONF_STATUS_SENSORS,
     CONF_TRACK_NEW,
-    CONFIG_SCHEMA,
     CONFIGURATOR_DESCRIPTION,
     CONFIGURATOR_DESCRIPTION_ALT,
     CONFIGURATOR_FIELDS,
     CONFIGURATOR_LINK_NAME,
     CONFIGURATOR_SUBMIT_CAPTION,
+    CONST_CONFIG_TYPE_DICT,
+    CONST_CONFIG_TYPE_LIST,
     CONST_PRIMARY,
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
+    PRIMARY_DOMAIN_SCHEMA,
+    SECONDARY_DOMAIN_SCHEMA,
 )
 from .utils import (
     build_config_file_path,
@@ -51,32 +54,28 @@ async def async_setup(hass, config):
     """Set up the O365 platform."""
     # validate_permissions(hass)
     conf = config.get(DOMAIN, {})
-    CONFIG_SCHEMA(conf)
+    if CONF_ACCOUNTS not in conf:
+        accounts = [PRIMARY_DOMAIN_SCHEMA(conf)]
+        conf_type = CONST_CONFIG_TYPE_DICT
+    else:
+        accounts = SECONDARY_DOMAIN_SCHEMA(conf)[CONF_ACCOUNTS]
+        conf_type = CONST_CONFIG_TYPE_LIST
 
-    primary_credentials = (
-        conf.get(CONF_CLIENT_ID),
-        conf.get(CONF_CLIENT_SECRET),
-    )
-    _setup_account(hass, conf, CONST_PRIMARY, primary_credentials)
-    if CONF_SECONDARY_ACCOUNTS in conf:
-        for account_conf in conf[CONF_SECONDARY_ACCOUNTS]:
-            _setup_account(
-                hass, account_conf, account_conf[CONF_ACCOUNT_NAME], primary_credentials
-            )
+    for account in accounts:
+        _setup_account(hass, account, conf_type)
+
     return True
 
 
-def _setup_account(hass, account_conf, account_name, primary_credentials):
-    if CONF_CLIENT_ID in account_conf and CONF_CLIENT_SECRET in account_conf:
-        credentials = (
-            account_conf.get(CONF_CLIENT_ID),
-            account_conf.get(CONF_CLIENT_SECRET),
-        )
-    else:
-        credentials = deepcopy(primary_credentials)
+def _setup_account(hass, account_conf, conf_type):
+    credentials = (
+        account_conf.get(CONF_CLIENT_ID),
+        account_conf.get(CONF_CLIENT_SECRET),
+    )
+    account_name = account_conf.get(CONF_ACCOUNT_NAME, CONST_PRIMARY)
 
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
-    token_file = build_token_filename(account_conf)
+    token_file = build_token_filename(account_conf, conf_type)
     token_backend = FileSystemTokenBackend(
         token_path=token_path, token_filename=token_file
     )
@@ -86,12 +85,12 @@ def _setup_account(hass, account_conf, account_name, primary_credentials):
     minimum_permissions = build_minimum_permissions(account_conf)
     permissions = validate_permissions(hass, minimum_permissions, filename=token_file)
     if is_authenticated and permissions:
-        do_setup(hass, account_conf, account, account_name)
+        do_setup(hass, account_conf, account, account_name, conf_type)
     else:
-        _request_authorization(hass, account_conf, account, account_name)
+        _request_authorization(hass, account_conf, account, account_name, conf_type)
 
 
-def do_setup(hass, config, account, account_name):
+def do_setup(hass, config, account, account_name, conf_type):
     """Run the setup after we have everything configured."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
@@ -106,6 +105,7 @@ def do_setup(hass, config, account, account_name):
         CONF_ENABLE_UPDATE: enable_update,
         CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
+        CONF_CONFIG_TYPE: conf_type,
     }
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
@@ -184,7 +184,7 @@ def _create_request_content_alt(url, callback_view, account_name):
     )
 
 
-def _request_authorization(hass, conf, account, account_name):
+def _request_authorization(hass, conf, account, account_name, conf_type):
     alt_config = conf.get(CONF_ALT_CONFIG)
     callback_url = _get_callback_url(hass, alt_config)
     scope = build_requested_permissions(conf)
@@ -195,7 +195,7 @@ def _request_authorization(hass, conf, account, account_name):
         "No token, or token doesn't have all required permissions; requesting authorization"
     )
     callback_view = O365AuthCallbackView(
-        conf, account, state, callback_url, hass, account_name
+        conf, account, state, callback_url, hass, account_name, conf_type
     )
     hass.http.register_view(callback_view)
     if alt_config:
@@ -218,7 +218,9 @@ class O365AuthCallbackView(HomeAssistantView):
     url = AUTH_CALLBACK_PATH
     name = AUTH_CALLBACK_NAME
 
-    def __init__(self, config, account, state, callback_url, hass, account_name):
+    def __init__(
+        self, config, account, state, callback_url, hass, account_name, conf_type
+    ):
         """Initialize."""
         self._config = config
         self._account = account
@@ -227,6 +229,7 @@ class O365AuthCallbackView(HomeAssistantView):
         self._hass = hass
         self._account_name = account_name
         self.configurator = self._hass.components.configurator
+        self._conf_type = conf_type
 
     @callback
     async def get(self, request):
@@ -249,7 +252,9 @@ class O365AuthCallbackView(HomeAssistantView):
             )
         )
         account_data = self._hass.data[DOMAIN][self._account_name]
-        do_setup(self._hass, self._config, self._account, self._account_name)
+        do_setup(
+            self._hass, self._config, self._account, self._account_name, self._conf_type
+        )
         self.configurator.async_request_done(account_data)
 
         return web_response.Response(
@@ -271,6 +276,8 @@ class O365AuthCallbackView(HomeAssistantView):
             )
             return
         account_data = self._hass.data[DOMAIN][self._account_name]
-        do_setup(self._hass, self._config, self._account, self._account_name)
+        do_setup(
+            self._hass, self._config, self._account, self._account_name, self._conf_type
+        )
         self.configurator.async_request_done(account_data)
         return

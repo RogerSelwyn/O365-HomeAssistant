@@ -10,6 +10,7 @@ from homeassistant.components.calendar import (
     calculate_offset,
     is_offset_reached,
 )
+from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
 
@@ -24,16 +25,17 @@ from .const import (
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_CAL_IDS,
+    CONF_CONFIG_TYPE,
     CONF_DEVICE_ID,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
     CONF_HOURS_BACKWARD_TO_GET,
     CONF_HOURS_FORWARD_TO_GET,
     CONF_MAX_RESULTS,
-    CONF_NAME,
     CONF_SEARCH,
     CONF_TRACK,
     CONF_TRACK_NEW,
+    CONST_CONFIG_TYPE_LIST,
     DEFAULT_OFFSET,
     DOMAIN,
     MIN_TIME_BETWEEN_UPDATES,
@@ -93,10 +95,12 @@ def _setup_add_entities(hass, account, add_entities, conf):
 
 
 def _build_entity_id(hass, entity, conf):
-    if entity_suffix := conf[CONF_ACCOUNT_NAME]:
-        entity_suffix = f"_{entity_suffix}"
-    else:
-        entity_suffix = ""
+    entity_suffix = (
+        f"_{conf[CONF_ACCOUNT_NAME]}"
+        if (conf[CONF_CONFIG_TYPE] == CONST_CONFIG_TYPE_LIST)
+        else ""
+    )
+
     return generate_entity_id(
         CALENDAR_ENTITY_ID_FORMAT,
         f"{entity.get(CONF_DEVICE_ID)}{entity_suffix}",
@@ -415,7 +419,10 @@ class CalendarServices:
                     )
 
     def _validate_permissions(self, error_message, config):
-        permissions = get_permissions(self._hass, filename=build_token_filename(config))
+        permissions = get_permissions(
+            self._hass,
+            filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
+        )
         if not validate_minimum_permission(PERM_MINIMUM_CALENDAR_WRITE, permissions):
             _LOGGER.error(
                 "Not authorisied to %s calendar event - requires permission: %s",
@@ -430,14 +437,10 @@ class CalendarServices:
         if entity_id := call_data.get(ATTR_ENTITY_ID, None):
             calendar_id = config.get(CONF_CAL_IDS).get(entity_id)
             event_data[ATTR_CALENDAR_ID] = calendar_id
-        elif config[CONF_ACCOUNT_NAME]:
+        elif config[CONF_CONFIG_TYPE] == CONST_CONFIG_TYPE_LIST:
             event_data[ATTR_CALENDAR_ID] = None
-            _LOGGER.error(
-                "Must use entity_id for service calls to calendars in secondary accounts."
-            )
-            raise ValueError(
-                "Must use entity_id for service calls to calendars in secondary accounts."
-            )
+            _LOGGER.error("Must use entity_id for service calls to calendars.")
+            raise ValueError("Must use entity_id for service calls to calendars.")
         else:
             _LOGGER.warning(
                 "Use of calendar_id for service calls has been deprecated and will be "
