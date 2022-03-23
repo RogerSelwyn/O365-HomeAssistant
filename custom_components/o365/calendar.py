@@ -342,11 +342,7 @@ class CalendarServices:
 
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_MODIFY_SCHEMA(event_data)
-        schedule = config[CONF_ACCOUNT].schedule()
-        calendar = schedule.get_calendar(
-            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
-        )
-        event = calendar.get_event(event_data["event_id"])
+        event = self._get_event_from_calendar(config, event_data)
         event = add_call_data_to_event(event, call.data)
         event.save()
 
@@ -378,11 +374,7 @@ class CalendarServices:
 
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_REMOVE_SCHEMA(event_data)
-        schedule = config[CONF_ACCOUNT].schedule()
-        calendar = schedule.get_calendar(
-            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
-        )
-        event = calendar.get_event(event_data["event_id"])
+        event = self._get_event_from_calendar(config, event_data)
         event.delete()
 
     def respond_calendar_event(self, call):
@@ -393,11 +385,7 @@ class CalendarServices:
 
         event_data = self._setup_event_data(call.data, config)
         CALENDAR_SERVICE_RESPOND_SCHEMA(event_data)
-        schedule = config[CONF_ACCOUNT].schedule()
-        calendar = schedule.get_calendar(
-            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
-        )
-        event = calendar.get_event(event_data["event_id"])
+        event = self._get_event_from_calendar(config, event_data)
         response = event_data.get("response")
         _validate_response(response)
         _send_response(event, event_data, response)
@@ -417,6 +405,14 @@ class CalendarServices:
                         self._hass,
                         track,
                     )
+
+    def _get_event_from_calendar(self, config, event_data):
+        schedule = config[CONF_ACCOUNT].schedule()
+        calendar = schedule.get_calendar(
+            calendar_id=event_data.get(ATTR_CALENDAR_ID, None)
+        )
+
+        return calendar.get_event(event_data["event_id"])
 
     def _validate_permissions(self, error_message, config):
         permissions = get_permissions(
