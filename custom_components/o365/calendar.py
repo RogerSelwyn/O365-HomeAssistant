@@ -88,6 +88,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
             if not entity[CONF_TRACK]:
                 continue
             entity_id = _build_entity_id(hass, entity, conf)
+            _LOGGER.debug("Connecting to calendar: %s", cal_id)
             cal = O365CalendarEventDevice(account, cal_id, entity, entity_id)
             cal_ids[entity_id] = cal_id
             add_entities([cal], True)
@@ -148,6 +149,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
     def _init_data(self, account, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
         search = entity.get(CONF_SEARCH)
+        _LOGGER.debug("Initialising calendar: %s", calendar_id)
         return O365CalendarData(
             account,
             calendar_id,
@@ -219,6 +221,7 @@ class O365CalendarData:
         """Initialise the O365 Calendar Data."""
         self._limit = limit
         schedule = account.schedule()
+        self._calendar_id = calendar_id
         self.calendar = schedule.get_calendar(calendar_id=calendar_id)
         self._search = search
         self.event = None
@@ -229,6 +232,7 @@ class O365CalendarData:
         query.chain("and").on_attribute("end").less_equal(end_date)
         if self._search is not None:
             query.chain("and").on_attribute("subject").contains(self._search)
+        _LOGGER.debug("get events: %s", self._calendar_id)
         return await hass.async_add_executor_job(
             ft.partial(
                 self.calendar.get_events,
