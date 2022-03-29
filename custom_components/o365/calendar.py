@@ -277,13 +277,7 @@ class O365CalendarData:
         results = list(results)
         results.sort(key=lambda x: self.to_datetime(x.start))
 
-        vevent = None
-        for event in results:
-            if not self.is_over(event) and event.is_all_day and vevent is None:
-                vevent = event
-            elif not self.is_over(event) and not event.is_all_day:
-                vevent = event
-                break
+        vevent = self._get_root_event(results)
 
         if vevent is None:
             _LOGGER.debug(
@@ -303,13 +297,48 @@ class O365CalendarData:
             "all_day": vevent.is_all_day,
         }
 
+    def _get_root_event(self, results):
+        started_event = None
+        not_started_event = None
+        all_day_event = None
+        for event in results:
+            if event.is_all_day:
+                if not all_day_event and not self.is_finished(event):
+                    all_day_event = event
+                continue
+            if self.is_started(event) and not self.is_finished(event):
+                if not started_event:
+                    started_event = event
+                continue
+            if not self.is_finished(event) and not event.is_all_day:
+                if not not_started_event:
+                    not_started_event = event
+                continue
+
+        vevent = None
+        if started_event:
+            vevent = started_event
+        elif all_day_event:
+            vevent = all_day_event
+        elif not_started_event:
+            vevent = not_started_event
+
+        return vevent
+
     @staticmethod
     def is_all_day(vevent):
         """Is it all day."""
         return vevent.is_all_day
 
     @staticmethod
-    def is_over(vevent):
+    def is_started(vevent):
+        """Is it over."""
+        return dt.utcnow() >= O365CalendarData.to_datetime(
+            O365CalendarData.get_start_date(vevent)
+        )
+
+    @staticmethod
+    def is_finished(vevent):
         """Is it over."""
         return dt.utcnow() >= O365CalendarData.to_datetime(
             O365CalendarData.get_end_date(vevent)
@@ -327,10 +356,12 @@ class O365CalendarData:
     def to_datetime(obj):
         """To datetime."""
         if isinstance(obj, datetime):
-            return (
+            date_obj = (
                 obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE) if obj.tzinfo is None else obj
             )
-        return dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
+        else:
+            date_obj = dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
+        return dt.as_utc(date_obj)
 
     @staticmethod
     def get_end_date(obj):
@@ -342,6 +373,11 @@ class O365CalendarData:
             return obj.start + obj.duration.value
 
         return obj.start + timedelta(days=1)
+
+    @staticmethod
+    def get_start_date(obj):
+        """Get the start date."""
+        return obj.start
 
 
 class CalendarServices:
