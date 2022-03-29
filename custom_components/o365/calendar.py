@@ -5,11 +5,13 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-from homeassistant.components.calendar import (
-    CalendarEventDevice,
-    calculate_offset,
-    is_offset_reached,
-)
+from homeassistant.components.calendar import CalendarEventDevice, is_offset_reached
+
+try:
+    from homeassistant.components.calendar import calculate_offset
+except ImportError:
+    from homeassistant.components.calendar import extract_offset
+
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import Throttle, dt
@@ -202,8 +204,15 @@ class O365CalendarEventDevice(CalendarEventDevice):
         await self.data.async_update(self.hass)
         event = deepcopy(self.data.event)
         if event:
-            event = calculate_offset(event, DEFAULT_OFFSET)
-            self._offset_reached = is_offset_reached(event)
+            try:
+                event = calculate_offset(event, DEFAULT_OFFSET)
+                self._offset_reached = is_offset_reached(event)
+            except NameError:
+                event["summary"], offset = extract_offset(
+                    event.get("summary", ""), DEFAULT_OFFSET
+                )
+                start = O365CalendarData.get_date_utc(event["start"])
+                self._offset_reached = is_offset_reached(start, offset)
         events = list(
             await self.data.async_o365_get_events(
                 self.hass,
@@ -361,6 +370,17 @@ class O365CalendarData:
             )
         else:
             date_obj = dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
+        return dt.as_utc(date_obj)
+
+    @staticmethod
+    def get_date_utc(date):
+        """Get the dateTime from date or dateTime as a local."""
+        if "date" in date:
+            date_obj = dt.start_of_local_day(
+                dt.dt.datetime.combine(dt.parse_date(date["date"]), dt.dt.time.min)
+            )
+        else:
+            date_obj = dt.as_local(dt.parse_datetime(date["dateTime"]))
         return dt.as_utc(date_obj)
 
     @staticmethod
