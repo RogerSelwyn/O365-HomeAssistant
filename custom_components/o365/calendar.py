@@ -207,8 +207,8 @@ class O365CalendarEventDevice(CalendarEventDevice):
         events = list(
             await self.data.async_o365_get_events(
                 self.hass,
-                datetime.now() + timedelta(hours=self._start_offset),
-                datetime.now() + timedelta(hours=self._end_offset),
+                dt.utcnow() + timedelta(hours=self._start_offset),
+                dt.utcnow() + timedelta(hours=self._end_offset),
             )
         )
         self._data_attribute = [
@@ -268,18 +268,22 @@ class O365CalendarData:
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def async_update(self, hass):
         """Do the update."""
+        start_of_day_utc = dt.as_utc(dt.start_of_local_day())
         results = await self.async_o365_get_events(
             hass,
-            dt.start_of_local_day(),
-            dt.start_of_local_day() + timedelta(days=1),
+            start_of_day_utc,
+            start_of_day_utc + timedelta(days=1),
         )
         results = list(results)
         results.sort(key=lambda x: self.to_datetime(x.start))
 
-        vevent = next(
-            (event for event in results if not self.is_over(event)),
-            None,
-        )
+        vevent = None
+        for event in results:
+            if not self.is_over(event) and event.is_all_day and vevent is None:
+                vevent = event
+            elif not self.is_over(event) and not event.is_all_day:
+                vevent = event
+                break
 
         if vevent is None:
             _LOGGER.debug(
@@ -307,7 +311,7 @@ class O365CalendarData:
     @staticmethod
     def is_over(vevent):
         """Is it over."""
-        return dt.now() >= O365CalendarData.to_datetime(
+        return dt.utcnow() >= O365CalendarData.to_datetime(
             O365CalendarData.get_end_date(vevent)
         )
 
