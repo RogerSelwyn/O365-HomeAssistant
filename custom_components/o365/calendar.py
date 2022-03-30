@@ -317,11 +317,12 @@ class O365CalendarData:
                 if not started_event:
                     started_event = event
                 continue
-            if not self.is_finished(event) and not event.is_all_day:
-                if not not_started_event:
-                    not_started_event = event
-                continue
-
+            if (
+                not self.is_finished(event)
+                and not event.is_all_day
+                and not not_started_event
+            ):
+                not_started_event = event
         vevent = None
         if started_event:
             vevent = started_event
