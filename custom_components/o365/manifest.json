@@ -14,6 +14,6 @@
     "O365==2.0.18.1",
     "BeautifulSoup4>=4.10.0"
   ],
-  "version": "v2.4.0",
+  "version": "v2.4.1",
   "iot_class": "cloud_polling"
 }
