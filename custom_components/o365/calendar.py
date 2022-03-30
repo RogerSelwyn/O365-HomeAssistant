@@ -211,7 +211,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
                 event["summary"], offset = extract_offset(
                     event.get("summary", ""), DEFAULT_OFFSET
                 )
-                start = O365CalendarData.get_date_utc(event["start"])
+                start = O365CalendarData.to_datetime(event["start"])
                 self._offset_reached = is_offset_reached(start, offset)
         events = list(
             await self.data.async_o365_get_events(
@@ -368,19 +368,12 @@ class O365CalendarData:
             date_obj = (
                 obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE) if obj.tzinfo is None else obj
             )
-        else:
-            date_obj = dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
-        return dt.as_utc(date_obj)
-
-    @staticmethod
-    def get_date_utc(date):
-        """Get the dateTime from date or dateTime as a local."""
-        if "date" in date:
+        elif "date" in obj:
             date_obj = dt.start_of_local_day(
-                dt.dt.datetime.combine(dt.parse_date(date["date"]), dt.dt.time.min)
+                dt.dt.datetime.combine(dt.parse_date(obj["date"]), dt.dt.time.min)
             )
         else:
-            date_obj = dt.as_local(dt.parse_datetime(date["dateTime"]))
+            date_obj = dt.as_local(dt.parse_datetime(obj["dateTime"]))
         return dt.as_utc(date_obj)
 
     @staticmethod
