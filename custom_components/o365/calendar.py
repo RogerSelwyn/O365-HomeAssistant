@@ -175,13 +175,13 @@ class O365CalendarEventDevice(CalendarEventDevice):
                 event["summary"], offset = extract_offset(
                     event.get("summary", ""), DEFAULT_OFFSET
                 )
-                start = dt.parse_datetime(event["start"])
+                start = O365CalendarData.to_datetime(event["start"])
                 self._offset_reached = is_offset_reached(start, offset)
         events = list(
             await self.data.async_o365_get_events(
                 self.hass,
-                datetime.now() + timedelta(hours=self.start_offset),
-                datetime.now() + timedelta(hours=self.end_offset),
+                dt.utcnow() + timedelta(hours=self.start_offset),
+                dt.utcnow() + timedelta(hours=self.end_offset),
             )
         )
         self._data_attribute = [
@@ -245,18 +245,17 @@ class O365CalendarData:
     @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def async_update(self, hass):
         """Do the update."""
+        start_of_day_utc = dt.as_utc(dt.start_of_local_day())
         results = await self.async_o365_get_events(
             hass,
-            dt.start_of_local_day(),
-            dt.start_of_local_day() + timedelta(days=1),
+            start_of_day_utc,
+            start_of_day_utc + timedelta(days=1),
         )
+
         results = list(results)
         results.sort(key=lambda x: self.to_datetime(x.start))
 
-        vevent = next(
-            (event for event in results if not self.is_over(event)),
-            None,
-        )
+        vevent = self._get_root_event(results)
 
         if vevent is None:
             _LOGGER.debug(
@@ -276,15 +275,50 @@ class O365CalendarData:
             "all_day": vevent.is_all_day,
         }
 
+    def _get_root_event(self, results):
+        started_event = None
+        not_started_event = None
+        all_day_event = None
+        for event in results:
+            if event.is_all_day:
+                if not all_day_event and not self.is_finished(event):
+                    all_day_event = event
+                continue
+            if self.is_started(event) and not self.is_finished(event):
+                if not started_event:
+                    started_event = event
+                continue
+            if not self.is_finished(event) and not event.is_all_day:
+                if not not_started_event:
+                    not_started_event = event
+                continue
+
+        vevent = None
+        if started_event:
+            vevent = started_event
+        elif all_day_event:
+            vevent = all_day_event
+        elif not_started_event:
+            vevent = not_started_event
+
+        return vevent
+
     @staticmethod
     def is_all_day(vevent):
         """Is it all day."""
         return vevent.is_all_day
 
     @staticmethod
-    def is_over(vevent):
+    def is_started(vevent):
         """Is it over."""
-        return dt.now() >= O365CalendarData.to_datetime(
+        return dt.utcnow() >= O365CalendarData.to_datetime(
+            O365CalendarData.get_start_date(vevent)
+        )
+
+    @staticmethod
+    def is_finished(vevent):
+        """Is it over."""
+        return dt.utcnow() >= O365CalendarData.to_datetime(
             O365CalendarData.get_end_date(vevent)
         )
 
@@ -300,10 +334,21 @@ class O365CalendarData:
     def to_datetime(obj):
         """To datetime."""
         if isinstance(obj, datetime):
-            if obj.tzinfo is None:
-                return obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE)
-            return obj
-        return dt.as_local(dt.dt.datetime.combine(obj, dt.dt.time.min))
+            date_obj = (
+                obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE) if obj.tzinfo is None else obj
+            )
+        elif "date" in obj:
+            date_obj = dt.start_of_local_day(
+                dt.dt.datetime.combine(dt.parse_date(obj["date"]), dt.dt.time.min)
+            )
+        else:
+            date_obj = dt.as_local(dt.parse_datetime(obj["dateTime"]))
+        return dt.as_utc(date_obj)
+
+    @staticmethod
+    def get_start_date(obj):
+        """Get the start date."""
+        return obj.start
 
     @staticmethod
     def get_end_date(obj):
