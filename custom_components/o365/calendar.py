@@ -5,6 +5,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
+import requests
 from homeassistant.components.calendar import CalendarEventDevice, is_offset_reached
 
 try:
@@ -212,13 +213,17 @@ class O365CalendarEventDevice(CalendarEventDevice):
                 )
                 start = O365CalendarData.to_datetime(event["start"])
                 self._offset_reached = is_offset_reached(start, offset)
-        events = list(
-            await self.data.async_o365_get_events(
-                self.hass,
-                dt.utcnow() + timedelta(hours=self._start_offset),
-                dt.utcnow() + timedelta(hours=self._end_offset),
-            )
+        results = await self.data.async_o365_get_events(
+            self.hass,
+            dt.utcnow() + timedelta(hours=self._start_offset),
+            dt.utcnow() + timedelta(hours=self._end_offset),
         )
+        if results:
+            events = list(results)
+        elif self._event:
+            return
+        else:
+            events = []
         self._data_attribute = [
             format_event_data(x, self.data.calendar.calendar_id) for x in events
         ]
@@ -251,18 +256,25 @@ class O365CalendarData:
         if self._search is not None:
             query.chain("and").on_attribute("subject").contains(self._search)
         # _LOGGER.debug("get events: %s", self._calendar_id)
-        return await hass.async_add_executor_job(
-            ft.partial(
-                self.calendar.get_events,
-                limit=self._limit,
-                query=query,
-                include_recurring=True,
+        try:
+            return await hass.async_add_executor_job(
+                ft.partial(
+                    self.calendar.get_events,
+                    limit=self._limit,
+                    query=query,
+                    include_recurring=True,
+                )
             )
-        )
+        except requests.exceptions.RetryError:
+            _LOGGER.warning("Retry error getting events")
+            return None
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get the via async."""
-        vevent_list = list(await self.async_o365_get_events(hass, start_date, end_date))
+        results = await self.async_o365_get_events(hass, start_date, end_date)
+        if not results:
+            return
+        vevent_list = list(results)
         vevent_list.sort(key=attrgetter("start"))
         event_list = []
         for event in vevent_list:
@@ -281,6 +293,8 @@ class O365CalendarData:
             start_of_day_utc,
             start_of_day_utc + timedelta(days=1),
         )
+        if not results:
+            return
         results = list(results)
         results.sort(key=lambda x: self.to_datetime(x.start))
 
@@ -317,11 +331,12 @@ class O365CalendarData:
                 if not started_event:
                     started_event = event
                 continue
-            if not self.is_finished(event) and not event.is_all_day:
-                if not not_started_event:
-                    not_started_event = event
-                continue
-
+            if (
+                not self.is_finished(event)
+                and not event.is_all_day
+                and not not_started_event
+            ):
+                not_started_event = event
         vevent = None
         if started_event:
             vevent = started_event
