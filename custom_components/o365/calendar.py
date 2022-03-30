@@ -14,7 +14,7 @@ except ImportError:
 
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.util import Throttle, dt
+from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
 from .const import (
@@ -41,7 +41,6 @@ from .const import (
     CONST_CONFIG_TYPE_LIST,
     DEFAULT_OFFSET,
     DOMAIN,
-    MIN_TIME_BETWEEN_UPDATES,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
 )
@@ -274,7 +273,6 @@ class O365CalendarData:
 
         return event_list
 
-    @Throttle(MIN_TIME_BETWEEN_UPDATES)
     async def async_update(self, hass):
         """Do the update."""
         start_of_day_utc = dt.as_utc(dt.start_of_local_day())
