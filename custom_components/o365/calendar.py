@@ -216,6 +216,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
             self.hass,
             dt.utcnow() + timedelta(hours=self._start_offset),
             dt.utcnow() + timedelta(hours=self._end_offset),
+
         )
         if results:
             events = list(results)
@@ -294,6 +295,7 @@ class O365CalendarData:
         )
         if not results:
             return
+
         results = list(results)
         results.sort(key=lambda x: self.to_datetime(x.start))
 
@@ -336,6 +338,7 @@ class O365CalendarData:
                 and not not_started_event
             ):
                 not_started_event = event
+
         vevent = None
         if started_event:
             vevent = started_event

@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.4.1 (2022/03/30)
+### Fixes
+- [Fix validation of service data and improve attachment handling](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/adbe61de8e8bd0b6b4f91fc8f400d519e8072bdd) - @RogerSelwyn
+- [Fix for breaking change in HA](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4d616e96e8f6c59a8a208e07641261dbac736fdb) - @RogerSelwyn
+- [Correct handling for DST](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f7bcf29ec621b7fbc474f7d6663f8e633218ba8c) - @RogerSelwyn
+
+### Maintenance
+- [Sourcery code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3983c3ab9a84f52a4213922f625ed66309a1d568) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d98a34d248faa04c1615924b5324d4efe1bed243) - @RogerSelwyn
+- [Bump to v2.4.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8e1f585def6ee1ab433e69438d47e69ed79eb511) - @RogerSelwyn
+
 ## v2.4.0 (2022/03/07)
 **Note:** This release has a radical change to the permissions structure to reduce the scope of the permissions requested. To further reduce the permissions please set 'enables_update' to False in your configuration. This will disable the various update services and remove the request for write access to calendars and send access to mail.
 
