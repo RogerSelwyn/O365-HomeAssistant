@@ -160,7 +160,7 @@ Key | Type | Required | Description
 
 ## Authentication.
 ### Default auth flow.
-After setting up configuration.yaml and restarting home assistant a persisten notification will be created.
+After setting up configuration.yaml and restarting home assistant a persistent notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
 3. Login on the microsoft page; when prompted, authorize the app you created
