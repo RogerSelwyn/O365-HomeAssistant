@@ -216,7 +216,6 @@ class O365CalendarEventDevice(CalendarEventDevice):
             self.hass,
             dt.utcnow() + timedelta(hours=self._start_offset),
             dt.utcnow() + timedelta(hours=self._end_offset),
-
         )
         if results:
             events = list(results)
