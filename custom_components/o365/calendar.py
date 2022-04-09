@@ -5,7 +5,6 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-import requests
 from homeassistant.components.calendar import CalendarEventDevice, is_offset_reached
 
 try:
@@ -16,7 +15,7 @@ except ImportError:
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, RetryError
 
 from .const import (
     ATTR_CALENDAR_ID,
@@ -265,7 +264,7 @@ class O365CalendarData:
                     include_recurring=True,
                 )
             )
-        except requests.exceptions.RetryError:
+        except RetryError:
             _LOGGER.warning("Retry error getting events")
             return None
 
