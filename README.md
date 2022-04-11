@@ -56,8 +56,39 @@ _**Please note, if home assistants give the error "module not found", try restar
 
 # Configuration
 
+Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
+
+## Primary method
 ```yaml
-# Example configuration.yaml entry
+# Example configuration.yaml entry for multiple accounts
+o365:
+  accounts:
+    - account_name: Account1
+      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+      enable_update: True
+      email_sensor:
+        - name: inbox
+          max_items: 2
+          is_unread: True
+          download_attachments: False
+      query_sensors:
+        - name: "HA Notifications"
+          folder: "Inbox/Test_Inbox"
+          from: "mail@example.com"
+          subject_contains: "Notifcation from home assistant"
+          has_attachment: True
+          max_items: 2
+          is_unread: True
+      status_sensors:
+        - name: "User Teams Status"
+    - account_name: Account2
+      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+```
+## Secondary method
+```yaml
+# Example configuration.yaml entry for single account
 o365:
   client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -81,16 +112,32 @@ o365:
 
 ## Configuration variables
 
+### Primary method
+
+Key | Type | Required | Description
+-- | -- | -- | --
+`account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. e.g `calendar.calendar_account1`
+`client_id` | `string` | `True` | Client ID from your O365 application.
+`client_secret` | `string` | `True` | Client Secret from your O365 application.
+`alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the various services that allow the sending of emails and updates to calendars
+`track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
+`email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
+`query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
+
+### Secondary method
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
 `alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
-`enable_update` | `boolean` | `False` | If True (default), this will enable the various services that allow the sending of emails and updates to calendars
-`track_new_calendar` | `boolean` | `False` | Will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
-`calendars` | `list<calendars>` | `False` | List of calendar config entries
+`enable_update` | `boolean` | `False` | If True (**default is True**), this will enable the various services that allow the sending of emails and updates to calendars
+`track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
 
 ### email_sensors
 Key | Type | Required | Description
@@ -100,7 +147,6 @@ Key | Type | Required | Description
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
-
 
 ### query_sensors
 Key | Type | Required | Description
@@ -180,7 +226,8 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
 
 ## Services
-### notify.o365_email 
+### notify.o365_email
+
 #### Service data
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -205,13 +252,13 @@ service: notify.o365_email
 data:
   message: The garage door has been open for 10 minutes.
   title: Your Garage Door Friend
-  data: 
+  data:
     message_is_html: true
-    attachments: 
+    attachments:
       - "/config/documents/sendfile.txt"
     zip_attachments: true
     zip_name: "zipfile.zip"
-    photos: 
+    photos:
       - "/config/documents/image.jpg"
 ```
 ### o365.create_calendar_event

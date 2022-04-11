@@ -4,9 +4,12 @@ import functools as ft
 import logging
 from operator import itemgetter
 
+from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import Entity
 
 from .const import (
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
     CONF_HAS_ATTACHMENT,
@@ -15,7 +18,6 @@ from .const import (
     CONF_MAIL_FOLDER,
     CONF_MAIL_FROM,
     CONF_MAX_ITEMS,
-    CONF_NAME,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
@@ -28,72 +30,79 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_platform(
-    hass, config, add_devices, discovery_info=None
+    hass, config, add_entities, discovery_info=None
 ):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
         return None
 
-    account = hass.data[DOMAIN]["account"]
+    account_name = discovery_info[CONF_ACCOUNT_NAME]
+    conf = hass.data[DOMAIN][account_name]
+    account = conf[CONF_ACCOUNT]
+
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return False
 
-    await _async_unread_sensors(hass, account, add_devices)
-    await _async_query_sensors(hass, account, add_devices)
-    _status_sensors(hass, account, add_devices)
+    await _async_unread_sensors(hass, account, add_entities, conf)
+    await _async_query_sensors(hass, account, add_entities, conf)
+    _status_sensors(account, add_entities, conf)
 
     return True
 
 
-async def _async_unread_sensors(hass, account, add_devices):
-    unread_sensors = hass.data[DOMAIN].get(CONF_EMAIL_SENSORS, [])
-    for conf in unread_sensors:
+async def _async_unread_sensors(hass, account, add_entities, conf):
+    unread_sensors = conf.get(CONF_EMAIL_SENSORS, [])
+    for sensor_conf in unread_sensors:
         if mail_folder := await hass.async_add_executor_job(
-            _get_mail_folder, account, conf, CONF_EMAIL_SENSORS
+            _get_mail_folder, account, sensor_conf, CONF_EMAIL_SENSORS
         ):
-            sensor = O365InboxSensor(conf, mail_folder)
-            add_devices([sensor], True)
+            sensor_conf = O365InboxSensor(sensor_conf, mail_folder)
+            add_entities([sensor_conf], True)
 
 
-async def _async_query_sensors(hass, account, add_devices):
-    query_sensors = hass.data[DOMAIN].get(CONF_QUERY_SENSORS, [])
-    for conf in query_sensors:
+async def _async_query_sensors(hass, account, add_entities, conf):
+    query_sensors = conf.get(CONF_QUERY_SENSORS, [])
+    for sensor_conf in query_sensors:
         if mail_folder := await hass.async_add_executor_job(
-            _get_mail_folder, account, conf, CONF_QUERY_SENSORS
+            _get_mail_folder, account, sensor_conf, CONF_QUERY_SENSORS
         ):
-            sensor = O365QuerySensor(conf, mail_folder)
-            add_devices([sensor], True)
+            sensor_conf = O365QuerySensor(sensor_conf, mail_folder)
+            add_entities([sensor_conf], True)
 
 
-def _status_sensors(hass, account, add_devices):
-    status_sensors = hass.data[DOMAIN].get(CONF_STATUS_SENSORS, [])
-    for conf in status_sensors:
-        teams_status_sensor = O365TeamsStatusSensor(account, conf)
-        add_devices([teams_status_sensor], True)
+def _status_sensors(account, add_entities, conf):
+    status_sensors = conf.get(CONF_STATUS_SENSORS, [])
+    for sensor_conf in status_sensors:
+        teams_status_sensor = O365TeamsStatusSensor(account, sensor_conf)
+        add_entities([teams_status_sensor], True)
 
 
-def _get_mail_folder(account, conf, sensor_type):
+def _get_mail_folder(account, sensor_conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
-    mail_folder = None
-    if mail_folder_conf := conf.get(CONF_MAIL_FOLDER):
-        for i, folder in enumerate(mail_folder_conf.split("/")):
-            if i == 0:
-                mail_folder = mailbox.get_folder(folder_name=folder)
-            else:
-                mail_folder = mail_folder.get_folder(folder_name=folder)
+    if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
+        return _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type)
 
-            if not mail_folder:
-                _LOGGER.error(
-                    "Folder - %s - not found from %s config entry - %s - entity not created",
-                    folder,
-                    sensor_type,
-                    mail_folder_conf,
-                )
-                return None
-    else:
-        mail_folder = mailbox.inbox_folder()
+    return mailbox.inbox_folder()
+
+
+def _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type):
+    mail_folder = None
+    for i, folder in enumerate(mail_folder_conf.split("/")):
+        if i == 0:
+            mail_folder = mailbox.get_folder(folder_name=folder)
+        else:
+            mail_folder = mail_folder.get_folder(folder_name=folder)
+
+        if not mail_folder:
+            _LOGGER.error(
+                "Folder - %s - not found from %s config entry - %s - entity not created",
+                folder,
+                sensor_type,
+                mail_folder_conf,
+            )
+            return None
 
     return mail_folder
 
@@ -103,13 +112,13 @@ class O365MailSensor:
 
     def __init__(self, conf, mail_folder):
         """Initialise the O365 Sensor."""
-        self.mail_folder = mail_folder
+        self._mail_folder = mail_folder
         self._name = conf.get(CONF_NAME)
         self._download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
-        self.max_items = conf.get(CONF_MAX_ITEMS, 5)
+        self._max_items = conf.get(CONF_MAX_ITEMS, 5)
         self._state = 0
         self._attributes = {}
-        self.query = None
+        self._query = None
 
     @property
     def name(self):
@@ -130,9 +139,9 @@ class O365MailSensor:
         """Update code."""
         data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
             ft.partial(
-                self.mail_folder.get_messages,
-                limit=self.max_items,
-                query=self.query,
+                self._mail_folder.get_messages,
+                limit=self._max_items,
+                query=self._query,
                 download_attachments=self._download_attachments,
             )
         )
@@ -149,47 +158,47 @@ class O365QuerySensor(O365MailSensor, Entity):
         """Initialise the O365 Query."""
         super().__init__(conf, mail_folder)
 
-        self.subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
-        self.subject_is = conf.get(CONF_SUBJECT_IS)
-        self.has_attachment = conf.get(CONF_HAS_ATTACHMENT)
-        self.importance = conf.get(CONF_IMPORTANCE)
-        self.email_from = conf.get(CONF_MAIL_FROM)
-        self.is_unread = conf.get(CONF_IS_UNREAD)
-        self.query = self.mail_folder.new_query()
-        self.query.order_by("receivedDateTime", ascending=False)
+        self._subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
+        self._subject_is = conf.get(CONF_SUBJECT_IS)
+        self._has_attachment = conf.get(CONF_HAS_ATTACHMENT)
+        self._importance = conf.get(CONF_IMPORTANCE)
+        self._email_from = conf.get(CONF_MAIL_FROM)
+        self._is_unread = conf.get(CONF_IS_UNREAD)
+        self._query = self._mail_folder.new_query()
+        self._query.order_by("receivedDateTime", ascending=False)
 
         if (
-            self.subject_contains is not None
-            or self.subject_is is not None
-            or self.has_attachment is not None
-            or self.importance is not None
-            or self.email_from is not None
-            or self.is_unread is not None
+            self._subject_contains is not None
+            or self._subject_is is not None
+            or self._has_attachment is not None
+            or self._importance is not None
+            or self._email_from is not None
+            or self._is_unread is not None
         ):
             self._add_to_query("ge", "receivedDateTime", dt.datetime(1900, 5, 1))
-        self._add_to_query("contains", "subject", self.subject_contains)
-        self._add_to_query("equals", "subject", self.subject_is)
-        self._add_to_query("equals", "hasAttachments", self.has_attachment)
-        self._add_to_query("equals", "from", self.email_from)
-        self._add_to_query("equals", "IsRead", not self.is_unread, self.is_unread)
-        self._add_to_query("equals", "importance", self.importance)
-
-        # _LOGGER.debug(self.query)
+        self._add_to_query("contains", "subject", self._subject_contains)
+        self._add_to_query("equals", "subject", self._subject_is)
+        self._add_to_query("equals", "hasAttachments", self._has_attachment)
+        self._add_to_query("equals", "from", self._email_from)
+        self._add_to_query("equals", "IsRead", not self._is_unread, self._is_unread)
+        self._add_to_query("equals", "importance", self._importance)
 
     def _add_to_query(self, qtype, attribute_name, attribute_value, check_value=True):
         if attribute_value is None or check_value is None:
             return
 
         if qtype == "ge":
-            self.query.chain("and").on_attribute(attribute_name).greater_equal(
+            self._query.chain("and").on_attribute(attribute_name).greater_equal(
                 attribute_value
             )
         if qtype == "contains":
-            self.query.chain("and").on_attribute(attribute_name).contains(
+            self._query.chain("and").on_attribute(attribute_name).contains(
                 attribute_value
             )
         if qtype == "equals":
-            self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
+            self._query.chain("and").on_attribute(attribute_name).equals(
+                attribute_value
+            )
 
 
 class O365InboxSensor(O365MailSensor, Entity):
@@ -199,12 +208,12 @@ class O365InboxSensor(O365MailSensor, Entity):
         """Initialise the O365 Inbox."""
         super().__init__(conf, mail_folder)
 
-        self.is_unread = conf.get(CONF_IS_UNREAD)
+        is_unread = conf.get(CONF_IS_UNREAD)
 
-        self.query = None
-        if self.is_unread is not None:
-            self.query = self.mail_folder.new_query()
-            self.query.chain("and").on_attribute("IsRead").equals(not self.is_unread)
+        self._query = None
+        if is_unread is not None:
+            self._query = self._mail_folder.new_query()
+            self._query.chain("and").on_attribute("IsRead").equals(not is_unread)
 
 
 class O365TeamsStatusSensor(Entity):
@@ -212,7 +221,7 @@ class O365TeamsStatusSensor(Entity):
 
     def __init__(self, account, conf):
         """Initialise the Teams Sensor."""
-        self.teams = account.teams()
+        self._teams = account.teams()
         self._name = conf.get(CONF_NAME)
         self._state = None
 
@@ -228,5 +237,5 @@ class O365TeamsStatusSensor(Entity):
 
     async def async_update(self):
         """Update state."""
-        data = await self.hass.async_add_executor_job(self.teams.get_my_presence)
+        data = await self.hass.async_add_executor_job(self._teams.get_my_presence)
         self._state = data.activity

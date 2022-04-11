@@ -13,12 +13,16 @@ from .const import (
     ATTR_TITLE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
+    CONF_CONFIG_TYPE,
     DOMAIN,
     NOTIFY_BASE_SCHEMA,
     PERM_MAIL_SEND,
     PERM_MINIMUM_SEND,
 )
 from .utils import (
+    build_token_filename,
     get_ha_filepath,
     get_permissions,
     validate_minimum_permission,
@@ -34,27 +38,34 @@ async def async_get_service(
     """Get the service."""
     if discovery_info is None:
         return
-    account = hass.data[DOMAIN]["account"]
+    account_name = discovery_info[CONF_ACCOUNT_NAME]
+    conf = hass.data[DOMAIN][account_name]
+    account = conf[CONF_ACCOUNT]
     is_authenticated = account.is_authenticated
     if not is_authenticated:
         return
-    return O365EmailService(account, hass)
+    return O365EmailService(account, hass, conf)
 
 
 class O365EmailService(BaseNotificationService):
     """Implement the notification service for O365."""
 
-    def __init__(self, account, hass):
+    def __init__(self, account, hass, config):
         """Initialize the service."""
         self.account = account
-        self._permissions = get_permissions(hass)
+        self._permissions = get_permissions(
+            hass, filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE))
+        )
         self._cleanup_files = []
         self._hass = hass
+        if account_name := config.get(CONF_ACCOUNT_NAME, None):
+            account_name = f"_{account_name}"
+        self._account_name = account_name
 
     @property
     def targets(self):
         """Targets property."""
-        return {"_email": ""}
+        return {f"_email{self._account_name}": ""}
 
     def send_message(self, message="", **kwargs):
         """Send a message to a user."""
@@ -118,7 +129,7 @@ class O365EmailService(BaseNotificationService):
                 att = new_message_attachments[-1]
                 att.is_inline = True
                 att.content_id = "1"
-                photos_content += f'<br><img src="cid:{1}">'
+                photos_content += f'<br><img src="cid:{photo}">'
 
         return photos_content
 
