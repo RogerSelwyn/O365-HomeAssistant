@@ -182,26 +182,23 @@ def get_email_attributes(mail, download_attachments):
 
 def format_event_data(event, calendar_id):
     """Format the event data."""
-    data = {
+    return {
         "summary": event.subject,
+        "start": event.start,
+        "end": event.end,
+        "all_day": event.is_all_day,
         "description": clean_html(event.body),
         "location": event.location["displayName"],
         "categories": event.categories,
         "sensitivity": event.sensitivity.name,
         "show_as": event.show_as.name,
-        "all_day": event.is_all_day,
         "attendees": [
             {"email": x.address, "type": x.attendee_type.value}
             for x in event.attendees._Attendees__attendees  # pylint: disable=protected-access
         ],
-        "start": event.start,
-        "end": event.end,
         "uid": event.object_id,
         "calendar_id": calendar_id,
     }
-    data["subject"] = data["summary"]
-    data["body"] = data["description"]
-    return data
 
 
 def add_call_data_to_event(event, event_data):
