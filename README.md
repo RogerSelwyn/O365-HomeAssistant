@@ -38,7 +38,7 @@ Under "Api Permissions" click Add a permission and add the following delegated p
 * Users.Read - *Sign in and read user profile*
 * Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor)
 
-If 'enable_update' is set to True, (it defaults to True so as not to break existing installs), then the follow permissions are also required:
+If 'enable_update' is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the follow permissions are also required:
 * Calendars.ReadWrite - *Read and write user calendars*
 * Mail.ReadWrite - *Read and write access to user mail*
 * Mail.Send - *Send mail as a user*
