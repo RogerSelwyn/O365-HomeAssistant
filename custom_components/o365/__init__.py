@@ -159,7 +159,8 @@ def _request_configuration_alt(hass, url, callback_view, account_name):
 def _create_request_content(url, callback_view, account_name):
     configurator = callback_view.configurator
 
-    view_name = f"{DEFAULT_NAME} - {account_name}"
+    display_name = f" - {account_name}" if account_name != CONST_PRIMARY else ""
+    view_name = f"{DEFAULT_NAME}{display_name}"
     return configurator.async_request_config(
         view_name,
         lambda _: None,
@@ -172,7 +173,8 @@ def _create_request_content(url, callback_view, account_name):
 
 def _create_request_content_alt(url, callback_view, account_name):
     configurator = callback_view.configurator
-    view_name = f"{DEFAULT_NAME} - {account_name} - Alternative configuration"
+    display_name = f" - {account_name}" if account_name != CONST_PRIMARY else ""
+    view_name = f"{DEFAULT_NAME}{display_name} - Alternative configuration"
     return configurator.async_request_config(
         view_name,
         callback_view.alt_callback,
