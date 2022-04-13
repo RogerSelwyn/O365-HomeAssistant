@@ -58,7 +58,7 @@ _**Please note, if home assistants give the error "module not found", try restar
 
 Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
 
-## Primary method
+## Primary method (if using v3.x.x)
 ```yaml
 # Example configuration.yaml entry for multiple accounts
 o365:
