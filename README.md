@@ -38,7 +38,7 @@ Under "Api Permissions" click Add a permission and add the following delegated p
 * Users.Read - *Sign in and read user profile*
 * Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor)
 
-If 'enable_update' is set to True, (it defaults to True so as not to break existing installs), then the follow permissions are also required:
+If 'enable_update' is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the follow permissions are also required:
 * Calendars.ReadWrite - *Read and write user calendars*
 * Mail.ReadWrite - *Read and write access to user mail*
 * Mail.Send - *Send mail as a user*
@@ -58,7 +58,7 @@ _**Please note, if home assistants give the error "module not found", try restar
 
 Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
 
-## Primary method
+## Primary method (if using v3.x.x)
 ```yaml
 # Example configuration.yaml entry for multiple accounts
 o365:
