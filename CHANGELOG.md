@@ -7,9 +7,6 @@
 - Enable use of Entity_ID instead of Calendar_ID for service calls (mandatory for multi-account)
 - Complete list of changes - [#26](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/26)
 
-### Fixes
-- Also includes fixes as defined in [2.4.1](https://github.com/RogerSelwyn/O365-HomeAssistant/releases/tag/v2.4.1)
-
 ## v2.4.1 (2022/03/30)
 ### Fixes
 - [Fix validation of service data and improve attachment handling](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/adbe61de8e8bd0b6b4f91fc8f400d519e8072bdd) - @RogerSelwyn
