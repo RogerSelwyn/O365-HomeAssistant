@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.0.0 Beta (2022/04/11)
+## v3.0.0 (2022/04/17)
 ### Enhancements
 - Support for multiple accounts
 - Reduced permissions requirements for multiple accounts style config
