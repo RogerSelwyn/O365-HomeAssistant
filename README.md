@@ -19,44 +19,45 @@ This project would not be possible without the wonderful [python-o365 project](h
 # Prerequisite
 
 ## Getting the client id and client secret
-To allow authentication you first need to register your application at Azure App Registrations.
+To allow authentication you first need to register your application at Azure App Registrations:
 
-Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
+1. Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
-Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
+2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
 
-Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://<your_home_assistant_url_or_local_ip>/api/o365`, leave the other fields blank and click Configure.
-Note: if you use Nabu Casa for remote support, use that URL as the base.
+3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://<your_home_assistant_url_or_local_ip>/api/o365`, leave the other fields blank and click Configure. **Note:** if you use Nabu Casa for remote support, use that URL as the base.
 
-From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
+   When using the alternate auth flow, which doesn't require internet access to HA, please see the [Alt auth flow](#alt-auth-flow) section.
 
-Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret return here to generate a new one.
+4. From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
 
-Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
-* offline_access - *Maintain access to data you have given it access to*
-* Calendars.Read - *Read user calendars*
-* Mail.Read - *Read access to user mail*
-* Users.Read - *Sign in and read user profile*
-* Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor on business accounts, **but do not add for personal accounts**)
+5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret return here to generate a new one.
 
-If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
-* Calendars.ReadWrite - *Read and write user calendars*
-* Mail.ReadWrite - *Read and write access to user mail*
-* Mail.Send - *Send mail as a user*
+6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
+   * offline_access - *Maintain access to data you have given it access to*
+   * Calendars.Read - *Read user calendars*
+   * Mail.Read - *Read access to user mail*
+   * Users.Read - *Sign in and read user profile*
+   * Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor on business accounts, **but do not add for personal accounts**)
+
+   If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
+   * Calendars.ReadWrite - *Read and write user calendars*
+   * Mail.ReadWrite - *Read and write access to user mail*
+   * Mail.Send - *Send mail as a user*
 
 # Installation and Configuration
 1. Install this integration:
     * Recommended - Home Assistant Community Store (HACS) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
-3. Add the code to your configuration.yaml using the [Configuration](#configuration) options below.
+3. Add o365 configuration configuration.yaml using the [Configuration example](#configuration-example) below.
 4. Restart your Home Assistant instance.
-_**Please note, if Home Assistant give the error "module not found", try restarting home assistant once more.**_
-5. [Authenticate](#authentication) to establish link between this integration and Azure app
+   **Note:** if Home Assistant give the error "module not found", try restarting home assistant once more.
+6. [Authenticate](#authentication) to establish link between this integration and Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
-    * The o365_calendars_<account_name>.yaml will be created under the config directory
-6. [Configure Calendars](#calendar-configuration)
+    * The o365_calendars_<account_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
+7. [Configure Calendars](#calendar-configuration)
 
-## Configuration
+## Configuration example
 
 Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
 
@@ -75,15 +76,15 @@ o365:
           is_unread: True
           download_attachments: False
       query_sensors:
-        - name: "HA Notifications"
+        - name: "Example"
           folder: "Inbox/Test_Inbox" #Default is Inbox
           from: "mail@example.com"
-          subject_contains: "Notifcation from home assistant"
+          subject_contains: "Example subject"
           has_attachment: True
           max_items: 2
           is_unread: True
-      status_sensors: #delete if using a personal account
-        - name: "User Teams Status" #delete if using a personal account
+      status_sensors: # Cannot be used for personal accounts
+        - name: "User Teams Status"
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -101,15 +102,15 @@ o365:
       is_unread: True
       download_attachments: False
   query_sensors:
-    - name: "HA Notifications"
+    - name: "Example"
       folder: "Inbox/Test_Inbox" #Default is Inbox
       from: "mail@example.com"
-      subject_contains: "Notifcation from home assistant"
+      subject_contains: "Example subject"
       has_attachment: True
       max_items: 2
       is_unread: True
-  status_sensors: #delete if using a personal account
-    - name: "User Teams Status" #delete if using a personal account
+  status_sensors: # Cannot be used for personal accounts
+    - name: "User Teams Status" 
 ```
 
 ### Configuration variables
@@ -126,7 +127,7 @@ Key | Type | Required | Description
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
-`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. Delete if using a personal account.
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
 #### Secondary method
 
@@ -139,7 +140,7 @@ Key | Type | Required | Description
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
-`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. Delete if using a personal account.
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
 #### email_sensors
 Key | Type | Required | Description
@@ -179,7 +180,7 @@ After setting up configuration.yaml and restarting home assistant a persistent n
 5. That's it.
 
 ### Alt auth flow.
-**NB. This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient" this needs to be set as as a manual url, with type web, just checking the checkmark for it does not seem to work**
+**Note**: This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient" this needs to be set as as a manual url, with type web, just checking the checkmark for it does not seem to work
 After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
@@ -191,7 +192,7 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
 
 ## Calendar configuration
-This component has changed to now using an external o365_calendars_<account_name>.yaml file, this is done to align this component more with the official Google Calendar Event integration.
+The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for secondary configuration method).
 ### example o365_calendar_<account_name>.yaml:
 ```yaml
 - cal_id: xxxx
@@ -215,14 +216,14 @@ This component has changed to now using an external o365_calendars_<account_name
 Key | Type | Required | Description
 -- | -- | -- | --
 `cal_id` | `string` | `True` | O365 generated unique ID, DO NOT CHANGE
-`entities` | `list<entity>` | `True` | List of entities to generate from this calendar
+`entities` | `list<entity>` | `True` | List of entities (see below) to generate from this calendar
 
 #### Entity configuration
 Key | Type | Required | Description
 -- | -- | -- | --
 `device_id` | `string` | `True` | The entity_id will be "calendar.{device_id}"
-`name` | `string` | `True` | What is the name of your sensor that you’ll see in the frontend.
-`track` | `boolean` | `True` | Should we create a sensor true or ignore it false?
+`name` | `string` | `True` | The name of your sensor that you’ll see in the frontend.
+`track` | `boolean` | `True` | **True**=Create calendar entity. False=Don't create entity
 `search` | `string` | `False` | Only get events if subject contains this string
 `start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
 `end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
