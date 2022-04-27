@@ -16,12 +16,12 @@ This integration enables
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
-# Installation
+# Prerequisite
 
 ## Getting the client id and client secret
 To allow authentication you first need to register your application at Azure App Registrations.
 
-Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade)
+Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
 Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
 
@@ -30,36 +30,37 @@ Note: if you use Nabu Casa for remote support, use that URL as the base.
 
 From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
 
-Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret; return here to generate a new one.
+Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret return here to generate a new one.
 
-Under "Api Permissions" click Add a permission and add the following delegated permission from the Microsoft Graph API collection
+Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
 * offline_access - *Maintain access to data you have given it access to*
 * Calendars.Read - *Read user calendars*
 * Mail.Read - *Read access to user mail*
 * Users.Read - *Sign in and read user profile*
-* Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor)
+* Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor on business accounts, **but do not add for personal accounts**)
 
-If 'enable_update' is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the follow permissions are also required:
+If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
 * Calendars.ReadWrite - *Read and write user calendars*
 * Mail.ReadWrite - *Read and write access to user mail*
 * Mail.Send - *Send mail as a user*
 
+# Installation and Configuration
+1. Install this integration:
+    * Recommended - Home Assistant Community Store (HACS) or
+    * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
+3. Add the code to your configuration.yaml using the [Configuration](#configuration) options below.
+4. Restart your Home Assistant instance.
+_**Please note, if Home Assistant give the error "module not found", try restarting home assistant once more.**_
+5. [Authenticate](#authentication) to establish link between this integration and Azure app
+    * A persistent token will be created in the hidden directory config/.O365-token-cache
+    * The o365_calendars_<account_name>.yaml will be created under the config directory
+6. [Configure Calendars](#calendar-configuration)
 
-## Adding to Home Assistant
-
-### Using Home Assistant Community Store (HACS)
-
-### Manual installation
-1. Install this component by copying these files to custom_components/o365/.
-2. Add the code to your configuration.yaml using the config options below.
-3. Restart your Home Assistant instance.
-_**Please note, if home assistants give the error "module not found", try restarting home assistant once more.**_
-
-# Configuration
+## Configuration
 
 Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
 
-## Primary method (if using v3.x.x)
+### Primary method (if using v3.x.x)
 ```yaml
 # Example configuration.yaml entry for multiple accounts
 o365:
@@ -75,19 +76,19 @@ o365:
           download_attachments: False
       query_sensors:
         - name: "HA Notifications"
-          folder: "Inbox/Test_Inbox"
+          folder: "Inbox/Test_Inbox" #Default is Inbox
           from: "mail@example.com"
           subject_contains: "Notifcation from home assistant"
           has_attachment: True
           max_items: 2
           is_unread: True
-      status_sensors:
-        - name: "User Teams Status"
+      status_sensors: #delete if using a personal account
+        - name: "User Teams Status" #delete if using a personal account
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
 ```
-## Secondary method
+### Secondary method
 ```yaml
 # Example configuration.yaml entry for single account
 o365:
@@ -101,19 +102,19 @@ o365:
       download_attachments: False
   query_sensors:
     - name: "HA Notifications"
-      folder: "Inbox/Test_Inbox"
+      folder: "Inbox/Test_Inbox" #Default is Inbox
       from: "mail@example.com"
       subject_contains: "Notifcation from home assistant"
       has_attachment: True
       max_items: 2
       is_unread: True
-  status_sensors:
-    - name: "User Teams Status"
+  status_sensors: #delete if using a personal account
+    - name: "User Teams Status" #delete if using a personal account
 ```
 
-## Configuration variables
+### Configuration variables
 
-### Primary method
+#### Primary method
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -125,9 +126,9 @@ Key | Type | Required | Description
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
-`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. Delete if using a personal account.
 
-### Secondary method
+#### Secondary method
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -138,22 +139,22 @@ Key | Type | Required | Description
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
-`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries
+`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. Delete if using a personal account.
 
-### email_sensors
+#### email_sensors
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
-`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder"
+`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder" Default is Inbox
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
-### query_sensors
+#### query_sensors
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
-`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder"
+`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder" Default is Inbox
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `from` | `string` | `False` | Only retrieve emails from this email address
@@ -163,47 +164,10 @@ Key | Type | Required | Description
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
-### status_sensors (not for personal accounts)
+#### status_sensors (not for personal accounts)
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
-
-## Calendar configuration
-This component has changed to now using an external o365_calendars.yaml file, this is done to align this component more with the official Google Calendar Event integration.
-### example o365_calendar.yaml:
-```yaml
-- cal_id: xxxx
-  entities:
-  - device_id: work_calendar
-    end_offset: 24
-    name: My Work Calendar
-    start_offset: 0
-    track: true
-
-- cal_id: xxxx
-  entities:
-  - device_id: birthdays
-    end_offset: 24
-    name: Birthdays
-    start_offset: 0
-    track: true
-```
-
-### o365_calendars.yaml
-Key | Type | Required | Description
--- | -- | -- | --
-`cal_id` | `string` | `True` | O365 generated unique ID, DO NOT CHANGE
-`entities` | `list<entity>` | `True` | List of entities to generate from this calendar
-
-### Entity configuration
-Key | Type | Required | Description
--- | -- | -- | --
-`device_id` | `string` | `True` | The entity_id will be "calendar.{device_id}"
-`name` | `string` | `True` | What is the name of your sensor that you’ll see in the frontend.
-`track` | `boolean` | `True` | Should we create a sensor true or ignore it false?
-`search` | `string` | `False` | Only get events if subject contains this string
-`start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
-`end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
 
 ## Authentication.
 ### Default auth flow.
@@ -225,6 +189,43 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 6. That's it.
 
 If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
+
+## Calendar configuration
+This component has changed to now using an external o365_calendars_<account_name>.yaml file, this is done to align this component more with the official Google Calendar Event integration.
+### example o365_calendar_<account_name>.yaml:
+```yaml
+- cal_id: xxxx
+  entities:
+  - device_id: work_calendar
+    end_offset: 24
+    name: My Work Calendar
+    start_offset: 0
+    track: true
+
+- cal_id: xxxx
+  entities:
+  - device_id: birthdays
+    end_offset: 24
+    name: Birthdays
+    start_offset: 0
+    track: true
+```
+
+#### o365_calendars_<account_name>.yaml
+Key | Type | Required | Description
+-- | -- | -- | --
+`cal_id` | `string` | `True` | O365 generated unique ID, DO NOT CHANGE
+`entities` | `list<entity>` | `True` | List of entities to generate from this calendar
+
+#### Entity configuration
+Key | Type | Required | Description
+-- | -- | -- | --
+`device_id` | `string` | `True` | The entity_id will be "calendar.{device_id}"
+`name` | `string` | `True` | What is the name of your sensor that you’ll see in the frontend.
+`track` | `boolean` | `True` | Should we create a sensor true or ignore it false?
+`search` | `string` | `False` | Only get events if subject contains this string
+`start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
+`end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
 
 ## Services
 ### notify.o365_email
