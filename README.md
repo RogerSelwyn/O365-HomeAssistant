@@ -49,7 +49,7 @@ To allow authentication you first need to register your application at Azure App
 1. Install this integration:
     * Recommended - Home Assistant Community Store (HACS) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
-3. Add o365 configuration configuration.yaml using the [Configuration example](#configuration-example) below.
+3. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
 4. Restart your Home Assistant instance.
    **Note:** if Home Assistant give the error "module not found", try restarting home assistant once more.
 6. [Authenticate](#authentication) to establish link between this integration and Azure app
