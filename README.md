@@ -6,8 +6,6 @@
 
 *This is a fork of the original integration by @PTST which has now been archived. Primarily this is to enable it to still run on Home Assistant for my own usage, but I have also added a Logo and link to this github for the HACS required wheel in the core brand and wheel repositories.*
 
-*If issues are identified I will endeavour to fix, but I do not plan to add extra functionality. If someone wishes to take on full support, then they would be welcome to change the references within core Home Assistant.*
-
 This integration enables
 1. Getting and creating calendar events from O365.
 2. Getting emails from your inbox.
@@ -15,6 +13,9 @@ This integration enables
 4. Getting presence from Teams (not for personal accounts)
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
+
+### [Buy Me A ~~Coffee~~ Beer 🍻](https://buymeacoffee.com/rogtp)
+I work on this integration because I like things to work well for myself and others. Whilst i have now made significant changes to the integration, it would not be as it stands today without the major work to create it put in by @PTST. Please don't feel you are obligated to donate, but of course it is appreciated.
 
 # Prerequisite
 
