@@ -9,9 +9,10 @@
 *If issues are identified I will endeavour to fix, but I do not plan to add extra functionality. If someone wishes to take on full support, then they would be welcome to change the references within core Home Assistant.*
 
 This integration enables
-1. Getting calendar events from O365.
-2. Sending emails via the notify.o365_email service.
-3. Getting emails from your inbox.
+1. Getting and creating calendar events from O365.
+2. Getting emails from your inbox.
+3. Sending emails via the notify.o365_email service.
+4. Getting presence from Teams (not for personal accounts)
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
@@ -162,7 +163,7 @@ Key | Type | Required | Description
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
-### status_sensors
+### status_sensors (not for personal accounts)
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
