@@ -2,17 +2,34 @@
 import logging
 import os
 
-from homeassistant.components.notify import (ATTR_DATA, ATTR_TARGET,
-                                             ATTR_TITLE,
-                                             BaseNotificationService)
+from homeassistant.components.notify import (
+    ATTR_DATA,
+    ATTR_TARGET,
+    ATTR_TITLE,
+    BaseNotificationService,
+)
 
-from .const import (ATTR_ATTACHMENTS, ATTR_MESSAGE_IS_HTML, ATTR_PHOTOS,
-                    ATTR_ZIP_ATTACHMENTS, ATTR_ZIP_NAME, CONF_ACCOUNT,
-                    CONF_ACCOUNT_NAME, CONF_CONFIG_TYPE, DOMAIN,
-                    PERM_MAIL_SEND, PERM_MINIMUM_SEND)
+from .const import (
+    ATTR_ATTACHMENTS,
+    ATTR_MESSAGE_IS_HTML,
+    ATTR_PHOTOS,
+    ATTR_ZIP_ATTACHMENTS,
+    ATTR_ZIP_NAME,
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
+    CONF_CONFIG_TYPE,
+    DOMAIN,
+    PERM_MAIL_SEND,
+    PERM_MINIMUM_SEND,
+)
 from .schema import NOTIFY_BASE_SCHEMA
-from .utils import (build_token_filename, get_ha_filepath, get_permissions,
-                    validate_minimum_permission, zip_files)
+from .utils import (
+    build_token_filename,
+    get_ha_filepath,
+    get_permissions,
+    validate_minimum_permission,
+    zip_files,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,6 +71,10 @@ class O365EmailService(BaseNotificationService):
 
     def send_message(self, message="", **kwargs):
         """Send a message to a user."""
+        _LOGGER.warning("Non async send_message unsupported")
+
+    async def async_send_message(self, message="", **kwargs):
+        """Send an async message to a user."""
         if not validate_minimum_permission(PERM_MINIMUM_SEND, self._permissions):
             _LOGGER.error(
                 "Not authorisied to send mail - requires permission: %s", PERM_MAIL_SEND
@@ -72,7 +93,8 @@ class O365EmailService(BaseNotificationService):
         if data and data.get(ATTR_TARGET, None):
             target = data.get(ATTR_TARGET)
         else:
-            target = self.account.get_current_user().mail
+            resp = await self.hass.async_add_executor_job(self.account.get_current_user)
+            target = resp.mail
 
         new_message = self.account.new_message()
         message = self._build_message(data, message, new_message.attachments)
@@ -80,7 +102,7 @@ class O365EmailService(BaseNotificationService):
         new_message.to.add(target)
         new_message.subject = title
         new_message.body = message
-        new_message.send()
+        await self.hass.async_add_executor_job(new_message.send)
 
         self._cleanup()
 
@@ -105,7 +127,9 @@ class O365EmailService(BaseNotificationService):
             photos = [photos]
 
         photos_content = ""
+        i = 0
         for photo in photos:
+            i += 1
             if photo.startswith("http"):
                 photos_content += f'<br><img src="{photo}">'
             else:
@@ -113,8 +137,8 @@ class O365EmailService(BaseNotificationService):
                 new_message_attachments.add(photo)
                 att = new_message_attachments[-1]
                 att.is_inline = True
-                att.content_id = "1"
-                photos_content += f'<br><img src="cid:{photo}">'
+                att.content_id = str(i)
+                photos_content += f'<br><img src="cid:{att.content_id}">'
 
         return photos_content
 
