@@ -5,13 +5,12 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from operator import attrgetter, itemgetter
 
-from homeassistant.components.calendar import CalendarEventDevice, is_offset_reached
-
-try:
-    from homeassistant.components.calendar import calculate_offset
-except ImportError:
-    from homeassistant.components.calendar import extract_offset
-
+from homeassistant.components.calendar import (
+    CalendarEntity,
+    CalendarEvent,
+    extract_offset,
+    is_offset_reached,
+)
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
@@ -21,10 +20,6 @@ from .const import (
     ATTR_CALENDAR_ID,
     ATTR_ENTITY_ID,
     CALENDAR_ENTITY_ID_FORMAT,
-    CALENDAR_SERVICE_CREATE_SCHEMA,
-    CALENDAR_SERVICE_MODIFY_SCHEMA,
-    CALENDAR_SERVICE_REMOVE_SCHEMA,
-    CALENDAR_SERVICE_RESPOND_SCHEMA,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_CAL_IDS,
@@ -43,6 +38,12 @@ from .const import (
     DOMAIN,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
+)
+from .schema import (
+    CALENDAR_SERVICE_CREATE_SCHEMA,
+    CALENDAR_SERVICE_MODIFY_SCHEMA,
+    CALENDAR_SERVICE_REMOVE_SCHEMA,
+    CALENDAR_SERVICE_RESPOND_SCHEMA,
 )
 from .utils import (
     add_call_data_to_event,
@@ -142,7 +143,7 @@ def _setup_register_services(hass, conf):
     )
 
 
-class O365CalendarEventDevice(CalendarEventDevice):
+class O365CalendarEventDevice(CalendarEntity):
     """O365 Calendar Event Processing."""
 
     def __init__(self, account, calendar_id, entity, entity_id):
@@ -163,6 +164,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
         # _LOGGER.debug("Initialising calendar: %s", calendar_id)
         return O365CalendarData(
             account,
+            self.entity_id,
             calendar_id,
             search,
             max_results,
@@ -173,7 +175,7 @@ class O365CalendarEventDevice(CalendarEventDevice):
         """Device state property."""
         if self._event:
             return {
-                "all_day": self._event.get("all_day", False)
+                "all_day": self._event.all_day
                 if self.data.event is not None
                 else False,
                 "offset_reached": self._offset_reached,
@@ -203,15 +205,9 @@ class O365CalendarEventDevice(CalendarEventDevice):
         await self.data.async_update(self.hass)
         event = deepcopy(self.data.event)
         if event:
-            try:
-                event = calculate_offset(event, DEFAULT_OFFSET)
-                self._offset_reached = is_offset_reached(event)
-            except NameError:
-                event["summary"], offset = extract_offset(
-                    event.get("summary", ""), DEFAULT_OFFSET
-                )
-                start = O365CalendarData.to_datetime(event["start"])
-                self._offset_reached = is_offset_reached(start, offset)
+            event.summary, offset = extract_offset(event.summary, DEFAULT_OFFSET)
+            start = O365CalendarData.to_datetime(event.start)
+            self._offset_reached = is_offset_reached(start, offset)
         results = await self.data.async_o365_get_events(
             self.hass,
             dt.utcnow() + timedelta(hours=self._start_offset),
@@ -236,6 +232,7 @@ class O365CalendarData:
     def __init__(
         self,
         account,
+        entity_id,
         calendar_id,
         search=None,
         limit=999,
@@ -247,6 +244,7 @@ class O365CalendarData:
         self.calendar = schedule.get_calendar(calendar_id=calendar_id)
         self._search = search
         self.event = None
+        self._entity_id = entity_id
 
     async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
@@ -276,11 +274,19 @@ class O365CalendarData:
         vevent_list = list(results)
         vevent_list.sort(key=attrgetter("start"))
         event_list = []
-        for event in vevent_list:
-            data = format_event_data(event, self.calendar.calendar_id)
-            data["start"] = self.get_hass_date(data["start"], event.is_all_day)
-            data["end"] = self.get_hass_date(data["end"], event.is_all_day)
-            event_list.append(data)
+        for vevent in vevent_list:
+            # data = format_event_data(event, self.calendar.calendar_id)
+            # data["start"] = self.get_hass_date(data["start"], event.is_all_day)
+            # data["end"] = self.get_hass_date(data["end"], event.is_all_day)
+            # event_list.append(data)
+            event = CalendarEvent(
+                self.get_hass_date(vevent.start, vevent.is_all_day),
+                self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
+                vevent.subject,
+                clean_html(vevent.body),
+                vevent.location["displayName"],
+            )
+            event_list.append(event)
 
         return event_list
 
@@ -304,19 +310,18 @@ class O365CalendarData:
             _LOGGER.debug(
                 "No matching event found in the %d results for %s",
                 len(results),
-                self.calendar.name,
+                self._entity_id,
             )
             self.event = None
             return
 
-        self.event = {
-            "summary": vevent.subject,
-            "start": self.get_hass_date(vevent.start, vevent.is_all_day),
-            "end": self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
-            "location": vevent.location,
-            "description": clean_html(vevent.body),
-            "all_day": vevent.is_all_day,
-        }
+        self.event = CalendarEvent(
+            self.get_hass_date(vevent.start, vevent.is_all_day),
+            self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
+            vevent.subject,
+            clean_html(vevent.body),
+            vevent.location["displayName"],
+        )
 
     def _get_root_event(self, results):
         started_event = None
@@ -370,10 +375,7 @@ class O365CalendarData:
     @staticmethod
     def get_hass_date(obj, is_all_day):
         """Get the date."""
-        if isinstance(obj, datetime) and not is_all_day:
-            return {"dateTime": obj.isoformat()}
-
-        return {"date": obj.date().isoformat()}
+        return obj if isinstance(obj, datetime) and not is_all_day else obj.date()
 
     @staticmethod
     def to_datetime(obj):

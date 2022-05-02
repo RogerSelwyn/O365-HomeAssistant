@@ -2,32 +2,17 @@
 import logging
 import os
 
-from homeassistant.components.notify import BaseNotificationService
+from homeassistant.components.notify import (ATTR_DATA, ATTR_TARGET,
+                                             ATTR_TITLE,
+                                             BaseNotificationService)
 
-from .const import (
-    ATTR_ATTACHMENTS,
-    ATTR_DATA,
-    ATTR_MESSAGE_IS_HTML,
-    ATTR_PHOTOS,
-    ATTR_TARGET,
-    ATTR_TITLE,
-    ATTR_ZIP_ATTACHMENTS,
-    ATTR_ZIP_NAME,
-    CONF_ACCOUNT,
-    CONF_ACCOUNT_NAME,
-    CONF_CONFIG_TYPE,
-    DOMAIN,
-    NOTIFY_BASE_SCHEMA,
-    PERM_MAIL_SEND,
-    PERM_MINIMUM_SEND,
-)
-from .utils import (
-    build_token_filename,
-    get_ha_filepath,
-    get_permissions,
-    validate_minimum_permission,
-    zip_files,
-)
+from .const import (ATTR_ATTACHMENTS, ATTR_MESSAGE_IS_HTML, ATTR_PHOTOS,
+                    ATTR_ZIP_ATTACHMENTS, ATTR_ZIP_NAME, CONF_ACCOUNT,
+                    CONF_ACCOUNT_NAME, CONF_CONFIG_TYPE, DOMAIN,
+                    PERM_MAIL_SEND, PERM_MINIMUM_SEND)
+from .schema import NOTIFY_BASE_SCHEMA
+from .utils import (build_token_filename, get_ha_filepath, get_permissions,
+                    validate_minimum_permission, zip_files)
 
 _LOGGER = logging.getLogger(__name__)
 
