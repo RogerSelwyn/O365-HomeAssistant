@@ -93,7 +93,7 @@ def _setup_add_entities(hass, account, add_entities, conf):
             entity_id = _build_entity_id(hass, entity, conf)
             # _LOGGER.debug("Connecting to calendar: %s", cal_id)
             try:
-                cal = O365CalendarEventDevice(account, cal_id, entity, entity_id)
+                cal = O365CalendarEntity(account, cal_id, entity, entity_id)
             except HTTPError:
                 _LOGGER.warning(
                     "No permission for calendar, please remove - Name: %s; Device: %s;",
@@ -143,7 +143,7 @@ def _setup_register_services(hass, conf):
     )
 
 
-class O365CalendarEventDevice(CalendarEntity):
+class O365CalendarEntity(CalendarEntity):
     """O365 Calendar Event Processing."""
 
     def __init__(self, account, calendar_id, entity, entity_id):
@@ -172,7 +172,7 @@ class O365CalendarEventDevice(CalendarEntity):
 
     @property
     def extra_state_attributes(self):
-        """Device state property."""
+        """Extra state attributes."""
         if self._event:
             return {
                 "all_day": self._event.all_day
