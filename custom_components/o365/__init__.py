@@ -1,6 +1,6 @@
 """Main initialisation code."""
+import functools as ft
 import logging
-from functools import partial
 
 from aiohttp import web_response
 from homeassistant.components import configurator
@@ -62,12 +62,12 @@ async def async_setup(hass, config):
         conf_type = CONST_CONFIG_TYPE_LIST
 
     for account in accounts:
-        _setup_account(hass, account, conf_type)
+        await _async_setup_account(hass, account, conf_type)
 
     return True
 
 
-def _setup_account(hass, account_conf, conf_type):
+async def _async_setup_account(hass, account_conf, conf_type):
     credentials = (
         account_conf.get(CONF_CLIENT_ID),
         account_conf.get(CONF_CLIENT_SECRET),
@@ -76,11 +76,15 @@ def _setup_account(hass, account_conf, conf_type):
 
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_file = build_token_filename(account_conf, conf_type)
-    token_backend = FileSystemTokenBackend(
-        token_path=token_path, token_filename=token_file
+    token_backend = await hass.async_add_executor_job(
+        ft.partial(
+            FileSystemTokenBackend, token_path=token_path, token_filename=token_file
+        )
     )
 
-    account = Account(credentials, token_backend=token_backend, timezone="UTC")
+    account = await hass.async_add_executor_job(
+        ft.partial(Account, credentials, token_backend=token_backend, timezone="UTC")
+    )
     is_authenticated = account.is_authenticated
     minimum_permissions = build_minimum_permissions(account_conf)
     permissions = validate_permissions(hass, minimum_permissions, filename=token_file)
@@ -250,7 +254,7 @@ class O365AuthCallbackView(HomeAssistantView):
                 "originating url does not seem to be a valid microsoft redirect",
             )
         await self._hass.async_add_executor_job(
-            partial(
+            ft.partial(
                 self._account.con.request_token,
                 url,
                 state=self._state,
