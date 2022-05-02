@@ -120,7 +120,9 @@ class O365EmailService(BaseNotificationService):
             photos = [photos]
 
         photos_content = ""
+        i = 0
         for photo in photos:
+            i += 1
             if photo.startswith("http"):
                 photos_content += f'<br><img src="{photo}">'
             else:
@@ -128,8 +130,8 @@ class O365EmailService(BaseNotificationService):
                 new_message_attachments.add(photo)
                 att = new_message_attachments[-1]
                 att.is_inline = True
-                att.content_id = "1"
-                photos_content += f'<br><img src="cid:{photo}">'
+                att.content_id = str(i)
+                photos_content += f'<br><img src="cid:{att.content_id}">'
 
         return photos_content
 
