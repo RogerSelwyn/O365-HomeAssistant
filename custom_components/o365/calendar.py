@@ -61,7 +61,7 @@ from .utils import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(
+async def async_setup_platform(
     hass, config, add_entities, discovery_info=None
 ):  # pylint: disable=unused-argument
     """Set up the O365 platform."""
@@ -76,7 +76,7 @@ def setup_platform(
 
     cal_ids = _setup_add_entities(hass, account, add_entities, conf)
     hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
-    _setup_register_services(hass, conf)
+    await _async_setup_register_services(hass, conf)
 
     return True
 
@@ -121,26 +121,27 @@ def _build_entity_id(hass, entity, conf):
     )
 
 
-def _setup_register_services(hass, conf):
+async def _async_setup_register_services(hass, conf):
     calendar_services = CalendarServices(hass)
-    calendar_services.scan_for_calendars(None)
+    await calendar_services.async_scan_for_calendars(None)
 
     if conf[CONF_ENABLE_UPDATE]:
-        hass.services.register(
+        hass.services.async_register(
             DOMAIN, "modify_calendar_event", calendar_services.modify_calendar_event
         )
-        hass.services.register(
+        hass.services.async_register(
             DOMAIN, "create_calendar_event", calendar_services.create_calendar_event
         )
-        hass.services.register(
+        hass.services.async_register(
             DOMAIN, "remove_calendar_event", calendar_services.remove_calendar_event
         )
-        hass.services.register(
+        hass.services.async_register(
             DOMAIN, "respond_calendar_event", calendar_services.respond_calendar_event
         )
-    hass.services.register(
-        DOMAIN, "scan_for_calendars", calendar_services.scan_for_calendars
+    hass.services.async_register(
+        DOMAIN, "scan_for_calendars", calendar_services.async_scan_for_calendars
     )
+    return
 
 
 class O365CalendarEntity(CalendarEntity):
@@ -239,15 +240,23 @@ class O365CalendarData:
     ):
         """Initialise the O365 Calendar Data."""
         self._limit = limit
-        schedule = account.schedule()
+        self._schedule = account.schedule()
         self._calendar_id = calendar_id
-        self.calendar = schedule.get_calendar(calendar_id=calendar_id)
+        self.calendar = None
         self._search = search
         self.event = None
         self._entity_id = entity_id
 
+    async def _async_get_calendar(self, hass):
+        self.calendar = await hass.async_add_executor_job(
+            ft.partial(self._schedule.get_calendar, calendar_id=self._calendar_id)
+        )
+
     async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
+        if not self.calendar:
+            await self._async_get_calendar(hass)
+
         query = self.calendar.new_query("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
         if self._search is not None:
@@ -473,13 +482,15 @@ class CalendarServices:
         _validate_response(response)
         _send_response(event, event_data, response)
 
-    def scan_for_calendars(self, call):  # pylint: disable=unused-argument
+    async def async_scan_for_calendars(self, call):  # pylint: disable=unused-argument
         """Scan for new calendars."""
         for config in self._hass.data[DOMAIN]:
             config = self._hass.data[DOMAIN][config]
             if CONF_ACCOUNT in config:
                 schedule = config[CONF_ACCOUNT].schedule()
-                calendars = schedule.list_calendars()
+                calendars = await self._hass.async_add_executor_job(
+                    schedule.list_calendars
+                )
                 track = config.get(CONF_TRACK_NEW, True)
                 for calendar in calendars:
                     update_calendar_file(
