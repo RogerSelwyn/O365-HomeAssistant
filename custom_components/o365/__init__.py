@@ -1,8 +1,9 @@
 """Main initialisation code."""
+import functools as ft
 import logging
-from functools import partial
 
 from aiohttp import web_response
+from homeassistant.components import configurator
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
@@ -36,9 +37,8 @@ from .const import (
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
-    PRIMARY_DOMAIN_SCHEMA,
-    SECONDARY_DOMAIN_SCHEMA,
 )
+from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .utils import (
     build_config_file_path,
     build_minimum_permissions,
@@ -55,19 +55,19 @@ async def async_setup(hass, config):
     # validate_permissions(hass)
     conf = config.get(DOMAIN, {})
     if CONF_ACCOUNTS not in conf:
-        accounts = [PRIMARY_DOMAIN_SCHEMA(conf)]
+        accounts = [LEGACY_SCHEMA(conf)]
         conf_type = CONST_CONFIG_TYPE_DICT
     else:
-        accounts = SECONDARY_DOMAIN_SCHEMA(conf)[CONF_ACCOUNTS]
+        accounts = MULTI_ACCOUNT_SCHEMA(conf)[CONF_ACCOUNTS]
         conf_type = CONST_CONFIG_TYPE_LIST
 
     for account in accounts:
-        _setup_account(hass, account, conf_type)
+        await _async_setup_account(hass, account, conf_type)
 
     return True
 
 
-def _setup_account(hass, account_conf, conf_type):
+async def _async_setup_account(hass, account_conf, conf_type):
     credentials = (
         account_conf.get(CONF_CLIENT_ID),
         account_conf.get(CONF_CLIENT_SECRET),
@@ -76,11 +76,15 @@ def _setup_account(hass, account_conf, conf_type):
 
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_file = build_token_filename(account_conf, conf_type)
-    token_backend = FileSystemTokenBackend(
-        token_path=token_path, token_filename=token_file
+    token_backend = await hass.async_add_executor_job(
+        ft.partial(
+            FileSystemTokenBackend, token_path=token_path, token_filename=token_file
+        )
     )
 
-    account = Account(credentials, token_backend=token_backend, timezone="UTC")
+    account = await hass.async_add_executor_job(
+        ft.partial(Account, credentials, token_backend=token_backend, timezone="UTC")
+    )
     is_authenticated = account.is_authenticated
     minimum_permissions = build_minimum_permissions(account_conf)
     permissions = validate_permissions(hass, minimum_permissions, filename=token_file)
@@ -143,7 +147,7 @@ def _request_configuration(hass, url, callback_view, account_name):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    request_content = _create_request_content(url, callback_view, account_name)
+    request_content = _create_request_content(hass, url, callback_view, account_name)
     hass.data[DOMAIN][account_name] = request_content
 
 
@@ -152,16 +156,19 @@ def _request_configuration_alt(hass, url, callback_view, account_name):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    request_content = _create_request_content_alt(url, callback_view, account_name)
+    request_content = _create_request_content_alt(
+        hass, url, callback_view, account_name
+    )
     hass.data[DOMAIN][account_name] = request_content
 
 
-def _create_request_content(url, callback_view, account_name):
-    configurator = callback_view.configurator
+def _create_request_content(hass, url, callback_view, account_name):
+    o365configurator = callback_view.configurator
 
     display_name = f" - {account_name}" if account_name != CONST_PRIMARY else ""
     view_name = f"{DEFAULT_NAME}{display_name}"
-    return configurator.async_request_config(
+    return o365configurator.async_request_config(
+        hass,
         view_name,
         lambda _: None,
         link_name=CONFIGURATOR_LINK_NAME,
@@ -171,11 +178,12 @@ def _create_request_content(url, callback_view, account_name):
     )
 
 
-def _create_request_content_alt(url, callback_view, account_name):
-    configurator = callback_view.configurator
+def _create_request_content_alt(hass, url, callback_view, account_name):
+    o365configurator = callback_view.configurator
     display_name = f" - {account_name}" if account_name != CONST_PRIMARY else ""
     view_name = f"{DEFAULT_NAME}{display_name} - Alternative configuration"
-    return configurator.async_request_config(
+    return o365configurator.async_request_config(
+        hass,
         view_name,
         callback_view.alt_callback,
         link_name=CONFIGURATOR_LINK_NAME,
@@ -193,7 +201,7 @@ def _request_authorization(hass, conf, account, account_name, conf_type):
     url, state = account.con.get_authorization_url(
         requested_scopes=scope, redirect_uri=callback_url
     )
-    _LOGGER.info(
+    _LOGGER.warning(
         "No token, or token doesn't have all required permissions; requesting authorization"
     )
     callback_view = O365AuthCallbackView(
@@ -230,7 +238,7 @@ class O365AuthCallbackView(HomeAssistantView):
         self._callback = callback_url
         self._hass = hass
         self._account_name = account_name
-        self.configurator = self._hass.components.configurator
+        self.configurator = configurator
         self._conf_type = conf_type
 
     @callback
@@ -246,7 +254,7 @@ class O365AuthCallbackView(HomeAssistantView):
                 "originating url does not seem to be a valid microsoft redirect",
             )
         await self._hass.async_add_executor_job(
-            partial(
+            ft.partial(
                 self._account.con.request_token,
                 url,
                 state=self._state,
@@ -257,8 +265,9 @@ class O365AuthCallbackView(HomeAssistantView):
         do_setup(
             self._hass, self._config, self._account, self._account_name, self._conf_type
         )
-        self.configurator.async_request_done(account_data)
+        self.configurator.async_request_done(self._hass, account_data)
 
+        self._log_authenticated()
         return web_response.Response(
             headers={"content-type": "text/html"},
             text="<script>window.close()</script>Success! This window can be closed",
@@ -273,13 +282,20 @@ class O365AuthCallbackView(HomeAssistantView):
         )
         if not result:
             self.configurator.notify_errors(
+                self._hass,
                 self._hass.data[DOMAIN][self._account_name],
                 "Error while authenticating, please see logs for more info.",
             )
             return
+
         account_data = self._hass.data[DOMAIN][self._account_name]
         do_setup(
             self._hass, self._config, self._account, self._account_name, self._conf_type
         )
-        self.configurator.async_request_done(account_data)
+        self.configurator.async_request_done(self._hass, account_data)
+
+        self._log_authenticated()
         return
+
+    def _log_authenticated(self):
+        _LOGGER.info("Succesfully authenticated")
