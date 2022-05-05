@@ -127,9 +127,7 @@ class O365EmailService(BaseNotificationService):
             photos = [photos]
 
         photos_content = ""
-        i = 0
-        for photo in photos:
-            i += 1
+        for i, photo in enumerate(photos, start=1):
             if photo.startswith("http"):
                 photos_content += f'<br><img src="{photo}">'
             else:
