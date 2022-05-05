@@ -1,5 +1,18 @@
 # Changelog
 
+## v3.0.1 (2022/05/02)
+### Fixes
+- [Fix photo embedding](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2b26133711c3f87e614b13c66799f9a7ff164f0c) - @RogerSelwyn
+ 
+### Maintenance
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b5fb1f35dad975d3a939b4ec71a8c2e436d3c279) - @RogerSelwyn
+- [Updated README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/912272b3c276a71b2944f728d4d18325864a589b) - @GitHubGoody
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7566dc035955c087a7e23f9ca69a20698fc288d8) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e95504f2bc74abbdb4ae62b0ac6e460e0ec6b01f) - @RogerSelwyn
+- [Create FUNDING.yml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4b7b9038b8aaacd76d27a403d3c79f09f08876af) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3962a234aa2800e412af63df496f48f264803846) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8e78e2423f199f75abdacbc137c95629e301d032) - @actions-user
+
 ## v3.0.0 (2022/04/17)
 ### Enhancements
 - Support for multiple accounts
