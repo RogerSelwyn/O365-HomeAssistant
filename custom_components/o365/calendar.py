@@ -141,7 +141,6 @@ async def _async_setup_register_services(hass, conf):
     hass.services.async_register(
         DOMAIN, "scan_for_calendars", calendar_services.async_scan_for_calendars
     )
-    return
 
 
 class O365CalendarEntity(CalendarEntity):
