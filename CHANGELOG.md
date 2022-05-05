@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.1.0 (2022/05/05)
+### Enhancements
+- [Move setup_platform to async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dc8974b83858b7f4e401e0e0e36b6c0c15c3bf99) - @RogerSelwyn
+- [Move calls to o365 async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f9dfedd42f70c03f49760ba6fba8adcce4fd2cdc) - @RogerSelwyn
+### Fixes
+- [Fix issue with photo embedding](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d0eff81b6d6fa39246ed37113a300b4a88288a73) - @RogerSelwyn
+### Maintenance
+- [Use CalendarEntity instead of CalendarEventDevice](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/712daf59e92436664f75e4a3a053f408243abb16) - @RogerSelwyn
+- [Rename device to entity](https://github.com/RogerSelwyn/O365-HomeAssistant/cpmmit/fcab07dc520e9e09c876ea3c6e1ecc81b83ea67b) - @RogerSelwyn
+- [Bump to v3.1.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0d1032c8855ed439c28e32f3c8267bbf5b0badf6) - @RogerSelwyn
+- [Sourcery recommended code change](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3f086fe7184276698d0e9d685a99b81debba89fd) - @RogerSelwyn
+
 ## v3.0.1 (2022/05/02)
 ### Fixes
 - [Fix photo embedding](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2b26133711c3f87e614b13c66799f9a7ff164f0c) - @RogerSelwyn
