@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.1.1 (2022/05/06)
+### Fixes
+- [Fix error on device update](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d5ed3cc98e95cdebfae334cb44b7009a5463f09e) - @RogerSelwyn
+### Maintenance
+- [Bump to v3.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9caac0960f198f4c24c75fac5d94f6b96cc8ffda) - @RogerSelwyn
+
 ## v3.1.0 (2022/05/05)
 ### Enhancements
 - [Move setup_platform to async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dc8974b83858b7f4e401e0e0e36b6c0c15c3bf99) - @RogerSelwyn
