@@ -2,7 +2,7 @@
 import functools as ft
 import logging
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from operator import attrgetter, itemgetter
 
 from homeassistant.components.calendar import (
@@ -391,6 +391,10 @@ class O365CalendarData:
         if isinstance(obj, datetime):
             date_obj = (
                 obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE) if obj.tzinfo is None else obj
+            )
+        elif isinstance(obj, date):
+            date_obj = dt.start_of_local_day(
+                dt.dt.datetime.combine(obj, dt.dt.time.min)
             )
         elif "date" in obj:
             date_obj = dt.start_of_local_day(
