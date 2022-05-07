@@ -6,7 +6,7 @@
 
 *This is a fork of the original integration by @PTST which has now been archived. Primarily this is to enable it to still run on Home Assistant for my own usage, but I have also added a Logo and link to this github for the HACS required wheel in the core brand and wheel repositories.*
 
-This integration enables
+This integration enables:
 1. Getting and creating calendar events from O365.
 2. Getting emails from your inbox.
 3. Sending emails via the notify.o365_email service.
@@ -17,7 +17,7 @@ This project would not be possible without the wonderful [python-o365 project](h
 ### [Buy Me A ~~Coffee~~ Beer 🍻](https://buymeacoffee.com/rogtp)
 I work on this integration because I like things to work well for myself and others. Whilst i have now made significant changes to the integration, it would not be as it stands today without the major work to create it put in by @PTST. Please don't feel you are obligated to donate, but of course it is appreciated.
 
-# Prerequisite
+# Prerequisites
 
 ## Getting the client id and client secret
 To allow authentication you first need to register your application at Azure App Registrations:
@@ -26,20 +26,28 @@ To allow authentication you first need to register your application at Azure App
 
 2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
 
-3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://<your_home_assistant_url_or_local_ip>/api/o365`, leave the other fields blank and click Configure. **Note:** if you use Nabu Casa for remote support, use that URL as the base.
+3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
-   When using the alternate auth flow, which doesn't require internet access to HA, please see the [Alt auth flow](#alt-auth-flow) section.
+   When using the alternate auth flow, which requires internet access to HA, please see the [Alt auth flow](#alt-auth-flow) section.
 
-4. From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
+   _**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
+
+   If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
+
+5. From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
 
 5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret return here to generate a new one.
 
 6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
    * offline_access - *Maintain access to data you have given it access to*
    * Calendars.Read - *Read user calendars*
-   * Mail.Read - *Read access to user mail*
    * Users.Read - *Sign in and read user profile*
-   * Presence.Read - *Read user's presence information* (Required for Teams Presence Sensor on business accounts, **but do not add for personal accounts**)
+
+   If you are creating an email_sensor or a query_sensor you will need:
+   * Mail.Read - *Read access to user mail*
+
+   If you are creating an status_sensor you will need:
+   * Presence.Read - *Read user's presence information* (**Not for personal accounts**)
 
    If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
@@ -111,7 +119,7 @@ o365:
       max_items: 2
       is_unread: True
   status_sensors: # Cannot be used for personal accounts
-    - name: "User Teams Status" 
+    - name: "User Teams Status"
 ```
 
 ### Configuration variables
@@ -171,18 +179,9 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
 
-## Authentication.
-### Default auth flow.
+## Authentication
+### Default auth flow
 After setting up configuration.yaml and restarting home assistant a persistent notification will be created.
-1. Click on this notification.
-2. Click the "Link O365 account" link.
-3. Login on the microsoft page; when prompted, authorize the app you created
-4. Close the window when the message "Success! This window can be closed" appears.
-5. That's it.
-
-### Alt auth flow.
-**Note**: This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to "https://login.microsoftonline.com/common/oauth2/nativeclient" this needs to be set as as a manual url, with type web, just checking the checkmark for it does not seem to work
-After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
 3. Login on the microsoft page.
@@ -190,7 +189,17 @@ After setting up configuration.yaml with the key set to _True_ and restarting ho
 5. Insert into the "Returned Url" field. and click Submit.
 6. That's it.
 
-If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
+
+### Alt auth flow
+_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
+
+This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365`. Note: if you use Nabu Casa for remote support, use that URL as the base.
+After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
+1. Click on this notification.
+2. Click the "Link O365 account" link.
+3. Login on the microsoft page; when prompted, authorize the app you created
+4. Close the window when the message "Success! This window can be closed" appears.
+5. That's it.
 
 ## Calendar configuration
 The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for secondary configuration method).
@@ -276,6 +285,10 @@ Respond to an event in the specified calendar - All paremeters are shown in the 
 ### o365.scan_for_calendars
 Scan for new calendars and add to o365_calendars.yaml - No parameters.
 
+## Calendar Sensor layout
+The status of the calendar sensor indicates (on/off) whether there is an event on at the current time. The `message`, `all_day`, `start_time`, `end_time`, `location`, `description` and `offset_reached` attributes provide details of the current of next event. A non all-day event is favoured over all_day events.
+
+The `data` attribute provides an array of events for the period defined by the `start_offset` and `end_offset` in o365_calendars_<account_name>.yaml. Individual array elements can be accessed using the notation `{{ states.calendar.calendar_<account_name>.attributes.data[0...n] }}`
 
 ## Errors
 * **The reply URL specified in the request does not match the reply URLs configured for the application.**

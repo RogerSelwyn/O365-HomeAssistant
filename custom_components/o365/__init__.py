@@ -10,42 +10,21 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (
-    AUTH_CALLBACK_NAME,
-    AUTH_CALLBACK_PATH,
-    AUTH_CALLBACK_PATH_ALT,
-    CONF_ACCOUNT,
-    CONF_ACCOUNT_NAME,
-    CONF_ACCOUNTS,
-    CONF_ALT_CONFIG,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    CONF_CONFIG_TYPE,
-    CONF_EMAIL_SENSORS,
-    CONF_ENABLE_UPDATE,
-    CONF_QUERY_SENSORS,
-    CONF_STATUS_SENSORS,
-    CONF_TRACK_NEW,
-    CONFIGURATOR_DESCRIPTION,
-    CONFIGURATOR_DESCRIPTION_ALT,
-    CONFIGURATOR_FIELDS,
-    CONFIGURATOR_LINK_NAME,
-    CONFIGURATOR_SUBMIT_CAPTION,
-    CONST_CONFIG_TYPE_DICT,
-    CONST_CONFIG_TYPE_LIST,
-    CONST_PRIMARY,
-    DEFAULT_CACHE_PATH,
-    DEFAULT_NAME,
-    DOMAIN,
-)
+from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH_ALT,
+                    AUTH_CALLBACK_PATH_DEFAULT, CONF_ACCOUNT,
+                    CONF_ACCOUNT_NAME, CONF_ACCOUNTS, CONF_ALT_CONFIG,
+                    CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_CONFIG_TYPE,
+                    CONF_EMAIL_SENSORS, CONF_ENABLE_UPDATE, CONF_QUERY_SENSORS,
+                    CONF_STATUS_SENSORS, CONF_TRACK_NEW,
+                    CONFIGURATOR_DESCRIPTION_ALT,
+                    CONFIGURATOR_DESCRIPTION_DEFAULT, CONFIGURATOR_FIELDS,
+                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
+                    CONST_CONFIG_TYPE_DICT, CONST_CONFIG_TYPE_LIST,
+                    CONST_PRIMARY, DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN)
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
-from .utils import (
-    build_config_file_path,
-    build_minimum_permissions,
-    build_requested_permissions,
-    build_token_filename,
-    validate_permissions,
-)
+from .utils import (build_config_file_path, build_minimum_permissions,
+                    build_requested_permissions, build_token_filename,
+                    validate_permissions)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -142,54 +121,54 @@ def _load_platforms(hass, account_name, config, account_config):
         )
 
 
-def _request_configuration(hass, url, callback_view, account_name):
+def _request_configuration_alt(hass, url, callback_view, account_name):
     """Request the config."""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    request_content = _create_request_content(hass, url, callback_view, account_name)
+    request_content = _create_request_content_alt(hass, url, callback_view, account_name)
     hass.data[DOMAIN][account_name] = request_content
 
 
-def _request_configuration_alt(hass, url, callback_view, account_name):
+def _request_configuration_default(hass, url, callback_view, account_name):
     """Request the alternate config."""
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    request_content = _create_request_content_alt(
+    request_content = _create_request_content_default(
         hass, url, callback_view, account_name
     )
     hass.data[DOMAIN][account_name] = request_content
 
 
-def _create_request_content(hass, url, callback_view, account_name):
+def _create_request_content_alt(hass, url, callback_view, account_name):
     o365configurator = callback_view.configurator
 
     display_name = f" - {account_name}" if account_name != CONST_PRIMARY else ""
-    view_name = f"{DEFAULT_NAME}{display_name}"
+    view_name = f"{DEFAULT_NAME}{display_name} - Alternative configuration"
     return o365configurator.async_request_config(
         hass,
         view_name,
         lambda _: None,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
-        description=CONFIGURATOR_DESCRIPTION,
+        description=CONFIGURATOR_DESCRIPTION_ALT,
         submit_caption=CONFIGURATOR_SUBMIT_CAPTION,
     )
 
 
-def _create_request_content_alt(hass, url, callback_view, account_name):
+def _create_request_content_default(hass, url, callback_view, account_name):
     o365configurator = callback_view.configurator
     display_name = f" - {account_name}" if account_name != CONST_PRIMARY else ""
-    view_name = f"{DEFAULT_NAME}{display_name} - Alternative configuration"
+    view_name = f"{DEFAULT_NAME}{display_name}"
     return o365configurator.async_request_config(
         hass,
         view_name,
-        callback_view.alt_callback,
+        callback_view.default_callback,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
         fields=CONFIGURATOR_FIELDS,
-        description=CONFIGURATOR_DESCRIPTION_ALT,
+        description=CONFIGURATOR_DESCRIPTION_DEFAULT,
         submit_caption="Submit",
     )
 
@@ -202,7 +181,8 @@ def _request_authorization(hass, conf, account, account_name, conf_type):
         requested_scopes=scope, redirect_uri=callback_url
     )
     _LOGGER.warning(
-        "No token, or token doesn't have all required permissions; requesting authorization"
+        "No token, or token doesn't have all required permissions; requesting authorization for account: %s",  # pylint: disable=line-too-long
+        account_name,
     )
     callback_view = O365AuthCallbackView(
         conf, account, state, callback_url, hass, account_name, conf_type
@@ -211,21 +191,21 @@ def _request_authorization(hass, conf, account, account_name, conf_type):
     if alt_config:
         _request_configuration_alt(hass, url, callback_view, account_name)
     else:
-        _request_configuration(hass, url, callback_view, account_name)
+        _request_configuration_default(hass, url, callback_view, account_name)
 
 
 def _get_callback_url(hass, alt_config):
     if alt_config:
-        return AUTH_CALLBACK_PATH_ALT
+        return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
 
-    return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH}"
+    return AUTH_CALLBACK_PATH_DEFAULT
 
 
 class O365AuthCallbackView(HomeAssistantView):
     """O365 Authorization Callback View."""
 
     requires_auth = False
-    url = AUTH_CALLBACK_PATH
+    url = AUTH_CALLBACK_PATH_ALT
     name = AUTH_CALLBACK_NAME
 
     def __init__(
@@ -267,18 +247,18 @@ class O365AuthCallbackView(HomeAssistantView):
         )
         self.configurator.async_request_done(self._hass, account_data)
 
-        self._log_authenticated()
+        self._log_authenticated(self._account_name)
         return web_response.Response(
             headers={"content-type": "text/html"},
             text="<script>window.close()</script>Success! This window can be closed",
         )
 
-    def alt_callback(self, data):
+    def default_callback(self, data):
         """Receive authorization token."""
         url = data.get("token") or [v for k, v in data.items()][0]
 
         result = self._account.con.request_token(
-            url, state=self._state, redirect_uri=AUTH_CALLBACK_PATH_ALT
+            url, state=self._state, redirect_uri=AUTH_CALLBACK_PATH_DEFAULT
         )
         if not result:
             self.configurator.notify_errors(
@@ -294,8 +274,8 @@ class O365AuthCallbackView(HomeAssistantView):
         )
         self.configurator.async_request_done(self._hass, account_data)
 
-        self._log_authenticated()
+        self._log_authenticated(self._account_name)
         return
 
-    def _log_authenticated(self):
-        _LOGGER.info("Succesfully authenticated")
+    def _log_authenticated(self, account_name):
+        _LOGGER.info("Succesfully authenticated for account: %s", account_name)
