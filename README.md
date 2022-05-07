@@ -28,7 +28,7 @@ To allow authentication you first need to register your application at Azure App
 
 3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
-   When using the alternate auth flow, which requires internet access to HA, please see the [Alt auth flow](#alt-auth-flow) section.
+   When using the alternate auth flow, which requires internet access to HA, please see the [Authentication](#authentication) section.
 
    _**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
 
@@ -180,6 +180,8 @@ Key | Type | Required | Description
 `name` | `string` | `True` | The name of the sensor.
 
 ## Authentication
+_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
+
 ### Default auth flow
 After setting up configuration.yaml and restarting home assistant a persistent notification will be created.
 1. Click on this notification.
@@ -191,8 +193,6 @@ After setting up configuration.yaml and restarting home assistant a persistent n
 
 
 ### Alt auth flow
-_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
-
 This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365`. Note: if you use Nabu Casa for remote support, use that URL as the base.
 After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
