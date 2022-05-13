@@ -10,21 +10,43 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH_ALT,
-                    AUTH_CALLBACK_PATH_DEFAULT, CONF_ACCOUNT,
-                    CONF_ACCOUNT_NAME, CONF_ACCOUNTS, CONF_ALT_CONFIG,
-                    CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_CONFIG_TYPE,
-                    CONF_EMAIL_SENSORS, CONF_ENABLE_UPDATE, CONF_QUERY_SENSORS,
-                    CONF_STATUS_SENSORS, CONF_TRACK_NEW,
-                    CONFIGURATOR_DESCRIPTION_ALT,
-                    CONFIGURATOR_DESCRIPTION_DEFAULT, CONFIGURATOR_FIELDS,
-                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
-                    CONST_CONFIG_TYPE_DICT, CONST_CONFIG_TYPE_LIST,
-                    CONST_PRIMARY, DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN)
+from .const import (
+    AUTH_CALLBACK_NAME,
+    AUTH_CALLBACK_PATH_ALT,
+    AUTH_CALLBACK_PATH_DEFAULT,
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
+    CONF_ACCOUNTS,
+    CONF_ALT_AUTH_FLOW,
+    CONF_ALT_AUTH_METHOD,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+    CONF_CONFIG_TYPE,
+    CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
+    CONF_QUERY_SENSORS,
+    CONF_STATUS_SENSORS,
+    CONF_TRACK_NEW,
+    CONFIGURATOR_DESCRIPTION_ALT,
+    CONFIGURATOR_DESCRIPTION_DEFAULT,
+    CONFIGURATOR_FIELDS,
+    CONFIGURATOR_LINK_NAME,
+    CONFIGURATOR_SUBMIT_CAPTION,
+    CONST_CONFIG_TYPE_DICT,
+    CONST_CONFIG_TYPE_LIST,
+    CONST_PRIMARY,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_NAME,
+    DOMAIN,
+)
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
-from .utils import (build_config_file_path, build_minimum_permissions,
-                    build_requested_permissions, build_token_filename,
-                    validate_permissions)
+from .utils import (
+    build_config_file_path,
+    build_minimum_permissions,
+    build_requested_permissions,
+    build_token_filename,
+    validate_permissions,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,6 +97,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
 
 def do_setup(hass, config, account, account_name, conf_type):
     """Run the setup after we have everything configured."""
+    _get_auth_method(config, account_name)
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
@@ -126,7 +149,9 @@ def _request_configuration_alt(hass, url, callback_view, account_name):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
 
-    request_content = _create_request_content_alt(hass, url, callback_view, account_name)
+    request_content = _create_request_content_alt(
+        hass, url, callback_view, account_name
+    )
     hass.data[DOMAIN][account_name] = request_content
 
 
@@ -174,16 +199,17 @@ def _create_request_content_default(hass, url, callback_view, account_name):
 
 
 def _request_authorization(hass, conf, account, account_name, conf_type):
-    alt_config = conf.get(CONF_ALT_CONFIG)
+    alt_config = _get_auth_method(conf, account_name)
     callback_url = _get_callback_url(hass, alt_config)
     scope = build_requested_permissions(conf)
     url, state = account.con.get_authorization_url(
         requested_scopes=scope, redirect_uri=callback_url
     )
-    _LOGGER.warning(
-        "No token, or token doesn't have all required permissions; requesting authorization for account: %s",  # pylint: disable=line-too-long
-        account_name,
+    message = (
+        "No token, or token doesn't have all required permissions;"
+        + f" requesting authorization for account: {account_name}"
     )
+    _LOGGER.warning(message)
     callback_view = O365AuthCallbackView(
         conf, account, state, callback_url, hass, account_name, conf_type
     )
@@ -199,6 +225,32 @@ def _get_callback_url(hass, alt_config):
         return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
 
     return AUTH_CALLBACK_PATH_DEFAULT
+
+
+def _get_auth_method(conf, account_name):
+    alt_flow = conf.get(CONF_ALT_AUTH_FLOW)
+    alt_method = conf.get(CONF_ALT_AUTH_METHOD)
+    if alt_flow is None and alt_method is None:
+        _auth_deprecated_message(account_name, True)
+        return False
+    if alt_flow:
+        _auth_deprecated_message(account_name, False)
+    if alt_flow is False:
+        _auth_deprecated_message(account_name, True)
+        return True
+    return bool(alt_method is True)
+
+
+def _auth_deprecated_message(account_name, method_value):
+    message = (
+        f"Use of '{CONF_ALT_AUTH_FLOW}' configuration variable is deprecated."
+        + f" Please set '{CONF_ALT_AUTH_METHOD}' to {method_value}"
+        + f" and remove '{CONF_ALT_AUTH_FLOW}' if present from your config"
+        + f" to retain existing authentication method for account: {account_name}."
+        + " See https://github.com/RogerSelwyn/O365-HomeAssistant/#authentication"
+        + " for more details."
+    )
+    _LOGGER.warning(message)
 
 
 class O365AuthCallbackView(HomeAssistantView):
