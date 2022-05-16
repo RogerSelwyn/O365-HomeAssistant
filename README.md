@@ -4,7 +4,7 @@
 
 # Office 365 Integration for Home Assistant
 
-*This is a fork of the original integration by @PTST which has now been archived. Primarily this is to enable it to still run on Home Assistant for my own usage, but I have also added a Logo and link to this github for the HACS required wheel in the core brand and wheel repositories.*
+*This is a fork of the original integration by @PTST which has now been archived.*
 
 This integration enables
 1. Getting and creating calendar events from O365.
