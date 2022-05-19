@@ -31,7 +31,7 @@ To allow authentication you first need to register your application at Azure App
 
    When using the alternate auth flow, which requires internet access to HA, please see the [Authentication](#authentication) section.
 
-   _**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
+   _**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only impact people re-authenticating._
 
    If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
 
@@ -139,7 +139,7 @@ Key | Type | Required | Description
 `account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. e.g `calendar.calendar_account1`
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
-`alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](#authentication)
 `enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the various services that allow the sending of emails and updates to calendars
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
@@ -152,7 +152,7 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
-`alt_auth_flow` | `boolean` | `False` | If True (default), an alternative auth flow will be provided which is not reliant on the redirect uri being reachable. [See alt-auth-flow](#alt-auth-flow)
+`alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](#authentication)
 `enable_update` | `boolean` | `False` | If True (**default is True**), this will enable the various services that allow the sending of emails and updates to calendars
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
@@ -193,7 +193,7 @@ Key | Type | Required | Description
 `name` | `string` | `True` | The name of the sensor.
 
 ## Authentication
-_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set it to True. This will only impact people re-authenticating._
+_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only impact people re-authenticating._
 
 ### Default auth flow
 After setting up configuration.yaml and restarting home assistant a persistent notification will be created.
@@ -206,7 +206,7 @@ After setting up configuration.yaml and restarting home assistant a persistent n
 
 
 ### Alt auth flow
-This requires the *alt_auth_flow* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365`. Note: if you use Nabu Casa for remote support, use that URL as the base.
+This requires the *alt_auth_method* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365`. Note: if you use Nabu Casa for remote support, use that URL as the base.
 After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
