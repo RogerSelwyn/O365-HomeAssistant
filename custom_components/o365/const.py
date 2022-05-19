@@ -34,15 +34,18 @@ ATTR_TYPE = "type"
 ATTR_ZIP_ATTACHMENTS = "zip_attachments"
 ATTR_ZIP_NAME = "zip_name"
 AUTH_CALLBACK_NAME = "api:o365"
-AUTH_CALLBACK_PATH = "/api/o365"
-AUTH_CALLBACK_PATH_ALT = "https://login.microsoftonline.com/common/oauth2/nativeclient"
+AUTH_CALLBACK_PATH_ALT = "/api/o365"
+AUTH_CALLBACK_PATH_DEFAULT = (
+    "https://login.microsoftonline.com/common/oauth2/nativeclient"
+)
 CALENDAR_DOMAIN = "calendar"
 CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".{}"
 CONF_ACCOUNT = "account"
 CONF_ACCOUNTS = "accounts"
 CONF_ACCOUNT_NAME = "account_name"
 CONF_ALIASES = "aliases"
-CONF_ALT_CONFIG = "alt_auth_flow"
+CONF_ALT_AUTH_FLOW = "alt_auth_flow"
+CONF_ALT_AUTH_METHOD = "alt_auth_method"
 CONF_CACHE_PATH = "cache_path"
 CONF_CALENDAR_NAME = "calendar_name"
 CONF_CAL_IDS = "cal_ids"
@@ -74,10 +77,10 @@ CONF_QUERY_SENSORS = "query_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TRACK_NEW = "track_new_calendar"
-CONFIGURATOR_DESCRIPTION = (
+CONFIGURATOR_DESCRIPTION_ALT = (
     "To link your O365 account, click the link, login, and authorize:"
 )
-CONFIGURATOR_DESCRIPTION_ALT = (
+CONFIGURATOR_DESCRIPTION_DEFAULT = (
     "Complete the configuration and copy the complete url into "
     + "this field afterwards and submit"
 )
