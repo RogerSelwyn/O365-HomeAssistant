@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.2.0 (2022/05/19)
+### Enhancements
+- [Change default auth method](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/efb3cf2b00d2d32df53691e3c82eb87d077ec814) - @RogerSelwyn
+- [Add Chat Sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0184872e15b357489edfc56e1d11520fd187ba50) - @RogerSelwyn
+### Maintenance
+- [Update authentication info](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7c3c1e0aabb8f709925aa99357e2bba5a3f07e25) - @RogerSelwyn
+- [Add deprecation warning and change alt_auth config parameter](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7feef161c715b9799a39be18165c90a392b54c85) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4d69ccd0467470fab0e6ccc5cc42626ee3345faa) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/218443692e8762d25ab7a26723159ce632019cf6) - @RogerSelwyn
+- [Create stale.yaml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3a93714c918658850840d0e16b3e989c9150e7dc) - @RogerSelwyn
+- [Bump to v3.2.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/62091cb924abbcafd283ca7a5aad47d4e7e5c790) - @RogerSelwyn
+
 ## v3.1.1 (2022/05/06)
 ### Fixes
 - [Fix error on device update](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d5ed3cc98e95cdebfae334cb44b7009a5463f09e) - @RogerSelwyn
