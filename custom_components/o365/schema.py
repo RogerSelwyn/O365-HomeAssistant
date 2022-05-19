@@ -41,6 +41,7 @@ from .const import (
     CONF_ALT_AUTH_FLOW,
     CONF_ALT_AUTH_METHOD,
     CONF_CAL_ID,
+    CONF_CHAT_SENSORS,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_DEVICE_ID,
@@ -81,6 +82,11 @@ STATUS_SENSOR = vol.Schema(
         vol.Required(CONF_NAME): cv.string,
     }
 )
+CHAT_SENSOR = vol.Schema(
+    {
+        vol.Required(CONF_NAME): cv.string,
+    }
+)
 QUERY_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
@@ -107,6 +113,7 @@ LEGACY_SCHEMA = vol.Schema(
         vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
         vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
         vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
+        vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
     }
 )
 MULTI_ACCOUNT_SCHEMA = vol.Schema(
@@ -124,6 +131,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
                     vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
                     vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
+                    vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
                 }
             ]
         )

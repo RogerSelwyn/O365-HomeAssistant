@@ -11,6 +11,7 @@ This integration enables:
 2. Getting emails from your inbox.
 3. Sending emails via the notify.o365_email service.
 4. Getting presence from Teams (not for personal accounts)
+5. Getting the latest chat message from Teams (not for personal accounts)
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
@@ -46,8 +47,11 @@ To allow authentication you first need to register your application at Azure App
    If you are creating an email_sensor or a query_sensor you will need:
    * Mail.Read - *Read access to user mail*
 
-   If you are creating an status_sensor you will need:
+   If you are creating a status_sensor you will need:
    * Presence.Read - *Read user's presence information* (**Not for personal accounts**)
+
+   If you are creating a chat_sensor you will need:
+   * Chat.Read - *Read user chat messages* (**Not for personal accounts**)
 
    If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
@@ -92,8 +96,10 @@ o365:
           has_attachment: True
           max_items: 2
           is_unread: True
-      status_sensors: # Cannot be used for personal accounts
-        - name: "User Teams Status"
+          status_sensors: # Cannot be used for personal accounts
+            - name: "User Teams Status"
+          chat_sensors: # Cannot be used for personal accounts
+            - name: "User Chat"
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -118,8 +124,10 @@ o365:
       has_attachment: True
       max_items: 2
       is_unread: True
-  status_sensors: # Cannot be used for personal accounts
-    - name: "User Teams Status"
+      status_sensors: # Cannot be used for personal accounts
+        - name: "User Teams Status"
+      chat_sensors: # Cannot be used for personal accounts
+        - name: "User Chat"
 ```
 
 ### Configuration variables
@@ -175,6 +183,11 @@ Key | Type | Required | Description
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
 #### status_sensors (not for personal accounts)
+Key | Type | Required | Description
+-- | -- | -- | --
+`name` | `string` | `True` | The name of the sensor.
+
+#### chat_sensors (not for personal accounts)
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.

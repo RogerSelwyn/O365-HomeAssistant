@@ -8,8 +8,15 @@ from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import Entity
 
 from .const import (
+    ATTR_CHAT_ID,
+    ATTR_CONTENT,
+    ATTR_FROM_DISPLAY_NAME,
+    ATTR_IMPORTANCE,
+    ATTR_SUBJECT,
+    ATTR_SUMMARY,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_CHAT_SENSORS,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
     CONF_HAS_ATTACHMENT,
@@ -44,16 +51,17 @@ async def async_setup_platform(
     if not is_authenticated:
         return False
 
-    await _async_unread_sensors(hass, account, add_entities, conf)
+    await _async_email_sensors(hass, account, add_entities, conf)
     await _async_query_sensors(hass, account, add_entities, conf)
     _status_sensors(account, add_entities, conf)
+    _chat_sensors(account, add_entities, conf)
 
     return True
 
 
-async def _async_unread_sensors(hass, account, add_entities, conf):
-    unread_sensors = conf.get(CONF_EMAIL_SENSORS, [])
-    for sensor_conf in unread_sensors:
+async def _async_email_sensors(hass, account, add_entities, conf):
+    email_sensors = conf.get(CONF_EMAIL_SENSORS, [])
+    for sensor_conf in email_sensors:
         if mail_folder := await hass.async_add_executor_job(
             _get_mail_folder, account, sensor_conf, CONF_EMAIL_SENSORS
         ):
@@ -76,6 +84,13 @@ def _status_sensors(account, add_entities, conf):
     for sensor_conf in status_sensors:
         teams_status_sensor = O365TeamsStatusSensor(account, sensor_conf)
         add_entities([teams_status_sensor], True)
+
+
+def _chat_sensors(account, add_entities, conf):
+    chat_sensors = conf.get(CONF_CHAT_SENSORS, [])
+    for sensor_conf in chat_sensors:
+        teams_chat_sensor = O365TeamsChatSensor(account, sensor_conf)
+        add_entities([teams_chat_sensor], True)
 
 
 def _get_mail_folder(account, sensor_conf, sensor_type):
@@ -239,3 +254,66 @@ class O365TeamsStatusSensor(Entity):
         """Update state."""
         data = await self.hass.async_add_executor_job(self._teams.get_my_presence)
         self._state = data.activity
+
+
+class O365TeamsChatSensor(Entity):
+    """O365 Teams Chat sensor processing."""
+
+    def __init__(self, account, conf):
+        """Initialise the Teams Chat Sensor."""
+        self._teams = account.teams()
+        self._name = conf.get(CONF_NAME)
+        self._state = None
+        self._from_display_name = None
+        self._content = None
+        self._chat_id = None
+        self._importance = None
+        self._subject = None
+        self._summary = None
+
+    @property
+    def name(self):
+        """Sensor name."""
+        return self._name
+
+    @property
+    def state(self):
+        """Sensor state."""
+        return self._state
+
+    @property
+    def extra_state_attributes(self):
+        """Return entity specific state attributes."""
+        attributes = {
+            ATTR_FROM_DISPLAY_NAME: self._from_display_name,
+            ATTR_CONTENT: self._content,
+            ATTR_CHAT_ID: self._chat_id,
+            ATTR_IMPORTANCE: self._importance,
+        }
+        if self._subject:
+            attributes[ATTR_SUBJECT] = self._subject
+        if self._summary:
+            attributes[ATTR_SUMMARY] = self._summary
+        return attributes
+
+    async def async_update(self):
+        """Update state."""
+        state = None
+        chats = await self.hass.async_add_executor_job(self._teams.get_my_chats)
+        for chat in chats:
+            messages = await self.hass.async_add_executor_job(
+                ft.partial(chat.get_messages, limit=10)
+            )
+            for message in messages:
+                if not state and message.content != "<systemEventMessage/>":
+                    state = message.created_date
+                    self._from_display_name = message.from_display_name
+                    self._content = message.content
+                    self._chat_id = message.chat_id
+                    self._importance = message.importance
+                    self._subject = message.subject
+                    self._summary = message.summary
+                    break
+            if state:
+                break
+        self._state = state

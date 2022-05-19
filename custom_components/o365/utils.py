@@ -17,6 +17,7 @@ from voluptuous.error import Error as VoluptuousError
 from .const import (
     CONF_ACCOUNT_NAME,
     CONF_CAL_ID,
+    CONF_CHAT_SENSORS,
     CONF_CONFIG_TYPE,
     CONF_DEVICE_ID,
     CONF_EMAIL_SENSORS,
@@ -31,9 +32,11 @@ from .const import (
     DOMAIN,
     PERM_CALENDARS_READ,
     PERM_CALENDARS_READWRITE,
+    PERM_CHAT_READ,
     PERM_MAIL_READ,
     PERM_MAIL_SEND,
     PERM_MINIMUM_CALENDAR,
+    PERM_MINIMUM_CHAT,
     PERM_MINIMUM_MAIL,
     PERM_MINIMUM_PRESENCE,
     PERM_MINIMUM_USER,
@@ -62,11 +65,14 @@ def build_minimum_permissions(config):
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     minimum_permissions = [PERM_MINIMUM_USER, PERM_MINIMUM_CALENDAR]
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_MAIL)
     if len(status_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_PRESENCE)
+    if len(chat_sensors) > 0:
+        minimum_permissions.append(PERM_MINIMUM_CHAT)
 
     return minimum_permissions
 
@@ -76,11 +82,9 @@ def build_requested_permissions(config):
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
-    scope = [
-        PERM_OFFLINE_ACCESS,
-        PERM_USER_READ,
-    ]
+    scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
     if enable_update:
         scope.extend((PERM_MAIL_SEND, PERM_CALENDARS_READWRITE))
     else:
@@ -89,6 +93,8 @@ def build_requested_permissions(config):
         scope.append(PERM_MAIL_READ)
     if len(status_sensors) > 0:
         scope.append(PERM_PRESENCE_READ)
+    if len(chat_sensors) > 0:
+        scope.append(PERM_CHAT_READ)
 
     return scope
 

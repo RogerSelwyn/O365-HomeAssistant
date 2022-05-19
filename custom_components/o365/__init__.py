@@ -10,43 +10,22 @@ from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (
-    AUTH_CALLBACK_NAME,
-    AUTH_CALLBACK_PATH_ALT,
-    AUTH_CALLBACK_PATH_DEFAULT,
-    CONF_ACCOUNT,
-    CONF_ACCOUNT_NAME,
-    CONF_ACCOUNTS,
-    CONF_ALT_AUTH_FLOW,
-    CONF_ALT_AUTH_METHOD,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    CONF_CONFIG_TYPE,
-    CONF_EMAIL_SENSORS,
-    CONF_ENABLE_UPDATE,
-    CONF_QUERY_SENSORS,
-    CONF_STATUS_SENSORS,
-    CONF_TRACK_NEW,
-    CONFIGURATOR_DESCRIPTION_ALT,
-    CONFIGURATOR_DESCRIPTION_DEFAULT,
-    CONFIGURATOR_FIELDS,
-    CONFIGURATOR_LINK_NAME,
-    CONFIGURATOR_SUBMIT_CAPTION,
-    CONST_CONFIG_TYPE_DICT,
-    CONST_CONFIG_TYPE_LIST,
-    CONST_PRIMARY,
-    DEFAULT_CACHE_PATH,
-    DEFAULT_NAME,
-    DOMAIN,
-)
+from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH_ALT,
+                    AUTH_CALLBACK_PATH_DEFAULT, CONF_ACCOUNT,
+                    CONF_ACCOUNT_NAME, CONF_ACCOUNTS, CONF_ALT_AUTH_FLOW,
+                    CONF_ALT_AUTH_METHOD, CONF_CHAT_SENSORS, CONF_CLIENT_ID,
+                    CONF_CLIENT_SECRET, CONF_CONFIG_TYPE, CONF_EMAIL_SENSORS,
+                    CONF_ENABLE_UPDATE, CONF_QUERY_SENSORS,
+                    CONF_STATUS_SENSORS, CONF_TRACK_NEW,
+                    CONFIGURATOR_DESCRIPTION_ALT,
+                    CONFIGURATOR_DESCRIPTION_DEFAULT, CONFIGURATOR_FIELDS,
+                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
+                    CONST_CONFIG_TYPE_DICT, CONST_CONFIG_TYPE_LIST,
+                    CONST_PRIMARY, DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN)
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
-from .utils import (
-    build_config_file_path,
-    build_minimum_permissions,
-    build_requested_permissions,
-    build_token_filename,
-    validate_permissions,
-)
+from .utils import (build_config_file_path, build_minimum_permissions,
+                    build_requested_permissions, build_token_filename,
+                    validate_permissions)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -101,6 +80,7 @@ def do_setup(hass, config, account, account_name, conf_type):
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
+    chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
 
     account_config = {
@@ -108,6 +88,7 @@ def do_setup(hass, config, account, account_name, conf_type):
         CONF_EMAIL_SENSORS: email_sensors,
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,
+        CONF_CHAT_SENSORS: chat_sensors,
         CONF_ENABLE_UPDATE: enable_update,
         CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
@@ -136,6 +117,7 @@ def _load_platforms(hass, account_name, config, account_config):
         len(account_config[CONF_EMAIL_SENSORS]) > 0
         or len(account_config[CONF_QUERY_SENSORS]) > 0
         or len(account_config[CONF_STATUS_SENSORS]) > 0
+        or len(account_config[CONF_CHAT_SENSORS]) > 0
     ):
         hass.async_create_task(
             discovery.async_load_platform(
@@ -238,7 +220,7 @@ def _get_auth_method(conf, account_name):
     if alt_flow is False:
         _auth_deprecated_message(account_name, True)
         return True
-    return bool(alt_method is True)
+    return alt_method is True
 
 
 def _auth_deprecated_message(account_name, method_value):
