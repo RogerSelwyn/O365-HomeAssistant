@@ -238,7 +238,7 @@ def _get_auth_method(conf, account_name):
     if alt_flow is False:
         _auth_deprecated_message(account_name, True)
         return True
-    return bool(alt_method is True)
+    return alt_method is True
 
 
 def _auth_deprecated_message(account_name, method_value):
