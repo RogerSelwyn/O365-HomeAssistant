@@ -16,6 +16,7 @@ from .const import (
     ATTR_SUMMARY,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_BODY_CONTAINS,
     CONF_CHAT_SENSORS,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
@@ -173,6 +174,7 @@ class O365QuerySensor(O365MailSensor, Entity):
         """Initialise the O365 Query."""
         super().__init__(conf, mail_folder)
 
+        self._body_contains = conf.get(CONF_BODY_CONTAINS)
         self._subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
         self._subject_is = conf.get(CONF_SUBJECT_IS)
         self._has_attachment = conf.get(CONF_HAS_ATTACHMENT)
@@ -183,7 +185,8 @@ class O365QuerySensor(O365MailSensor, Entity):
         self._query.order_by("receivedDateTime", ascending=False)
 
         if (
-            self._subject_contains is not None
+            self._body_contains is not None
+            or self._subject_contains is not None
             or self._subject_is is not None
             or self._has_attachment is not None
             or self._importance is not None
@@ -191,6 +194,7 @@ class O365QuerySensor(O365MailSensor, Entity):
             or self._is_unread is not None
         ):
             self._add_to_query("ge", "receivedDateTime", dt.datetime(1900, 5, 1))
+        self._add_to_query("contains", "body", self._body_contains)
         self._add_to_query("contains", "subject", self._subject_contains)
         self._add_to_query("equals", "subject", self._subject_is)
         self._add_to_query("equals", "hasAttachments", self._has_attachment)
