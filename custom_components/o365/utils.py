@@ -174,7 +174,6 @@ def get_email_attributes(mail, download_attachments):
         "received": mail.received.strftime(DATETIME_FORMAT),
         "to": [x.address for x in mail.to],
         "cc": [x.address for x in mail.cc],
-        "bcc": [x.address for x in mail.bcc],
         "sender": mail.sender.address,
         "has_attachments": mail.has_attachments,
         "importance": mail.importance.value,
