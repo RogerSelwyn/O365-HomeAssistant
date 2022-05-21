@@ -94,10 +94,10 @@ o365:
           has_attachment: True
           max_items: 2
           is_unread: True
-          status_sensors: # Cannot be used for personal accounts
-            - name: "User Teams Status"
-          chat_sensors: # Cannot be used for personal accounts
-            - name: "User Chat"
+      status_sensors: # Cannot be used for personal accounts
+        - name: "User Teams Status"
+      chat_sensors: # Cannot be used for personal accounts
+        - name: "User Chat"
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -123,10 +123,10 @@ o365:
       has_attachment: True
       max_items: 2
       is_unread: True
-      status_sensors: # Cannot be used for personal accounts
-        - name: "User Teams Status"
-      chat_sensors: # Cannot be used for personal accounts
-        - name: "User Chat"
+  status_sensors: # Cannot be used for personal accounts
+    - name: "User Teams Status"
+  chat_sensors: # Cannot be used for personal accounts
+    - name: "User Chat"
 ```
 
 ### Configuration variables
