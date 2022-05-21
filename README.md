@@ -8,7 +8,7 @@
 
 This integration enables:
 1. Getting and creating calendar events from O365.
-2. Getting emails from your inbox using one of two available sensor templates (e-mail and query).
+2. Getting emails from your inbox using one of two available sensor types (e-mail and query).
 3. Sending emails via the notify.o365_email service.
 4. Getting presence from Teams (not for personal accounts)
 5. Getting the latest chat message from Teams (not for personal accounts)
@@ -320,7 +320,7 @@ The `data` attribute provides an array of events for the period defined by the `
 * **Application {x} is not configured as a multi-tenant application.**
   * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
 * **Platform error sensor.office365calendar - No module named '{x}'**
-  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:  
+  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:
 
 
       1. Install the component.
