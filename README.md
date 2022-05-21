@@ -8,7 +8,7 @@
 
 This integration enables:
 1. Getting and creating calendar events from O365.
-2. Getting emails from your inbox using one of two available sensors (e-mail and query).
+2. Getting emails from your inbox using one of two available sensor templates (e-mail and query).
 3. Sending emails via the notify.o365_email service.
 4. Getting presence from Teams (not for personal accounts)
 5. Getting the latest chat message from Teams (not for personal accounts)
@@ -29,7 +29,7 @@ To allow authentication, you first need to register your application at Azure Ap
 
 3. Click Add a Redirect URI. Click Add a platform. Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
-   An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to setup correctly. See [Authentication](#authentication) section for more details. I AGREE WITH THESE CHANGES TO KEEP THE FLOW, BUT I STILL THINK IT WOULD BE HELPFUL TO ADD MORE DETAILS ABOUT THE PROS/CONS OF EACH METHOD...MAYBE IN THE AUTHENTICATION SECTION AS THE PREVIOUS SENTENCE IMPLIES?
+   An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to setup correctly. See [Authentication](#authentication) section for more details.
 
    _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
@@ -158,7 +158,7 @@ Key | Type | Required | Description
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
-#### email_sensors [RWJS] Again not created by me, I'm not sure the email_sensor brings extra benefit and I have rationalised the code in support of the two methods. But with 1k+ users I can't remove the email_sensor.
+#### email_sensors
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
@@ -194,14 +194,14 @@ Key | Type | Required | Description
 ## Authentication
  _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
-The Primary method of authentication is the simplest to configure and requires no access from the internet to your HA instance, therefore is the most secure method. It has slightly more steps to follow when actually do the authentication.
+The Primary method of authentication is the simplest to configure and requires no access from the internet to your HA instance, therefore is the most secure method. It has slightly more steps to follow when authenticating.
 
 The alternate method is more complex to setup, since the Azure App that is created in the prerequisites section must be configured to enable authentication from your HA instance whether located in your home network or utilising a cloud service such as Nabu Casa. The actual authentication is slightly simpler with fewer steps.
 
-During setup, the difference in configuration between each methid is the value of the redirect uri on your Azure App. The authetication steps for each method are shown below.
+During setup, the difference in configuration between each methid is the value of the redirect URI on your Azure App. The authentication steps for each method are shown below.
 
 ### Primary (default) authentication method
-This requires *alt_auth_methos* to be set to *False* or be not present and the redirect uri in your Azure app set to `https://login.microsoftonline.com/common/oauth2/nativeclient`.
+This requires *alt_auth_method* to be set to *False* or be not present and the redirect URI in your Azure app set to `https://login.microsoftonline.com/common/oauth2/nativeclient`.
 
 After setting up configuration.yaml and restarting Home Assistant, a persistent notification will be created.
 1. Click on this notification.
@@ -212,7 +212,7 @@ After setting up configuration.yaml and restarting Home Assistant, a persistent 
 6. Click Submit.
 
 ### Alternate authentication method
-This requires the *alt_auth_method* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365` (Nabu Casa users should use `https://<NabuCasaBaseAddress>/api/o365` instead).
+This requires the *alt_auth_method* to be set to *True* and the redirect URI in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365` (Nabu Casa users should use `https://<NabuCasaBaseAddress>/api/o365` instead).
 
 After setting up configuration.yaml with the key set to _True_ and restarting Home Assistant a persistent notification will be created.
 1. Click on this notification.
@@ -307,7 +307,7 @@ Respond to an event in the specified calendar - All paremeters are shown in the 
 ### o365.scan_for_calendars
 Scan for new calendars and add to o365_calendars.yaml - No parameters.
 
-## Calendar Sensor layout - [RWJS] - It's just to help people understand what the calendar shows because there are many who seem unable to interpret what they are seeing.
+## Calendar Sensor layout
 The status of the calendar sensor indicates (on/off) whether there is an event on at the current time. The `message`, `all_day`, `start_time`, `end_time`, `location`, `description` and `offset_reached` attributes provide details of the current of next event. A non all-day event is favoured over all_day events.
 
 The `data` attribute provides an array of events for the period defined by the `start_offset` and `end_offset` in o365_calendars_<account_name>.yaml. Individual array elements can be accessed using the notation `{{ states.calendar.calendar_<account_name>.attributes.data[0...n] }}`
@@ -320,12 +320,12 @@ The `data` attribute provides an array of events for the period defined by the `
 * **Application {x} is not configured as a multi-tenant application.**
   * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
 * **Platform error sensor.office365calendar - No module named '{x}'**
-  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:
+  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:  
 
 
-    1\. Install the component.
-    2\. Restart home assistant.
-    3\. Then add the sensor to your configuration.yaml
-    4\. Restart home assistant again.
+      1. Install the component.
+      2. Restart Home Assistant.
+      3. Add the sensor to your configuration.yaml
+      4. Restart Home Assistant again.
 
-**_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant_**
+**_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
