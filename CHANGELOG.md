@@ -1,8 +1,9 @@
 # Changelog
 
 ## v3.2.0 (2022/05/19)
-### Enhancements
+### Breaking change
 - [Change default auth method](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/efb3cf2b00d2d32df53691e3c82eb87d077ec814) - @RogerSelwyn
+### Enhancements
 - [Add Chat Sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0184872e15b357489edfc56e1d11520fd187ba50) - @RogerSelwyn
 ### Maintenance
 - [Update authentication info](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7c3c1e0aabb8f709925aa99357e2bba5a3f07e25) - @RogerSelwyn
