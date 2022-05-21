@@ -21,23 +21,30 @@ I work on this integration because I like things to work well for myself and oth
 # Prerequisites
 
 ## Getting the client id and client secret
-To allow authentication you first need to register your application at Azure App Registrations:
+To allow authentication, you first need to register your application at Azure App Registrations:
 
 1. Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
-2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
+2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. SHOULD THEY SELECT SOMETHING ELSE IF THEY'RE USING A BUSINESS ACCOUNT? Click Register.
 
-3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
+3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI according to one of the following two methods to authenticate your Home Assistant instance for access to your Office 365 account(s): 
 
-   When using the alternate auth flow, which requires internet access to HA, please see the [Authentication](#authentication) section.
+   * Primary (Default) Authentication Method - Use if...WHY SHOULD WE BE USING THIS INSTEAD OF THE ALT METHOD?
+      - Set `https://login.microsoftonline.com/common/oauth2/nativeclient`
+      - Leave the other fields blank
+      - Click Configure
+   * Alternate Authentication Method - Why again? Requires internet access to HA, please see the [Authentication](#authentication) section.
+      - Set `https://<your_home_assistant_url_or_local_ip>/api/o365` (Nabu Casa users should use `https://<NabuCasaBaseAddress>/api/o365` instead)
+      - Leave the other fields blank
+      - Click Configure
 
-   _**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only impact people re-authenticating._
+   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only be necessary upon re-authentication._
 
-   If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
+   If you are using Multi-factor Authentication (MFA), you may find you also need to add `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` to your redirect URIs. DOES THIS APPLY TO BOTH METHODS? EITHER WAY, LET'S MOVE IT UP AS A SECOND BULLET UNDER ONE OR BOTH METHODS ABOVE.
 
-5. From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
+5. From the Overview page, temporarily copy the Application (client) ID.
 
-5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret return here to generate a new one.
+5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Temporarily copy the Value of the client secret now. It will be hidden later on.  If you lose track of the secret, return here to generate a new one.
 
 6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
    * offline_access - *Maintain access to data you have given it access to*
@@ -53,7 +60,7 @@ To allow authentication you first need to register your application at Azure App
    If you are creating a chat_sensor you will need:
    * Chat.Read - *Read user chat messages* (**Not for personal accounts**)
 
-   If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
+   If you intend to set [enable_update](#primary-method) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
    * Mail.ReadWrite - *Read and write access to user mail*
    * Mail.Send - *Send mail as a user*
@@ -62,26 +69,25 @@ To allow authentication you first need to register your application at Azure App
 1. Install this integration:
     * Recommended - Home Assistant Community Store (HACS) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
-3. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
-4. Restart your Home Assistant instance.
+1. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
+1. Restart your Home Assistant instance.
    **Note:** if Home Assistant give the error "module not found", try restarting home assistant once more.
-6. [Authenticate](#authentication) to establish link between this integration and Azure app
+1. [Authenticate](#authentication) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
     * The o365_calendars_<account_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
-7. [Configure Calendars](#calendar-configuration)
+1. [Configure Calendars](#calendar-configuration)
 
-## Configuration example
+## Configuration examples
 
-Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
-
-### Primary method (if using v3.x.x)
+### Primary configuration format - Preferred because it provides improved security and allows for multiple accounts.
 ```yaml
 # Example configuration.yaml entry for multiple accounts
 o365:
   accounts:
     - account_name: Account1
-      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      alt_auth_method: False
       enable_update: True
       email_sensor:
         - name: inbox
@@ -104,12 +110,13 @@ o365:
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
 ```
-### Secondary method
+### Secondary configuration format - Less preferred and can only use for a single account.
 ```yaml
 # Example configuration.yaml entry for single account
 o365:
-  client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+  client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  alt_auth_method: False
   enable_update: False
   email_sensor:
     - name: inbox
@@ -132,7 +139,7 @@ o365:
 
 ### Configuration variables
 
-#### Primary method
+#### Primary format
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -146,7 +153,7 @@ Key | Type | Required | Description
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
-#### Secondary method
+#### Secondary format
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -193,29 +200,28 @@ Key | Type | Required | Description
 `name` | `string` | `True` | The name of the sensor.
 
 ## Authentication
-_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only impact people re-authenticating._
+   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only be necessary upon re-authentication._
 
-### Default auth flow
-After setting up configuration.yaml and restarting home assistant a persistent notification will be created.
+### Primary (default) authentication method
+After setting up configuration.yaml and restarting Home Assistant, a persistent notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
-3. Login on the microsoft page.
-4. Copy the url from the browser url bar.
-5. Insert into the "Returned Url" field. and click Submit.
-6. That's it.
+3. Login on the Microsoft page.
+4. Copy the URL from the browser URL bar.
+5. Insert into the "Returned URL" field
+6. Click Submit.
 
+### Alternate authentication method
+This requires the *alt_auth_method* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365` (Nabu Casa users should use `https://<NabuCasaBaseAddress>/api/o365` instead).
 
-### Alt auth flow
-This requires the *alt_auth_method* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365`. Note: if you use Nabu Casa for remote support, use that URL as the base.
-After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
+After setting up configuration.yaml with the key set to _True_ and restarting Home Assistant a persistent notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
-3. Login on the microsoft page; when prompted, authorize the app you created
+3. Login on the Microsoft page; when prompted, authorize the app you created
 4. Close the window when the message "Success! This window can be closed" appears.
-5. That's it.
 
 ## Calendar configuration
-The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for secondary configuration method).
+The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for the secondary configuration format).
 ### example o365_calendar_<account_name>.yaml:
 ```yaml
 - cal_id: xxxx
