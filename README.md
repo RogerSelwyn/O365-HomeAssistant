@@ -25,26 +25,17 @@ To allow authentication, you first need to register your application at Azure Ap
 
 1. Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
-2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. SHOULD THEY SELECT SOMETHING ELSE IF THEY'RE USING A BUSINESS ACCOUNT? Click Register.
+2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)" for greatest freedom of login account. Choose other options if you are confident it will cover the type of account you are using to login.  Click Register.
 
-3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI according to one of the following two methods to authenticate your Home Assistant instance for access to your Office 365 account(s): 
+3. Click Add a Redirect URI. Click Add a platform. Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
-   * Primary (Default) Authentication Method - Use if...WHY SHOULD WE BE USING THIS INSTEAD OF THE ALT METHOD?
-      - Set `https://login.microsoftonline.com/common/oauth2/nativeclient`
-      - Leave the other fields blank
-      - Click Configure
-   * Alternate Authentication Method - Why again? Requires internet access to HA, please see the [Authentication](#authentication) section.
-      - Set `https://<your_home_assistant_url_or_local_ip>/api/o365` (Nabu Casa users should use `https://<NabuCasaBaseAddress>/api/o365` instead)
-      - Leave the other fields blank
-      - Click Configure
+   An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to setup correctly. See [Authentication](#authentication) section for more details.
 
-   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only be necessary upon re-authentication._
+   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
-   If you are using Multi-factor Authentication (MFA), you may find you also need to add `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` to your redirect URIs. DOES THIS APPLY TO BOTH METHODS? EITHER WAY, LET'S MOVE IT UP AS A SECOND BULLET UNDER ONE OR BOTH METHODS ABOVE.
+4. From the Overview page, copy the Application (client) ID.
 
-5. From the Overview page, temporarily copy the Application (client) ID.
-
-5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Temporarily copy the Value of the client secret now. It will be hidden later on.  If you lose track of the secret, return here to generate a new one.
+5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Copy the Value of the client secret now. It will be hidden later on.  If you lose track of the secret, return here to generate a new one.
 
 6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
    * offline_access - *Maintain access to data you have given it access to*
@@ -69,17 +60,18 @@ To allow authentication, you first need to register your application at Azure Ap
 1. Install this integration:
     * Recommended - Home Assistant Community Store (HACS) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
-1. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
-1. Restart your Home Assistant instance.
+2. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
+3. Restart your Home Assistant instance.
    **Note:** if Home Assistant give the error "module not found", try restarting home assistant once more.
-1. [Authenticate](#authentication) to establish the link between this integration and the Azure app
+4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authenticate](#authentication)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
     * The o365_calendars_<account_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
-1. [Configure Calendars](#calendar-configuration)
+5. [Configure Calendars](#calendar-configuration)
+6. Restart your Home Assistant instance.
 
 ## Configuration examples
 
-### Primary configuration format - Preferred because it provides improved security and allows for multiple accounts.
+### Primary configuration format (from v3.x.x) - Preferred because it provides improved security and allows for multiple accounts.
 ```yaml
 # Example configuration.yaml entry for multiple accounts
 o365:
@@ -200,7 +192,7 @@ Key | Type | Required | Description
 `name` | `string` | `True` | The name of the sensor.
 
 ## Authentication
-   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only be necessary upon re-authentication._
+   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
 ### Primary (default) authentication method
 After setting up configuration.yaml and restarting Home Assistant, a persistent notification will be created.
@@ -219,6 +211,9 @@ After setting up configuration.yaml with the key set to _True_ and restarting Ho
 2. Click the "Link O365 account" link.
 3. Login on the Microsoft page; when prompted, authorize the app you created
 4. Close the window when the message "Success! This window can be closed" appears.
+
+### Multi-Factor Authentication (MFA)
+If you are using Multi-factor Authentication (MFA), you may find you also need to add `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` to your redirect URIs.
 
 ## Calendar configuration
 The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for the secondary configuration format).
