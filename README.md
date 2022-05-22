@@ -8,7 +8,7 @@
 
 This integration enables:
 1. Getting and creating calendar events from O365.
-2. Getting emails from your inbox.
+2. Getting emails from your inbox using one of two available sensor types (e-mail and query).
 3. Sending emails via the notify.o365_email service.
 4. Getting presence from Teams (not for personal accounts)
 5. Getting the latest chat message from Teams (not for personal accounts)
@@ -21,23 +21,21 @@ I work on this integration because I like things to work well for myself and oth
 # Prerequisites
 
 ## Getting the client id and client secret
-To allow authentication you first need to register your application at Azure App Registrations:
+To allow authentication, you first need to register your application at Azure App Registrations:
 
 1. Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
-2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)", if you are using a personal account. Click Register
+2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)" for greatest freedom of login account. Choose other options if you are confident it will cover the type of account you are using to login.  Click Register.
 
-3. Click Add a Redirect URI.  Click Add a platform.  Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
+3. Click Add a Redirect URI. Click Add a platform. Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
-   When using the alternate auth flow, which requires internet access to HA, please see the [Authentication](#authentication) section.
+   An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to setup correctly. See [Authentication](#authentication) section for more details.
 
-   _**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only impact people re-authenticating._
+   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
-   If you are using Multi-factor Authentication (MFA), you may find you also need to add "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize" to your redirect URIs.
+4. From the Overview page, copy the Application (client) ID.
 
-5. From the Overview page, write down the Application (client) ID. You will need this value for the configuration.yaml.
-
-5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Write down the Value of the client secret now. It will be hidden later on.  If you lose track of the secret return here to generate a new one.
+5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Copy the Value of the client secret now. It will be hidden later on.  If you lose track of the secret, return here to generate a new one.
 
 6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
    * offline_access - *Maintain access to data you have given it access to*
@@ -53,7 +51,7 @@ To allow authentication you first need to register your application at Azure App
    If you are creating a chat_sensor you will need:
    * Chat.Read - *Read user chat messages* (**Not for personal accounts**)
 
-   If ['enable_update'](#primary-method) is set to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
+   If you intend to set [enable_update](#primary-method) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
    * Mail.ReadWrite - *Read and write access to user mail*
    * Mail.Send - *Send mail as a user*
@@ -62,26 +60,26 @@ To allow authentication you first need to register your application at Azure App
 1. Install this integration:
     * Recommended - Home Assistant Community Store (HACS) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
-3. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
-4. Restart your Home Assistant instance.
-   **Note:** if Home Assistant give the error "module not found", try restarting home assistant once more.
-6. [Authenticate](#authentication) to establish link between this integration and Azure app
+2. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
+3. Restart your Home Assistant instance.
+   **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
+4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](#authentication)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
     * The o365_calendars_<account_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
-7. [Configure Calendars](#calendar-configuration)
+5. [Configure Calendars](#calendar-configuration)
+6. Restart your Home Assistant instance.
 
-## Configuration example
+## Configuration examples
 
-Two formats are possible. The first format shown below is the preferred layout since it is setup for improved security and allows for multiple accounts to be configured.
-
-### Primary method (if using v3.x.x)
+### Primary configuration format (as of v3.x.x) - Preferred because it provides improved security and allows for multiple accounts.
 ```yaml
 # Example configuration.yaml entry for multiple accounts
 o365:
   accounts:
     - account_name: Account1
-      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      alt_auth_method: False
       enable_update: True
       email_sensor:
         - name: inbox
@@ -96,20 +94,21 @@ o365:
           has_attachment: True
           max_items: 2
           is_unread: True
-          status_sensors: # Cannot be used for personal accounts
-            - name: "User Teams Status"
-          chat_sensors: # Cannot be used for personal accounts
-            - name: "User Chat"
+      status_sensors: # Cannot be used for personal accounts
+        - name: "User Teams Status"
+      chat_sensors: # Cannot be used for personal accounts
+        - name: "User Chat"
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
 ```
-### Secondary method
+### Secondary configuration format - Less preferred and can only use for a single account.
 ```yaml
 # Example configuration.yaml entry for single account
 o365:
-  client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
+  client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  alt_auth_method: False
   enable_update: False
   email_sensor:
     - name: inbox
@@ -124,15 +123,15 @@ o365:
       has_attachment: True
       max_items: 2
       is_unread: True
-      status_sensors: # Cannot be used for personal accounts
-        - name: "User Teams Status"
-      chat_sensors: # Cannot be used for personal accounts
-        - name: "User Chat"
+  status_sensors: # Cannot be used for personal accounts
+    - name: "User Teams Status"
+  chat_sensors: # Cannot be used for personal accounts
+    - name: "User Chat"
 ```
 
 ### Configuration variables
 
-#### Primary method
+#### Primary format
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -146,7 +145,7 @@ Key | Type | Required | Description
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
-#### Secondary method
+#### Secondary format
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -193,29 +192,39 @@ Key | Type | Required | Description
 `name` | `string` | `True` | The name of the sensor.
 
 ## Authentication
-_**NOTE:** The default authentication method has changed from version 3.2.0. The default is now to use the method which does not require access to your HA instance from the internet. If you previously did not set alt_auth_flow or had it set to False, please set alt_auth_method to True and remove alt_auth_flow from your config. This will only impact people re-authenticating._
+ _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
-### Default auth flow
-After setting up configuration.yaml and restarting home assistant a persistent notification will be created.
+The Primary method of authentication is the simplest to configure and requires no access from the internet to your HA instance, therefore is the most secure method. It has slightly more steps to follow when authenticating.
+
+The alternate method is more complex to setup, since the Azure App that is created in the prerequisites section must be configured to enable authentication from your HA instance whether located in your home network or utilising a cloud service such as Nabu Casa. The actual authentication is slightly simpler with fewer steps.
+
+During setup, the difference in configuration between each methid is the value of the redirect URI on your Azure App. The authentication steps for each method are shown below.
+
+### Primary (default) authentication method
+This requires *alt_auth_method* to be set to *False* or be not present and the redirect URI in your Azure app set to `https://login.microsoftonline.com/common/oauth2/nativeclient`.
+
+After setting up configuration.yaml and restarting Home Assistant, a persistent notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
-3. Login on the microsoft page.
-4. Copy the url from the browser url bar.
-5. Insert into the "Returned Url" field. and click Submit.
-6. That's it.
+3. Login on the Microsoft page.
+4. Copy the URL from the browser URL bar.
+5. Insert into the "Returned URL" field
+6. Click Submit.
 
+### Alternate authentication method
+This requires the *alt_auth_method* to be set to *True* and the redirect URI in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365` (Nabu Casa users should use `https://<NabuCasaBaseAddress>/api/o365` instead).
 
-### Alt auth flow
-This requires the *alt_auth_method* to be set to *True* and the redirect uri in your Azure app set to `https://<your_home_assistant_url_or_local_ip>/api/o365`. Note: if you use Nabu Casa for remote support, use that URL as the base.
-After setting up configuration.yaml with the key set to _True_ and restarting home assistant a persisten notification will be created.
+After setting up configuration.yaml with the key set to _True_ and restarting Home Assistant a persistent notification will be created.
 1. Click on this notification.
 2. Click the "Link O365 account" link.
-3. Login on the microsoft page; when prompted, authorize the app you created
+3. Login on the Microsoft page; when prompted, authorize the app you created
 4. Close the window when the message "Success! This window can be closed" appears.
-5. That's it.
+
+### Multi-Factor Authentication (MFA)
+If you are using Multi-factor Authentication (MFA), you may find you also need to add `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` to your redirect URIs.
 
 ## Calendar configuration
-The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for secondary configuration method).
+The integration uses an external o365_calendars_<account_name>.yaml file (or o365_calendars.yaml for the secondary configuration format).
 ### example o365_calendar_<account_name>.yaml:
 ```yaml
 - cal_id: xxxx
@@ -311,12 +320,12 @@ The `data` attribute provides an array of events for the period defined by the `
 * **Application {x} is not configured as a multi-tenant application.**
   * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
 * **Platform error sensor.office365calendar - No module named '{x}'**
-  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:
+  * This is a known Home Assistant issue, all that's needed to fix this should be another restart of your Home Assistant server. If this does not work, please try installing the component in this order:
 
 
-    1\. Install the component.
-    2\. Restart home assistant.
-    3\. Then add the sensor to your configuration.yaml
-    4\. Restart home assistant again.
+      1. Install the component.
+      2. Restart Home Assistant.
+      3. Add the sensor to your configuration.yaml
+      4. Restart Home Assistant again.
 
-**_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attemps from Home Assistant_**
+**_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
