@@ -314,7 +314,7 @@ The `data` attribute provides an array of events for the period defined by the `
 
 ## Errors
 * **The reply URL specified in the request does not match the reply URLs configured for the application.**
-  * Please ensure that you have configured base_url in your http config https://www.home-assistant.io/integrations/http/#base_url and that you have added the correct reply url to your Azure app
+  * Please ensure that you have configured the internet url on your Home Assistant network settings config and that you have added the correct redirect uri to your Azure app
 * **Client is public so neither 'client_assertion' nor 'client_secret' should be presented.**
   * Please ensure that you have set "Default client type" to Yes in your Azure app under Authentication ![Default client type img](https://user-images.githubusercontent.com/17211264/72337364-ba936a80-36c2-11ea-834d-2af9b84a8bba.png)
 * **Application {x} is not configured as a multi-tenant application.**
