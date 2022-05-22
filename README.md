@@ -62,7 +62,7 @@ To allow authentication, you first need to register your application at Azure Ap
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
 2. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-example) below.
 3. Restart your Home Assistant instance.
-   **Note:** if Home Assistant gives the error "module not found", try restarting home assistant once more.
+   **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
 4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](#authentication)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
     * The o365_calendars_<account_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
@@ -320,7 +320,7 @@ The `data` attribute provides an array of events for the period defined by the `
 * **Application {x} is not configured as a multi-tenant application.**
   * In your azure app go to Manifest, find the key "signInAudience", change its value to "AzureADandPersonalMicrosoftAccount"
 * **Platform error sensor.office365calendar - No module named '{x}'**
-  * This is a known home assistant issue, all that's needed to fix this should be another restart of your home assistant server. If this does not work, please try installing the component in this order:
+  * This is a known Home Assistant issue, all that's needed to fix this should be another restart of your Home Assistant server. If this does not work, please try installing the component in this order:
 
 
       1. Install the component.
