@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.2.1 (2022/05/26)
+### Enhancements
+- [Add filtering on body](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b593646ca2c073929cdc7025fd59391df149ea4c) - @RogerSelwyn
+### Maintenance
+- [Remove unnecessary BCC](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/57b2839a94f16085fa13094f37d7f1c9f0d2f1d1) - @RogerSelwyn
+- [Update readme](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/57) - @GitHubGoody
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3bd203e9bce7f0da3f70bdb9401eb9ce468a4b88) - @RogerSelwyn
+- [Remove domains key from hacs.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2066cb3b60a40ec9aa181b5404c5b927ec4ab33d) - @RogerSelwyn
+- [Bump o365 to 2.0.19](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/880950c2228a11730700a268fc648fa48a972385) - @RogerSelwyn
+- [Bump to v3.2.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4541f66e4dfa81acce7be8f5d906ecaf4f291804) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9065037f974f1bb09e6368261fbe4223a7765da0) - @actions-user
+
 ## v3.2.0 (2022/05/19)
 ### Breaking change
 - [Change default auth method](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/efb3cf2b00d2d32df53691e3c82eb87d077ec814) - @RogerSelwyn
