@@ -4,7 +4,6 @@
     "filename": "o365.zip",
     "homeassistant": "2022.5.0",
     "content_in_root": false,
-    "domains": ["calendar","sensor"],
     "persistent_directory": ".O365-token-cache",
     "render_readme": true
 } 
