@@ -11,7 +11,7 @@ This integration enables:
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
-- [Prerequisites](./prerequisites)
+- [Prerequisites](./prerequisites.md)
 - Installation and Configuration
 - Authentication
 - Calendar Configuration
