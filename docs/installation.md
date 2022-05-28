@@ -107,6 +107,7 @@ Key | Type | Required | Description
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
 #### email_sensors
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
@@ -116,6 +117,7 @@ Key | Type | Required | Description
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 
 #### query_sensors
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
@@ -131,11 +133,13 @@ Key | Type | Required | Description
 `body_contains` | `string` | `False` | Only get emails where the body contains this string
 
 #### status_sensors (not for personal accounts)
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
 
 #### chat_sensors (not for personal accounts)
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.

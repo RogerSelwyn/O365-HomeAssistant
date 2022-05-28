@@ -25,12 +25,14 @@ The integration uses an external o365_calendars_<account_name>.yaml file (or o36
 ```
 
 ### o365_calendars_<account_name>.yaml
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `cal_id` | `string` | `True` | O365 generated unique ID, DO NOT CHANGE
 `entities` | `list<entity>` | `True` | List of entities (see below) to generate from this calendar
 
 ### Entity configuration
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `device_id` | `string` | `True` | The entity_id will be "calendar.{device_id}"
