@@ -1,11 +1,9 @@
 ---
-title: Office 365 Integration for Home Assistant
+title: Home
 nav_order: 1
 ---
 
 # Office 365 Integration for Home Assistant
-
-*This is a fork of the original integration by @PTST which has now been archived.*
 
 This integration enables:
 1. Getting and creating calendar events from O365.

@@ -2,4 +2,12 @@ title: O365 Home Assistant
 remote_theme: just-the-docs/just-the-docs
 
 search_enabled: true
-search.heading_level: 3
+search:
+  heading_level: 3
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+gh_edit_link: true # show or hide edit this page link
+gh_edit_link_text: "Edit this page on GitHub"
