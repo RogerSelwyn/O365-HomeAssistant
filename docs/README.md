@@ -14,7 +14,7 @@ This project would not be possible without the wonderful [python-o365 project](h
 - [Prerequisites](./prerequisites.md)
 - [Installation and Configuration](./installation.md)
 - [Authentication](./authentication.md)
-- Calendar Configuration
-- Calendar Sensor
-- Services
-- Errors
+- [Calendar Configuration}(./calendar-configuration.md)
+- [Sensor Layout](./sensor-layout.md)
+- [Services](./services.md)
+- [Errors](./errors.md)
