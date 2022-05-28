@@ -9,7 +9,7 @@
 4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
     * The o365_calendars_<account_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
-5. [Configure Calendars](./calendar-configuration.md)
+5. [Configure Calendars](./calendar_configuration.md)
 6. Restart your Home Assistant instance.
 
 ## Configuration examples
