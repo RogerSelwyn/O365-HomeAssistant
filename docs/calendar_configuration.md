@@ -5,7 +5,7 @@ nav_order: 5
 
 # Calendar configuration
 The integration uses an external `o365_calendars_<account_name>.yaml` file (or `o365_calendars.yaml` for the secondary configuration format).
-## example Calendar yaml:
+## Example Calendar yaml:
 ```yaml
 - cal_id: xxxx
   entities:
