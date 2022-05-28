@@ -1,3 +1,8 @@
+---
+title: Prerequisites
+nav_order: 2
+---
+
 # Prerequisites
 
 ## Getting the client id and client secret
@@ -31,7 +36,7 @@ To allow authentication, you first need to register your application at Azure Ap
    If you are creating a chat_sensor you will need:
    * Chat.Read - *Read user chat messages* (**Not for personal accounts**)
 
-   If you intend to set [enable_update](./installation.md#configuration_variables) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
+   If you intend to set [enable_update](./installation_and_configuration.md#configuration_variables) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
    * Mail.ReadWrite - *Read and write access to user mail*
    * Mail.Send - *Send mail as a user*

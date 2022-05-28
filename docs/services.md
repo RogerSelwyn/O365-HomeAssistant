@@ -1,7 +1,13 @@
+---
+title: Services
+nav_order: 7
+---
+
 # Services
 ## notify.o365_email
 
 ### Service data
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `message` | `string` | `True` | The email body
@@ -9,6 +15,7 @@ Key | Type | Required | Description
 `data` | `dict<data>` | `False` | Addional attributes - see table below
 
 ### Extended data
+
 Key | Type | Required | Description
 -- | -- | -- | --
 `target` | `string` | `False` | recipient of the email, if not set will use the configured account's email address

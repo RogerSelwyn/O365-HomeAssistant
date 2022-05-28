@@ -1,3 +1,8 @@
+---
+title: Office 365 Integration for Home Assistant
+nav_order: 1
+---
+
 # Office 365 Integration for Home Assistant
 
 *This is a fork of the original integration by @PTST which has now been archived.*
@@ -10,11 +15,3 @@ This integration enables:
 5. Getting the latest chat message from Teams (not for personal accounts)
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
-
-- [Prerequisites](./prerequisites.md)
-- [Installation and Configuration](./installation.md)
-- [Authentication](./authentication.md)
-- [Calendar Configuration](./calendar_configuration.md)
-- [Sensor Layout](./sensor_layout.md)
-- [Services](./services.md)
-- [Errors](./errors.md)
