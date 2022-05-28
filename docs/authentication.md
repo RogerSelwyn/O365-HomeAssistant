@@ -1,3 +1,8 @@
+---
+title: Authentication
+nav_order: 4
+---
+
 # Authentication
  _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 

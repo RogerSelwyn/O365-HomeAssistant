@@ -1,3 +1,8 @@
+---
+title: Installation and Configuration
+nav_order: 3
+---
+
 # Installation and Configuration
 ## Installation
 1. Install this integration:

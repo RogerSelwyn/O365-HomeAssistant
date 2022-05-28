@@ -1,3 +1,8 @@
+---
+title: Prerequisites
+nav_order: 2
+---
+
 # Prerequisites
 
 ## Getting the client id and client secret

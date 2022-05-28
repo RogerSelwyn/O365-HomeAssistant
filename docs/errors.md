@@ -1,3 +1,8 @@
+---
+title: Errors
+nav_order: 8
+---
+
 # Errors
 * **The reply URL specified in the request does not match the reply URLs configured for the application.**
   * Please ensure that you have configured the internet url on your Home Assistant network settings config and that you have added the correct redirect uri to your Azure app

@@ -1,3 +1,8 @@
+---
+title: Sensor Layout
+nav_order: 6
+---
+
 # Sensor layout
 The status of the calendar sensor indicates (on/off) whether there is an event on at the current time. The `message`, `all_day`, `start_time`, `end_time`, `location`, `description` and `offset_reached` attributes provide details of the current of next event. A non all-day event is favoured over all_day events.
 
