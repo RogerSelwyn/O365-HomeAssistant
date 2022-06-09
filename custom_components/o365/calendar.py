@@ -283,10 +283,6 @@ class O365CalendarData:
         vevent_list.sort(key=attrgetter("start"))
         event_list = []
         for vevent in vevent_list:
-            # data = format_event_data(event, self.calendar.calendar_id)
-            # data["start"] = self.get_hass_date(data["start"], event.is_all_day)
-            # data["end"] = self.get_hass_date(data["end"], event.is_all_day)
-            # event_list.append(data)
             event = CalendarEvent(
                 self.get_hass_date(vevent.start, vevent.is_all_day),
                 self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
