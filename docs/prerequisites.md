@@ -10,7 +10,7 @@ To allow authentication, you first need to register your application at Azure Ap
 
 1. Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
-2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)" for greatest freedom of login account. Choose other options if you are confident it will cover the type of account you are using to login.  Click Register.
+2. Create a new App Registration. Give it a name. In Supported account types, make sure you choose "Accounts in any organizational directory and personal Microsoft accounts (e.g. Skype, Xbox, Outlook.com)"
 
 3. Click Add a Redirect URI. Click Add a platform. Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
