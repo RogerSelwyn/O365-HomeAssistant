@@ -6,7 +6,7 @@ nav_order: 3
 # Installation and Configuration
 ## Installation
 1. Install this integration:
-    * Recommended - Home Assistant Community Store (HACS) or
+    * Recommended - [Home Assistant Community Store (HACS)](https://hacs.xyz/) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
 2. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-examples) below.
 3. Restart your Home Assistant instance.
