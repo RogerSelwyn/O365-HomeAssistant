@@ -36,17 +36,17 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_get_service(
     hass, config, discovery_info=None
-):  # pylint: disable=unused-argument
+):    # pylint: disable=unused-argument
     """Get the service."""
     if discovery_info is None:
         return
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    is_authenticated = account.is_authenticated
-    if not is_authenticated:
+    if is_authenticated := account.is_authenticated:
+        return O365EmailService(account, hass, conf)
+    else:
         return
-    return O365EmailService(account, hass, conf)
 
 
 class O365EmailService(BaseNotificationService):
