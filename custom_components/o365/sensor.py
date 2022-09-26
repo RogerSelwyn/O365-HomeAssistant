@@ -62,12 +62,23 @@ async def async_setup_platform(
 
 async def _async_email_sensors(hass, account, add_entities, conf):
     email_sensors = conf.get(CONF_EMAIL_SENSORS, [])
+    _LOGGER.debug("Email sensor setup: %s ", conf[CONF_ACCOUNT_NAME])
     for sensor_conf in email_sensors:
+        _LOGGER.debug(
+            "Email sensor setup: %s, %s",
+            conf[CONF_ACCOUNT_NAME],
+            sensor_conf[CONF_NAME],
+        )
         if mail_folder := await hass.async_add_executor_job(
             _get_mail_folder, account, sensor_conf, CONF_EMAIL_SENSORS
         ):
-            sensor_conf = O365InboxSensor(sensor_conf, mail_folder)
-            add_entities([sensor_conf], True)
+            inboxsensor = O365InboxSensor(sensor_conf, mail_folder)
+            _LOGGER.debug(
+                "Email sensor added: %s, %s",
+                conf[CONF_ACCOUNT_NAME],
+                sensor_conf[CONF_NAME],
+            )
+            add_entities([inboxsensor], True)
 
 
 async def _async_query_sensors(hass, account, add_entities, conf):
@@ -76,8 +87,8 @@ async def _async_query_sensors(hass, account, add_entities, conf):
         if mail_folder := await hass.async_add_executor_job(
             _get_mail_folder, account, sensor_conf, CONF_QUERY_SENSORS
         ):
-            sensor_conf = O365QuerySensor(sensor_conf, mail_folder)
-            add_entities([sensor_conf], True)
+            querysensor = O365QuerySensor(sensor_conf, mail_folder)
+            add_entities([querysensor], True)
 
 
 def _status_sensors(account, add_entities, conf):
@@ -97,6 +108,7 @@ def _chat_sensors(account, add_entities, conf):
 def _get_mail_folder(account, sensor_conf, sensor_type):
     """Get the configured folder."""
     mailbox = account.mailbox()
+    _LOGGER.debug("Get mail folder: %s", sensor_conf.get(CONF_NAME))
     if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
         return _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type)
 
