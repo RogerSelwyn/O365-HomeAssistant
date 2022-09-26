@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.2.2 (2022/09/26)
+### Enhancements
+- [Moved documentation to GitHub page](https://rogerselwyn.github.io/O365-HomeAssistant/) - @RogerSelwyn
+- [Return line breaks where available](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8f445edfaf7edec48e887ca5f44d730e6525b133) - @RogerSelwyn
+
+### Maintenance
+- [Make account type not optional](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e8135254ec6cc0499fcf18c7a2dc9e52268173df) - @spookyuser
+- [Bump o365 to 2.0.20](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/63569ea4ed7a4481678da6a7f70e50e56b8e4400) - @RogerSelwyn
+- [Code cleanup](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1c9086554daf5177094271164974e1822d22c753) - @RogerSelwyn
+- [Bump o365 module to 2.0.21](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/174b5e2501055188d7ff09414b63a9d71a311c70) - @RogerSelwyn
+- [Bump to v3.2.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/168d981c2a8dcf59ad536abc16702592508a2ff1) - @RogerSelwyn
+
 ## v3.2.1 (2022/05/26)
 ### Enhancements
 - [Add filtering on body](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b593646ca2c073929cdc7025fd59391df149ea4c) - @RogerSelwyn
