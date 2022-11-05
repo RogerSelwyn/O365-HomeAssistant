@@ -19,6 +19,7 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `target` | `string` | `False` | recipient of the email, if not set will use the configured account's email address
+`sender` | `string` | `False` | sender of the email, if not set will use the configured account's email address - where the authenticated user has been delegated access to the mailbox
 `message_is_html` | `boolean` | `False` | Is the message formatted as html
 `photos` | `list<string>` | `False` | Filepaths or urls of pictures to embed into the email body
 `attachments` | `list<string>` | `False` | Filepaths to attach to email

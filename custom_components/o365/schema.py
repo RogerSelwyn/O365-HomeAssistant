@@ -29,6 +29,7 @@ from .const import (
     ATTR_PHOTOS,
     ATTR_RESPONSE,
     ATTR_SEND_RESPONSE,
+    ATTR_SENDER,
     ATTR_SENSITIVITY,
     ATTR_SHOW_AS,
     ATTR_START,
@@ -144,6 +145,7 @@ NOTIFY_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_MESSAGE_IS_HTML, default=False): bool,
         vol.Optional(ATTR_TARGET): cv.string,
+        vol.Optional(ATTR_SENDER): cv.string,
         vol.Optional(ATTR_ZIP_ATTACHMENTS, default=False): bool,
         vol.Optional(ATTR_ZIP_NAME): cv.string,
         vol.Optional(ATTR_PHOTOS, default=[]): [cv.string],
