@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.2.3 (2022/11/05)
+### Enhancements
+- [Add ability to send for delegated user](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b9c18bc4918415085f092089321cfae76d2bf501) - @RogerSelwyn
+
+### Maintenance
+- [Update installation_and_configuration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/53457035eec5bf0b586d17ff7ea934875ab57f34) - @RogerSelwyn
+- [Update errors.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/52b12fc9a2f6433d056535285cbf6987ad2c8fa0) - @PuffinRub
+- [Bump to v.3.2.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/465d2143843e8a5ee9da7ba202f879c9781cf96c) - @RogerSelwyn
+
 ## v3.2.2 (2022/09/26)
 ### Enhancements
 - [Moved documentation to GitHub page](https://rogerselwyn.github.io/O365-HomeAssistant/) - @RogerSelwyn
