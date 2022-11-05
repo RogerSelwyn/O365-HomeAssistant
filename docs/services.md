@@ -34,6 +34,8 @@ data:
   message: The garage door has been open for 10 minutes.
   title: Your Garage Door Friend
   data:
+    target: joebloggs@hotmail.com
+    sender: mgmt@noname.org.uk
     message_is_html: true
     attachments:
       - "/config/documents/sendfile.txt"
