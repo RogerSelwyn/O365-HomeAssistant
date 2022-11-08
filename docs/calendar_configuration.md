@@ -41,3 +41,22 @@ Key | Type | Required | Description
 `search` | `string` | `False` | Only get events if subject contains this string
 `start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
 `end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
+
+## Group calendars
+
+The integration supports Group calendars in a fairly simple form. The below are the constraints.
+* This gets the default calendar for the group.
+* There is no discovery. You will need to find them in the MS Graph api. Using the MS Graph API you can call https://graph.microsoft.com/v1.0/me/transitiveMemberOf/microsoft.graph.group to get the groups. You will need the relevant group's `id` for configuration purposes, see below
+* You can create events using the standard service, but you cannot modify/delete/respond to them.
+
+To configure a Group Calendar, add an extra section to `o365_calendars_<account_name>.yaml`. Set `cal_id` to `group:xxxxxxxxxxxxxxx` using the id you found via the api above. Make sure to set the `device_id` to something unique.
+
+```yaml
+  - cal_id: group:xxxx
+    entities:
+    - device_id: group_calendar
+      end_offset: 24
+      name: Group Calendar
+      start_offset: 0
+      track: true
+  ```

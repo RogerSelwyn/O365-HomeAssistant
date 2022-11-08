@@ -8,24 +8,47 @@ from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
+
 from O365 import Account, FileSystemTokenBackend
 
-from .const import (AUTH_CALLBACK_NAME, AUTH_CALLBACK_PATH_ALT,
-                    AUTH_CALLBACK_PATH_DEFAULT, CONF_ACCOUNT,
-                    CONF_ACCOUNT_NAME, CONF_ACCOUNTS, CONF_ALT_AUTH_FLOW,
-                    CONF_ALT_AUTH_METHOD, CONF_CHAT_SENSORS, CONF_CLIENT_ID,
-                    CONF_CLIENT_SECRET, CONF_CONFIG_TYPE, CONF_EMAIL_SENSORS,
-                    CONF_ENABLE_UPDATE, CONF_QUERY_SENSORS,
-                    CONF_STATUS_SENSORS, CONF_TRACK_NEW,
-                    CONFIGURATOR_DESCRIPTION_ALT,
-                    CONFIGURATOR_DESCRIPTION_DEFAULT, CONFIGURATOR_FIELDS,
-                    CONFIGURATOR_LINK_NAME, CONFIGURATOR_SUBMIT_CAPTION,
-                    CONST_CONFIG_TYPE_DICT, CONST_CONFIG_TYPE_LIST,
-                    CONST_PRIMARY, DEFAULT_CACHE_PATH, DEFAULT_NAME, DOMAIN)
+from .const import (
+    AUTH_CALLBACK_NAME,
+    AUTH_CALLBACK_PATH_ALT,
+    AUTH_CALLBACK_PATH_DEFAULT,
+    CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
+    CONF_ACCOUNTS,
+    CONF_ALT_AUTH_FLOW,
+    CONF_ALT_AUTH_METHOD,
+    CONF_CHAT_SENSORS,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
+    CONF_CONFIG_TYPE,
+    CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
+    CONF_QUERY_SENSORS,
+    CONF_STATUS_SENSORS,
+    CONF_TRACK_NEW,
+    CONFIGURATOR_DESCRIPTION_ALT,
+    CONFIGURATOR_DESCRIPTION_DEFAULT,
+    CONFIGURATOR_FIELDS,
+    CONFIGURATOR_LINK_NAME,
+    CONFIGURATOR_SUBMIT_CAPTION,
+    CONST_CONFIG_TYPE_DICT,
+    CONST_CONFIG_TYPE_LIST,
+    CONST_PRIMARY,
+    DEFAULT_CACHE_PATH,
+    DEFAULT_NAME,
+    DOMAIN,
+)
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
-from .utils import (build_config_file_path, build_minimum_permissions,
-                    build_requested_permissions, build_token_filename,
-                    validate_permissions)
+from .utils import (
+    build_config_file_path,
+    build_minimum_permissions,
+    build_requested_permissions,
+    build_token_filename,
+    validate_permissions,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,7 +89,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
         ft.partial(Account, credentials, token_backend=token_backend, timezone="UTC")
     )
     is_authenticated = account.is_authenticated
-    minimum_permissions = build_minimum_permissions(account_conf)
+    minimum_permissions = build_minimum_permissions(hass, account_conf, conf_type)
     permissions = validate_permissions(hass, minimum_permissions, filename=token_file)
     if is_authenticated and permissions:
         do_setup(hass, account_conf, account, account_name, conf_type)

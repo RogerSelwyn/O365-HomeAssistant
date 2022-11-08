@@ -88,6 +88,7 @@ Key | Type | Required | Description
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
 `alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](./authentication.md)
 `enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the various services that allow the sending of emails and updates to calendars
+`groups` | `boolean` | `False` | If True (**default is False**), will enable support for group calendars. No discovery is performed. You will need to know how to get the group id from the MS Graph API.
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries

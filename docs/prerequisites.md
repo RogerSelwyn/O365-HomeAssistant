@@ -40,3 +40,7 @@ To allow authentication, you first need to register your application at Azure Ap
    * Calendars.ReadWrite - *Read and write user calendars*
    * Mail.ReadWrite - *Read and write access to user mail*
    * Mail.Send - *Send mail as a user*
+
+   If you intend to set [groups](./installation_and_configuration.md#configuration_variables) to True, (not supported in legacy installs), then the following permissions are also required:
+   * Group.Read.All - To enable reading of group calendars
+   * Group.ReadWrite.All - To enable creation of events in group calendars if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
