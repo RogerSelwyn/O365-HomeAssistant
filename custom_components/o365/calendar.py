@@ -263,8 +263,9 @@ class O365CalendarData:
                 hass, self._schedule, start_date, end_date
             )
 
-        if not self.calendar and not self._group_calendar:
+        if not self.calendar:
             await self._async_get_calendar(hass)
+
         return await self._async_calendar_schedule_get_events(
             hass, self.calendar, start_date, end_date
         )
