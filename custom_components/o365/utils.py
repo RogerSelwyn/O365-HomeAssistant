@@ -70,9 +70,7 @@ def clean_html(html):
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
         # drop blank lines
         text = "\n".join(chunk for chunk in chunks if chunk)
-        text = text.replace("\xa0", " ")
-        return text
-
+        return text.replace("\xa0", " ")
     return html
 
 
