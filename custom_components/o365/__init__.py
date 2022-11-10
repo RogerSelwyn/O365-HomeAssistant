@@ -47,6 +47,7 @@ from .utils import (
     build_minimum_permissions,
     build_requested_permissions,
     build_token_filename,
+    check_file_location,
     validate_permissions,
 )
 
@@ -79,6 +80,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
 
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_file = build_token_filename(account_conf, conf_type)
+    check_file_location(hass, DEFAULT_CACHE_PATH, token_path)
     token_backend = await hass.async_add_executor_job(
         ft.partial(
             FileSystemTokenBackend, token_path=token_path, token_filename=token_file

@@ -109,6 +109,7 @@ DEFAULT_NAME = "O365"
 DOMAIN = "o365"
 ICON = "mdi:office"
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
+O365_STORAGE = "o365_storage"
 DEFAULT_OFFSET = "!!"
 PERM_CALENDARS_READ = "Calendars.Read"
 PERM_CALENDARS_READ_SHARED = "Calendars.Read.Shared"

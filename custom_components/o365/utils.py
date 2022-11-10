@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import shutil
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -33,6 +34,7 @@ from .const import (
     DATETIME_FORMAT,
     DEFAULT_CACHE_PATH,
     DOMAIN,
+    O365_STORAGE,
     PERM_CALENDARS_READ,
     PERM_CALENDARS_READWRITE,
     PERM_CHAT_READ,
@@ -331,11 +333,11 @@ def update_calendar_file(path, calendar, hass, track_new_devices):
         out.close()
 
 
-def build_config_file_path(hass, filename):
-    """Create filename in config path."""
+def build_config_file_path(hass, filepath):
+    """Create config path."""
     root = hass.config.config_dir
 
-    return os.path.join(root, filename)
+    return os.path.join(root, O365_STORAGE, filepath)
 
 
 def build_token_filename(conf, conf_type):
@@ -357,3 +359,14 @@ def build_yaml_filename(conf, conf_type=None):
             else ""
         )
     return YAML_CALENDARS.format(DOMAIN, config_file)
+
+
+def check_file_location(hass, filepath, newpath):
+    """Check if file has been moved. If not move it. This function to be removed 2023/05/30."""
+    root = hass.config.config_dir
+    oldpath = os.path.join(
+        root,
+        filepath,
+    )
+    if os.path.exists(oldpath):
+        shutil.move(oldpath, newpath)

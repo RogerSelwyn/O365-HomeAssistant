@@ -51,6 +51,7 @@ from .utils import (
     build_config_file_path,
     build_token_filename,
     build_yaml_filename,
+    check_file_location,
     clean_html,
     format_event_data,
     get_permissions,
@@ -84,7 +85,9 @@ async def async_setup_platform(
 
 def _setup_add_entities(hass, account, add_entities, conf):
     yaml_filename = build_yaml_filename(conf)
-    calendars = load_calendars(build_config_file_path(hass, yaml_filename))
+    yaml_filepath = build_config_file_path(hass, yaml_filename)
+    check_file_location(hass, yaml_filename, yaml_filepath)
+    calendars = load_calendars(yaml_filepath)
     cal_ids = {}
 
     for cal_id, calendar in calendars.items():
