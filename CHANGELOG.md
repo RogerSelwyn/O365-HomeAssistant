@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.3.0 (2022/11/10)
+### Enhancements
+- [Add ability to read group calendars](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6ba872fea5478bc0727abf559585ca6950039e3d) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v3.3.0 Alpha 1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4e9828cc53080da96f247b363da85c53af734147) - @RogerSelwyn
+- [Sourcery code recommendations](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f3d5391c522932a746c4e2f4db23e5b5c7338a05) - @RogerSelwyn
+- [Sourcery code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1be5c9ddec9572d79dd2f80740f360ff27e37863) - @RogerSelwyn
+- [Bump to v3.3.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b25edce41358d3ca2b6dce0aba21d4e8937ee6de) - @RogerSelwyn
+
 ## v3.2.3 (2022/11/05)
 ### Enhancements
 - [Add ability to send for delegated user](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b9c18bc4918415085f092089321cfae76d2bf501) - @RogerSelwyn
