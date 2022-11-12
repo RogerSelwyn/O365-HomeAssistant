@@ -11,6 +11,7 @@ from .const import (
     ATTR_CHAT_ID,
     ATTR_CONTENT,
     ATTR_FROM_DISPLAY_NAME,
+    ATTR_ICON,
     ATTR_IMPORTANCE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
@@ -265,6 +266,14 @@ class O365TeamsStatusSensor(Entity):
     def state(self):
         """Sensor state."""
         return self._state
+
+    @property
+    def extra_state_attributes(self):
+        """Return entity specific state attributes."""
+        attributes = {
+            ATTR_ICON: "mdi:microsoft-teams",
+        }
+        return attributes
 
     async def async_update(self):
         """Update state."""
