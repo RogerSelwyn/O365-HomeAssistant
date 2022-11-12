@@ -1,14 +1,14 @@
 {
   "domain": "o365",
-  "name": "Office 365 Calendar",
-  "documentation": "https://github.com/RogerSelwyn/O365-HomeAssistant",
-  "issue_tracker": "https://github.com/RogerSelwyn/O365-HomeAssistant/issues",
+  "name": "Office 365 Calendar (rdeveen)",
+  "documentation": "https://github.com/rdeveen/O365-HomeAssistant",
+  "issue_tracker": "https://github.com/rdeveen/O365-HomeAssistant/issues",
   "dependencies": [
     "configurator",
     "http"
   ],
   "codeowners": [
-    "@RogerSelwyn"
+    "@rdeveen"
   ],
   "requirements": [
     "O365==2.0.21",
