@@ -270,10 +270,9 @@ class O365TeamsStatusSensor(Entity):
     @property
     def extra_state_attributes(self):
         """Return entity specific state attributes."""
-        attributes = {
+        return {
             ATTR_ICON: "mdi:microsoft-teams",
         }
-        return attributes
 
     async def async_update(self):
         """Update state."""
