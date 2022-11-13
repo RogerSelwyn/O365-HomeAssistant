@@ -236,6 +236,9 @@ class O365QuerySensor(O365MailSensor, Entity):
         self._query = self._mail_folder.new_query()
         self._query.order_by("receivedDateTime", ascending=False)
 
+        self._build_query()
+
+    def _build_query(self):
         if (
             self._body_contains is not None
             or self._subject_contains is not None

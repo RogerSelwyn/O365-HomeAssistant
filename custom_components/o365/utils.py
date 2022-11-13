@@ -98,12 +98,9 @@ def build_minimum_permissions(hass, config, conf_type):
     if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED, False):
         minimum_permissions.append(PERM_MINIMUM_TASKS)
 
-    yaml_filename = build_yaml_filename(config, conf_type)
-    calendars = load_calendars(build_config_file_path(hass, yaml_filename))
-    for calendar in calendars:
-        if calendar.startswith(CONST_GROUP):
-            minimum_permissions.append(PERM_MINIMUM_GROUP)
-            break
+    if group_permissions_required(hass, config, conf_type):
+        minimum_permissions.append(PERM_MINIMUM_GROUP)
+
     return minimum_permissions
 
 
@@ -139,6 +136,18 @@ def build_requested_permissions(config):
             scope.append(PERM_TASKS_READ)
 
     return scope
+
+
+def group_permissions_required(hass, config, conf_type):
+    """Return if group permissions are required."""
+    yaml_filename = build_yaml_filename(config, conf_type)
+    calendars = load_calendars(build_config_file_path(hass, yaml_filename))
+    for cal_id, calendar in calendars.items():
+        if cal_id.startswith(CONST_GROUP):
+            for entity in calendar.get(CONF_ENTITIES):
+                if entity[CONF_TRACK]:
+                    return True
+    return False
 
 
 def validate_permissions(
