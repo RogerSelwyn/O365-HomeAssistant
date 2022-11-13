@@ -159,6 +159,11 @@ class O365MailSensor:
         return self._state
 
     @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:microsoft-outlook"
+
+    @property
     def extra_state_attributes(self):
         """Device state attributes."""
         return self._attributes
@@ -266,6 +271,11 @@ class O365TeamsStatusSensor(Entity):
         """Sensor state."""
         return self._state
 
+    @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:microsoft-teams"
+
     async def async_update(self):
         """Update state."""
         data = await self.hass.async_add_executor_job(self._teams.get_my_presence)
@@ -296,6 +306,11 @@ class O365TeamsChatSensor(Entity):
     def state(self):
         """Sensor state."""
         return self._state
+
+    @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:microsoft-teams"
 
     @property
     def extra_state_attributes(self):
