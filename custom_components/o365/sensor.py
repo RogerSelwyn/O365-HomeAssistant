@@ -159,6 +159,11 @@ class O365MailSensor:
         return self._state
 
     @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:microsoft-outlook"
+
+    @property
     def extra_state_attributes(self):
         """Device state attributes."""
         return self._attributes
@@ -301,6 +306,11 @@ class O365TeamsChatSensor(Entity):
     def state(self):
         """Sensor state."""
         return self._state
+
+    @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:microsoft-teams"
 
     @property
     def extra_state_attributes(self):
