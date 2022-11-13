@@ -11,6 +11,7 @@ class EventResponse(Enum):
     Decline = "decline"  # pylint: disable=invalid-name
 
 
+ATTR_ALL_TASKS = "all_tasks"
 ATTR_ATTACHMENTS = "attachments"
 ATTR_ATTENDEES = "attendees"
 ATTR_BODY = "body"
@@ -18,6 +19,8 @@ ATTR_CALENDAR_ID = "calendar_id"
 ATTR_CATEGORIES = "categories"
 ATTR_CHAT_ID = "chat_id"
 ATTR_CONTENT = "content"
+ATTR_DESCRIPTION = "description"
+ATTR_DUE = "due"
 ATTR_EMAIL = "email"
 ATTR_END = "end"
 ATTR_ENTITY_ID = "entity_id"
@@ -28,7 +31,9 @@ ATTR_IS_ALL_DAY = "is_all_day"
 ATTR_IMPORTANCE = "importance"
 ATTR_LOCATION = "location"
 ATTR_MESSAGE_IS_HTML = "message_is_html"
+ATTR_OVERDUE_TASKS = "overdue_tasks"
 ATTR_PHOTOS = "photos"
+ATTR_REMINDER = "reminder"
 ATTR_RESPONSE = "response"
 ATTR_SENDER = "sender"
 ATTR_SEND_RESPONSE = "send_response"
@@ -37,6 +42,7 @@ ATTR_SHOW_AS = "show_as"
 ATTR_START = "start"
 ATTR_SUBJECT = "subject"
 ATTR_SUMMARY = "summary"
+ATTR_TITLE = "title"
 ATTR_TYPE = "type"
 ATTR_ZIP_ATTACHMENTS = "zip_attachments"
 ATTR_ZIP_NAME = "zip_name"
@@ -81,10 +87,11 @@ CONF_MAIL_FOLDER = "folder"
 CONF_MAIL_FROM = "from"
 CONF_MAX_ITEMS = "max_items"
 CONF_CHAT_SENSORS = "chat_sensors"
-CONF_STATUS_SENSORS = "status_sensors"
 CONF_QUERY_SENSORS = "query_sensors"
+CONF_STATUS_SENSORS = "status_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
+CONF_TODO_SENSORS = "todo_sensors"
 CONF_TRACK_NEW = "track_new_calendar"
 CONFIGURATOR_DESCRIPTION_ALT = (
     "To link your O365 account, click the link, login, and authorize:"
@@ -126,10 +133,13 @@ PERM_MAIL_SEND = "Mail.Send"
 PERM_MAIL_SEND_SHARED = "Mail.Send.Shared"
 PERM_OFFLINE_ACCESS = "offline_access"
 PERM_PRESENCE_READ = "Presence.Read"
+PERM_TASKS_READ = "Tasks.Read"
+PERM_TASKS_READWRITE = "Tasks.ReadWrite"
 PERM_USER_READ = "User.Read"
 PERM_MINIMUM_CHAT = [PERM_CHAT_READ, []]
 PERM_MINIMUM_GROUP = [PERM_GROUP_READ_ALL, [PERM_GROUP_READWRITE_ALL]]
 PERM_MINIMUM_PRESENCE = [PERM_PRESENCE_READ, []]
+PERM_MINIMUM_TASKS = [PERM_TASKS_READ, [PERM_TASKS_READWRITE]]
 PERM_MINIMUM_USER = [PERM_USER_READ, []]
 PERM_MINIMUM_MAIL = [
     PERM_MAIL_READ,

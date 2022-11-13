@@ -9,7 +9,7 @@ from pathlib import Path
 
 import yaml
 from bs4 import BeautifulSoup
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.util import dt
 from voluptuous.error import Error as VoluptuousError
 
@@ -28,6 +28,7 @@ from .const import (
     CONF_GROUPS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
+    CONF_TODO_SENSORS,
     CONF_TRACK,
     CONST_CONFIG_TYPE_LIST,
     CONST_GROUP,
@@ -47,9 +48,12 @@ from .const import (
     PERM_MINIMUM_GROUP,
     PERM_MINIMUM_MAIL,
     PERM_MINIMUM_PRESENCE,
+    PERM_MINIMUM_TASKS,
     PERM_MINIMUM_USER,
     PERM_OFFLINE_ACCESS,
     PERM_PRESENCE_READ,
+    PERM_TASKS_READ,
+    PERM_TASKS_READWRITE,
     PERM_USER_READ,
     TOKEN_FILENAME,
     YAML_CALENDARS,
@@ -83,6 +87,7 @@ def build_minimum_permissions(hass, config, conf_type):
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
+    todo_sensors = config.get(CONF_TODO_SENSORS, [])
     minimum_permissions = [PERM_MINIMUM_USER, PERM_MINIMUM_CALENDAR]
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_MAIL)
@@ -90,6 +95,8 @@ def build_minimum_permissions(hass, config, conf_type):
         minimum_permissions.append(PERM_MINIMUM_PRESENCE)
     if len(chat_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_CHAT)
+    if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED, False):
+        minimum_permissions.append(PERM_MINIMUM_TASKS)
 
     yaml_filename = build_yaml_filename(config, conf_type)
     calendars = load_calendars(build_config_file_path(hass, yaml_filename))
@@ -106,6 +113,7 @@ def build_requested_permissions(config):
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
+    todo_sensors = config.get(CONF_TODO_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
     groups = config.get(CONF_GROUPS, False)
     scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
@@ -124,6 +132,11 @@ def build_requested_permissions(config):
         scope.append(PERM_PRESENCE_READ)
     if len(chat_sensors) > 0:
         scope.append(PERM_CHAT_READ)
+    if todo_sensors and todo_sensors.get(CONF_ENABLED, False):
+        if enable_update:
+            scope.append(PERM_TASKS_READWRITE)
+        else:
+            scope.append(PERM_TASKS_READ)
 
     return scope
 

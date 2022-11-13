@@ -131,3 +131,25 @@ remove_calendar_event:
     calendar_id:
       description: (Deprecated) ID for the calendar to create the event in, can be found as an attribute on your calendar entity
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+new_task:
+  description: Create a new task/ToDo
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    title:
+      description: The title of the task
+      example: Pick up the mail
+    description:
+      description: Description of the task
+      example: Walk to the post box and collect the mail
+    due:
+      description: When the task is due by
+      example: "YYYY-MM-DD"
+    reminder:
+      description: When a reminder is needed
+      example: "YYYY-MM-DDTHH:MM:SSZ"
