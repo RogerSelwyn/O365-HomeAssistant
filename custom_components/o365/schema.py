@@ -20,6 +20,8 @@ from .const import (
     ATTR_BODY,
     ATTR_CALENDAR_ID,
     ATTR_CATEGORIES,
+    ATTR_DESCRIPTION,
+    ATTR_DUE,
     ATTR_EMAIL,
     ATTR_END,
     ATTR_ENTITY_ID,
@@ -28,6 +30,7 @@ from .const import (
     ATTR_LOCATION,
     ATTR_MESSAGE_IS_HTML,
     ATTR_PHOTOS,
+    ATTR_REMINDER,
     ATTR_RESPONSE,
     ATTR_SEND_RESPONSE,
     ATTR_SENDER,
@@ -254,3 +257,10 @@ CALENDAR_DEVICE_SCHEMA = vol.Schema(
     },
     extra=vol.ALLOW_EXTRA,
 )
+
+NEW_TASK_SCHEMA = {
+    vol.Required(ATTR_TITLE): cv.string,
+    vol.Optional(ATTR_DESCRIPTION): cv.string,
+    vol.Optional(ATTR_DUE): cv.string,
+    vol.Optional(ATTR_REMINDER): cv.datetime,
+}

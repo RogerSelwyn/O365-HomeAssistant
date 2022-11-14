@@ -6,7 +6,6 @@ from operator import itemgetter
 
 import voluptuous as vol
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import dt
@@ -15,12 +14,10 @@ from .const import (
     ATTR_ALL_TASKS,
     ATTR_CHAT_ID,
     ATTR_CONTENT,
-    ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
     ATTR_OVERDUE_TASKS,
-    ATTR_REMINDER,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     ATTR_TITLE,
@@ -44,6 +41,7 @@ from .const import (
     CONF_TODO_SENSORS,
     DOMAIN,
 )
+from .schema import NEW_TASK_SCHEMA
 from .utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -135,12 +133,7 @@ async def _async_setup_register_services():
 
     platform.async_register_entity_service(
         "new_task",
-        {
-            vol.Required(ATTR_TITLE): cv.string,
-            vol.Optional(ATTR_DESCRIPTION): cv.string,
-            vol.Optional(ATTR_DUE): cv.string,
-            vol.Optional(ATTR_REMINDER): cv.string,
-        },
+        NEW_TASK_SCHEMA,
         "new_task",
     )
 
@@ -438,19 +431,16 @@ class O365TodoSensor(Entity):
             new_task.body = description
         if due:
             try:
-                new_task.due = dt.parse_date(due)
+                if len(due) > 10:
+                    new_task.due = dt.parse_datetime(due).date()
+                else:
+                    new_task.due = dt.parse_date(due)
             except ValueError:
                 error = f"Due date {due} is not in valid format YYYY-MM-DD"
-                _LOGGER.warning(error)
-                return False
+                raise vol.Invalid(error)  # pylint: disable=raise-missing-from
 
         if reminder:
-            try:
-                new_task.reminder = dt.parse_datetime(reminder)
-            except ValueError:
-                error = f"Reminder datetime {reminder} is not in valid format YYYY-MM-DDTHH:MM:SSZ"
-                _LOGGER.warning(error)
-                return False
+            new_task.reminder = reminder
 
         new_task.save()
         return True
