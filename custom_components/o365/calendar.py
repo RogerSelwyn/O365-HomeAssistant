@@ -5,6 +5,7 @@ from copy import deepcopy
 from datetime import date, datetime, timedelta
 from operator import attrgetter, itemgetter
 
+import voluptuous as vol
 from homeassistant.components.calendar import (
     CalendarEntity,
     CalendarEvent,
@@ -367,12 +368,11 @@ class O365CalendarEntity(CalendarEntity):
             filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
         )
         if not validate_minimum_permission(PERM_MINIMUM_CALENDAR_WRITE, permissions):
-            _LOGGER.error(
-                "Not authorisied to %s calendar event - requires permission: %s",
-                error_message,
-                PERM_CALENDARS_READWRITE,
+            raise vol.Invalid(
+                f"Not authorisied to {PERM_CALENDARS_READWRITE} calendar event "
+                + f"- requires permission: {error_message}"
             )
-            return False
+
         return True
 
 
@@ -611,7 +611,7 @@ class CalendarServices:
 
 
 def _group_calendar_log(entity_id):
-    _LOGGER.error(
-        "O365 Python does not have capability to update/respond to group calendar events: %s",
-        entity_id,
+    raise vol.Invalid(
+        "O365 Python does not have capability "
+        + f"to update/respond to group calendar events: {entity_id}"
     )
