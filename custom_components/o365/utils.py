@@ -10,11 +10,9 @@ from pathlib import Path
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_NAME
-from homeassistant.util import dt
 from voluptuous.error import Error as VoluptuousError
 
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
-from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module)
 
 from .const import (
     CONF_ACCOUNT_NAME,
@@ -214,7 +212,7 @@ def get_email_attributes(mail, download_attachments):
     return data
 
 
-def format_event_data(event, calendar_id):
+def format_event_data(event):
     """Format the event data."""
     return {
         "summary": event.subject,
@@ -231,28 +229,39 @@ def format_event_data(event, calendar_id):
             for x in event.attendees._Attendees__attendees  # pylint: disable=protected-access
         ],
         "uid": event.object_id,
-        "calendar_id": calendar_id,
     }
 
 
-def add_call_data_to_event(event, event_data):
+def add_call_data_to_event(
+    event,
+    subject,
+    start,
+    end,
+    body,
+    location,
+    categories,
+    sensitivity,
+    show_as,
+    is_all_day,
+    attendees,
+):
     """Add the call data."""
-    if subject := event_data.get("subject"):
+    if subject:
         event.subject = subject
 
-    if body := event_data.get("body"):
+    if body:
         event.body = body
 
-    if location := event_data.get("location"):
+    if location:
         event.location = location
 
-    if categories := event_data.get("categories"):
+    if categories:
         event.categories = categories
 
-    if show_as := event_data.get("show_as"):
+    if show_as:
         event.show_as = show_as
 
-    if attendees := event_data.get("attendees"):
+    if attendees:
         event.attendees.clear()
         event.attendees.add(
             [
@@ -261,13 +270,12 @@ def add_call_data_to_event(event, event_data):
             ]
         )
 
-    if start := event_data.get("start"):
-        event.start = dt.parse_datetime(start)
+    if start:
+        event.start = start
 
-    if end := event_data.get("end"):
-        event.end = dt.parse_datetime(end)
+    if end:
+        event.end = end
 
-    is_all_day = event_data.get("is_all_day")
     if is_all_day is not None:
         event.is_all_day = is_all_day
         if event.is_all_day:
@@ -278,8 +286,8 @@ def add_call_data_to_event(event, event_data):
                 event.end.year, event.end.month, event.end.day, 0, 0, 0
             )
 
-    if sensitivity := event_data.get("sensitivity"):
-        event.sensitivity = EventSensitivity(sensitivity.lower())
+    if sensitivity:
+        event.sensitivity = sensitivity
     return event
 
 

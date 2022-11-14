@@ -18,7 +18,6 @@ from .const import (
     ATTR_ATTACHMENTS,
     ATTR_ATTENDEES,
     ATTR_BODY,
-    ATTR_CALENDAR_ID,
     ATTR_CATEGORIES,
     ATTR_EMAIL,
     ATTR_END,
@@ -164,16 +163,13 @@ NOTIFY_BASE_SCHEMA = vol.Schema(
     }
 )
 
-CALENDAR_SERVICE_RESPOND_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_ENTITY_ID): cv.string,
-        vol.Required(ATTR_EVENT_ID): cv.string,
-        vol.Required(ATTR_CALENDAR_ID): cv.string,
-        vol.Optional(ATTR_RESPONSE, None): cv.enum(EventResponse),
-        vol.Optional(ATTR_SEND_RESPONSE, True): bool,
-        vol.Optional(ATTR_MESSAGE, None): cv.string,
-    }
-)
+CALENDAR_SERVICE_RESPOND_SCHEMA = {
+    vol.Required(ATTR_ENTITY_ID): cv.string,
+    vol.Required(ATTR_EVENT_ID): cv.string,
+    vol.Required(ATTR_RESPONSE, None): cv.enum(EventResponse),
+    vol.Optional(ATTR_SEND_RESPONSE, True): bool,
+    vol.Optional(ATTR_MESSAGE, None): cv.string,
+}
 
 ATTENDEE_SCHEMA = vol.Schema(
     {
@@ -182,49 +178,40 @@ ATTENDEE_SCHEMA = vol.Schema(
     }
 )
 
-CALENDAR_SERVICE_CREATE_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_ENTITY_ID): cv.string,
-        vol.Required(ATTR_CALENDAR_ID): cv.string,
-        vol.Required(ATTR_START): cv.datetime,
-        vol.Required(ATTR_END): cv.datetime,
-        vol.Required(ATTR_SUBJECT): cv.string,
-        vol.Optional(ATTR_BODY): cv.string,
-        vol.Optional(ATTR_LOCATION): cv.string,
-        vol.Optional(ATTR_CATEGORIES): [cv.string],
-        vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
-        vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
-        vol.Optional(ATTR_IS_ALL_DAY): bool,
-        vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
-    }
-)
-
-CALENDAR_SERVICE_MODIFY_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_ENTITY_ID): cv.string,
-        vol.Required(ATTR_EVENT_ID): cv.string,
-        vol.Required(ATTR_CALENDAR_ID): cv.string,
-        vol.Optional(ATTR_START): cv.datetime,
-        vol.Optional(ATTR_END): cv.datetime,
-        vol.Required(ATTR_SUBJECT): cv.string,
-        vol.Optional(ATTR_BODY): cv.string,
-        vol.Optional(ATTR_LOCATION): cv.string,
-        vol.Optional(ATTR_CATEGORIES): [cv.string],
-        vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
-        vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
-        vol.Optional(ATTR_IS_ALL_DAY): bool,
-        vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
-    }
-)
+CALENDAR_SERVICE_CREATE_SCHEMA = {
+    vol.Required(ATTR_SUBJECT): cv.string,
+    vol.Required(ATTR_START): cv.datetime,
+    vol.Required(ATTR_END): cv.datetime,
+    vol.Optional(ATTR_BODY): cv.string,
+    vol.Optional(ATTR_LOCATION): cv.string,
+    vol.Optional(ATTR_CATEGORIES): [cv.string],
+    vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
+    vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
+    vol.Optional(ATTR_IS_ALL_DAY): bool,
+    vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
+}
 
 
-CALENDAR_SERVICE_REMOVE_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_ENTITY_ID): cv.string,
-        vol.Required(ATTR_EVENT_ID): cv.string,
-        vol.Required(ATTR_CALENDAR_ID): cv.string,
-    }
-)
+CALENDAR_SERVICE_MODIFY_SCHEMA = {
+    vol.Required(ATTR_ENTITY_ID): cv.string,
+    vol.Required(ATTR_EVENT_ID): cv.string,
+    vol.Optional(ATTR_START): cv.datetime,
+    vol.Optional(ATTR_END): cv.datetime,
+    vol.Required(ATTR_SUBJECT): cv.string,
+    vol.Optional(ATTR_BODY): cv.string,
+    vol.Optional(ATTR_LOCATION): cv.string,
+    vol.Optional(ATTR_CATEGORIES): [cv.string],
+    vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
+    vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
+    vol.Optional(ATTR_IS_ALL_DAY): bool,
+    vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
+}
+
+
+CALENDAR_SERVICE_REMOVE_SCHEMA = {
+    vol.Required(ATTR_ENTITY_ID): cv.string,
+    vol.Required(ATTR_EVENT_ID): cv.string,
+}
 
 SINGLE_CALSEARCH_CONFIG = vol.Schema(
     {
