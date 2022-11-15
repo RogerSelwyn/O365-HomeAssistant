@@ -259,7 +259,7 @@ CALENDAR_DEVICE_SCHEMA = vol.Schema(
 )
 
 NEW_TASK_SCHEMA = {
-    vol.Required(ATTR_TITLE): cv.string,
+    vol.Required(ATTR_SUBJECT): cv.string,
     vol.Optional(ATTR_DESCRIPTION): cv.string,
     vol.Optional(ATTR_DUE): cv.string,
     vol.Optional(ATTR_REMINDER): cv.datetime,

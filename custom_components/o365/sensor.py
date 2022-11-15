@@ -20,7 +20,6 @@ from .const import (
     ATTR_OVERDUE_TASKS,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
-    ATTR_TITLE,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_BODY_CONTAINS,
@@ -403,11 +402,13 @@ class O365TodoSensor(Entity):
         all_tasks = []
         overdue_tasks = []
         for item in self._tasks:
-            task = {ATTR_TITLE: item.title}
+            task = {ATTR_SUBJECT: item.subject}
             if item.due:
                 task[ATTR_DUE] = item.due
                 if item.due < dt.utcnow():
-                    overdue_tasks.append({ATTR_TITLE: item.title, ATTR_DUE: item.due})
+                    overdue_tasks.append(
+                        {ATTR_SUBJECT: item.subject, ATTR_DUE: item.due}
+                    )
 
             all_tasks.append(task)
 
@@ -424,9 +425,9 @@ class O365TodoSensor(Entity):
 
         self._tasks = list(data)
 
-    def new_task(self, title, description=None, due=None, reminder=None):
+    def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
-        new_task = self._todo.new_task(title=title)
+        new_task = self._todo.new_task(subject=subject)
         if description:
             new_task.body = description
         if due:

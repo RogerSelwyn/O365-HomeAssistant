@@ -141,8 +141,8 @@ new_task:
       integration: o365
       domain: sensor
   fields:
-    title:
-      description: The title of the task
+    subject:
+      description: The subject of the task
       example: Pick up the mail
     description:
       description: Description of the task
