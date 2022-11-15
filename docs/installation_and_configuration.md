@@ -13,7 +13,7 @@ nav_order: 3
    **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
 4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/.O365-token-cache
-    * The o365\_calendars\_<account\_name>.yaml (or o365_calendars.yaml for secondary configuration method) will be created under the config directory
+    * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary configuration method) will be created under the config directory in the `o365_storage` directory.
 5. [Configure Calendars](./calendar_configuration.md)
 6. Restart your Home Assistant instance.
 
