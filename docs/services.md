@@ -28,7 +28,7 @@ Key | Type | Required | Description
 
 ### Example notify service call
 
-```
+```yaml
 service: notify.o365_email
 data:
   message: The garage door has been open for 10 minutes.
@@ -54,3 +54,24 @@ Remove an event in the specified calendar - All paremeters are shown in the avai
 Respond to an event in the specified calendar - All paremeters are shown in the available parameter list on the Developer Tools/Services tab. Not possible for group calendars.
 ## o365.scan_for_calendars
 Scan for new calendars and add to o365_calendars.yaml - No parameters. Does not scan for group calendars.
+
+### Example create event service call
+
+```yaml
+service: o365.create_calendar_event
+target:
+  entity_id:
+    - calendar.user_primary
+data:
+  subject: Clean up the garage
+  start: 2023-01-01T12:00:00+0000
+  end: 2023-01-01T12:30:00+0000
+  body: Remember to also clean out the gutters
+  location: 1600 Pennsylvania Ave Nw, Washington, DC 20500
+  sensitivity: Normal
+  show_as: Busy
+  attendees:
+    - email: test@example.com
+      type: Required
+
+```
