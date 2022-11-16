@@ -1,17 +1,23 @@
 """Sensor processing."""
-import datetime as dt
+import datetime
 import functools as ft
 import logging
 from operator import itemgetter
 
-from homeassistant.const import CONF_NAME
+import voluptuous as vol
+from homeassistant.const import CONF_ENABLED, CONF_NAME
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import Entity
+from homeassistant.util import dt
 
 from .const import (
+    ATTR_ALL_TASKS,
     ATTR_CHAT_ID,
     ATTR_CONTENT,
+    ATTR_DUE,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
+    ATTR_OVERDUE_TASKS,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     CONF_ACCOUNT,
@@ -20,6 +26,7 @@ from .const import (
     CONF_CHAT_SENSORS,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
+    CONF_ENABLE_UPDATE,
     CONF_HAS_ATTACHMENT,
     CONF_IMPORTANCE,
     CONF_IS_UNREAD,
@@ -30,8 +37,10 @@ from .const import (
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
+    CONF_TODO_SENSORS,
     DOMAIN,
 )
+from .schema import NEW_TASK_SCHEMA
 from .utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -56,6 +65,7 @@ async def async_setup_platform(
     await _async_query_sensors(hass, account, add_entities, conf)
     _status_sensors(account, add_entities, conf)
     _chat_sensors(account, add_entities, conf)
+    await _async_todo_sensors(hass, account, add_entities, conf)
 
     return True
 
@@ -103,6 +113,28 @@ def _chat_sensors(account, add_entities, conf):
     for sensor_conf in chat_sensors:
         teams_chat_sensor = O365TeamsChatSensor(account, sensor_conf)
         add_entities([teams_chat_sensor], True)
+
+
+async def _async_todo_sensors(hass, account, add_entities, conf):
+    todo_sensors = conf.get(CONF_TODO_SENSORS, [])
+    if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED):
+        if conf.get(CONF_ENABLE_UPDATE):
+            await _async_setup_register_services()
+        todos = account.tasks()
+        todolists = await hass.async_add_executor_job(todos.list_folders)
+        for todo in todolists:
+            todo_sensor = O365TodoSensor(conf.get(CONF_ACCOUNT_NAME), todo)
+            add_entities([todo_sensor], True)
+
+
+async def _async_setup_register_services():
+    platform = entity_platform.async_get_current_platform()
+
+    platform.async_register_entity_service(
+        "new_task",
+        NEW_TASK_SCHEMA,
+        "new_task",
+    )
 
 
 def _get_mail_folder(account, sensor_conf, sensor_type):
@@ -201,6 +233,9 @@ class O365QuerySensor(O365MailSensor, Entity):
         self._query = self._mail_folder.new_query()
         self._query.order_by("receivedDateTime", ascending=False)
 
+        self._build_query()
+
+    def _build_query(self):
         if (
             self._body_contains is not None
             or self._subject_contains is not None
@@ -210,7 +245,7 @@ class O365QuerySensor(O365MailSensor, Entity):
             or self._email_from is not None
             or self._is_unread is not None
         ):
-            self._add_to_query("ge", "receivedDateTime", dt.datetime(1900, 5, 1))
+            self._add_to_query("ge", "receivedDateTime", datetime.datetime(1900, 5, 1))
         self._add_to_query("contains", "body", self._body_contains)
         self._add_to_query("contains", "subject", self._subject_contains)
         self._add_to_query("equals", "subject", self._subject_is)
@@ -348,3 +383,80 @@ class O365TeamsChatSensor(Entity):
             if state:
                 break
         self._state = state
+
+
+class O365TodoSensor(Entity):
+    """O365 Teams sensor processing."""
+
+    def __init__(self, account_name, todo):
+        """Initialise the Teams Sensor."""
+        self._todo = todo
+        self._query = self._todo.new_query("status").unequal("completed")
+        self._id = todo.folder_id
+        self._name = f"{todo.name} {account_name}"
+        self._tasks = []
+
+    @property
+    def name(self):
+        """Sensor name."""
+        return self._name
+
+    @property
+    def state(self):
+        """Sensor state."""
+        return len(self._tasks)
+
+    @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:clipboard-check-outline"
+
+    @property
+    def extra_state_attributes(self):
+        """Extra state attributes."""
+        all_tasks = []
+        overdue_tasks = []
+        for item in self._tasks:
+            task = {ATTR_SUBJECT: item.subject}
+            if item.due:
+                task[ATTR_DUE] = item.due
+                if item.due < dt.utcnow():
+                    overdue_tasks.append(
+                        {ATTR_SUBJECT: item.subject, ATTR_DUE: item.due}
+                    )
+
+            all_tasks.append(task)
+
+        extra_attributes = {ATTR_ALL_TASKS: all_tasks}
+        if overdue_tasks:
+            extra_attributes[ATTR_OVERDUE_TASKS] = overdue_tasks
+        return extra_attributes
+
+    async def async_update(self):
+        """Update state."""
+        data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+            ft.partial(self._todo.get_tasks, batch=100, query=self._query)
+        )
+
+        self._tasks = list(data)
+
+    def new_task(self, subject, description=None, due=None, reminder=None):
+        """Create a new task for this task list."""
+        new_task = self._todo.new_task(subject=subject)
+        if description:
+            new_task.body = description
+        if due:
+            try:
+                if len(due) > 10:
+                    new_task.due = dt.parse_datetime(due).date()
+                else:
+                    new_task.due = dt.parse_date(due)
+            except ValueError:
+                error = f"Due date {due} is not in valid format YYYY-MM-DD"
+                raise vol.Invalid(error)  # pylint: disable=raise-missing-from
+
+        if reminder:
+            new_task.reminder = reminder
+
+        new_task.save()
+        return True

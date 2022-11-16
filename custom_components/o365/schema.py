@@ -8,7 +8,7 @@ from homeassistant.components.notify import (
     ATTR_TARGET,
     ATTR_TITLE,
 )
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_ENABLED, CONF_NAME
 
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
@@ -19,6 +19,8 @@ from .const import (
     ATTR_ATTENDEES,
     ATTR_BODY,
     ATTR_CATEGORIES,
+    ATTR_DESCRIPTION,
+    ATTR_DUE,
     ATTR_EMAIL,
     ATTR_END,
     ATTR_ENTITY_ID,
@@ -27,6 +29,7 @@ from .const import (
     ATTR_LOCATION,
     ATTR_MESSAGE_IS_HTML,
     ATTR_PHOTOS,
+    ATTR_REMINDER,
     ATTR_RESPONSE,
     ATTR_SEND_RESPONSE,
     ATTR_SENDER,
@@ -66,6 +69,7 @@ from .const import (
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
+    CONF_TODO_SENSORS,
     CONF_TRACK,
     CONF_TRACK_NEW,
     EventResponse,
@@ -105,6 +109,11 @@ QUERY_SENSOR = vol.Schema(
         vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
     }
 )
+TODO_SENSOR = vol.Schema(
+    {
+        vol.Required(CONF_ENABLED, default=False): bool,
+    }
+)
 
 LEGACY_SCHEMA = vol.Schema(
     {
@@ -137,6 +146,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
                     vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
                     vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
+                    vol.Optional(CONF_TODO_SENSORS): TODO_SENSOR,
                 }
             ]
         )
@@ -234,3 +244,10 @@ CALENDAR_DEVICE_SCHEMA = vol.Schema(
     },
     extra=vol.ALLOW_EXTRA,
 )
+
+NEW_TASK_SCHEMA = {
+    vol.Required(ATTR_SUBJECT): cv.string,
+    vol.Optional(ATTR_DESCRIPTION): cv.string,
+    vol.Optional(ATTR_DUE): cv.string,
+    vol.Optional(ATTR_REMINDER): cv.datetime,
+}

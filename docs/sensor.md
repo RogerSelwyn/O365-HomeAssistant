@@ -14,3 +14,7 @@ The Teams Status sensor shows whether the user is online or offline on Teams.
 
 ## Teams Chat Sensor
 Shows the latest chat found on MS Teams. Shows the date and time as the status of the sensor, plus content, id and importance of the chat item.
+
+## Task/ToDo Sensor
+
+One sensor is created for each task list on the user account. Each sensor shows the number of incomplete tasks as the status of the sensor. The `all_tasks` attribute is an array of incomplete tasks. The `'overdue_tasks` attribute shows any tasks which have a due date and are overdue as an array.

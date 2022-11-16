@@ -112,3 +112,24 @@ remove_calendar_event:
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+new_task:
+  description: Create a new task/ToDo
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    subject:
+      description: The subject of the task
+      example: Pick up the mail
+    description:
+      description: Description of the task
+      example: Walk to the post box and collect the mail
+    due:
+      description: When the task is due by
+      example: "YYYY-MM-DD"
+    reminder:
+      description: When a reminder is needed
+      example: "2023-01-01T12:00:00+0000"

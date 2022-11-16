@@ -5,6 +5,7 @@ import logging
 from aiohttp import web_response
 from homeassistant.components import configurator
 from homeassistant.components.http import HomeAssistantView
+from homeassistant.const import CONF_ENABLED
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
@@ -28,6 +29,7 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
+    CONF_TODO_SENSORS,
     CONF_TRACK_NEW,
     CONFIGURATOR_DESCRIPTION_ALT,
     CONFIGURATOR_DESCRIPTION_DEFAULT,
@@ -106,6 +108,7 @@ def do_setup(hass, config, account, account_name, conf_type):
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
+    todo_sensors = config.get(CONF_TODO_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
 
     account_config = {
@@ -114,6 +117,7 @@ def do_setup(hass, config, account, account_name, conf_type):
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,
         CONF_CHAT_SENSORS: chat_sensors,
+        CONF_TODO_SENSORS: todo_sensors,
         CONF_ENABLE_UPDATE: enable_update,
         CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
@@ -143,6 +147,10 @@ def _load_platforms(hass, account_name, config, account_config):
         or len(account_config[CONF_QUERY_SENSORS]) > 0
         or len(account_config[CONF_STATUS_SENSORS]) > 0
         or len(account_config[CONF_CHAT_SENSORS]) > 0
+        or (
+            len(account_config[CONF_TODO_SENSORS]) > 0
+            and account_config[CONF_TODO_SENSORS].get(CONF_ENABLED, False)
+        )
     ):
         hass.async_create_task(
             discovery.async_load_platform(
