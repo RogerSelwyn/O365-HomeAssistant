@@ -4,6 +4,7 @@ import functools as ft
 import logging
 from operator import itemgetter
 
+import requests
 import voluptuous as vol
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
@@ -397,6 +398,7 @@ class O365TodoSensor(Entity):
         self._id = todo.folder_id
         self._name = f"{todo.name} {account_name}"
         self._tasks = []
+        self._error = False
 
     @property
     def name(self):
@@ -436,11 +438,18 @@ class O365TodoSensor(Entity):
 
     async def async_update(self):
         """Update state."""
-        data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
-            ft.partial(self._todo.get_tasks, batch=100, query=self._query)
-        )
-
-        self._tasks = list(data)
+        try:
+            data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+                ft.partial(self._todo.get_tasks, batch=100, query=self._query)
+            )
+            if self._error:
+                _LOGGER.info("Task list reconnected for: %s", self._name)
+                self._error = False
+            self._tasks = list(data)
+        except requests.exceptions.HTTPError:
+            if not self._error:
+                _LOGGER.error("Task list not found for: %s", self._name)
+                self._error = True
 
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
