@@ -2,8 +2,8 @@
 
 ## v4.0.0 (2022/11/17)
 ### Breaking Changes
-- `calendar_id` is no longer supported as a parameter in service calls. `entity_id` should be used instead. Overall the changes to services calls in this release, improves validation and should make it clearer when calling the service as to what a problem might be.
-- Be aware that the location of the o365 token and o365_calendar.yaml files have been moved under the `o365_storage` directory. This helps to group the various o365 files in one place. If you are backing up your configuration to a public GitHub, you will need to change your `.gitignore`
+- `calendar_id` is no longer supported as a parameter in service calls. `entity_id` should be used instead. Overall the changes to services calls in this release, improve validation and should make it clearer when calling the service as to what a problem might be. It also significantly simplifies the code which will benefit future changes.
+- The location of the o365 token and o365_calendar.yaml files have been moved under the `o365_storage` directory. This helps to group the various o365 files in one place. If you are backing up your configuration to a public GitHub, you will need to change your `.gitignore`.
 
 ### Enhancements
 - Meaningful icons have been added to all sensors. Thanks for @rdeveen for prompting the change.
