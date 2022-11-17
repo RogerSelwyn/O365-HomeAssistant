@@ -38,7 +38,7 @@ To allow authentication, you first need to register your application at Azure Ap
 
    If you are enabling todo_sensor (not supported in legacy installs) you will need:
    * Tasks.Read - *Read user's tasks and task lists*
-   * Tasks.ReadWrite - To enable creation of tasks in Todo lists if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
+   * Tasks.ReadWrite - *Create, read, update, and delete user’s tasks and task lists* - To enable creation of tasks in Todo lists if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
 
    If you intend to set [enable_update](./installation_and_configuration.md#configuration_variables) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
@@ -46,5 +46,5 @@ To allow authentication, you first need to register your application at Azure Ap
    * Mail.Send - *Send mail as a user*
 
    If you intend to set [groups](./installation_and_configuration.md#configuration_variables) to True, (not supported in legacy installs), then the following permissions are also required:
-   * Group.Read.All - To enable reading of group calendars
-   * Group.ReadWrite.All - To enable creation of events in group calendars if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
+   * Group.Read.All - *Read all groups*
+   * Group.ReadWrite.All - *Read and write all groups* - To enable creation of events in group calendars if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
