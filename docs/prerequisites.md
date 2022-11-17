@@ -36,6 +36,10 @@ To allow authentication, you first need to register your application at Azure Ap
    If you are creating a chat_sensor you will need:
    * Chat.Read - *Read user chat messages* (**Not for personal accounts**)
 
+   If you are enabling todo_sensor (not supported in legacy installs) you will need:
+   * Tasks.Read - *Read user's tasks and task lists*
+   * Tasks.ReadWrite - To enable creation of tasks in Todo lists if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
+
    If you intend to set [enable_update](./installation_and_configuration.md#configuration_variables) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*
    * Mail.ReadWrite - *Read and write access to user mail*
