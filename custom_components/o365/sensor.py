@@ -4,12 +4,12 @@ import functools as ft
 import logging
 from operator import itemgetter
 
-import requests
 import voluptuous as vol
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import dt
+from requests.exceptions import HTTPError
 
 from .const import (
     ATTR_ALL_TASKS,
@@ -446,10 +446,10 @@ class O365TodoSensor(Entity):
                 _LOGGER.info("Task list reconnected for: %s", self._name)
                 self._error = False
             self._tasks = list(data)
-        except requests.exceptions.HTTPError:
+        except HTTPError:
             if not self._error:
                 _LOGGER.error(
-                    "Task list not found for: %s - Has it been deleted? Restart HA to remove sensor.",
+                    "Task list not found for: %s - Has it been deleted?",
                     self._name,
                 )
                 self._error = True

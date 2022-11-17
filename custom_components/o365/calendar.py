@@ -392,12 +392,13 @@ class O365CalendarData:
         """Initialise the O365 Calendar Data."""
         self._limit = limit
         self.group_calendar = calendar_id.startswith(CONST_GROUP)
+        self.calendar_id = calendar_id
         if self.group_calendar:
-            self._schedule = account.schedule(resource=calendar_id)
+            self._schedule = None
+            self.calendar = account.schedule(resource=self.calendar_id)
         else:
             self._schedule = account.schedule()
-        self.calendar_id = calendar_id
-        self.calendar = None
+            self.calendar = None
         self._search = search
         self.event = None
         self._entity_id = entity_id
@@ -409,10 +410,10 @@ class O365CalendarData:
 
     async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
-        if self.group_calendar:
-            return await self._async_calendar_schedule_get_events(
-                hass, self._schedule, start_date, end_date
-            )
+        # if self.group_calendar:
+        #     return await self._async_calendar_schedule_get_events(
+        #         hass, self._schedule, start_date, end_date
+        #     )
 
         if not self.calendar:
             await self._async_get_calendar(hass)
