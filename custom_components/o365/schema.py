@@ -9,7 +9,6 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
@@ -69,9 +68,11 @@ from .const import (
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
+    CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
     CONF_TRACK,
     CONF_TRACK_NEW,
+    CONF_TRACK_NEW_CALENDAR,
     EventResponse,
 )
 
@@ -112,6 +113,7 @@ QUERY_SENSOR = vol.Schema(
 TODO_SENSOR = vol.Schema(
     {
         vol.Required(CONF_ENABLED, default=False): bool,
+        vol.Optional(CONF_TRACK_NEW, default=True): bool,
     }
 )
 
@@ -119,7 +121,7 @@ LEGACY_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CLIENT_ID): cv.string,
         vol.Required(CONF_CLIENT_SECRET): cv.string,
-        vol.Optional(CONF_TRACK_NEW, default=True): bool,
+        vol.Optional(CONF_TRACK_NEW_CALENDAR, default=True): bool,
         vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
         vol.Exclusive(CONF_ALT_AUTH_FLOW, "alt_auth"): bool,
         vol.Exclusive(CONF_ALT_AUTH_METHOD, "alt_auth"): bool,
@@ -136,7 +138,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                 {
                     vol.Required(CONF_CLIENT_ID): cv.string,
                     vol.Required(CONF_CLIENT_SECRET): cv.string,
-                    vol.Optional(CONF_TRACK_NEW, default=True): bool,
+                    vol.Optional(CONF_TRACK_NEW_CALENDAR, default=True): bool,
                     vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
                     vol.Optional(CONF_GROUPS, default=False): bool,
                     vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
@@ -243,6 +245,13 @@ CALENDAR_DEVICE_SCHEMA = vol.Schema(
         ),
     },
     extra=vol.ALLOW_EXTRA,
+)
+TASK_LIST_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_TASK_LIST_ID): cv.string,
+        vol.Required(CONF_NAME): cv.string,
+        vol.Required(CONF_TRACK): cv.boolean,
+    }
 )
 
 NEW_TASK_SCHEMA = {

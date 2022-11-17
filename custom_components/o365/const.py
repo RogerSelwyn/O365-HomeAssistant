@@ -52,6 +52,8 @@ AUTH_CALLBACK_PATH_DEFAULT = (
 )
 CALENDAR_DOMAIN = "calendar"
 CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".{}"
+SENSOR_DOMAIN = "sensor"
+SENSOR_ENTITY_ID_FORMAT = SENSOR_DOMAIN + ".{}"
 CONF_ACCOUNT = "account"
 CONF_ACCOUNTS = "accounts"
 CONF_ACCOUNT_NAME = "account_name"
@@ -91,7 +93,9 @@ CONF_STATUS_SENSORS = "status_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
 CONF_SUBJECT_IS = "subject_is"
 CONF_TODO_SENSORS = "todo_sensors"
-CONF_TRACK_NEW = "track_new_calendar"
+CONF_TRACK_NEW_CALENDAR = "track_new_calendar"
+CONF_TRACK_NEW = "track_new"
+CONF_TASK_LIST_ID = "task_list_id"
 CONFIGURATOR_DESCRIPTION_ALT = (
     "To link your O365 account, click the link, login, and authorize:"
 )
@@ -164,3 +168,4 @@ PERM_MINIMUM_SEND = [
 ]
 
 YAML_CALENDARS = "{0}_calendars{1}.yaml"
+YAML_TASK_LISTS = "{0}_tasks{1}.yaml"

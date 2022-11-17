@@ -9,7 +9,6 @@ from homeassistant.const import CONF_ENABLED
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
 from homeassistant.helpers.network import get_url
-
 from O365 import Account, FileSystemTokenBackend
 
 from .const import (
@@ -30,7 +29,7 @@ from .const import (
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TODO_SENSORS,
-    CONF_TRACK_NEW,
+    CONF_TRACK_NEW_CALENDAR,
     CONFIGURATOR_DESCRIPTION_ALT,
     CONFIGURATOR_DESCRIPTION_DEFAULT,
     CONFIGURATOR_FIELDS,
@@ -119,7 +118,7 @@ def do_setup(hass, config, account, account_name, conf_type):
         CONF_CHAT_SENSORS: chat_sensors,
         CONF_TODO_SENSORS: todo_sensors,
         CONF_ENABLE_UPDATE: enable_update,
-        CONF_TRACK_NEW: config.get(CONF_TRACK_NEW, True),
+        CONF_TRACK_NEW_CALENDAR: config.get(CONF_TRACK_NEW_CALENDAR, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
         CONF_CONFIG_TYPE: conf_type,
     }

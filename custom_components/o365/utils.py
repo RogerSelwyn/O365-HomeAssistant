@@ -10,10 +10,8 @@ from pathlib import Path
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from homeassistant.util import dt
-from voluptuous.error import Error as VoluptuousError
-
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
+from voluptuous.error import Error as VoluptuousError
 
 from .const import (
     CONF_ACCOUNT_NAME,
@@ -27,6 +25,7 @@ from .const import (
     CONF_GROUPS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
+    CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
     CONF_TRACK,
     CONST_CONFIG_TYPE_LIST,
@@ -57,7 +56,7 @@ from .const import (
     TOKEN_FILENAME,
     YAML_CALENDARS,
 )
-from .schema import CALENDAR_DEVICE_SCHEMA
+from .schema import CALENDAR_DEVICE_SCHEMA, TASK_LIST_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -139,8 +138,10 @@ def build_requested_permissions(config):
 
 def group_permissions_required(hass, config, conf_type):
     """Return if group permissions are required."""
-    yaml_filename = build_yaml_filename(config, conf_type)
-    calendars = load_calendars(build_config_file_path(hass, yaml_filename))
+    yaml_filename = build_yaml_filename(config, YAML_CALENDARS, conf_type)
+    calendars = load_yaml_file(
+        build_config_file_path(hass, yaml_filename), CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA
+    )
     for cal_id, calendar in calendars.items():
         if cal_id.startswith(CONST_GROUP):
             for entity in calendar.get(CONF_ENTITIES):
@@ -314,25 +315,25 @@ def add_call_data_to_event(
     return event
 
 
-def load_calendars(path):
-    """Load the o365_calendar_devices.yaml."""
-    calendars = {}
+def load_yaml_file(path, item_id, item_schema):
+    """Load the o365 yaml file."""
+    items = {}
     try:
         with open(path, encoding="utf8") as file:
             data = yaml.safe_load(file)
             if data is None:
                 return {}
-            for calendar in data:
+            for item in data:
                 try:
-                    calendars[calendar[CONF_CAL_ID]] = CALENDAR_DEVICE_SCHEMA(calendar)
+                    items[item[item_id]] = item_schema(item)
                 except VoluptuousError as exception:
                     # keep going
-                    _LOGGER.warning("Calendar Invalid Data: %s", exception)
+                    _LOGGER.warning("Invalid Data: %s", exception)
     except FileNotFoundError:
         # When YAML file could not be loaded/did not contain a dict
         return {}
 
-    return calendars
+    return items
 
 
 def get_calendar_info(calendar, track_new_devices):
@@ -354,13 +355,41 @@ def get_calendar_info(calendar, track_new_devices):
 def update_calendar_file(path, calendar, hass, track_new_devices):
     """Update the calendar file."""
     yaml_filepath = build_config_file_path(hass, path)
-    existing_calendars = load_calendars(yaml_filepath)
+    existing_calendars = load_yaml_file(
+        yaml_filepath, CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA
+    )
     cal = get_calendar_info(calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
         return
     with open(yaml_filepath, "a", encoding="UTF8") as out:
         out.write("\n")
         yaml.dump([cal], out, default_flow_style=False, encoding="UTF8")
+        out.close()
+
+
+def get_task_list_info(task_list, track_new_devices):
+    """Convert data from O365 into DEVICE_SCHEMA."""
+    return TASK_LIST_SCHEMA(
+        {
+            CONF_TASK_LIST_ID: task_list.folder_id,
+            CONF_NAME: task_list.name,
+            CONF_TRACK: track_new_devices,
+        }
+    )
+
+
+def update_task_list_file(path, task_list, hass, track_new_devices):
+    """Update the calendar file."""
+    yaml_filepath = build_config_file_path(hass, path)
+    existing_task_lists = load_yaml_file(
+        yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
+    )
+    task_list = get_task_list_info(task_list, track_new_devices)
+    if task_list[CONF_TASK_LIST_ID] in existing_task_lists:
+        return
+    with open(yaml_filepath, "a", encoding="UTF8") as out:
+        out.write("\n")
+        yaml.dump([task_list], out, default_flow_style=False, encoding="UTF8")
         out.close()
 
 
@@ -379,7 +408,7 @@ def build_token_filename(conf, conf_type):
     return TOKEN_FILENAME.format(config_file)
 
 
-def build_yaml_filename(conf, conf_type=None):
+def build_yaml_filename(conf, filename, conf_type=None):
     """Create the token file name."""
     if conf_type:
         config_file = f"_{conf.get(CONF_ACCOUNT_NAME)}"
@@ -389,7 +418,7 @@ def build_yaml_filename(conf, conf_type=None):
             if conf.get(CONF_CONFIG_TYPE) == CONST_CONFIG_TYPE_LIST
             else ""
         )
-    return YAML_CALENDARS.format(DOMAIN, config_file)
+    return filename.format(DOMAIN, config_file)
 
 
 def check_file_location(hass, filepath, newpath):

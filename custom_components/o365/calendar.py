@@ -22,6 +22,7 @@ from .const import (
     CALENDAR_ENTITY_ID_FORMAT,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_CAL_ID,
     CONF_CAL_IDS,
     CONF_CONFIG_TYPE,
     CONF_DEVICE_ID,
@@ -32,16 +33,18 @@ from .const import (
     CONF_MAX_RESULTS,
     CONF_SEARCH,
     CONF_TRACK,
-    CONF_TRACK_NEW,
+    CONF_TRACK_NEW_CALENDAR,
     CONST_CONFIG_TYPE_LIST,
     CONST_GROUP,
     DEFAULT_OFFSET,
     DOMAIN,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
+    YAML_CALENDARS,
     EventResponse,
 )
 from .schema import (
+    CALENDAR_DEVICE_SCHEMA,
     CALENDAR_SERVICE_CREATE_SCHEMA,
     CALENDAR_SERVICE_MODIFY_SCHEMA,
     CALENDAR_SERVICE_REMOVE_SCHEMA,
@@ -56,7 +59,7 @@ from .utils import (
     clean_html,
     format_event_data,
     get_permissions,
-    load_calendars,
+    load_yaml_file,
     update_calendar_file,
     validate_minimum_permission,
 )
@@ -87,10 +90,10 @@ async def async_setup_platform(
 
 
 def _setup_add_entities(hass, account, add_entities, conf):
-    yaml_filename = build_yaml_filename(conf)
+    yaml_filename = build_yaml_filename(conf, YAML_CALENDARS)
     yaml_filepath = build_config_file_path(hass, yaml_filename)
     check_file_location(hass, yaml_filename, yaml_filepath)
-    calendars = load_calendars(yaml_filepath)
+    calendars = load_yaml_file(yaml_filepath, CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA)
     cal_ids = {}
 
     for cal_id, calendar in calendars.items():
@@ -598,10 +601,10 @@ class CalendarServices:
                 calendars = await self._hass.async_add_executor_job(
                     schedule.list_calendars
                 )
-                track = config.get(CONF_TRACK_NEW, True)
+                track = config.get(CONF_TRACK_NEW_CALENDAR, True)
                 for calendar in calendars:
                     update_calendar_file(
-                        build_yaml_filename(config),
+                        build_yaml_filename(config, YAML_CALENDARS),
                         calendar,
                         self._hass,
                         track,

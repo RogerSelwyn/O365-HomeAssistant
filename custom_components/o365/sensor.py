@@ -7,7 +7,7 @@ from operator import itemgetter
 import voluptuous as vol
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import Entity, generate_entity_id
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
@@ -38,11 +38,22 @@ from .const import (
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
+    CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
+    CONF_TRACK,
+    CONF_TRACK_NEW,
     DOMAIN,
+    SENSOR_ENTITY_ID_FORMAT,
+    YAML_TASK_LISTS,
 )
-from .schema import NEW_TASK_SCHEMA
-from .utils import get_email_attributes
+from .schema import NEW_TASK_SCHEMA, TASK_LIST_SCHEMA
+from .utils import (
+    build_config_file_path,
+    build_yaml_filename,
+    get_email_attributes,
+    load_yaml_file,
+    update_task_list_file,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,6 +80,7 @@ async def async_setup_platform(
     _status_sensors(account, add_entities, conf)
     _chat_sensors(account, add_entities, conf)
     await _async_todo_sensors(hass, account, add_entities, conf)
+    await _async_setup_register_services(hass, conf)
 
     return True
 
@@ -119,24 +131,57 @@ def _chat_sensors(account, add_entities, conf):
 
 
 async def _async_todo_sensors(hass, account, add_entities, conf):
-    todo_sensors = conf.get(CONF_TODO_SENSORS, [])
-    if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED):
-        if conf.get(CONF_ENABLE_UPDATE):
-            await _async_setup_register_services()
-        todos = account.tasks()
-        todolists = await hass.async_add_executor_job(todos.list_folders)
-        for todo in todolists:
-            todo_sensor = O365TodoSensor(conf.get(CONF_ACCOUNT_NAME), todo)
+    todo_sensors = conf.get(CONF_TODO_SENSORS)
+    if todo_sensors and todo_sensors.get(CONF_ENABLED):
+        sensor_services = SensorServices(hass)
+        await sensor_services.async_scan_for_task_lists(None)
+
+        yaml_filename = build_yaml_filename(conf, YAML_TASK_LISTS)
+        yaml_filepath = build_config_file_path(hass, yaml_filename)
+        task_dict = load_yaml_file(yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA)
+        task_lists = list(task_dict.values())
+        tasks = account.tasks()
+        for task in task_lists:
+            name = task.get(CONF_NAME)
+            track = task.get(CONF_TRACK)
+            task_list_id = task.get(CONF_TASK_LIST_ID)
+            entity_id = _build_entity_id(hass, name, conf)
+            if not track:
+                continue
+            todo = await hass.async_add_executor_job(  # pylint: disable=no-member
+                ft.partial(
+                    tasks.get_folder,
+                    folder_id=task_list_id,
+                )
+            )
+            todo_sensor = O365TodoSensor(todo, name, entity_id)
             add_entities([todo_sensor], True)
 
 
-async def _async_setup_register_services():
-    platform = entity_platform.async_get_current_platform()
+def _build_entity_id(hass, name, conf):
+    return generate_entity_id(
+        SENSOR_ENTITY_ID_FORMAT,
+        f"{name}_{conf[CONF_ACCOUNT_NAME]}",
+        hass=hass,
+    )
 
-    platform.async_register_entity_service(
-        "new_task",
-        NEW_TASK_SCHEMA,
-        "new_task",
+
+async def _async_setup_register_services(hass, conf):
+    todo_sensors = conf.get(CONF_TODO_SENSORS)
+    if not todo_sensors or not todo_sensors.get(CONF_ENABLED):
+        return
+
+    platform = entity_platform.async_get_current_platform()
+    if conf.get(CONF_ENABLE_UPDATE):
+        platform.async_register_entity_service(
+            "new_task",
+            NEW_TASK_SCHEMA,
+            "new_task",
+        )
+
+    sensor_services = SensorServices(hass)
+    hass.services.async_register(
+        DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
     )
 
 
@@ -391,12 +436,13 @@ class O365TeamsChatSensor(Entity):
 class O365TodoSensor(Entity):
     """O365 Teams sensor processing."""
 
-    def __init__(self, account_name, todo):
+    def __init__(self, todo, name, entity_id):
         """Initialise the Teams Sensor."""
         self._todo = todo
         self._query = self._todo.new_query("status").unequal("completed")
         self._id = todo.folder_id
-        self._name = f"{todo.name} {account_name}"
+        self._name = name
+        self.entity_id = entity_id
         self._tasks = []
         self._error = False
 
@@ -474,3 +520,29 @@ class O365TodoSensor(Entity):
 
         new_task.save()
         return True
+
+
+class SensorServices:
+    """Sensor Services."""
+
+    def __init__(self, hass):
+        """Initialise the sensor services."""
+        self._hass = hass
+
+    async def async_scan_for_task_lists(self, call):  # pylint: disable=unused-argument
+        """Scan for new task lists."""
+        for config in self._hass.data[DOMAIN]:
+            config = self._hass.data[DOMAIN][config]
+            todo_sensor = config.get(CONF_TODO_SENSORS)
+            if todo_sensor and CONF_ACCOUNT in config and todo_sensor.get(CONF_ENABLED):
+                todos = config[CONF_ACCOUNT].tasks()
+
+                todolists = await self._hass.async_add_executor_job(todos.list_folders)
+                track = todo_sensor.get(CONF_TRACK_NEW)
+                for todo in todolists:
+                    update_task_list_file(
+                        build_yaml_filename(config, YAML_TASK_LISTS),
+                        todo,
+                        self._hass,
+                        track,
+                    )

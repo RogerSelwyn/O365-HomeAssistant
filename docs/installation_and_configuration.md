@@ -12,10 +12,12 @@ nav_order: 3
 3. Restart your Home Assistant instance.
    **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
 4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
-    * A persistent token will be created in the hidden directory config/.O365-token-cache
+    * A persistent token will be created in the hidden directory config/o365_storage/.O365-token-cache
     * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary configuration method) will be created under the config directory in the `o365_storage` directory.
+    * If todo_sensors is enabled then `o365_tasks_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.
 5. [Configure Calendars](./calendar_configuration.md)
-6. Restart your Home Assistant instance.
+6. [Configure Tasks](./tasks_configuration.md) (if required)
+7. Restart your Home Assistant instance.
 
 ## Configuration examples
 
@@ -96,7 +98,7 @@ Key | Type | Required | Description
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 `chat_sensors` | `list<chat_sensors>` | `False` | List of chat_sensor config entries. *Not for use on personal accounts*
-`todo_sensors` | `object<query_sensors>` | `False` | ToDo sensor options 
+`todo_sensors` | `object<query_sensors>` | `False` | ToDo sensor options
 
 #### Secondary format
 
@@ -154,4 +156,3 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `enabled` | `boolean` | `True` | True=Enables ToDo sensors, **False**=Disables ToDo sensors.
-
