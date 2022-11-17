@@ -410,11 +410,6 @@ class O365CalendarData:
 
     async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
-        # if self.group_calendar:
-        #     return await self._async_calendar_schedule_get_events(
-        #         hass, self._schedule, start_date, end_date
-        #     )
-
         if not self.calendar:
             await self._async_get_calendar(hass)
 
