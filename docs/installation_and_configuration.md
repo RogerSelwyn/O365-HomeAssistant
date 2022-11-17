@@ -46,6 +46,8 @@ o365:
         - name: "User Teams Status"
       chat_sensors: # Cannot be used for personal accounts
         - name: "User Chat"
+      todo_sensors:
+        enabled: False
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -93,6 +95,8 @@ Key | Type | Required | Description
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
+`chat_sensors` | `list<chat_sensors>` | `False` | List of chat_sensor config entries. *Not for use on personal accounts*
+`todo_sensors` | `object<query_sensors>` | `False` | ToDo sensor options 
 
 #### Secondary format
 
@@ -144,3 +148,10 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
+
+#### todo_sensors
+
+Key | Type | Required | Description
+-- | -- | -- | --
+`enabled` | `boolean` | `True` | True=Enables ToDo sensors, **False**=Disables ToDo sensors.
+
