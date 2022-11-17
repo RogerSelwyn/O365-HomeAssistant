@@ -6,7 +6,7 @@
 - The location of the o365 token and o365_calendar.yaml files have been moved under the `o365_storage` directory. This helps to group the various o365 files in one place. If you are backing up your configuration to a public GitHub, you will need to change your `.gitignore`.
 
 ### Enhancements
-- Meaningful icons have been added to all sensors. Thanks for @rdeveen for prompting the change.
+- Meaningful icons have been added to all sensors. Thanks to @rdeveen for prompting the change.
 - Tasks/Todo sensors can be enabled. See [Configuration](https://rogerselwyn.github.io/O365-HomeAssistant/installation_and_configuration.html) for details.
 
 ## v3.3.0 (2022/11/10)
