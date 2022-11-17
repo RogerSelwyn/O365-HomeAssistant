@@ -448,7 +448,10 @@ class O365TodoSensor(Entity):
             self._tasks = list(data)
         except requests.exceptions.HTTPError:
             if not self._error:
-                _LOGGER.error("Task list not found for: %s", self._name)
+                _LOGGER.error(
+                    "Task list not found for: %s - Has it been deleted? Restart HA to remove sensor.",
+                    self._name,
+                )
                 self._error = True
 
     def new_task(self, subject, description=None, due=None, reminder=None):
