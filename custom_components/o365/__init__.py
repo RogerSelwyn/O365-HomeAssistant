@@ -1,13 +1,16 @@
 """Main initialisation code."""
 import functools as ft
 import logging
+import shutil
 
+import yaml
 from aiohttp import web_response
 from homeassistant.components import configurator
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.const import CONF_ENABLED
 from homeassistant.core import callback
 from homeassistant.helpers import discovery
+from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
 from homeassistant.helpers.network import get_url
 from O365 import Account, FileSystemTokenBackend
 
@@ -40,6 +43,7 @@ from .const import (
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
+    TOKEN_FILENAME,
 )
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .utils import (
@@ -56,11 +60,12 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass, config):
     """Set up the O365 platform."""
-    # validate_permissions(hass)
     conf = config.get(DOMAIN, {})
     if CONF_ACCOUNTS not in conf:
+        await _async_log_repair(hass)
         accounts = [LEGACY_SCHEMA(conf)]
         conf_type = CONST_CONFIG_TYPE_DICT
+        _write_out_config(hass, accounts)
     else:
         accounts = MULTI_ACCOUNT_SCHEMA(conf)[CONF_ACCOUNTS]
         conf_type = CONST_CONFIG_TYPE_LIST
@@ -69,6 +74,66 @@ async def async_setup(hass, config):
         await _async_setup_account(hass, account, conf_type)
 
     return True
+
+
+async def _async_log_repair(hass):
+
+    url = "https://rogerselwyn.github.io/O365-HomeAssistant/installation_and_configuration.html"
+    message = (
+        "Secondary/Legacy configuration method is now deprecated and will be "
+        + "removed in a future release. Please migrate to the Primary configuration method "
+        + "documented here - "
+        + f"{url}"
+    )
+    _LOGGER.warning(message)
+    # Register a repair issue
+    async_create_issue(
+        hass,
+        DOMAIN,
+        "deprecated_legacy_configuration",
+        # breaks_in_ha_version="2023.4.0",  # Warning first added in 2022.11.0
+        is_fixable=False,
+        learn_more_url=url,
+        severity=IssueSeverity.WARNING,
+        translation_key="deprecated_legacy_configuration",
+    )
+
+
+def _write_out_config(hass, accounts):
+    yaml_filepath = build_config_file_path(hass, "o365_configuration.yaml")
+    account_name = "legacy"
+    account = accounts[0]
+    account[CONF_ACCOUNT_NAME] = account_name
+    account.move_to_end(CONF_ACCOUNT_NAME, False)
+    account[CONF_CLIENT_ID] = "xxxxx"
+    account[CONF_CLIENT_SECRET] = "xxxxx"
+    account = dict(account)
+    _remove_ordered_dict(account, CONF_EMAIL_SENSORS)
+    _remove_ordered_dict(account, CONF_QUERY_SENSORS)
+    _remove_ordered_dict(account, CONF_STATUS_SENSORS)
+    _remove_ordered_dict(account, CONF_CHAT_SENSORS)
+    config = {"o365": {"accounts": [account]}}
+    with open(yaml_filepath, "w", encoding="UTF8") as out:
+        out.write("\n")
+        yaml.dump(
+            config,
+            out,
+            Dumper=_IncreaseIndent,
+            default_flow_style=False,
+            encoding="UTF8",
+        )
+        out.close()
+    _copy_token_file(hass, account_name)
+
+
+def _remove_ordered_dict(account, sensor):
+    if sensor in account:
+        new_sensors = []
+        sensors = account[sensor]
+        for item in sensors:
+            new_sensors.append(dict(item))
+        account[sensor] = new_sensors
+    return account
 
 
 async def _async_setup_account(hass, account_conf, conf_type):
@@ -97,6 +162,15 @@ async def _async_setup_account(hass, account_conf, conf_type):
         do_setup(hass, account_conf, account, account_name, conf_type)
     else:
         _request_authorization(hass, account_conf, account, account_name, conf_type)
+
+
+def _copy_token_file(hass, account_name):
+    old_file = TOKEN_FILENAME.format("")
+    new_file = TOKEN_FILENAME.format(f"_{account_name}")
+    old_filepath = build_config_file_path(hass, f"{DEFAULT_CACHE_PATH}/{old_file}")
+    new_filepath = build_config_file_path(hass, f"{DEFAULT_CACHE_PATH}/{new_file}")
+
+    shutil.copy(src=old_filepath, dst=new_filepath)
 
 
 def do_setup(hass, config, account, account_name, conf_type):
@@ -317,3 +391,8 @@ class O365AuthCallbackView(HomeAssistantView):
 
     def _log_authenticated(self, account_name):
         _LOGGER.info("Succesfully authenticated for account: %s", account_name)
+
+
+class _IncreaseIndent(yaml.Dumper):
+    def increase_indent(self, flow=False, indentless=False):
+        return super(_IncreaseIndent, self).increase_indent(flow, False)

@@ -4,7 +4,7 @@ nav_order: 5
 ---
 
 # Calendar configuration
-The integration uses an external `o365_calendars_<account_name>.yaml` file (or `o365_calendars.yaml` for the secondary configuration format) which is stored in the `o365_storage` directory.
+The integration uses an external `o365_calendars_<account_name>.yaml` file (or `o365_calendars.yaml` for the secondary (deprecated) configuration format) which is stored in the `o365_storage` directory.
 ## Example Calendar yaml:
 ```yaml
 - cal_id: xxxx

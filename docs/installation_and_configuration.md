@@ -13,7 +13,7 @@ nav_order: 3
    **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
 4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/o365_storage/.O365-token-cache
-    * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary configuration method) will be created under the config directory in the `o365_storage` directory.
+    * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary (deprecated) configuration method) will be created under the config directory in the `o365_storage` directory.
     * If todo_sensors is enabled then `o365_tasks_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.
 5. [Configure Calendars](./calendar_configuration.md)
 6. [Configure Tasks](./tasks_configuration.md) (if required)
@@ -54,7 +54,7 @@ o365:
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
 ```
-### Secondary configuration format - Less preferred and can only use for a single account.
+### Secondary (DEPRECATED) configuration format - Less preferred and can only use for a single account.
 ```yaml
 # Example configuration.yaml entry for single account
 o365:
