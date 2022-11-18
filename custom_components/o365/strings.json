@@ -1,0 +1,8 @@
+{
+  "issues": {
+    "deprecated_legacy_configuration": {
+      "title": "Deprecated Secondary/Legacy configuration method",
+      "description": "Secondary/Legacy configuration method is now deprecated and will be removed in a future release. Please migrate to the Primary configuration method. Click 'Learn More' for details on configuration. A potential configuration has been placed in the o365_storage folder."
+    }
+  }
+}

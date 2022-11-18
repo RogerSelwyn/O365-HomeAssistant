@@ -104,7 +104,7 @@ async def _async_log_repair(hass):
 
 
 def _write_out_config(hass, accounts):
-    yaml_filepath = build_config_file_path(hass, "o365_configuration.yaml")
+    yaml_filepath = build_config_file_path(hass, "o365_converted_configuration.yaml")
     account_name = LEGACY_ACCOUNT_NAME
     account = copy.deepcopy(accounts[0])
     account[CONF_ACCOUNT_NAME] = account_name
