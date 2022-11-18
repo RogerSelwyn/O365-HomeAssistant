@@ -38,6 +38,7 @@ from .const import (
     CONST_GROUP,
     DEFAULT_OFFSET,
     DOMAIN,
+    LEGACY_ACCOUNT_NAME,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
     YAML_CALENDARS,
@@ -118,9 +119,13 @@ def _setup_add_entities(hass, account, add_entities, conf):
 
 
 def _build_entity_id(hass, entity, conf):
+    account_name = conf[CONF_ACCOUNT_NAME]
     entity_suffix = (
-        f"_{conf[CONF_ACCOUNT_NAME]}"
-        if (conf[CONF_CONFIG_TYPE] == CONST_CONFIG_TYPE_LIST)
+        f"_{account_name}"
+        if (
+            conf[CONF_CONFIG_TYPE] == CONST_CONFIG_TYPE_LIST
+            and account_name != LEGACY_ACCOUNT_NAME
+        )
         else ""
     )
 

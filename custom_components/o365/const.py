@@ -118,6 +118,7 @@ DEFAULT_NAME = "O365"
 DOMAIN = "o365"
 ICON = "mdi:office"
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
+LEGACY_ACCOUNT_NAME = "converted"
 O365_STORAGE = "o365_storage"
 DEFAULT_OFFSET = "!!"
 PERM_CALENDARS_READ = "Calendars.Read"

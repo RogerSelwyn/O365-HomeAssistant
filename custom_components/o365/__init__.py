@@ -1,6 +1,8 @@
 """Main initialisation code."""
+import copy
 import functools as ft
 import logging
+import os
 import shutil
 
 import yaml
@@ -43,7 +45,9 @@ from .const import (
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
+    LEGACY_ACCOUNT_NAME,
     TOKEN_FILENAME,
+    YAML_CALENDARS,
 )
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .utils import (
@@ -78,7 +82,7 @@ async def async_setup(hass, config):
 
 async def _async_log_repair(hass):
 
-    url = "https://rogerselwyn.github.io/O365-HomeAssistant/installation_and_configuration.html"
+    url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
     message = (
         "Secondary/Legacy configuration method is now deprecated and will be "
         + "removed in a future release. Please migrate to the Primary configuration method "
@@ -101,8 +105,8 @@ async def _async_log_repair(hass):
 
 def _write_out_config(hass, accounts):
     yaml_filepath = build_config_file_path(hass, "o365_configuration.yaml")
-    account_name = "legacy"
-    account = accounts[0]
+    account_name = LEGACY_ACCOUNT_NAME
+    account = copy.deepcopy(accounts[0])
     account[CONF_ACCOUNT_NAME] = account_name
     account.move_to_end(CONF_ACCOUNT_NAME, False)
     account[CONF_CLIENT_ID] = "xxxxx"
@@ -169,8 +173,15 @@ def _copy_token_file(hass, account_name):
     new_file = TOKEN_FILENAME.format(f"_{account_name}")
     old_filepath = build_config_file_path(hass, f"{DEFAULT_CACHE_PATH}/{old_file}")
     new_filepath = build_config_file_path(hass, f"{DEFAULT_CACHE_PATH}/{new_file}")
+    if os.path.exists(old_filepath):
+        shutil.copy(src=old_filepath, dst=new_filepath)
 
-    shutil.copy(src=old_filepath, dst=new_filepath)
+    old_file = YAML_CALENDARS.format(DOMAIN, "")
+    new_file = YAML_CALENDARS.format(DOMAIN, f"_{account_name}")
+    old_filepath = build_config_file_path(hass, old_file)
+    new_filepath = build_config_file_path(hass, new_file)
+    if os.path.exists(old_filepath):
+        shutil.copy(src=old_filepath, dst=new_filepath)
 
 
 def do_setup(hass, config, account, account_name, conf_type):
