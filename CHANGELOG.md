@@ -1,13 +1,63 @@
 # Changelog
 
-## v4.0.0 (2022/11/17)
+## v4.0.0 Beta 3 (2022/11/18)
 ### Breaking Changes
-- `calendar_id` is no longer supported as a parameter in service calls. `entity_id` should be used instead. Overall the changes to services calls in this release, improve validation and should make it clearer when calling the service as to what a problem might be. It also significantly simplifies the code which will benefit future changes.
+- `alt_auth_flow` has been removed as a valid configuration parameter. This has been deprecated for 6 months. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/authentication.html) for details of how to configure `alt_auth_method` to meet your needs.
+- `calendar_id` is no longer supported as a parameter in service calls. `entity_id` should be used instead. Overall the changes to service calls in this release improve validation and should make it clearer when calling the service as to what a problem might be if one occurs. It also significantly simplifies the code which will benefit future changes.
 - The location of the o365 token and o365_calendar.yaml files have been moved under the `o365_storage` directory. This helps to group the various o365 files in one place. If you are backing up your configuration to a public GitHub, you will need to change your `.gitignore`.
+
+### New Deprecation
+- The Secondary/Legacy method of configuration has been marked as deprecated and will be removed in a future release. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html) for more details on how to perform the migration.
 
 ### Enhancements
 - Meaningful icons have been added to all sensors. Thanks to @rdeveen for prompting the change.
 - Tasks/Todo sensors can be enabled. See [Configuration](https://rogerselwyn.github.io/O365-HomeAssistant/installation_and_configuration.html) for details.
+
+### Changes from Beta 2
+- `alt_auth_flow` configuration parameter has been removed
+- The Secondary/Legacy method of configuration has been marked as deprecated 
+
+<details>
+  <summary>Full list of changes</summary>
+
+- [Tidy up file storage location](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6dbf28a5cda2f5d3beef7fa3fc5e3c8e6184ffb9) - @RogerSelwyn
+- [Rename](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/81da6cc7e4ea9c46cb1d128aa1306710cbf57a61) - @rdeveen
+- [Add ATTR_ICON](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5bc5afae286608b7b0528c89c60feb55af272edb) - @rdeveen
+- [Add const ATTR_ICON](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/069f3fb135546b1ba2f77ca90618aa4f3a06b965) - @rdeveen
+- [Change Icon](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/daa327f377b74a055d3966e8b31fee6fc5536b0b) - @rdeveen
+- [Use Icon property (#1)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8bd25027b83deb9633bafd386b966ab1db551dbf) - @rdeveen
+- [Add icons for chats and inbox](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9e6fd7d2e207d60fce8f0e7d8423dc60fb48eaec) - @RogerSelwyn
+- [Initial draft (awaiting O365 update)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/fd2d642a811f96841953635836af6488a38abffc) - @RogerSelwyn
+- [Code simplification](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2067cf72e5f1fb91fa7a5fb341481984fcc182bb) - @RogerSelwyn
+- [Improve service validation and remove deprecated calendar_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0abd3a46f2e827a5dacf2147e7c1073f50a1103f) - @RogerSelwyn
+- [Move schema to schema.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ae31ca548646d622316285b03ce13b5c9d9c2525) - @RogerSelwyn
+- [Change service errors to vol.Invalid](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f477f4d000b6620dd2b4520226b366d94e214b90) - @RogerSelwyn
+- [Update services.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4be969c9f781668a3418314f68d791a72767d882) - @RogerSelwyn
+- [Update index.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/596558175b0116c3099ab73c38064585ae46b26c) - @RogerSelwyn
+- [Update and rename sensor_layout.md to sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f980c3da65eb392c91413b63abb47661fb33c1c7) - @RogerSelwyn
+- [Update sensor_layout.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0550bdc0d5132a08e00a28bcbf3761980add125d) - @RogerSelwyn
+- [Update installation_and_configuration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f011f015abd90d23b0f584acb9d1b76f64c21ee7) - @RogerSelwyn
+- [Update calendar_configuration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0a2b426a880511f1598b220ea49b5306f1eeca34) - @RogerSelwyn
+- [Rename title to subject in line with O365 module.](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f1c920a964c594d2b110a17e996c94a4c9685e22) - @RogerSelwyn
+- [Add parallel_updates to restrict number of calls](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0924c2904cf0d4217ea60117b3852809b0403110) - @RogerSelwyn
+- [Add error catch and bump O365 to 2.0.22](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1ccb274a34f780a6d634def370e20f941a092177) - @RogerSelwyn
+- [Tweak error message](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/198a4e79d802befb096d7c8d95dea35746dfdd27) - @RogerSelwyn
+- [Bump to v4.0.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7f2b649f40efcfc1103c36f041dfada24ea59bc8) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/da7f5832ea8d4f9a37a7e94674a02f7784f63f4a) - @actions-user
+- [Fix event create for group calendars](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5c273a6396e946b810b771ec696c88d2fdd37f60) - @RogerSelwyn
+- [Change release to v4.0.0 Beta 1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5c5ff38e4290293534bc900eabcc560372751d31) - @RogerSelwyn
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ebd24ad2784adea04f053b44474524f959e729ad) - @RogerSelwyn
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/be6447f909f2c37462a6c7fd8f345099ab51de4e) - @RogerSelwyn
+- [Make tasks_lists configureable](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1afa7c6141e942a8b15dc01d528f9ee93420a291) - @RogerSelwyn
+- [Bump to v4.0.0.b2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8d46eafad84d60783a50da0a27f2ffa09e1e002f) - @RogerSelwyn
+- [Remove deprecated alt_auth_flow config parameter](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a22d6f6f92b2e082630d3ba710273dac89269bd9) - @RogerSelwyn
+- [Add deprecation warning for secondary configuration.](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ddfd2785ea27a58f0357f2dc6a8a407bbb8c2bd1) - @RogerSelwyn
+- [Add more support for legacy account migration](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d28efc3e1602b9264f2bc387547b64de6b328dbe) - @RogerSelwyn
+- [At repair description text](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/890a181b3a9ca6d5ed743c510bb54ec39d23c893) - @RogerSelwyn
+- [Bump to v4.0.0b3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b12801a612b90f2d940152bdb2950e6f5cc2e267) - @RogerSelwyn
+- </details>
+
+
 
 ## v3.3.0 (2022/11/10)
 ### Enhancements
