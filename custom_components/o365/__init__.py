@@ -18,7 +18,6 @@ from .const import (
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_ACCOUNTS,
-    CONF_ALT_AUTH_FLOW,
     CONF_ALT_AUTH_METHOD,
     CONF_CHAT_SENSORS,
     CONF_CLIENT_ID,
@@ -102,7 +101,6 @@ async def _async_setup_account(hass, account_conf, conf_type):
 
 def do_setup(hass, config, account, account_name, conf_type):
     """Run the setup after we have everything configured."""
-    _get_auth_method(config, account_name)
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
@@ -213,7 +211,7 @@ def _create_request_content_default(hass, url, callback_view, account_name):
 
 
 def _request_authorization(hass, conf, account, account_name, conf_type):
-    alt_config = _get_auth_method(conf, account_name)
+    alt_config = conf.get(CONF_ALT_AUTH_METHOD)
     callback_url = _get_callback_url(hass, alt_config)
     scope = build_requested_permissions(conf)
     url, state = account.con.get_authorization_url(
@@ -239,32 +237,6 @@ def _get_callback_url(hass, alt_config):
         return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
 
     return AUTH_CALLBACK_PATH_DEFAULT
-
-
-def _get_auth_method(conf, account_name):
-    alt_flow = conf.get(CONF_ALT_AUTH_FLOW)
-    alt_method = conf.get(CONF_ALT_AUTH_METHOD)
-    if alt_flow is None and alt_method is None:
-        _auth_deprecated_message(account_name, True)
-        return False
-    if alt_flow:
-        _auth_deprecated_message(account_name, False)
-    if alt_flow is False:
-        _auth_deprecated_message(account_name, True)
-        return True
-    return alt_method is True
-
-
-def _auth_deprecated_message(account_name, method_value):
-    message = (
-        f"Use of '{CONF_ALT_AUTH_FLOW}' configuration variable is deprecated."
-        + f" Please set '{CONF_ALT_AUTH_METHOD}' to {method_value}"
-        + f" and remove '{CONF_ALT_AUTH_FLOW}' if present from your config"
-        + f" to retain existing authentication method for account: {account_name}."
-        + " See https://github.com/RogerSelwyn/O365-HomeAssistant/#authentication"
-        + " for more details."
-    )
-    _LOGGER.warning(message)
 
 
 class O365AuthCallbackView(HomeAssistantView):
