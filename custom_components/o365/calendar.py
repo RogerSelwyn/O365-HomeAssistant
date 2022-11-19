@@ -67,8 +67,6 @@ from .utils import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 3
-
 
 async def async_setup_platform(
     hass, config, add_entities, discovery_info=None

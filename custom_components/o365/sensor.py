@@ -7,20 +7,28 @@ from operator import itemgetter
 import voluptuous as vol
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
-from homeassistant.helpers.entity import Entity, generate_entity_id
+from homeassistant.helpers.entity import Entity, async_generate_entity_id
+from homeassistant.helpers.update_coordinator import (  # UpdateFailed,
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+)
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
 from .const import (
     ATTR_ALL_TASKS,
+    ATTR_ATTRIBUTES,
     ATTR_CHAT_ID,
     ATTR_CONTENT,
     ATTR_DUE,
+    ATTR_ERROR,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
     ATTR_OVERDUE_TASKS,
+    ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
+    ATTR_TASKS,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_BODY_CONTAINS,
@@ -44,6 +52,10 @@ from .const import (
     CONF_TRACK_NEW,
     DOMAIN,
     SENSOR_ENTITY_ID_FORMAT,
+    SENSOR_MAIL,
+    SENSOR_TEAMS_CHAT,
+    SENSOR_TEAMS_STATUS,
+    SENSOR_TODO,
     YAML_TASK_LISTS,
 )
 from .schema import NEW_TASK_SCHEMA, TASK_LIST_SCHEMA
@@ -57,11 +69,9 @@ from .utils import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PARALLEL_UPDATES = 6
-
 
 async def async_setup_platform(
-    hass, config, add_entities, discovery_info=None
+    hass, config, async_add_entities, discovery_info=None
 ):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
@@ -75,91 +85,264 @@ async def async_setup_platform(
     if not is_authenticated:
         return False
 
-    await _async_email_sensors(hass, account, add_entities, conf)
-    await _async_query_sensors(hass, account, add_entities, conf)
-    _status_sensors(account, add_entities, conf)
-    _chat_sensors(account, add_entities, conf)
-    await _async_todo_sensors(hass, account, add_entities, conf)
-    await _async_setup_register_services(hass, conf)
+    coordinator = O365SensorCordinator(hass, conf)
+    entities = await coordinator.async_setup_entries(hass)
+    await coordinator.async_config_entry_first_refresh()
+    async_add_entities(entities, False)
 
     return True
 
 
-async def _async_email_sensors(hass, account, add_entities, conf):
-    email_sensors = conf.get(CONF_EMAIL_SENSORS, [])
-    _LOGGER.debug("Email sensor setup: %s ", conf[CONF_ACCOUNT_NAME])
-    for sensor_conf in email_sensors:
-        _LOGGER.debug(
-            "Email sensor setup: %s, %s",
-            conf[CONF_ACCOUNT_NAME],
-            sensor_conf[CONF_NAME],
+class O365SensorCordinator(DataUpdateCoordinator):
+    """O365 sensor data update coordinator."""
+
+    def __init__(self, hass, config):
+        """Initialize my coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            # Name of the data. For logging purposes.
+            name="My sensor",
+            # Polling interval. Will only be polled if there are subscribers.
+            update_interval=datetime.timedelta(seconds=30),
         )
-        if mail_folder := await hass.async_add_executor_job(
-            _get_mail_folder, account, sensor_conf, CONF_EMAIL_SENSORS
-        ):
-            inboxsensor = O365InboxSensor(sensor_conf, mail_folder)
+        self._config = config
+        self._account = config[CONF_ACCOUNT]
+        self._account_name = config[CONF_ACCOUNT_NAME]
+        self._entities = []
+        self._data = {}
+
+    async def async_setup_entries(self, hass):
+        """Do the initial setup of the entities."""
+        email_entities = await self._async_email_sensors(hass)
+        query_entities = await self._async_query_sensors(hass)
+        status_entities = self._status_sensors(hass)
+        chat_entities = self._chat_sensors(hass)
+        todo_entities = await self._async_todo_sensors(hass)
+        self._entities = (
+            email_entities
+            + query_entities
+            + status_entities
+            + chat_entities
+            + todo_entities
+        )
+        return self._entities
+
+    async def _async_email_sensors(self, hass):
+        email_sensors = self._config.get(CONF_EMAIL_SENSORS, [])
+        entities = []
+        _LOGGER.debug("Email sensor setup: %s ", self._account_name)
+        for sensor_conf in email_sensors:
+            name = sensor_conf[CONF_NAME]
             _LOGGER.debug(
-                "Email sensor added: %s, %s",
-                conf[CONF_ACCOUNT_NAME],
-                sensor_conf[CONF_NAME],
+                "Email sensor setup: %s, %s",
+                self._account_name,
+                name,
             )
-            add_entities([inboxsensor], True)
-
-
-async def _async_query_sensors(hass, account, add_entities, conf):
-    query_sensors = conf.get(CONF_QUERY_SENSORS, [])
-    for sensor_conf in query_sensors:
-        if mail_folder := await hass.async_add_executor_job(
-            _get_mail_folder, account, sensor_conf, CONF_QUERY_SENSORS
-        ):
-            querysensor = O365QuerySensor(sensor_conf, mail_folder)
-            add_entities([querysensor], True)
-
-
-def _status_sensors(account, add_entities, conf):
-    status_sensors = conf.get(CONF_STATUS_SENSORS, [])
-    for sensor_conf in status_sensors:
-        teams_status_sensor = O365TeamsStatusSensor(account, sensor_conf)
-        add_entities([teams_status_sensor], True)
-
-
-def _chat_sensors(account, add_entities, conf):
-    chat_sensors = conf.get(CONF_CHAT_SENSORS, [])
-    for sensor_conf in chat_sensors:
-        teams_chat_sensor = O365TeamsChatSensor(account, sensor_conf)
-        add_entities([teams_chat_sensor], True)
-
-
-async def _async_todo_sensors(hass, account, add_entities, conf):
-    todo_sensors = conf.get(CONF_TODO_SENSORS)
-    if todo_sensors and todo_sensors.get(CONF_ENABLED):
-        sensor_services = SensorServices(hass)
-        await sensor_services.async_scan_for_task_lists(None)
-
-        yaml_filename = build_yaml_filename(conf, YAML_TASK_LISTS)
-        yaml_filepath = build_config_file_path(hass, yaml_filename)
-        task_dict = load_yaml_file(yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA)
-        task_lists = list(task_dict.values())
-        tasks = account.tasks()
-        for task in task_lists:
-            name = task.get(CONF_NAME)
-            track = task.get(CONF_TRACK)
-            task_list_id = task.get(CONF_TASK_LIST_ID)
-            entity_id = _build_entity_id(hass, name, conf)
-            if not track:
-                continue
-            todo = await hass.async_add_executor_job(  # pylint: disable=no-member
-                ft.partial(
-                    tasks.get_folder,
-                    folder_id=task_list_id,
+            if mail_folder := await hass.async_add_executor_job(
+                _get_mail_folder, self._account, sensor_conf, CONF_EMAIL_SENSORS
+            ):
+                entity_id = async_generate_entity_id(
+                    SENSOR_ENTITY_ID_FORMAT,
+                    name,
+                    hass=hass,
                 )
+                emailsensor = O365EmailSensor(
+                    self, sensor_conf, mail_folder, name, entity_id
+                )
+                _LOGGER.debug(
+                    "Email sensor added: %s, %s",
+                    self._account_name,
+                    name,
+                )
+                entities.append(emailsensor)
+        return entities
+
+    async def _async_query_sensors(self, hass):
+        query_sensors = self._config.get(CONF_QUERY_SENSORS, [])
+        entities = []
+        for sensor_conf in query_sensors:
+            if mail_folder := await hass.async_add_executor_job(
+                _get_mail_folder, self._account, sensor_conf, CONF_QUERY_SENSORS
+            ):
+                name = sensor_conf.get(CONF_NAME)
+                entity_id = async_generate_entity_id(
+                    SENSOR_ENTITY_ID_FORMAT,
+                    name,
+                    hass=hass,
+                )
+                querysensor = O365QuerySensor(
+                    self, sensor_conf, mail_folder, name, entity_id
+                )
+                entities.append(querysensor)
+        return entities
+
+    def _status_sensors(self, hass):
+        status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
+        entities = []
+        for sensor_conf in status_sensors:
+            name = sensor_conf.get(CONF_NAME)
+            entity_id = async_generate_entity_id(
+                SENSOR_ENTITY_ID_FORMAT,
+                name,
+                hass=hass,
             )
-            todo_sensor = O365TodoSensor(todo, name, entity_id)
-            add_entities([todo_sensor], True)
+            teams_status_sensor = O365TeamsStatusSensor(
+                self,
+                self._account,
+                name,
+                entity_id,
+            )
+            entities.append(teams_status_sensor)
+        return entities
+
+    def _chat_sensors(self, hass):
+        chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
+        entities = []
+        for sensor_conf in chat_sensors:
+            name = sensor_conf.get(CONF_NAME)
+            entity_id = async_generate_entity_id(
+                SENSOR_ENTITY_ID_FORMAT,
+                name,
+                hass=hass,
+            )
+            teams_chat_sensor = O365TeamsChatSensor(
+                self, self._account, name, entity_id
+            )
+            entities.append(teams_chat_sensor)
+        return entities
+
+    async def _async_todo_sensors(self, hass):
+        todo_sensors = self._config.get(CONF_TODO_SENSORS)
+        entities = []
+        if todo_sensors and todo_sensors.get(CONF_ENABLED):
+            sensor_services = SensorServices(hass)
+            await sensor_services.async_scan_for_task_lists(None)
+
+            yaml_filename = build_yaml_filename(self._config, YAML_TASK_LISTS)
+            yaml_filepath = build_config_file_path(hass, yaml_filename)
+            task_dict = load_yaml_file(
+                yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
+            )
+            task_lists = list(task_dict.values())
+            tasks = self._account.tasks()
+            for task in task_lists:
+                name = task.get(CONF_NAME)
+                track = task.get(CONF_TRACK)
+                task_list_id = task.get(CONF_TASK_LIST_ID)
+                entity_id = _build_entity_id(hass, name, self._config)
+                if not track:
+                    continue
+                try:
+                    todo = (
+                        await hass.async_add_executor_job(  # pylint: disable=no-member
+                            ft.partial(
+                                tasks.get_folder,
+                                folder_id=task_list_id,
+                            )
+                        )
+                    )
+                    todo_sensor = O365TodoSensor(self, todo, name, entity_id)
+                    entities.append(todo_sensor)
+                except HTTPError:
+                    _LOGGER.warning(
+                        "Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
+                        name,
+                        self._account_name,
+                    )
+
+        return entities
+
+    async def _async_update_data(self):
+        _LOGGER.debug("Doing sensor update for: %s", self._account_name)
+        for entity in self._entities:
+            if entity.entity_type == SENSOR_MAIL:
+                await self._async_email_update(entity)
+            elif entity.entity_type == SENSOR_TEAMS_STATUS:
+                await self._async_teams_status_update(entity)
+            elif entity.entity_type == SENSOR_TEAMS_CHAT:
+                await self._async_teams_chat_update(entity)
+            elif entity.entity_type == SENSOR_TODO:
+                await self._async_todos_update(entity)
+
+        return self._data
+
+    async def _async_email_update(self, entity):
+        """Update code."""
+        data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+            ft.partial(
+                entity.mail_folder.get_messages,
+                limit=entity.max_items,
+                query=entity.query,
+                download_attachments=entity.download_attachments,
+            )
+        )
+        attrs = [get_email_attributes(x, entity.download_attachments) for x in data]
+        attrs.sort(key=itemgetter("received"), reverse=True)
+        self._data[entity.entity_id] = {
+            ATTR_STATE: len(attrs),
+            ATTR_ATTRIBUTES: {"data": attrs},
+        }
+
+    async def _async_teams_status_update(self, entity):
+        """Update state."""
+        if data := await self.hass.async_add_executor_job(entity.teams.get_my_presence):
+            self._data[entity.entity_id] = {ATTR_STATE: data.activity}
+
+    async def _async_teams_chat_update(self, entity):
+        """Update state."""
+        state = None
+        chats = await self.hass.async_add_executor_job(entity.teams.get_my_chats)
+        for chat in chats:
+            messages = await self.hass.async_add_executor_job(
+                ft.partial(chat.get_messages, limit=10)
+            )
+            for message in messages:
+                if not state and message.content != "<systemEventMessage/>":
+                    state = message.created_date
+                    self._data[entity.entity_id] = {
+                        ATTR_FROM_DISPLAY_NAME: message.from_display_name,
+                        ATTR_CONTENT: message.content,
+                        ATTR_CHAT_ID: message.chat_id,
+                        ATTR_IMPORTANCE: message.importance,
+                        ATTR_SUBJECT: message.subject,
+                        ATTR_SUMMARY: message.summary,
+                    }
+
+                    break
+            if state:
+                break
+        self._data[entity.entity_id][ATTR_STATE] = state
+
+    async def _async_todos_update(self, entity):
+        """Update state."""
+        if entity.entity_id in self._data:
+            error = self._data[entity.entity_id][ATTR_ERROR]
+        else:
+            self._data[entity.entity_id] = {ATTR_TASKS: {}, ATTR_STATE: 0}
+            error = False
+        try:
+            data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+                ft.partial(entity.todo.get_tasks, batch=100, query=entity.query)
+            )
+            if error:
+                _LOGGER.info("Task list reconnected for: %s", entity.name)
+                error = False
+            tasks = list(data)
+            self._data[entity.entity_id][ATTR_TASKS] = tasks
+            self._data[entity.entity_id][ATTR_STATE] = len(tasks)
+        except HTTPError:
+            if not error:
+                _LOGGER.error(
+                    "Task list not found for: %s - Has it been deleted?",
+                    entity.name,
+                )
+                error = True
+        self._data[entity.entity_id][ATTR_ERROR] = error
 
 
 def _build_entity_id(hass, name, conf):
-    return generate_entity_id(
+    return async_generate_entity_id(
         SENSOR_ENTITY_ID_FORMAT,
         f"{name}_{conf[CONF_ACCOUNT_NAME]}",
         hass=hass,
@@ -215,18 +398,15 @@ def _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type):
     return mail_folder
 
 
-class O365MailSensor:
+class O365Sensor(CoordinatorEntity):
     """O365 generic Sensor class."""
 
-    def __init__(self, conf, mail_folder):
+    def __init__(self, coordinator, name, entity_id, entity_type):
         """Initialise the O365 Sensor."""
-        self._mail_folder = mail_folder
-        self._name = conf.get(CONF_NAME)
-        self._download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
-        self._max_items = conf.get(CONF_MAX_ITEMS, 5)
-        self._state = 0
-        self._attributes = {}
-        self._query = None
+        super().__init__(coordinator)
+        self._name = name
+        self._entity_id = entity_id
+        self.entity_type = entity_type
 
     @property
     def name(self):
@@ -234,9 +414,26 @@ class O365MailSensor:
         return self._name
 
     @property
+    def entity_id(self):
+        """Entity_Id property."""
+        return self._entity_id
+
+    @property
     def state(self):
-        """State property."""
-        return self._state
+        """Sensor state."""
+        return self.coordinator.data[self.entity_id][ATTR_STATE]
+
+
+class O365MailSensor(O365Sensor):
+    """O365 generic Mail Sensor class."""
+
+    def __init__(self, coordinator, conf, mail_folder, name, entity_id):
+        """Initialise the O365 Sensor."""
+        super().__init__(coordinator, name, entity_id, SENSOR_MAIL)
+        self.mail_folder = mail_folder
+        self.download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
+        self.max_items = conf.get(CONF_MAX_ITEMS, 5)
+        self.query = None
 
     @property
     def icon(self):
@@ -246,215 +443,137 @@ class O365MailSensor:
     @property
     def extra_state_attributes(self):
         """Device state attributes."""
-        return self._attributes
-
-    async def async_update(self):
-        """Update code."""
-        data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
-            ft.partial(
-                self._mail_folder.get_messages,
-                limit=self._max_items,
-                query=self._query,
-                download_attachments=self._download_attachments,
-            )
-        )
-        attrs = [get_email_attributes(x, self._download_attachments) for x in data]
-        attrs.sort(key=itemgetter("received"), reverse=True)
-        self._state = len(attrs)
-        self._attributes = {"data": attrs}
+        return self.coordinator.data[self.entity_id][ATTR_ATTRIBUTES]
 
 
 class O365QuerySensor(O365MailSensor, Entity):
     """O365 Query sensor processing."""
 
-    def __init__(self, conf, mail_folder):
+    def __init__(self, coordinator, conf, mail_folder, name, entity_id):
         """Initialise the O365 Query."""
-        super().__init__(conf, mail_folder)
+        super().__init__(coordinator, conf, mail_folder, name, entity_id)
 
-        self._body_contains = conf.get(CONF_BODY_CONTAINS)
-        self._subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
-        self._subject_is = conf.get(CONF_SUBJECT_IS)
-        self._has_attachment = conf.get(CONF_HAS_ATTACHMENT)
-        self._importance = conf.get(CONF_IMPORTANCE)
-        self._email_from = conf.get(CONF_MAIL_FROM)
-        self._is_unread = conf.get(CONF_IS_UNREAD)
-        self._query = self._mail_folder.new_query()
-        self._query.order_by("receivedDateTime", ascending=False)
+        self.query = self.mail_folder.new_query()
+        self.query.order_by("receivedDateTime", ascending=False)
 
-        self._build_query()
+        self._build_query(conf)
 
-    def _build_query(self):
+    def _build_query(self, conf):
+        body_contains = conf.get(CONF_BODY_CONTAINS)
+        subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
+        subject_is = conf.get(CONF_SUBJECT_IS)
+        has_attachment = conf.get(CONF_HAS_ATTACHMENT)
+        importance = conf.get(CONF_IMPORTANCE)
+        email_from = conf.get(CONF_MAIL_FROM)
+        is_unread = conf.get(CONF_IS_UNREAD)
         if (
-            self._body_contains is not None
-            or self._subject_contains is not None
-            or self._subject_is is not None
-            or self._has_attachment is not None
-            or self._importance is not None
-            or self._email_from is not None
-            or self._is_unread is not None
+            body_contains is not None
+            or subject_contains is not None
+            or subject_is is not None
+            or has_attachment is not None
+            or importance is not None
+            or email_from is not None
+            or is_unread is not None
         ):
             self._add_to_query("ge", "receivedDateTime", datetime.datetime(1900, 5, 1))
-        self._add_to_query("contains", "body", self._body_contains)
-        self._add_to_query("contains", "subject", self._subject_contains)
-        self._add_to_query("equals", "subject", self._subject_is)
-        self._add_to_query("equals", "hasAttachments", self._has_attachment)
-        self._add_to_query("equals", "from", self._email_from)
-        self._add_to_query("equals", "IsRead", not self._is_unread, self._is_unread)
-        self._add_to_query("equals", "importance", self._importance)
+        self._add_to_query("contains", "body", body_contains)
+        self._add_to_query("contains", "subject", subject_contains)
+        self._add_to_query("equals", "subject", subject_is)
+        self._add_to_query("equals", "hasAttachments", has_attachment)
+        self._add_to_query("equals", "from", email_from)
+        self._add_to_query("equals", "IsRead", not is_unread, is_unread)
+        self._add_to_query("equals", "importance", importance)
 
     def _add_to_query(self, qtype, attribute_name, attribute_value, check_value=True):
         if attribute_value is None or check_value is None:
             return
 
         if qtype == "ge":
-            self._query.chain("and").on_attribute(attribute_name).greater_equal(
+            self.query.chain("and").on_attribute(attribute_name).greater_equal(
                 attribute_value
             )
         if qtype == "contains":
-            self._query.chain("and").on_attribute(attribute_name).contains(
+            self.query.chain("and").on_attribute(attribute_name).contains(
                 attribute_value
             )
         if qtype == "equals":
-            self._query.chain("and").on_attribute(attribute_name).equals(
-                attribute_value
-            )
+            self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
 
 
-class O365InboxSensor(O365MailSensor, Entity):
-    """O365 Inbox processing."""
+class O365EmailSensor(O365MailSensor, Entity):
+    """O365 Email sensor processing."""
 
-    def __init__(self, conf, mail_folder):
-        """Initialise the O365 Inbox."""
-        super().__init__(conf, mail_folder)
+    def __init__(self, coordinator, conf, mail_folder, name, entity_id):
+        """Initialise the O365 Email sensor."""
+        super().__init__(coordinator, conf, mail_folder, name, entity_id)
 
         is_unread = conf.get(CONF_IS_UNREAD)
 
-        self._query = None
+        self.query = None
         if is_unread is not None:
-            self._query = self._mail_folder.new_query()
-            self._query.chain("and").on_attribute("IsRead").equals(not is_unread)
+            self.query = self.mail_folder.new_query()
+            self.query.chain("and").on_attribute("IsRead").equals(not is_unread)
 
 
-class O365TeamsStatusSensor(Entity):
+class O365TeamsSensor(O365Sensor):
     """O365 Teams sensor processing."""
 
-    def __init__(self, account, conf):
+    def __init__(self, cordinator, account, name, entity_id, entity_type):
         """Initialise the Teams Sensor."""
-        self._teams = account.teams()
-        self._name = conf.get(CONF_NAME)
-        self._state = None
-
-    @property
-    def name(self):
-        """Sensor name."""
-        return self._name
-
-    @property
-    def state(self):
-        """Sensor state."""
-        return self._state
+        super().__init__(cordinator, name, entity_id, entity_type)
+        self.teams = account.teams()
 
     @property
     def icon(self):
         """Entity icon."""
         return "mdi:microsoft-teams"
 
-    async def async_update(self):
-        """Update state."""
-        data = await self.hass.async_add_executor_job(self._teams.get_my_presence)
-        self._state = data.activity
+
+class O365TeamsStatusSensor(O365TeamsSensor, Entity):
+    """O365 Teams sensor processing."""
+
+    def __init__(self, coordinator, account, name, entity_id):
+        """Initialise the Teams Sensor."""
+        super().__init__(coordinator, account, name, entity_id, SENSOR_TEAMS_STATUS)
 
 
-class O365TeamsChatSensor(Entity):
+class O365TeamsChatSensor(O365TeamsSensor, Entity):
     """O365 Teams Chat sensor processing."""
 
-    def __init__(self, account, conf):
+    def __init__(self, coordinator, account, name, entity_id):
         """Initialise the Teams Chat Sensor."""
-        self._teams = account.teams()
-        self._name = conf.get(CONF_NAME)
-        self._state = None
-        self._from_display_name = None
-        self._content = None
-        self._chat_id = None
-        self._importance = None
-        self._subject = None
-        self._summary = None
-
-    @property
-    def name(self):
-        """Sensor name."""
-        return self._name
-
-    @property
-    def state(self):
-        """Sensor state."""
-        return self._state
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:microsoft-teams"
+        super().__init__(coordinator, account, name, entity_id, SENSOR_TEAMS_CHAT)
 
     @property
     def extra_state_attributes(self):
         """Return entity specific state attributes."""
         attributes = {
-            ATTR_FROM_DISPLAY_NAME: self._from_display_name,
-            ATTR_CONTENT: self._content,
-            ATTR_CHAT_ID: self._chat_id,
-            ATTR_IMPORTANCE: self._importance,
+            ATTR_FROM_DISPLAY_NAME: self.coordinator.data[self.entity_id][
+                ATTR_FROM_DISPLAY_NAME
+            ],
+            ATTR_CONTENT: self.coordinator.data[self.entity_id][ATTR_CONTENT],
+            ATTR_CHAT_ID: self.coordinator.data[self.entity_id][ATTR_CHAT_ID],
+            ATTR_IMPORTANCE: self.coordinator.data[self.entity_id][ATTR_IMPORTANCE],
         }
-        if self._subject:
-            attributes[ATTR_SUBJECT] = self._subject
-        if self._summary:
-            attributes[ATTR_SUMMARY] = self._summary
+        if self.coordinator.data[self.entity_id][ATTR_SUBJECT]:
+            attributes[ATTR_SUBJECT] = self.coordinator.data[self.entity_id][
+                ATTR_SUBJECT
+            ]
+        if self.coordinator.data[self.entity_id][ATTR_SUMMARY]:
+            attributes[ATTR_SUMMARY] = self.coordinator.data[self.entity_id][
+                ATTR_SUMMARY
+            ]
         return attributes
 
-    async def async_update(self):
-        """Update state."""
-        state = None
-        chats = await self.hass.async_add_executor_job(self._teams.get_my_chats)
-        for chat in chats:
-            messages = await self.hass.async_add_executor_job(
-                ft.partial(chat.get_messages, limit=10)
-            )
-            for message in messages:
-                if not state and message.content != "<systemEventMessage/>":
-                    state = message.created_date
-                    self._from_display_name = message.from_display_name
-                    self._content = message.content
-                    self._chat_id = message.chat_id
-                    self._importance = message.importance
-                    self._subject = message.subject
-                    self._summary = message.summary
-                    break
-            if state:
-                break
-        self._state = state
 
-
-class O365TodoSensor(Entity):
+class O365TodoSensor(O365Sensor, Entity):
     """O365 Teams sensor processing."""
 
-    def __init__(self, todo, name, entity_id):
+    def __init__(self, coordinator, todo, name, entity_id):
         """Initialise the Teams Sensor."""
-        self._todo = todo
-        self._query = self._todo.new_query("status").unequal("completed")
-        self._id = todo.folder_id
-        self._name = name
-        self.entity_id = entity_id
-        self._tasks = []
-        self._error = False
-
-    @property
-    def name(self):
-        """Sensor name."""
-        return self._name
-
-    @property
-    def state(self):
-        """Sensor state."""
-        return len(self._tasks)
+        super().__init__(coordinator, name, entity_id, SENSOR_TODO)
+        self.todo = todo
+        self.query = self.todo.new_query("status").unequal("completed")
 
     @property
     def icon(self):
@@ -466,7 +585,7 @@ class O365TodoSensor(Entity):
         """Extra state attributes."""
         all_tasks = []
         overdue_tasks = []
-        for item in self._tasks:
+        for item in self.coordinator.data[self.entity_id][ATTR_TASKS]:
             task = {ATTR_SUBJECT: item.subject}
             if item.due:
                 task[ATTR_DUE] = item.due
@@ -482,27 +601,10 @@ class O365TodoSensor(Entity):
             extra_attributes[ATTR_OVERDUE_TASKS] = overdue_tasks
         return extra_attributes
 
-    async def async_update(self):
-        """Update state."""
-        try:
-            data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
-                ft.partial(self._todo.get_tasks, batch=100, query=self._query)
-            )
-            if self._error:
-                _LOGGER.info("Task list reconnected for: %s", self._name)
-                self._error = False
-            self._tasks = list(data)
-        except HTTPError:
-            if not self._error:
-                _LOGGER.error(
-                    "Task list not found for: %s - Has it been deleted?",
-                    self._name,
-                )
-                self._error = True
-
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
-        new_task = self._todo.new_task(subject=subject)
+        # sourcery skip: raise-from-previous-error
+        new_task = self.todo.new_task(subject=subject)
         if description:
             new_task.body = description
         if due:
