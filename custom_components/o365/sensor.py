@@ -225,32 +225,35 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
             )
             task_lists = list(task_dict.values())
-            tasks = self._account.tasks()
-            for task in task_lists:
-                name = task.get(CONF_NAME)
-                track = task.get(CONF_TRACK)
-                task_list_id = task.get(CONF_TASK_LIST_ID)
-                entity_id = _build_entity_id(hass, name, self._config)
-                if not track:
-                    continue
-                try:
-                    todo = (
-                        await hass.async_add_executor_job(  # pylint: disable=no-member
-                            ft.partial(
-                                tasks.get_folder,
-                                folder_id=task_list_id,
-                            )
-                        )
-                    )
-                    todo_sensor = O365TodoSensor(self, todo, name, entity_id)
-                    entities.append(todo_sensor)
-                except HTTPError:
-                    _LOGGER.warning(
-                        "Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
-                        name,
-                        self._account_name,
-                    )
+            entities = await self._async_todo_entities(hass, task_lists)
 
+        return entities
+
+    async def _async_todo_entities(self, hass, task_lists):
+        entities = []
+        tasks = self._account.tasks()
+        for task in task_lists:
+            name = task.get(CONF_NAME)
+            track = task.get(CONF_TRACK)
+            task_list_id = task.get(CONF_TASK_LIST_ID)
+            entity_id = _build_entity_id(hass, name, self._config)
+            if not track:
+                continue
+            try:
+                todo = await hass.async_add_executor_job(  # pylint: disable=no-member
+                    ft.partial(
+                        tasks.get_folder,
+                        folder_id=task_list_id,
+                    )
+                )
+                todo_sensor = O365TodoSensor(self, todo, name, entity_id)
+                entities.append(todo_sensor)
+            except HTTPError:
+                _LOGGER.warning(
+                    "Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
+                    name,
+                    self._account_name,
+                )
         return entities
 
     async def _async_update_data(self):
@@ -297,22 +300,27 @@ class O365SensorCordinator(DataUpdateCoordinator):
             messages = await self.hass.async_add_executor_job(
                 ft.partial(chat.get_messages, limit=10)
             )
-            for message in messages:
-                if not state and message.content != "<systemEventMessage/>":
-                    state = message.created_date
-                    self._data[entity.entity_id] = {
-                        ATTR_FROM_DISPLAY_NAME: message.from_display_name,
-                        ATTR_CONTENT: message.content,
-                        ATTR_CHAT_ID: message.chat_id,
-                        ATTR_IMPORTANCE: message.importance,
-                        ATTR_SUBJECT: message.subject,
-                        ATTR_SUMMARY: message.summary,
-                    }
-
-                    break
+            state = self._process_chat_messages(messages, entity)
             if state:
                 break
         self._data[entity.entity_id][ATTR_STATE] = state
+
+    def _process_chat_messages(self, messages, entity):
+        state = None
+        for message in messages:
+            if not state and message.content != "<systemEventMessage/>":
+                state = message.created_date
+                self._data[entity.entity_id] = {
+                    ATTR_FROM_DISPLAY_NAME: message.from_display_name,
+                    ATTR_CONTENT: message.content,
+                    ATTR_CHAT_ID: message.chat_id,
+                    ATTR_IMPORTANCE: message.importance,
+                    ATTR_SUBJECT: message.subject,
+                    ATTR_SUMMARY: message.summary,
+                }
+
+                break
+        return state
 
     async def _async_todos_update(self, entity):
         """Update state."""
