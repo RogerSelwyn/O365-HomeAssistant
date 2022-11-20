@@ -139,8 +139,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 self._account_name,
                 name,
             )
-            if mail_folder := await hass.async_add_executor_job(
-                _get_mail_folder, self._account, sensor_conf, CONF_EMAIL_SENSORS
+            if mail_folder := await self._async_get_mail_folder(
+                hass, sensor_conf, CONF_EMAIL_SENSORS
             ):
                 entity_id = async_generate_entity_id(
                     SENSOR_ENTITY_ID_FORMAT,
@@ -162,8 +162,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
         query_sensors = self._config.get(CONF_QUERY_SENSORS, [])
         entities = []
         for sensor_conf in query_sensors:
-            if mail_folder := await hass.async_add_executor_job(
-                _get_mail_folder, self._account, sensor_conf, CONF_QUERY_SENSORS
+            if mail_folder := await self._async_get_mail_folder(
+                hass, sensor_conf, CONF_QUERY_SENSORS
             ):
                 name = sensor_conf.get(CONF_NAME)
                 entity_id = async_generate_entity_id(
@@ -255,6 +255,39 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     self._account_name,
                 )
         return entities
+
+    async def _async_get_mail_folder(self, hass, sensor_conf, sensor_type):
+        """Get the configured folder."""
+        mailbox = self._account.mailbox()
+        _LOGGER.debug("Get mail folder: %s", sensor_conf.get(CONF_NAME))
+        if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
+            return await self._async_get_configured_mail_folder(
+                hass, mail_folder_conf, mailbox, sensor_type
+            )
+
+        return mailbox.inbox_folder()
+
+    async def _async_get_configured_mail_folder(
+        self, hass, mail_folder_conf, mailbox, sensor_type
+    ):
+        mail_folder = mailbox
+        for folder in mail_folder_conf.split("/"):
+            mail_folder = await hass.async_add_executor_job(
+                ft.partial(
+                    mail_folder.get_folder,
+                    folder_name=folder,
+                )
+            )
+            if not mail_folder:
+                _LOGGER.error(
+                    "Folder - %s - not found from %s config entry - %s - entity not created",
+                    folder,
+                    sensor_type,
+                    mail_folder_conf,
+                )
+                return None
+
+        return mail_folder
 
     async def _async_update_data(self):
         _LOGGER.debug("Doing sensor update for: %s", self._account_name)
@@ -374,36 +407,6 @@ async def _async_setup_register_services(hass, conf):
     hass.services.async_register(
         DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
     )
-
-
-def _get_mail_folder(account, sensor_conf, sensor_type):
-    """Get the configured folder."""
-    mailbox = account.mailbox()
-    _LOGGER.debug("Get mail folder: %s", sensor_conf.get(CONF_NAME))
-    if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
-        return _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type)
-
-    return mailbox.inbox_folder()
-
-
-def _get_configured_mail_folder(mail_folder_conf, mailbox, sensor_type):
-    mail_folder = None
-    for i, folder in enumerate(mail_folder_conf.split("/")):
-        if i == 0:
-            mail_folder = mailbox.get_folder(folder_name=folder)
-        else:
-            mail_folder = mail_folder.get_folder(folder_name=folder)
-
-        if not mail_folder:
-            _LOGGER.error(
-                "Folder - %s - not found from %s config entry - %s - entity not created",
-                folder,
-                sensor_type,
-                mail_folder_conf,
-            )
-            return None
-
-    return mail_folder
 
 
 class O365Sensor(CoordinatorEntity):
