@@ -1,6 +1,6 @@
 # Changelog
 
-## v4.0.0 Beta 3 (2022/11/18)
+## v4.0.0 Beta 4 (2022/11/26)
 ### Breaking Changes
 - `alt_auth_flow` has been removed as a valid configuration parameter. This has been deprecated for 6 months. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/authentication.html) for details of how to configure `alt_auth_method` to meet your needs.
 - `calendar_id` is no longer supported as a parameter in service calls. `entity_id` should be used instead. Overall the changes to service calls in this release improve validation and should make it clearer when calling the service as to what a problem might be if one occurs. It also significantly simplifies the code which will benefit future changes.
@@ -13,9 +13,11 @@
 - Meaningful icons have been added to all sensors. Thanks to @rdeveen for prompting the change.
 - Tasks/Todo sensors can be enabled. See [Configuration](https://rogerselwyn.github.io/O365-HomeAssistant/installation_and_configuration.html) for details.
 
-### Changes from Beta 2
-- `alt_auth_flow` configuration parameter has been removed
-- The Secondary/Legacy method of configuration has been marked as deprecated 
+### Fixes
+- [Fix folder parameter usage](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8b5c7b982aca10c9bcf09a0f0fd6f9523c66ea4e) - @RogerSelwyn
+
+### Changes from Beta 3
+- Fix as detailed above
 
 <details>
   <summary>Full list of changes</summary>
@@ -55,7 +57,11 @@
 - [Add more support for legacy account migration](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d28efc3e1602b9264f2bc387547b64de6b328dbe) - @RogerSelwyn
 - [At repair description text](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/890a181b3a9ca6d5ed743c510bb54ec39d23c893) - @RogerSelwyn
 - [Bump to v4.0.0b3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b12801a612b90f2d940152bdb2950e6f5cc2e267) - @RogerSelwyn
-- </details>
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4c94d8c0f59522f07979f02e707bd992617d5999) - @RogerSelwyn
+- [Create codeql.yml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cf37942079ea6afc3e1d1d15508c30721dcea9fa) - @RogerSelwyn
+- [Fix folder parameter usage](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8b5c7b982aca10c9bcf09a0f0fd6f9523c66ea4e) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1eb935d098d66f0b19b6ee1ebc18101afcf6fe82) - @actions-user
+</details>
 
 
 
