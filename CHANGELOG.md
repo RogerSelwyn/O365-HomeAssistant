@@ -1,13 +1,13 @@
 # Changelog
 
-## v4.0.0 Beta 5 (2022/12/01)
-### Breaking Changes
+## v4.0.1 (2022/12/03)
+#### Breaking Changes
 - `alt_auth_flow` has been removed as a valid configuration parameter. This has been deprecated for 6 months. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/authentication.html) for details of how to configure `alt_auth_method` to meet your needs.
 - `calendar_id` is no longer supported as a parameter in service calls. `entity_id` should be used instead. Overall the changes to service calls in this release improve validation and should make it clearer when calling the service as to what a problem might be if one occurs. It also significantly simplifies the code which will benefit future changes.
 - The location of the o365 token and o365_calendar.yaml files have been moved under the `o365_storage` directory. This helps to group the various o365 files in one place. If you are backing up your configuration to a public GitHub, you will need to change your `.gitignore`.
 
-### New Deprecation
-- The Secondary/Legacy method of configuration has been marked as deprecated and will be removed in a future release. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html) for more details on how to perform the migration.
+### Deprecations
+- The Secondary/Legacy method of configuration has been marked as deprecated and will be removed in a future release. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html) for more details on how to perform the migration to the Primary method.
 
 ### Enhancements
 - Meaningful icons have been added to all sensors. Thanks to @rdeveen for prompting the change.
@@ -16,9 +16,6 @@
 ### Fixes
 - [Fix folder parameter usage](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8b5c7b982aca10c9bcf09a0f0fd6f9523c66ea4e) - @RogerSelwyn 
 - [Fix incorrect service name created after conversion](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/41ccbdeebbe4ed700aa582de3be05cbca25ce22c) - @RogerSelwyn
-
-### Changes from Beta 4
-- Second fix as detailed above
 
 <details>
   <summary>Full list of changes</summary>
@@ -65,6 +62,7 @@
 - [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d054a4671e64e41b9bcb352caade9dec5a0e2e61) - @RogerSelwyn
 - [Fix incorrect service name created after conversion](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/41ccbdeebbe4ed700aa582de3be05cbca25ce22c) - @RogerSelwyn
 - [Bump to v4.0.0b5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/442fcef341149558a862fae5e1127bef34002696) - @RogerSelwyn
+- [Bump to v4.0.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4dacdd9aeca9c01990dca2dc56a5c16f3ae96e34) - @RogerSelwyn
 </details>
 
 
