@@ -11,6 +11,7 @@ class EventResponse(Enum):
     Decline = "decline"  # pylint: disable=invalid-name
 
 
+ATTR_ACCOUNT = "account"
 ATTR_ALL_TASKS = "all_tasks"
 ATTR_ATTACHMENTS = "attachments"
 ATTR_ATTENDEES = "attendees"
@@ -25,10 +26,12 @@ ATTR_EMAIL = "email"
 ATTR_END = "end"
 ATTR_ENTITY_ID = "entity_id"
 ATTR_EVENT_ID = "event_id"
+ATTR_EXTERNALREPLY = "external_reply"
 ATTR_FROM_DISPLAY_NAME = "from_display_name"
 ATTR_GROUP = "group"
 ATTR_IS_ALL_DAY = "is_all_day"
 ATTR_IMPORTANCE = "importance"
+ATTR_INTERNALREPLY = "internal_reply"
 ATTR_LOCATION = "location"
 ATTR_MESSAGE_IS_HTML = "message_is_html"
 ATTR_OVERDUE_TASKS = "overdue_tasks"
@@ -42,6 +45,7 @@ ATTR_SHOW_AS = "show_as"
 ATTR_START = "start"
 ATTR_SUBJECT = "subject"
 ATTR_SUMMARY = "summary"
+ATTR_TIMEZONE = "timezone"
 ATTR_TYPE = "type"
 ATTR_ZIP_ATTACHMENTS = "zip_attachments"
 ATTR_ZIP_NAME = "zip_name"
@@ -52,6 +56,8 @@ AUTH_CALLBACK_PATH_DEFAULT = (
 )
 CALENDAR_DOMAIN = "calendar"
 CALENDAR_ENTITY_ID_FORMAT = CALENDAR_DOMAIN + ".{}"
+MAILBOX_DOMAIN = "mailbox"
+MAILBOX_ENTITY_ID_FORMAT = MAILBOX_DOMAIN + ".{}"
 SENSOR_DOMAIN = "sensor"
 SENSOR_ENTITY_ID_FORMAT = SENSOR_DOMAIN + ".{}"
 CONF_ACCOUNT = "account"
@@ -85,6 +91,7 @@ CONF_IMPORTANCE = "importance"
 CONF_IS_UNREAD = "is_unread"
 CONF_MAIL_FOLDER = "folder"
 CONF_MAIL_FROM = "from"
+CONF_MAILBOX = "mailbox"
 CONF_MAX_ITEMS = "max_items"
 CONF_CHAT_SENSORS = "chat_sensors"
 CONF_QUERY_SENSORS = "query_sensors"
@@ -134,6 +141,7 @@ PERM_MAIL_READWRITE = "Mail.ReadWrite"
 PERM_MAIL_READWRITE_SHARED = "Mail.ReadWrite.Shared"
 PERM_MAIL_SEND = "Mail.Send"
 PERM_MAIL_SEND_SHARED = "Mail.Send.Shared"
+PERM_MAILBOX_SETTINGS = "MailboxSettings.ReadWrite"
 PERM_OFFLINE_ACCESS = "offline_access"
 PERM_PRESENCE_READ = "Presence.Read"
 PERM_TASKS_READ = "Tasks.Read"
@@ -148,6 +156,7 @@ PERM_MINIMUM_MAIL = [
     PERM_MAIL_READ,
     [PERM_MAIL_READ_SHARED, PERM_MAIL_READWRITE, PERM_MAIL_READWRITE_SHARED],
 ]
+PERM_MINIMUM_MAILBOX = [PERM_MAILBOX_SETTINGS, []]
 PERM_MINIMUM_CALENDAR = [
     PERM_CALENDARS_READ,
     [
