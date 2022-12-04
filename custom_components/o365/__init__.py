@@ -135,10 +135,8 @@ def _write_out_config(hass, accounts):
 
 def _remove_ordered_dict(account, sensor):
     if sensor in account:
-        new_sensors = []
         sensors = account[sensor]
-        for item in sensors:
-            new_sensors.append(dict(item))
+        new_sensors = [dict(item) for item in sensors]
         account[sensor] = new_sensors
     return account
 
