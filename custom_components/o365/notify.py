@@ -44,7 +44,13 @@ async def async_get_service(
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    if account.is_authenticated:
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
+    )
+    if account.is_authenticated and validate_minimum_permission(
+        PERM_MINIMUM_SEND, permissions
+    ):
         return O365EmailService(account, hass, conf)
 
     return
