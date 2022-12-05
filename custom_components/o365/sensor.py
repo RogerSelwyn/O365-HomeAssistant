@@ -33,6 +33,7 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_BODY_CONTAINS,
     CONF_CHAT_SENSORS,
+    CONF_CONFIG_TYPE,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
@@ -51,6 +52,8 @@ from .const import (
     CONF_TRACK,
     CONF_TRACK_NEW,
     DOMAIN,
+    PERM_MINIMUM_TASKS_WRITE,
+    PERM_TASKS_READWRITE,
     SENSOR_ENTITY_ID_FORMAT,
     SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
@@ -61,10 +64,13 @@ from .const import (
 from .schema import NEW_TASK_SCHEMA, TASK_LIST_SCHEMA
 from .utils import (
     build_config_file_path,
+    build_token_filename,
     build_yaml_filename,
     get_email_attributes,
+    get_permissions,
     load_yaml_file,
     update_task_list_file,
+    validate_minimum_permission,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -89,6 +95,7 @@ async def async_setup_platform(
     entities = await coordinator.async_setup_entries()
     await coordinator.async_config_entry_first_refresh()
     async_add_entities(entities, False)
+    await _async_setup_register_services(hass, conf)
 
     return True
 
@@ -225,11 +232,11 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
             )
             task_lists = list(task_dict.values())
-            entities = await self._async_todo_entities(task_lists)
+            entities = await self._async_todo_entities(task_lists, self._config)
 
         return entities
 
-    async def _async_todo_entities(self, task_lists):
+    async def _async_todo_entities(self, task_lists, config):
         entities = []
         tasks = self._account.tasks()
         for task in task_lists:
@@ -248,7 +255,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-                todo_sensor = O365TodoSensor(self, todo, name, entity_id)
+                todo_sensor = O365TodoSensor(self, todo, name, entity_id, config)
                 entities.append(todo_sensor)
             except HTTPError:
                 _LOGGER.warning(
@@ -397,8 +404,14 @@ async def _async_setup_register_services(hass, conf):
     if not todo_sensors or not todo_sensors.get(CONF_ENABLED):
         return
 
-    platform = entity_platform.async_get_current_platform()
-    if conf.get(CONF_ENABLE_UPDATE):
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
+    )
+    if conf.get(CONF_ENABLE_UPDATE) and validate_minimum_permission(
+        PERM_MINIMUM_TASKS_WRITE, permissions
+    ):
+        platform = entity_platform.async_get_current_platform()
         platform.async_register_entity_service(
             "new_task",
             NEW_TASK_SCHEMA,
@@ -582,11 +595,12 @@ class O365TeamsChatSensor(O365TeamsSensor, Entity):
 class O365TodoSensor(O365Sensor, Entity):
     """O365 Teams sensor processing."""
 
-    def __init__(self, coordinator, todo, name, entity_id):
+    def __init__(self, coordinator, todo, name, entity_id, config):
         """Initialise the Teams Sensor."""
         super().__init__(coordinator, name, entity_id, SENSOR_TODO)
         self.todo = todo
         self.query = self.todo.new_query("status").unequal("completed")
+        self._config = config
 
     @property
     def icon(self):
@@ -616,6 +630,9 @@ class O365TodoSensor(O365Sensor, Entity):
 
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
+        if not self._validate_permissions(self._config):
+            return
+
         # sourcery skip: raise-from-previous-error
         new_task = self.todo.new_task(subject=subject)
         if description:
@@ -634,6 +651,18 @@ class O365TodoSensor(O365Sensor, Entity):
             new_task.reminder = reminder
 
         new_task.save()
+        return True
+
+    def _validate_permissions(self, config):
+        permissions = get_permissions(
+            self.hass,
+            filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
+        )
+        if not validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
+            raise vol.Invalid(
+                f"Not authorisied to create new task - requires permission: {PERM_TASKS_READWRITE}"
+            )
+
         return True
 
 

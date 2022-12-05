@@ -139,7 +139,13 @@ async def _async_setup_register_services(hass, conf):
     calendar_services = CalendarServices(hass)
     await calendar_services.async_scan_for_calendars(None)
 
-    if conf[CONF_ENABLE_UPDATE]:
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
+    )
+    if conf[CONF_ENABLE_UPDATE] and validate_minimum_permission(
+        PERM_MINIMUM_CALENDAR_WRITE, permissions
+    ):
 
         platform.async_register_entity_service(
             "create_calendar_event",
