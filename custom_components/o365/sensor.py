@@ -258,10 +258,17 @@ class O365MailSensor:
                 download_attachments=self._download_attachments,
             )
         )
-        attrs = [get_email_attributes(x, self._download_attachments) for x in data]
+
+        attrs = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+            self._get_attributes, data
+        )
+
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._state = len(attrs)
         self._attributes = {"data": attrs}
+
+    def _get_attributes(self, data):
+        return [get_email_attributes(x, self._download_attachments) for x in data]
 
 
 class O365QuerySensor(O365MailSensor, Entity):
