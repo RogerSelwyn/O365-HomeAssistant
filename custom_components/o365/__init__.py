@@ -117,6 +117,9 @@ def _write_out_config(hass, accounts):
     _remove_ordered_dict(account, CONF_STATUS_SENSORS)
     _remove_ordered_dict(account, CONF_CHAT_SENSORS)
     config = {"o365": {"accounts": [account]}}
+    config_path = build_config_file_path(hass, "")
+    if not os.path.exists(config_path):
+        os.mkdir(config_path)
     with open(yaml_filepath, "w", encoding="UTF8") as out:
         out.write("\n")
         yaml.dump(
@@ -132,10 +135,8 @@ def _write_out_config(hass, accounts):
 
 def _remove_ordered_dict(account, sensor):
     if sensor in account:
-        new_sensors = []
         sensors = account[sensor]
-        for item in sensors:
-            new_sensors.append(dict(item))
+        new_sensors = [dict(item) for item in sensors]
         account[sensor] = new_sensors
     return account
 
