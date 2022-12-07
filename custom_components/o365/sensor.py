@@ -427,6 +427,8 @@ async def _async_setup_register_services(hass, conf):
 class O365Sensor(CoordinatorEntity):
     """O365 generic Sensor class."""
 
+    _attr_should_poll = False
+
     def __init__(self, coordinator, name, entity_id, entity_type):
         """Initialise the O365 Sensor."""
         super().__init__(coordinator)
