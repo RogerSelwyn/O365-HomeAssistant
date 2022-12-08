@@ -4,56 +4,43 @@ import functools as ft
 import logging
 from operator import itemgetter
 
-import voluptuous as vol
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
-from homeassistant.helpers.entity import Entity, async_generate_entity_id
-from homeassistant.helpers.update_coordinator import (  # UpdateFailed,
-    CoordinatorEntity,
+from homeassistant.helpers.entity import async_generate_entity_id
+from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
-)
-from homeassistant.util import dt
+)  # UpdateFailed,
 from requests.exceptions import HTTPError
 
+from .classes.mailsensor import O365EmailSensor, O365QuerySensor
+from .classes.taskssensor import O365TasksSensor
+from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import (
-    ATTR_ALL_TASKS,
     ATTR_ATTRIBUTES,
     ATTR_CHAT_ID,
     ATTR_CONTENT,
-    ATTR_DUE,
     ATTR_ERROR,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
-    ATTR_OVERDUE_TASKS,
     ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     ATTR_TASKS,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
-    CONF_BODY_CONTAINS,
     CONF_CHAT_SENSORS,
     CONF_CONFIG_TYPE,
-    CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
-    CONF_HAS_ATTACHMENT,
-    CONF_IMPORTANCE,
-    CONF_IS_UNREAD,
     CONF_MAIL_FOLDER,
-    CONF_MAIL_FROM,
-    CONF_MAX_ITEMS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
-    CONF_SUBJECT_CONTAINS,
-    CONF_SUBJECT_IS,
     CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
     CONF_TRACK,
     CONF_TRACK_NEW,
     DOMAIN,
     PERM_MINIMUM_TASKS_WRITE,
-    PERM_TASKS_READWRITE,
     SENSOR_ENTITY_ID_FORMAT,
     SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
@@ -255,7 +242,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-                todo_sensor = O365TodoSensor(self, todo, name, entity_id, config)
+                todo_sensor = O365TasksSensor(self, todo, name, entity_id, config)
                 entities.append(todo_sensor)
             except HTTPError:
                 _LOGGER.warning(
@@ -422,250 +409,6 @@ async def _async_setup_register_services(hass, conf):
     hass.services.async_register(
         DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
     )
-
-
-class O365Sensor(CoordinatorEntity):
-    """O365 generic Sensor class."""
-
-    _attr_should_poll = False
-
-    def __init__(self, coordinator, name, entity_id, entity_type):
-        """Initialise the O365 Sensor."""
-        super().__init__(coordinator)
-        self._name = name
-        self._entity_id = entity_id
-        self.entity_type = entity_type
-
-    @property
-    def name(self):
-        """Name property."""
-        return self._name
-
-    @property
-    def entity_id(self):
-        """Entity_Id property."""
-        return self._entity_id
-
-    @property
-    def state(self):
-        """Sensor state."""
-        return self.coordinator.data[self.entity_id][ATTR_STATE]
-
-
-class O365MailSensor(O365Sensor):
-    """O365 generic Mail Sensor class."""
-
-    def __init__(self, coordinator, conf, mail_folder, name, entity_id):
-        """Initialise the O365 Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_MAIL)
-        self.mail_folder = mail_folder
-        self.download_attachments = conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
-        self.max_items = conf.get(CONF_MAX_ITEMS, 5)
-        self.query = None
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:microsoft-outlook"
-
-    @property
-    def extra_state_attributes(self):
-        """Device state attributes."""
-        return self.coordinator.data[self.entity_id][ATTR_ATTRIBUTES]
-
-
-class O365QuerySensor(O365MailSensor, Entity):
-    """O365 Query sensor processing."""
-
-    def __init__(self, coordinator, conf, mail_folder, name, entity_id):
-        """Initialise the O365 Query."""
-        super().__init__(coordinator, conf, mail_folder, name, entity_id)
-
-        self.query = self.mail_folder.new_query()
-        self.query.order_by("receivedDateTime", ascending=False)
-
-        self._build_query(conf)
-
-    def _build_query(self, conf):
-        body_contains = conf.get(CONF_BODY_CONTAINS)
-        subject_contains = conf.get(CONF_SUBJECT_CONTAINS)
-        subject_is = conf.get(CONF_SUBJECT_IS)
-        has_attachment = conf.get(CONF_HAS_ATTACHMENT)
-        importance = conf.get(CONF_IMPORTANCE)
-        email_from = conf.get(CONF_MAIL_FROM)
-        is_unread = conf.get(CONF_IS_UNREAD)
-        if (
-            body_contains is not None
-            or subject_contains is not None
-            or subject_is is not None
-            or has_attachment is not None
-            or importance is not None
-            or email_from is not None
-            or is_unread is not None
-        ):
-            self._add_to_query("ge", "receivedDateTime", datetime.datetime(1900, 5, 1))
-        self._add_to_query("contains", "body", body_contains)
-        self._add_to_query("contains", "subject", subject_contains)
-        self._add_to_query("equals", "subject", subject_is)
-        self._add_to_query("equals", "hasAttachments", has_attachment)
-        self._add_to_query("equals", "from", email_from)
-        self._add_to_query("equals", "IsRead", not is_unread, is_unread)
-        self._add_to_query("equals", "importance", importance)
-
-    def _add_to_query(self, qtype, attribute_name, attribute_value, check_value=True):
-        if attribute_value is None or check_value is None:
-            return
-
-        if qtype == "ge":
-            self.query.chain("and").on_attribute(attribute_name).greater_equal(
-                attribute_value
-            )
-        if qtype == "contains":
-            self.query.chain("and").on_attribute(attribute_name).contains(
-                attribute_value
-            )
-        if qtype == "equals":
-            self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
-
-
-class O365EmailSensor(O365MailSensor, Entity):
-    """O365 Email sensor processing."""
-
-    def __init__(self, coordinator, conf, mail_folder, name, entity_id):
-        """Initialise the O365 Email sensor."""
-        super().__init__(coordinator, conf, mail_folder, name, entity_id)
-
-        is_unread = conf.get(CONF_IS_UNREAD)
-
-        self.query = None
-        if is_unread is not None:
-            self.query = self.mail_folder.new_query()
-            self.query.chain("and").on_attribute("IsRead").equals(not is_unread)
-
-
-class O365TeamsSensor(O365Sensor):
-    """O365 Teams sensor processing."""
-
-    def __init__(self, cordinator, account, name, entity_id, entity_type):
-        """Initialise the Teams Sensor."""
-        super().__init__(cordinator, name, entity_id, entity_type)
-        self.teams = account.teams()
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:microsoft-teams"
-
-
-class O365TeamsStatusSensor(O365TeamsSensor, Entity):
-    """O365 Teams sensor processing."""
-
-    def __init__(self, coordinator, account, name, entity_id):
-        """Initialise the Teams Sensor."""
-        super().__init__(coordinator, account, name, entity_id, SENSOR_TEAMS_STATUS)
-
-
-class O365TeamsChatSensor(O365TeamsSensor, Entity):
-    """O365 Teams Chat sensor processing."""
-
-    def __init__(self, coordinator, account, name, entity_id):
-        """Initialise the Teams Chat Sensor."""
-        super().__init__(coordinator, account, name, entity_id, SENSOR_TEAMS_CHAT)
-
-    @property
-    def extra_state_attributes(self):
-        """Return entity specific state attributes."""
-        attributes = {
-            ATTR_FROM_DISPLAY_NAME: self.coordinator.data[self.entity_id][
-                ATTR_FROM_DISPLAY_NAME
-            ],
-            ATTR_CONTENT: self.coordinator.data[self.entity_id][ATTR_CONTENT],
-            ATTR_CHAT_ID: self.coordinator.data[self.entity_id][ATTR_CHAT_ID],
-            ATTR_IMPORTANCE: self.coordinator.data[self.entity_id][ATTR_IMPORTANCE],
-        }
-        if self.coordinator.data[self.entity_id][ATTR_SUBJECT]:
-            attributes[ATTR_SUBJECT] = self.coordinator.data[self.entity_id][
-                ATTR_SUBJECT
-            ]
-        if self.coordinator.data[self.entity_id][ATTR_SUMMARY]:
-            attributes[ATTR_SUMMARY] = self.coordinator.data[self.entity_id][
-                ATTR_SUMMARY
-            ]
-        return attributes
-
-
-class O365TodoSensor(O365Sensor, Entity):
-    """O365 Teams sensor processing."""
-
-    def __init__(self, coordinator, todo, name, entity_id, config):
-        """Initialise the Teams Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_TODO)
-        self.todo = todo
-        self.query = self.todo.new_query("status").unequal("completed")
-        self._config = config
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:clipboard-check-outline"
-
-    @property
-    def extra_state_attributes(self):
-        """Extra state attributes."""
-        all_tasks = []
-        overdue_tasks = []
-        for item in self.coordinator.data[self.entity_id][ATTR_TASKS]:
-            task = {ATTR_SUBJECT: item.subject}
-            if item.due:
-                task[ATTR_DUE] = item.due
-                if item.due < dt.utcnow():
-                    overdue_tasks.append(
-                        {ATTR_SUBJECT: item.subject, ATTR_DUE: item.due}
-                    )
-
-            all_tasks.append(task)
-
-        extra_attributes = {ATTR_ALL_TASKS: all_tasks}
-        if overdue_tasks:
-            extra_attributes[ATTR_OVERDUE_TASKS] = overdue_tasks
-        return extra_attributes
-
-    def new_task(self, subject, description=None, due=None, reminder=None):
-        """Create a new task for this task list."""
-        if not self._validate_permissions(self._config):
-            return
-
-        # sourcery skip: raise-from-previous-error
-        new_task = self.todo.new_task(subject=subject)
-        if description:
-            new_task.body = description
-        if due:
-            try:
-                if len(due) > 10:
-                    new_task.due = dt.parse_datetime(due).date()
-                else:
-                    new_task.due = dt.parse_date(due)
-            except ValueError:
-                error = f"Due date {due} is not in valid format YYYY-MM-DD"
-                raise vol.Invalid(error)  # pylint: disable=raise-missing-from
-
-        if reminder:
-            new_task.reminder = reminder
-
-        new_task.save()
-        return True
-
-    def _validate_permissions(self, config):
-        permissions = get_permissions(
-            self.hass,
-            filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
-        )
-        if not validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
-            raise vol.Invalid(
-                f"Not authorisied to create new task - requires permission: {PERM_TASKS_READWRITE}"
-            )
-
-        return True
 
 
 class SensorServices:
