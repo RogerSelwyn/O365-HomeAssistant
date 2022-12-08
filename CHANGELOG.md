@@ -1,4 +1,13 @@
 # Changelog
+
+## v4.0.3 (2022/12/08)
+### Enhancements
+- [Add reminder to tasks, and shorten due to just date](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6d4adc8ac65021afa3361c9a749772fca5caeffe) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.0.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4214142f776aa9d20938a6ff9bdfaa378e9a94be) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d367c573d6ccfe8a1fa0cd1fd8291b0ad797da25) - @actions-user
+
 ## v4.0.2 (2022/12/07)
 ### Fixes
 - [Fix issue with converted config creation](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/df4c83e4e3f5f4c745cc0b723531501851e4991f) - @RogerSelwyn
