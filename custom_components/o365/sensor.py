@@ -19,6 +19,7 @@ from .const import (
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
     ATTR_OVERDUE_TASKS,
+    ATTR_REMINDER,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     CONF_ACCOUNT,
@@ -476,11 +477,16 @@ class O365TodoSensor(Entity):
         for item in self._tasks:
             task = {ATTR_SUBJECT: item.subject}
             if item.due:
-                task[ATTR_DUE] = item.due
-                if item.due < dt.utcnow():
-                    overdue_tasks.append(
-                        {ATTR_SUBJECT: item.subject, ATTR_DUE: item.due}
-                    )
+                due = item.due.date()
+                task[ATTR_DUE] = due
+                if due < dt.utcnow().date():
+                    overdue_task = {ATTR_SUBJECT: item.subject, ATTR_DUE: due}
+                    if item.is_reminder_on:
+                        overdue_task[ATTR_REMINDER] = item.reminder
+                    overdue_tasks.append(overdue_task)
+
+            if item.is_reminder_on:
+                task[ATTR_REMINDER] = item.reminder
 
             all_tasks.append(task)
 
