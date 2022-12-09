@@ -1,6 +1,6 @@
 {
   "domain": "o365",
-  "name": "Office 365 Calendar",
+  "name": "Office 365",
   "documentation": "https://github.com/RogerSelwyn/O365-HomeAssistant",
   "issue_tracker": "https://github.com/RogerSelwyn/O365-HomeAssistant/issues",
   "dependencies": [

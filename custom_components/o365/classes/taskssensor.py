@@ -62,7 +62,7 @@ class O365TasksSensor(O365Sensor, Entity):
 
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
-        if not self._validate_permissions(self._config):
+        if not self._validate_permissions():
             return
 
         # sourcery skip: raise-from-previous-error
@@ -85,10 +85,12 @@ class O365TasksSensor(O365Sensor, Entity):
         new_task.save()
         return True
 
-    def _validate_permissions(self, config):
+    def _validate_permissions(self):
         permissions = get_permissions(
             self.hass,
-            filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
+            filename=build_token_filename(
+                self._config, self._config.get(CONF_CONFIG_TYPE)
+            ),
         )
         if not validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
             raise vol.Invalid(

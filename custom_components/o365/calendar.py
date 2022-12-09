@@ -272,7 +272,7 @@ class O365CalendarEntity(CalendarEntity):
             categories = []
         if attendees is None:
             attendees = []
-        if not self._validate_permissions("create", self._config):
+        if not self._validate_permissions("create"):
             return
 
         calendar = self.data.calendar
@@ -313,7 +313,7 @@ class O365CalendarEntity(CalendarEntity):
         if attendees is None:
             attendees = []
 
-        if not self._validate_permissions("modify", self._config):
+        if not self._validate_permissions("modify"):
             return
 
         if self.data.group_calendar:
@@ -338,7 +338,7 @@ class O365CalendarEntity(CalendarEntity):
 
     def remove_calendar_event(self, event_id):
         """Remove the event."""
-        if not self._validate_permissions("delete", self._config):
+        if not self._validate_permissions("delete"):
             return
 
         if self.data.group_calendar:
@@ -352,7 +352,7 @@ class O365CalendarEntity(CalendarEntity):
         self, event_id, response, send_response=True, message=None
     ):
         """Respond to calendar event."""
-        if not self._validate_permissions("respond to", self._config):
+        if not self._validate_permissions("respond to"):
             return
 
         if self.data.group_calendar:
@@ -376,10 +376,12 @@ class O365CalendarEntity(CalendarEntity):
         calendar = self.data.calendar
         return calendar.get_event(event_id)
 
-    def _validate_permissions(self, error_message, config):
+    def _validate_permissions(self, error_message):
         permissions = get_permissions(
             self.hass,
-            filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
+            filename=build_token_filename(
+                self._config, self._config.get(CONF_CONFIG_TYPE)
+            ),
         )
         if not validate_minimum_permission(PERM_MINIMUM_CALENDAR_WRITE, permissions):
             raise vol.Invalid(
