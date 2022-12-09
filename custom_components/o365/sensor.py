@@ -40,6 +40,7 @@ from .const import (
     CONF_TRACK,
     CONF_TRACK_NEW,
     DOMAIN,
+    PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
     SENSOR_ENTITY_ID_FORMAT,
     SENSOR_MAIL,
@@ -48,7 +49,12 @@ from .const import (
     SENSOR_TODO,
     YAML_TASK_LISTS,
 )
-from .schema import NEW_TASK_SCHEMA, TASK_LIST_SCHEMA
+from .schema import (
+    AUTO_REPLY_DISABLE_SCHEMA,
+    AUTO_REPLY_ENABLE_SCHEMA,
+    NEW_TASK_SCHEMA,
+    TASK_LIST_SCHEMA,
+)
 from .utils import (
     build_config_file_path,
     build_token_filename,
@@ -142,7 +148,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     hass=self.hass,
                 )
                 emailsensor = O365EmailSensor(
-                    self, sensor_conf, mail_folder, name, entity_id
+                    self, self._config, sensor_conf, mail_folder, name, entity_id
                 )
                 _LOGGER.debug(
                     "Email sensor added: %s, %s",
@@ -166,7 +172,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     hass=self.hass,
                 )
                 querysensor = O365QuerySensor(
-                    self, sensor_conf, mail_folder, name, entity_id
+                    self, self._config, sensor_conf, mail_folder, name, entity_id
                 )
                 entities.append(querysensor)
         return entities
@@ -391,29 +397,47 @@ def _build_entity_id(hass, name, conf):
     )
 
 
-async def _async_setup_register_services(hass, conf):
-    todo_sensors = conf.get(CONF_TODO_SENSORS)
+async def _async_setup_register_services(hass, config):
+    todo_sensors = config.get(CONF_TODO_SENSORS)
     if not todo_sensors or not todo_sensors.get(CONF_ENABLED):
+        return
+
+    sensor_services = SensorServices(hass)
+    hass.services.async_register(
+        DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
+    )
+
+    await _async_setup_platform_services(hass, config)
+
+
+async def _async_setup_platform_services(hass, config):
+
+    if not config.get(CONF_ENABLE_UPDATE):
         return
 
     permissions = get_permissions(
         hass,
-        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
+        filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
     )
-    if conf.get(CONF_ENABLE_UPDATE) and validate_minimum_permission(
-        PERM_MINIMUM_TASKS_WRITE, permissions
-    ):
-        platform = entity_platform.async_get_current_platform()
+    platform = entity_platform.async_get_current_platform()
+    if validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
         platform.async_register_entity_service(
             "new_task",
             NEW_TASK_SCHEMA,
             "new_task",
         )
 
-    sensor_services = SensorServices(hass)
-    hass.services.async_register(
-        DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
-    )
+    if validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
+        platform.async_register_entity_service(
+            "auto_reply_enable",
+            AUTO_REPLY_ENABLE_SCHEMA,
+            "auto_reply_enable",
+        )
+        platform.async_register_entity_service(
+            "auto_reply_disable",
+            AUTO_REPLY_DISABLE_SCHEMA,
+            "auto_reply_disable",
+        )
 
 
 class SensorServices:

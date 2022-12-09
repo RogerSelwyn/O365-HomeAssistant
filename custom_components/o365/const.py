@@ -11,7 +11,6 @@ class EventResponse(Enum):
     Decline = "decline"  # pylint: disable=invalid-name
 
 
-ATTR_ACCOUNT = "account"
 ATTR_ALL_TASKS = "all_tasks"
 ATTR_ATTACHMENTS = "attachments"
 ATTR_ATTRIBUTES = "attributes"
@@ -48,7 +47,6 @@ ATTR_START = "start"
 ATTR_STATE = "state"
 ATTR_SUBJECT = "subject"
 ATTR_SUMMARY = "summary"
-ATTR_TIMEZONE = "timezone"
 ATTR_TASKS = "tasks"
 ATTR_TYPE = "type"
 ATTR_ZIP_ATTACHMENTS = "zip_attachments"
@@ -88,7 +86,6 @@ CONF_IMPORTANCE = "importance"
 CONF_IS_UNREAD = "is_unread"
 CONF_MAIL_FOLDER = "folder"
 CONF_MAIL_FROM = "from"
-CONF_MAILBOX = "mailbox"
 CONF_MAX_ITEMS = "max_items"
 CONF_MAX_RESULTS = "max_results"
 CONF_OFFSET = "offset"
@@ -116,6 +113,7 @@ CONST_CONFIG_TYPE_DICT = "dict"
 CONST_CONFIG_TYPE_LIST = "list"
 CONST_GROUP = "group:"
 CONST_PRIMARY = "$o365-primary$"
+CONST_UTC_TIMEZONE = "UTC"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_CACHE_PATH = ".O365-token-cache"
 DEFAULT_HOURS_BACKWARD_TO_GET = 0
@@ -125,8 +123,6 @@ DEFAULT_OFFSET = "!!"
 DOMAIN = "o365"
 ICON = "mdi:office"
 LEGACY_ACCOUNT_NAME = "converted"
-MAILBOX_DOMAIN = "mailbox"
-MAILBOX_ENTITY_ID_FORMAT = MAILBOX_DOMAIN + ".{}"
 MIN_TIME_BETWEEN_UPDATES = timedelta(minutes=15)
 O365_STORAGE = "o365_storage"
 PERM_CALENDARS_READ = "Calendars.Read"
@@ -136,13 +132,13 @@ PERM_CALENDARS_READWRITE_SHARED = "Calendars.ReadWrite.Shared"
 PERM_CHAT_READ = "Chat.Read"
 PERM_GROUP_READ_ALL = "Group.Read.All"
 PERM_GROUP_READWRITE_ALL = "Group.ReadWrite.All"
+PERM_MAILBOX_SETTINGS = "MailboxSettings.ReadWrite"
 PERM_MAIL_READ = "Mail.Read"
 PERM_MAIL_READ_SHARED = "Mail.Read.Shared"
 PERM_MAIL_READWRITE = "Mail.ReadWrite"
 PERM_MAIL_READWRITE_SHARED = "Mail.ReadWrite.Shared"
 PERM_MAIL_SEND = "Mail.Send"
 PERM_MAIL_SEND_SHARED = "Mail.Send.Shared"
-PERM_MAILBOX_SETTINGS = "MailboxSettings.ReadWrite"
 PERM_OFFLINE_ACCESS = "offline_access"
 PERM_PRESENCE_READ = "Presence.Read"
 PERM_TASKS_READ = "Tasks.Read"
@@ -154,11 +150,11 @@ PERM_MINIMUM_PRESENCE = [PERM_PRESENCE_READ, []]
 PERM_MINIMUM_TASKS = [PERM_TASKS_READ, [PERM_TASKS_READWRITE]]
 PERM_MINIMUM_TASKS_WRITE = [PERM_TASKS_READWRITE, []]
 PERM_MINIMUM_USER = [PERM_USER_READ, []]
+PERM_MINIMUM_MAILBOX_SETTINGS = [PERM_MAILBOX_SETTINGS, []]
 PERM_MINIMUM_MAIL = [
     PERM_MAIL_READ,
     [PERM_MAIL_READ_SHARED, PERM_MAIL_READWRITE, PERM_MAIL_READWRITE_SHARED],
 ]
-PERM_MINIMUM_MAILBOX = [PERM_MAILBOX_SETTINGS, []]
 PERM_MINIMUM_CALENDAR = [
     PERM_CALENDARS_READ,
     [

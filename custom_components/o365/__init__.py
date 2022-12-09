@@ -14,6 +14,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import discovery
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
 from homeassistant.helpers.network import get_url
+
 from O365 import Account, FileSystemTokenBackend
 
 from .const import (
@@ -30,7 +31,6 @@ from .const import (
     CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
-    CONF_MAILBOX,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TODO_SENSORS,
@@ -43,6 +43,7 @@ from .const import (
     CONST_CONFIG_TYPE_DICT,
     CONST_CONFIG_TYPE_LIST,
     CONST_PRIMARY,
+    CONST_UTC_TIMEZONE,
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
@@ -59,8 +60,6 @@ from .utils import (
     check_file_location,
     validate_permissions,
 )
-
-from .mailbox import async_setup_mailbox
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -158,7 +157,12 @@ async def _async_setup_account(hass, account_conf, conf_type):
     )
 
     account = await hass.async_add_executor_job(
-        ft.partial(Account, credentials, token_backend=token_backend, timezone="UTC")
+        ft.partial(
+            Account,
+            credentials,
+            token_backend=token_backend,
+            timezone=CONST_UTC_TIMEZONE,
+        )
     )
     is_authenticated = account.is_authenticated
     minimum_permissions = build_minimum_permissions(hass, account_conf, conf_type)
@@ -188,7 +192,6 @@ def _copy_token_file(hass, account_name):
 def do_setup(hass, config, account, account_name, conf_type):
     """Run the setup after we have everything configured."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
-    mailbox = config.get(CONF_MAILBOX, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
@@ -200,7 +203,6 @@ def do_setup(hass, config, account, account_name, conf_type):
         CONF_EMAIL_SENSORS: email_sensors,
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,
-        CONF_MAILBOX: mailbox,
         CONF_CHAT_SENSORS: chat_sensors,
         CONF_TODO_SENSORS: todo_sensors,
         CONF_ENABLE_UPDATE: enable_update,
@@ -226,10 +228,6 @@ def _load_platforms(hass, account_name, config, account_config):
             discovery.async_load_platform(
                 hass, "notify", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
             )
-        )
-    if account_config[CONF_MAILBOX]:
-        hass.async_create_task(
-            async_setup_mailbox(hass, {CONF_ACCOUNT_NAME: account_name})
         )
     if (
         len(account_config[CONF_EMAIL_SENSORS]) > 0

@@ -24,7 +24,6 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
     CONF_GROUPS,
-    CONF_MAILBOX,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TASK_LIST_ID,
@@ -48,7 +47,6 @@ from .const import (
     PERM_MINIMUM_CHAT,
     PERM_MINIMUM_GROUP,
     PERM_MINIMUM_MAIL,
-    PERM_MINIMUM_MAILBOX,
     PERM_MINIMUM_PRESENCE,
     PERM_MINIMUM_TASKS,
     PERM_MINIMUM_USER,
@@ -86,7 +84,6 @@ def clean_html(html):
 def build_minimum_permissions(hass, config, conf_type):
     """Build the minimum permissions required to operate."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
-    mailbox = config.get(CONF_MAILBOX, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
@@ -94,8 +91,6 @@ def build_minimum_permissions(hass, config, conf_type):
     minimum_permissions = [PERM_MINIMUM_USER, PERM_MINIMUM_CALENDAR]
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_MAIL)
-    if mailbox:
-        minimum_permissions.append(PERM_MINIMUM_MAILBOX)
     if len(status_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_PRESENCE)
     if len(chat_sensors) > 0:
@@ -112,7 +107,6 @@ def build_minimum_permissions(hass, config, conf_type):
 def build_requested_permissions(config):
     """Build the requested permissions for the scope."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
-    mailbox = config.get(CONF_MAILBOX, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
@@ -129,10 +123,10 @@ def build_requested_permissions(config):
             scope.append(PERM_GROUP_READWRITE_ALL)
         else:
             scope.append(PERM_GROUP_READ_ALL)
-    if mailbox:
-        scope.append(PERM_MAILBOX_SETTINGS)
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         scope.append(PERM_MAIL_READ)
+        if enable_update:
+            scope.append(PERM_MAILBOX_SETTINGS)
     if len(status_sensors) > 0:
         scope.append(PERM_PRESENCE_READ)
     if len(chat_sensors) > 0:

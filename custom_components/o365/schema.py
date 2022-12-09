@@ -9,12 +9,12 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
+
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
 
 from .const import (
-    ATTR_ACCOUNT,
     ATTR_ATTACHMENTS,
     ATTR_ATTENDEES,
     ATTR_BODY,
@@ -39,7 +39,6 @@ from .const import (
     ATTR_SHOW_AS,
     ATTR_START,
     ATTR_SUBJECT,
-    ATTR_TIMEZONE,
     ATTR_TYPE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
@@ -64,7 +63,6 @@ from .const import (
     CONF_IS_UNREAD,
     CONF_MAIL_FOLDER,
     CONF_MAIL_FROM,
-    CONF_MAILBOX,
     CONF_MAX_ITEMS,
     CONF_MAX_RESULTS,
     CONF_QUERY_SENSORS,
@@ -129,7 +127,6 @@ LEGACY_SCHEMA = vol.Schema(
         vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
         vol.Optional(CONF_ALT_AUTH_METHOD, default=False): bool,
         vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
-        vol.Optional(CONF_MAILBOX, default=False): bool,
         vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
         vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
         vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
@@ -148,7 +145,6 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Required(CONF_ACCOUNT_NAME, ""): cv.string,
                     vol.Optional(CONF_ALT_AUTH_METHOD, default=False): bool,
                     vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
-                    vol.Optional(CONF_MAILBOX, default=False): bool,
                     vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
                     vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
                     vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
@@ -265,15 +261,11 @@ NEW_TASK_SCHEMA = {
     vol.Optional(ATTR_REMINDER): cv.datetime,
 }
 
-AUTO_REPLY_SERVICE_CREATE_SCHEMA = {
-    vol.Required(ATTR_ACCOUNT): cv.string,
+AUTO_REPLY_ENABLE_SCHEMA = {
     vol.Required(ATTR_START): cv.datetime,
     vol.Required(ATTR_END): cv.datetime,
-    vol.Required(ATTR_TIMEZONE): cv.time_zone,
     vol.Required(ATTR_EXTERNALREPLY): cv.string,
     vol.Required(ATTR_INTERNALREPLY): cv.string,
 }
 
-AUTO_REPLY_SERVICE_DISABLE_SCHEMA = {
-    vol.Required(ATTR_ACCOUNT): cv.string,
-}
+AUTO_REPLY_DISABLE_SCHEMA = {}
