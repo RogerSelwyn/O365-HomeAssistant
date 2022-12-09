@@ -20,7 +20,6 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_CONFIG_TYPE,
     DOMAIN,
-    LEGACY_ACCOUNT_NAME,
     PERM_MAIL_SEND,
     PERM_MINIMUM_SEND,
 )
@@ -45,7 +44,13 @@ async def async_get_service(
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    if account.is_authenticated:
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
+    )
+    if account.is_authenticated and validate_minimum_permission(
+        PERM_MINIMUM_SEND, permissions
+    ):
         return O365EmailService(account, hass, conf)
 
     return
@@ -62,10 +67,7 @@ class O365EmailService(BaseNotificationService):
         )
         self._cleanup_files = []
         self._hass = hass
-        account_name = config.get(CONF_ACCOUNT_NAME, None)
-        if account_name == LEGACY_ACCOUNT_NAME:
-            account_name = ""
-        elif account_name:
+        if account_name := config.get(CONF_ACCOUNT_NAME, None):
             account_name = f"_{account_name}"
         self._account_name = account_name
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## v4.0.3 (2022/12/08)
+### Enhancements
+- [Add reminder to tasks, and shorten due to just date](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6d4adc8ac65021afa3361c9a749772fca5caeffe) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.0.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4214142f776aa9d20938a6ff9bdfaa378e9a94be) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d367c573d6ccfe8a1fa0cd1fd8291b0ad797da25) - @actions-user
+
+## v4.0.2 (2022/12/07)
+### Fixes
+- [Fix issue with converted config creation](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/df4c83e4e3f5f4c745cc0b723531501851e4991f) - @RogerSelwyn
+- [Fix issue with downloading attachments](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5b90d62ea90734de323f050ffe361450ef986464) - @RogerSelwyn 
+
+### Maintenance
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7379ba32cd1a9f1fb885f151666560a9f71ba983) - @RogerSelwyn
+- [Update index.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d98c8e017e9a48735a258acf39d36825e22d8ee5) - @RogerSelwyn
+- [Bump to v4.0.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4671b763d721273159dca8c4058f2ba02a65af26) - @RogerSelwyn
+
 ## v4.0.1 (2022/12/03)
 #### Breaking Changes
 - `alt_auth_flow` has been removed as a valid configuration parameter. This has been deprecated for 6 months. See [here](https://rogerselwyn.github.io/O365-HomeAssistant/authentication.html) for details of how to configure `alt_auth_method` to meet your needs.
