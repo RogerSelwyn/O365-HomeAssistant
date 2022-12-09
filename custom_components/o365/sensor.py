@@ -318,6 +318,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             ATTR_ATTRIBUTES: {"data": attrs},
         }
 
+
     def _get_attributes(self, data, entity):
         return [get_email_attributes(x, entity.download_attachments) for x in data]
 
@@ -338,6 +339,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             if state:
                 break
         self._data[entity.entity_id][ATTR_STATE] = state
+
 
     def _process_chat_messages(self, messages, entity):
         state = None
