@@ -309,12 +309,17 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 download_attachments=entity.download_attachments,
             )
         )
-        attrs = [get_email_attributes(x, entity.download_attachments) for x in data]
+        attrs = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+            self._get_attributes, data, entity
+        )
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._data[entity.entity_id] = {
             ATTR_STATE: len(attrs),
             ATTR_ATTRIBUTES: {"data": attrs},
         }
+
+    def _get_attributes(self, data, entity):
+        return [get_email_attributes(x, entity.download_attachments) for x in data]
 
     async def _async_teams_status_update(self, entity):
         """Update state."""

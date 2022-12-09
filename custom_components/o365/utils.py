@@ -10,8 +10,9 @@ from pathlib import Path
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 from voluptuous.error import Error as VoluptuousError
+
+from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 
 from .const import (
     CONF_ACCOUNT_NAME,
