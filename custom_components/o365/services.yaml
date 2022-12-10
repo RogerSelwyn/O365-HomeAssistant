@@ -1,3 +1,11 @@
+scan_for_calendars:
+  name: Scan for new calendars
+  description: "Scan for newly available calendars"
+
+scan_for_task_lists:
+  name: Scan for new task lists
+  description: "Scan for newly available task lists"
+
 respond_calendar_event:
   name: Respond to an event
   description: "Respond to calendar event/invite"

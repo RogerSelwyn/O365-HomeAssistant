@@ -398,6 +398,16 @@ def _build_entity_id(hass, name, conf):
 
 
 async def _async_setup_register_services(hass, config):
+
+    await _async_setup_task_services(hass, config)
+    await _async_setup_mailbox_services(hass, config)
+
+
+async def _async_setup_task_services(hass, config):
+
+    if not config.get(CONF_ENABLE_UPDATE):
+        return
+
     todo_sensors = config.get(CONF_TODO_SENSORS)
     if not todo_sensors or not todo_sensors.get(CONF_ENABLED):
         return
@@ -406,14 +416,6 @@ async def _async_setup_register_services(hass, config):
     hass.services.async_register(
         DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
     )
-
-    await _async_setup_platform_services(hass, config)
-
-
-async def _async_setup_platform_services(hass, config):
-
-    if not config.get(CONF_ENABLE_UPDATE):
-        return
 
     permissions = get_permissions(
         hass,
@@ -427,6 +429,20 @@ async def _async_setup_platform_services(hass, config):
             "new_task",
         )
 
+
+async def _async_setup_mailbox_services(hass, config):
+
+    if not config.get(CONF_ENABLE_UPDATE):
+        return
+
+    if not config.get(CONF_EMAIL_SENSORS) and not config.get(CONF_QUERY_SENSORS):
+        return
+
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
+    )
+    platform = entity_platform.async_get_current_platform()
     if validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
         platform.async_register_entity_service(
             "auto_reply_enable",
