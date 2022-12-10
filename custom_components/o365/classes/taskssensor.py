@@ -5,6 +5,7 @@ from homeassistant.util import dt
 
 from ..const import (
     ATTR_ALL_TASKS,
+    ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_OVERDUE_TASKS,
     ATTR_REMINDER,
@@ -41,6 +42,8 @@ class O365TasksSensor(O365Sensor, Entity):
         overdue_tasks = []
         for item in self.coordinator.data[self.entity_id][ATTR_TASKS]:
             task = {ATTR_SUBJECT: item.subject}
+            if item.body:
+                task[ATTR_DESCRIPTION] = item.body
             if item.due:
                 due = item.due.date()
                 task[ATTR_DUE] = due
