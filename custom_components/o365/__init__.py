@@ -291,7 +291,7 @@ def _create_request_content_default(hass, url, callback_view, account_name):
     return o365configurator.async_request_config(
         hass,
         view_name,
-        callback_view.default_callback,
+        callback=callback_view.default_callback,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
         fields=CONFIGURATOR_FIELDS,
@@ -396,11 +396,11 @@ class O365AuthCallbackView(HomeAssistantView):
             )
             return
 
-        account_data = self._hass.data[DOMAIN][self._account_name]
+        request_id = self._hass.data[DOMAIN][self._account_name]
         do_setup(
             self._hass, self._config, self._account, self._account_name, self._conf_type
         )
-        self.configurator.async_request_done(self._hass, account_data)
+        self.configurator.async_request_done(self._hass, request_id)
 
         self._log_authenticated(self._account_name)
         return
