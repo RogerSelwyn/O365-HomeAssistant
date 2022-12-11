@@ -52,8 +52,10 @@ from .const import (
 from .schema import (
     AUTO_REPLY_DISABLE_SCHEMA,
     AUTO_REPLY_ENABLE_SCHEMA,
+    DELETE_TASK_SCHEMA,
     NEW_TASK_SCHEMA,
     TASK_LIST_SCHEMA,
+    UPDATE_TASK_SCHEMA,
 )
 from .utils import (
     build_config_file_path,
@@ -427,6 +429,16 @@ async def _async_setup_task_services(hass, config):
             "new_task",
             NEW_TASK_SCHEMA,
             "new_task",
+        )
+        platform.async_register_entity_service(
+            "update_task",
+            UPDATE_TASK_SCHEMA,
+            "update_task",
+        )
+        platform.async_register_entity_service(
+            "delete_task",
+            DELETE_TASK_SCHEMA,
+            "delete_task",
         )
 
 

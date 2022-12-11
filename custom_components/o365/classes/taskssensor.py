@@ -10,6 +10,7 @@ from ..const import (
     ATTR_OVERDUE_TASKS,
     ATTR_REMINDER,
     ATTR_SUBJECT,
+    ATTR_TASK_ID,
     ATTR_TASKS,
     CONF_CONFIG_TYPE,
     PERM_MINIMUM_TASKS_WRITE,
@@ -41,14 +42,18 @@ class O365TasksSensor(O365Sensor, Entity):
         all_tasks = []
         overdue_tasks = []
         for item in self.coordinator.data[self.entity_id][ATTR_TASKS]:
-            task = {ATTR_SUBJECT: item.subject}
+            task = {ATTR_SUBJECT: item.subject, ATTR_TASK_ID: item.task_id}
             if item.body:
                 task[ATTR_DESCRIPTION] = item.body
             if item.due:
                 due = item.due.date()
                 task[ATTR_DUE] = due
                 if due < dt.utcnow().date():
-                    overdue_task = {ATTR_SUBJECT: item.subject, ATTR_DUE: due}
+                    overdue_task = {
+                        ATTR_SUBJECT: item.subject,
+                        ATTR_TASK_ID: item.task_id,
+                        ATTR_DUE: due,
+                    }
                     if item.is_reminder_on:
                         overdue_task[ATTR_REMINDER] = item.reminder
                     overdue_tasks.append(overdue_task)
@@ -66,27 +71,52 @@ class O365TasksSensor(O365Sensor, Entity):
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
         if not self._validate_permissions():
-            return
+            return False
 
+        new_task = self.todo.new_task()
+        self._save_task(new_task, subject, description, due, reminder)
+        return True
+
+    def update_task(
+        self, task_id, subject=None, description=None, due=None, reminder=None
+    ):
+        """Update a task for this task list."""
+        if not self._validate_permissions():
+            return False
+
+        task = self.todo.get_task(task_id)
+        self._save_task(task, subject, description, due, reminder)
+        return True
+
+    def delete_task(self, task_id):
+        """Delete task for this task list."""
+        if not self._validate_permissions():
+            return False
+
+        task = self.todo.get_task(task_id)
+        task.delete()
+        return True
+
+    def _save_task(self, task, subject, description, due, reminder):
         # sourcery skip: raise-from-previous-error
-        new_task = self.todo.new_task(subject=subject)
+        if subject:
+            task.subject = subject
         if description:
-            new_task.body = description
+            task.body = description
         if due:
             try:
                 if len(due) > 10:
-                    new_task.due = dt.parse_datetime(due).date()
+                    task.due = dt.parse_datetime(due).date()
                 else:
-                    new_task.due = dt.parse_date(due)
+                    task.due = dt.parse_date(due)
             except ValueError:
                 error = f"Due date {due} is not in valid format YYYY-MM-DD"
                 raise vol.Invalid(error)  # pylint: disable=raise-missing-from
 
         if reminder:
-            new_task.reminder = reminder
+            task.reminder = reminder
 
-        new_task.save()
-        return True
+        task.save()
 
     def _validate_permissions(self):
         permissions = get_permissions(

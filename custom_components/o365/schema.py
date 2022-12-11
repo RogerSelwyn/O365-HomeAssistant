@@ -9,7 +9,6 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
@@ -23,7 +22,6 @@ from .const import (
     ATTR_DUE,
     ATTR_EMAIL,
     ATTR_END,
-    ATTR_ENTITY_ID,
     ATTR_EVENT_ID,
     ATTR_EXTERNALREPLY,
     ATTR_INTERNALREPLY,
@@ -39,6 +37,7 @@ from .const import (
     ATTR_SHOW_AS,
     ATTR_START,
     ATTR_SUBJECT,
+    ATTR_TASK_ID,
     ATTR_TYPE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
@@ -176,7 +175,6 @@ NOTIFY_BASE_SCHEMA = vol.Schema(
 )
 
 CALENDAR_SERVICE_RESPOND_SCHEMA = {
-    vol.Required(ATTR_ENTITY_ID): cv.string,
     vol.Required(ATTR_EVENT_ID): cv.string,
     vol.Required(ATTR_RESPONSE, None): cv.enum(EventResponse),
     vol.Optional(ATTR_SEND_RESPONSE, True): bool,
@@ -205,7 +203,6 @@ CALENDAR_SERVICE_CREATE_SCHEMA = {
 
 
 CALENDAR_SERVICE_MODIFY_SCHEMA = {
-    vol.Required(ATTR_ENTITY_ID): cv.string,
     vol.Required(ATTR_EVENT_ID): cv.string,
     vol.Optional(ATTR_START): cv.datetime,
     vol.Optional(ATTR_END): cv.datetime,
@@ -221,7 +218,6 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = {
 
 
 CALENDAR_SERVICE_REMOVE_SCHEMA = {
-    vol.Required(ATTR_ENTITY_ID): cv.string,
     vol.Required(ATTR_EVENT_ID): cv.string,
 }
 
@@ -259,6 +255,18 @@ NEW_TASK_SCHEMA = {
     vol.Optional(ATTR_DESCRIPTION): cv.string,
     vol.Optional(ATTR_DUE): cv.string,
     vol.Optional(ATTR_REMINDER): cv.datetime,
+}
+
+UPDATE_TASK_SCHEMA = {
+    vol.Required(ATTR_TASK_ID): cv.string,
+    vol.Optional(ATTR_SUBJECT): cv.string,
+    vol.Optional(ATTR_DESCRIPTION): cv.string,
+    vol.Optional(ATTR_DUE): cv.string,
+    vol.Optional(ATTR_REMINDER): cv.datetime,
+}
+
+DELETE_TASK_SCHEMA = {
+    vol.Required(ATTR_TASK_ID): cv.string,
 }
 
 AUTO_REPLY_ENABLE_SCHEMA = {

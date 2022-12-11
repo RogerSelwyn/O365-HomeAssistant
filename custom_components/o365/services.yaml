@@ -147,6 +147,45 @@ new_task:
       description: When a reminder is needed
       example: "2023-01-01T12:00:00+0000"
 
+update_task:
+  name: Update a task/ToDo
+  description: Update a new task/ToDo
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    task_id:
+      description: ID for the task, can be found as an attribute on your task
+      example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    subject:
+      description: The subject of the task
+      example: Pick up the mail
+    description:
+      description: Description of the task
+      example: Walk to the post box and collect the mail
+    due:
+      description: When the task is due by
+      example: "YYYY-MM-DD"
+    reminder:
+      description: When a reminder is needed
+      example: "2023-01-01T12:00:00+0000"
+
+delete_task:
+  name: Delete a task/ToDo
+  description: Delete a new task/ToDo
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    task_id:
+      description: ID for the task, can be found as an attribute on your task
+      example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 auto_reply_enable:
   name: Auto reply enable
