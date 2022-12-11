@@ -1,4 +1,13 @@
+scan_for_calendars:
+  name: Scan for new calendars
+  description: "Scan for newly available calendars"
+
+scan_for_task_lists:
+  name: Scan for new task lists
+  description: "Scan for newly available task lists"
+
 respond_calendar_event:
+  name: Respond to an event
   description: "Respond to calendar event/invite"
   target:
     device:
@@ -21,6 +30,7 @@ respond_calendar_event:
       example: True
 
 create_calendar_event:
+  name: Create a new event
   description: Create new calendar event
   target:
     device:
@@ -59,6 +69,7 @@ create_calendar_event:
       description: "list of attendees formatted as email: example@example.com type: Required, Optional, or Resource (optional)"
 
 modify_calendar_event:
+  name: Modify an event
   description: Modify existing calendar event, all properties except event_id are optional.
   target:
     device:
@@ -100,6 +111,7 @@ modify_calendar_event:
       description: "list of attendees formatted as email: example@example.com type: Required, Optional, or Resource"
 
 remove_calendar_event:
+  name: Delete an event
   description: Delete calendar event
   target:
     device:
@@ -113,6 +125,7 @@ remove_calendar_event:
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 new_task:
+  name: Create a task/ToDo
   description: Create a new task/ToDo
   target:
     device:
@@ -133,3 +146,41 @@ new_task:
     reminder:
       description: When a reminder is needed
       example: "2023-01-01T12:00:00+0000"
+
+
+auto_reply_enable:
+  name: Auto reply enable
+  description: Schedules auto reply
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    start:
+      description: The start time of the schedule
+      example: "2023-01-01T12:00:00+0000"
+      required: true
+    end:
+      description: The end time of the schedule
+      example: "2023-01-02T12:30:00+0000"
+      required: true
+    external_reply:
+      description: The message to be send to external emails (or to all emails, if you don't have an organisation email)
+      example: I'm currently on holliday, please email Bob for answers
+      required: true
+    internal_reply:
+      description: The message to be send to internal emails
+      example: I'm currently on holliday
+      required: true
+
+auto_reply_disable:
+  name: Auto reply disable
+  description: Disables auto reply
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor

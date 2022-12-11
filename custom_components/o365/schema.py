@@ -9,6 +9,7 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
+
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
@@ -24,6 +25,8 @@ from .const import (
     ATTR_END,
     ATTR_ENTITY_ID,
     ATTR_EVENT_ID,
+    ATTR_EXTERNALREPLY,
+    ATTR_INTERNALREPLY,
     ATTR_IS_ALL_DAY,
     ATTR_LOCATION,
     ATTR_MESSAGE_IS_HTML,
@@ -257,3 +260,12 @@ NEW_TASK_SCHEMA = {
     vol.Optional(ATTR_DUE): cv.string,
     vol.Optional(ATTR_REMINDER): cv.datetime,
 }
+
+AUTO_REPLY_ENABLE_SCHEMA = {
+    vol.Required(ATTR_START): cv.datetime,
+    vol.Required(ATTR_END): cv.datetime,
+    vol.Required(ATTR_EXTERNALREPLY): cv.string,
+    vol.Required(ATTR_INTERNALREPLY): cv.string,
+}
+
+AUTO_REPLY_DISABLE_SCHEMA = {}

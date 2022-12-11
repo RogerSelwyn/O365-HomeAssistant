@@ -48,3 +48,6 @@ To allow authentication, you first need to register your application at Azure Ap
    If you intend to set [groups](./installation_and_configuration.md#configuration_variables) to True, (not supported in legacy installs), then the following permissions are also required:
    * Group.Read.All - *Read all groups*
    * Group.ReadWrite.All - *Read and write all groups* - To enable creation of events in group calendars if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
+
+   If you are enabling/disabling the auto reply you will need:
+   * MailboxSettings.ReadWrite - *Read and write user mailbox settings*

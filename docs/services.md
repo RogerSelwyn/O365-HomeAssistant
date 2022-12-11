@@ -54,6 +54,10 @@ Remove an event in the specified calendar - All paremeters are shown in the avai
 Respond to an event in the specified calendar - All paremeters are shown in the available parameter list on the Developer Tools/Services tab. Not possible for group calendars.
 ## o365.scan_for_calendars
 Scan for new calendars and add to o365_calendars.yaml - No parameters. Does not scan for group calendars.
+## o365.set_auto_reply
+Schedule the auto reply - All paremeters are shown in the available parameter list on the Developer Tools/Services tab.
+## o365.disable_auto_reply
+Disable the auto reply - All paremeters are shown in the available parameter list on the Developer Tools/Services tab.
 
 ### Example create event service call
 

@@ -14,6 +14,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import discovery
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
 from homeassistant.helpers.network import get_url
+
 from O365 import Account, FileSystemTokenBackend
 
 from .const import (
@@ -42,6 +43,7 @@ from .const import (
     CONST_CONFIG_TYPE_DICT,
     CONST_CONFIG_TYPE_LIST,
     CONST_PRIMARY,
+    CONST_UTC_TIMEZONE,
     DEFAULT_CACHE_PATH,
     DEFAULT_NAME,
     DOMAIN,
@@ -155,7 +157,12 @@ async def _async_setup_account(hass, account_conf, conf_type):
     )
 
     account = await hass.async_add_executor_job(
-        ft.partial(Account, credentials, token_backend=token_backend, timezone="UTC")
+        ft.partial(
+            Account,
+            credentials,
+            token_backend=token_backend,
+            timezone=CONST_UTC_TIMEZONE,
+        )
     )
     is_authenticated = account.is_authenticated
     minimum_permissions = build_minimum_permissions(hass, account_conf, conf_type)
@@ -284,7 +291,7 @@ def _create_request_content_default(hass, url, callback_view, account_name):
     return o365configurator.async_request_config(
         hass,
         view_name,
-        callback_view.default_callback,
+        callback=callback_view.default_callback,
         link_name=CONFIGURATOR_LINK_NAME,
         link_url=url,
         fields=CONFIGURATOR_FIELDS,
@@ -389,11 +396,11 @@ class O365AuthCallbackView(HomeAssistantView):
             )
             return
 
-        account_data = self._hass.data[DOMAIN][self._account_name]
+        request_id = self._hass.data[DOMAIN][self._account_name]
         do_setup(
             self._hass, self._config, self._account, self._account_name, self._conf_type
         )
-        self.configurator.async_request_done(self._hass, account_data)
+        self.configurator.async_request_done(self._hass, request_id)
 
         self._log_authenticated(self._account_name)
         return

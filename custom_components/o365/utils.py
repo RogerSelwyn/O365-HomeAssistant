@@ -42,6 +42,7 @@ from .const import (
     PERM_GROUP_READWRITE_ALL,
     PERM_MAIL_READ,
     PERM_MAIL_SEND,
+    PERM_MAILBOX_SETTINGS,
     PERM_MINIMUM_CALENDAR,
     PERM_MINIMUM_CHAT,
     PERM_MINIMUM_GROUP,
@@ -124,6 +125,8 @@ def build_requested_permissions(config):
             scope.append(PERM_GROUP_READ_ALL)
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         scope.append(PERM_MAIL_READ)
+        if enable_update:
+            scope.append(PERM_MAILBOX_SETTINGS)
     if len(status_sensors) > 0:
         scope.append(PERM_PRESENCE_READ)
     if len(chat_sensors) > 0:
