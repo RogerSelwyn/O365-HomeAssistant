@@ -3,7 +3,6 @@ import datetime
 
 import voluptuous as vol
 from homeassistant.helpers.entity import Entity
-from homeassistant.util.dt import as_utc
 
 from ..const import (
     ATTR_ATTRIBUTES,

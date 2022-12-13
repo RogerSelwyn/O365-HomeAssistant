@@ -23,7 +23,7 @@ from .const import (
     PERM_MAIL_SEND,
     PERM_MINIMUM_SEND,
 )
-from .schema import NOTIFY_BASE_SCHEMA
+from .schema import NOTIFY_SERVICE_BASE_SCHEMA
 from .utils import (
     build_token_filename,
     get_ha_filepath,
@@ -93,7 +93,7 @@ class O365EmailService(BaseNotificationService):
         if data is None:
             kwargs.pop(ATTR_DATA)
 
-        NOTIFY_BASE_SCHEMA(kwargs)
+        NOTIFY_SERVICE_BASE_SCHEMA(kwargs)
 
         title = kwargs.get(ATTR_TITLE, "Notification from Home Assistant")
 

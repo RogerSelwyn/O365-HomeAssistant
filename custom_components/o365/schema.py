@@ -9,7 +9,6 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
@@ -157,7 +156,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
     }
 )
 
-NOTIFY_DATA_SCHEMA = vol.Schema(
+NOTIFY_SERVICE_DATA_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_MESSAGE_IS_HTML, default=False): bool,
         vol.Optional(ATTR_TARGET): cv.string,
@@ -169,11 +168,11 @@ NOTIFY_DATA_SCHEMA = vol.Schema(
     }
 )
 
-NOTIFY_BASE_SCHEMA = vol.Schema(
+NOTIFY_SERVICE_BASE_SCHEMA = vol.Schema(
     {
         vol.Optional(ATTR_TARGET, default=[]): [cv.string],
         vol.Optional(ATTR_TITLE, default=""): cv.string,
-        vol.Optional(ATTR_DATA): NOTIFY_DATA_SCHEMA,
+        vol.Optional(ATTR_DATA): NOTIFY_SERVICE_DATA_SCHEMA,
     }
 )
 
@@ -184,7 +183,7 @@ CALENDAR_SERVICE_RESPOND_SCHEMA = {
     vol.Optional(ATTR_MESSAGE, None): cv.string,
 }
 
-ATTENDEE_SCHEMA = vol.Schema(
+CALENDAR_SERVICE_ATTENDEE_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_EMAIL): cv.string,
         vol.Required(ATTR_TYPE): cv.enum(AttendeeType),
@@ -198,10 +197,10 @@ CALENDAR_SERVICE_CREATE_SCHEMA = {
     vol.Optional(ATTR_BODY): cv.string,
     vol.Optional(ATTR_LOCATION): cv.string,
     vol.Optional(ATTR_CATEGORIES): [cv.string],
-    vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
-    vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
+    vol.Optional(ATTR_SENSITIVITY): vol.Coerce(EventSensitivity),
+    vol.Optional(ATTR_SHOW_AS): vol.Coerce(EventShowAs),
     vol.Optional(ATTR_IS_ALL_DAY): bool,
-    vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
+    vol.Optional(ATTR_ATTENDEES): [CALENDAR_SERVICE_ATTENDEE_SCHEMA],
 }
 
 
@@ -213,16 +212,47 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = {
     vol.Optional(ATTR_BODY): cv.string,
     vol.Optional(ATTR_LOCATION): cv.string,
     vol.Optional(ATTR_CATEGORIES): [cv.string],
-    vol.Optional(ATTR_SENSITIVITY): cv.enum(EventSensitivity),
-    vol.Optional(ATTR_SHOW_AS): cv.enum(EventShowAs),
+    vol.Optional(ATTR_SENSITIVITY): vol.Coerce(EventSensitivity),
+    vol.Optional(ATTR_SHOW_AS): vol.Coerce(EventShowAs),
     vol.Optional(ATTR_IS_ALL_DAY): bool,
-    vol.Optional(ATTR_ATTENDEES): [ATTENDEE_SCHEMA],
+    vol.Optional(ATTR_ATTENDEES): [CALENDAR_SERVICE_ATTENDEE_SCHEMA],
 }
 
 
 CALENDAR_SERVICE_REMOVE_SCHEMA = {
     vol.Required(ATTR_EVENT_ID): cv.string,
 }
+
+
+TASK_SERVICE_NEW_SCHEMA = {
+    vol.Required(ATTR_SUBJECT): cv.string,
+    vol.Optional(ATTR_DESCRIPTION): cv.string,
+    vol.Optional(ATTR_DUE): cv.string,
+    vol.Optional(ATTR_REMINDER): cv.datetime,
+}
+
+TASK_SERVICE_UPDATE_SCHEMA = {
+    vol.Required(ATTR_TASK_ID): cv.string,
+    vol.Optional(ATTR_SUBJECT): cv.string,
+    vol.Optional(ATTR_DESCRIPTION): cv.string,
+    vol.Optional(ATTR_DUE): cv.string,
+    vol.Optional(ATTR_REMINDER): cv.datetime,
+}
+
+TASK_SERVICE_DELETE_SCHEMA = {
+    vol.Required(ATTR_TASK_ID): cv.string,
+}
+
+AUTO_REPLY_SERVICE_ENABLE_SCHEMA = {
+    vol.Required(ATTR_EXTERNALREPLY): cv.string,
+    vol.Required(ATTR_INTERNALREPLY): cv.string,
+    vol.Optional(ATTR_START): cv.datetime,
+    vol.Optional(ATTR_END): cv.datetime,
+    vol.Optional(ATTR_EXTERNAL_AUDIENCE): vol.Coerce(ExternalAudience),
+}
+
+AUTO_REPLY_SERVICE_DISABLE_SCHEMA = {}
+
 
 SINGLE_CALSEARCH_CONFIG = vol.Schema(
     {
@@ -245,6 +275,7 @@ CALENDAR_DEVICE_SCHEMA = vol.Schema(
     },
     extra=vol.ALLOW_EXTRA,
 )
+
 TASK_LIST_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_TASK_LIST_ID): cv.string,
@@ -252,32 +283,3 @@ TASK_LIST_SCHEMA = vol.Schema(
         vol.Required(CONF_TRACK): cv.boolean,
     }
 )
-
-NEW_TASK_SCHEMA = {
-    vol.Required(ATTR_SUBJECT): cv.string,
-    vol.Optional(ATTR_DESCRIPTION): cv.string,
-    vol.Optional(ATTR_DUE): cv.string,
-    vol.Optional(ATTR_REMINDER): cv.datetime,
-}
-
-UPDATE_TASK_SCHEMA = {
-    vol.Required(ATTR_TASK_ID): cv.string,
-    vol.Optional(ATTR_SUBJECT): cv.string,
-    vol.Optional(ATTR_DESCRIPTION): cv.string,
-    vol.Optional(ATTR_DUE): cv.string,
-    vol.Optional(ATTR_REMINDER): cv.datetime,
-}
-
-DELETE_TASK_SCHEMA = {
-    vol.Required(ATTR_TASK_ID): cv.string,
-}
-
-AUTO_REPLY_ENABLE_SCHEMA = {
-    vol.Required(ATTR_EXTERNALREPLY): cv.string,
-    vol.Required(ATTR_INTERNALREPLY): cv.string,
-    vol.Optional(ATTR_START): cv.datetime,
-    vol.Optional(ATTR_END): cv.datetime,
-    vol.Optional(ATTR_EXTERNAL_AUDIENCE): vol.Coerce(ExternalAudience),
-}
-
-AUTO_REPLY_DISABLE_SCHEMA = {}

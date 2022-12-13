@@ -50,12 +50,12 @@ from .const import (
     YAML_TASK_LISTS,
 )
 from .schema import (
-    AUTO_REPLY_DISABLE_SCHEMA,
-    AUTO_REPLY_ENABLE_SCHEMA,
-    DELETE_TASK_SCHEMA,
-    NEW_TASK_SCHEMA,
+    AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
+    AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
     TASK_LIST_SCHEMA,
-    UPDATE_TASK_SCHEMA,
+    TASK_SERVICE_DELETE_SCHEMA,
+    TASK_SERVICE_NEW_SCHEMA,
+    TASK_SERVICE_UPDATE_SCHEMA,
 )
 from .utils import (
     build_config_file_path,
@@ -427,17 +427,17 @@ async def _async_setup_task_services(hass, config):
     if validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
         platform.async_register_entity_service(
             "new_task",
-            NEW_TASK_SCHEMA,
+            TASK_SERVICE_NEW_SCHEMA,
             "new_task",
         )
         platform.async_register_entity_service(
             "update_task",
-            UPDATE_TASK_SCHEMA,
+            TASK_SERVICE_UPDATE_SCHEMA,
             "update_task",
         )
         platform.async_register_entity_service(
             "delete_task",
-            DELETE_TASK_SCHEMA,
+            TASK_SERVICE_DELETE_SCHEMA,
             "delete_task",
         )
 
@@ -458,12 +458,12 @@ async def _async_setup_mailbox_services(hass, config):
     if validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
         platform.async_register_entity_service(
             "auto_reply_enable",
-            AUTO_REPLY_ENABLE_SCHEMA,
+            AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
             "auto_reply_enable",
         )
         platform.async_register_entity_service(
             "auto_reply_disable",
-            AUTO_REPLY_DISABLE_SCHEMA,
+            AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
             "auto_reply_disable",
         )
 

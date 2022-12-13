@@ -17,17 +17,31 @@ respond_calendar_event:
       domain: calendar
   fields:
     event_id:
+      name: Event ID
       description: ID for event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
     response:
+      name: Response
       description: "The response to the invite [Accept, Tentative, Decline]"
       example: Decline
+      required: true
+      selector:
+        text:
     message:
+      name: Message
       description: "The response message to the invite (Optional)"
       example: "I cannot attend this meeting"
+      selector:
+        text:
     send_response:
+      name: Send Response
       description: "Send the response to the organizer (Optional)"
       example: True
+      selector:
+        boolean:
 
 create_calendar_event:
   name: Create a new event
@@ -40,33 +54,90 @@ create_calendar_event:
       domain: calendar
   fields:
     subject:
+      name: Subject
       description: The subject of the created event
       example: Clean up the garage
+      required: true
+      selector:
+        text:
     start:
+      name: Start
       description: The start time of the event
       example: "2023-01-01T12:00:00+0000"
+      required: true
+      selector:
+        text:
     end:
+      name: End
       description: The end time of the event
       example: "2023-01-01T12:30:00+0000"
+      required: true
+      selector:
+        text:
     body:
+      name: Body
       description: The body text for the event (optional)
       example: Remember to also clean out the gutters
+      selector:
+        text:
     location:
+      name: Location
       description: The location for the event (optional)
       example: "1600 Pennsylvania Ave Nw, Washington, DC 20500"
+      selector:
+        text:
     categories:
+      name: Categories
       description: list of categories for the event (optional)
+      selector:
+        text:
     sensitivity:
+      name: Sensitivity
       description: "The sensitivity for the event (optional) [Normal, Personal, Private, Confidential]"
-      example: Normal
+      example: normal
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: "Normal"
+              value: "normal"
+            - label: "Personal"
+              value: "personal"
+            - label: "Private"
+              value: "private"
+            - label: "Confidential"
+              value: "confidential"
     show_as:
+      name: Show As
       description: "Show event as (optional) [Free, Tentative, Busy, Oof, WorkingElsewhere, Unknown]"
-      example: Busy
+      example: busy
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: "Free"
+              value: "free"
+            - label: "Tentative"
+              value: "tentative"
+            - label: "Busy"
+              value: "busy"
+            - label: "Out of Office"
+              value: "oof"
+            - label: "Working Elsewhere"
+              value: "workingElsewhere"
+            - label: "Unknown"
+              value: "unknown"
     is_all_day:
+      name: All Day
       description: Set whether event is all day (optional)
       example: False
+      selector:
+        boolean:
     attendees:
+      name: Attendees
       description: "list of attendees formatted as email: example@example.com type: Required, Optional, or Resource (optional)"
+      selector:
+        object:
 
 modify_calendar_event:
   name: Modify an event
@@ -79,36 +150,94 @@ modify_calendar_event:
       domain: calendar
   fields:
     event_id:
+      name: Event ID
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
     subject:
+      name: Subject
       description: The subject of the created event
       example: Clean up the garage
+      selector:
+        text:
     start:
+      name: Start
       description: The start time of the event
       example: "2023-01-01T12:00:00+0000"
+      selector:
+        text:
     end:
+      name: End
       description: The end time of the event
       example: "2023-01-01T12:30:00+0000"
+      selector:
+        text:
     body:
+      name: Body
       description: The body text for the event
       example: Remember to also clean out the gutters
+      selector:
+        text:
     location:
+      name: Location
       description: The location for the event
       example: "1600 Pennsylvania Ave Nw, Washington, DC 20500"
+      selector:
+        text:
     categories:
+      name: Categories
       description: list of categories for the event
+      selector:
+        text:
     sensitivity:
+      name: Sensitivity
       description: "The sensitivity for the event[Normal, Personal, Private, Confidential]"
-      example: Normal
+      example: normal
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: "Normal"
+              value: "normal"
+            - label: "Personal"
+              value: "personal"
+            - label: "Private"
+              value: "private"
+            - label: "Confidential"
+              value: "confidential"
     show_as:
+      name: Show As
       description: "Show event as [Free, Tentative, Busy, Oof, WorkingElsewhere, Unknown]"
-      example: Busy
+      example: busy
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: "Free"
+              value: "free"
+            - label: "Tentative"
+              value: "tentative"
+            - label: "Busy"
+              value: "busy"
+            - label: "Out of Office"
+              value: "oof"
+            - label: "Working Elsewhere"
+              value: "workingElsewhere"
+            - label: "Unknown"
+              value: "unknown"
     is_all_day:
+      name: All Day
       description: Set whether event is all day
       example: False
+      selector:
+        boolean:
     attendees:
+      name: Attendees
       description: "list of attendees formatted as email: example@example.com type: Required, Optional, or Resource"
+      selector:
+        object:
 
 remove_calendar_event:
   name: Delete an event
@@ -121,8 +250,12 @@ remove_calendar_event:
       domain: calendar
   fields:
     event_id:
+      name: Event ID
       description: ID for the event, can be found as an attribute on you calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
 
 new_task:
   name: Create a task/ToDo
@@ -135,17 +268,30 @@ new_task:
       domain: sensor
   fields:
     subject:
+      name: Subject
       description: The subject of the task
       example: Pick up the mail
+      required: true
+      selector:
+        text:
     description:
+      name: Description
       description: Description of the task
       example: Walk to the post box and collect the mail
+      selector:
+        text:
     due:
+      name: Due date
       description: When the task is due by
-      example: "YYYY-MM-DD"
+      example: "2023-01-01"
+      selector:
+        date:
     reminder:
+      name: Reminder date & time
       description: When a reminder is needed
       example: "2023-01-01T12:00:00+0000"
+      selector:
+        text:
 
 update_task:
   name: Update a task/ToDo
@@ -158,20 +304,36 @@ update_task:
       domain: sensor
   fields:
     task_id:
+      name: Task ID
       description: ID for the task, can be found as an attribute on your task
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
     subject:
+      name: Subject
       description: The subject of the task
       example: Pick up the mail
+      selector:
+        text:
     description:
+      name: Description
       description: Description of the task
       example: Walk to the post box and collect the mail
+      selector:
+        text:
     due:
+      name: Due date
       description: When the task is due by
-      example: "YYYY-MM-DD"
+      example: "2023-01-01"
+      selector:
+        date:
     reminder:
+      name: reminder date & time
       description: When a reminder is needed
       example: "2023-01-01T12:00:00+0000"
+      selector:
+        text:
 
 delete_task:
   name: Delete a task/ToDo
@@ -184,8 +346,12 @@ delete_task:
       domain: sensor
   fields:
     task_id:
+      name: Task ID
       description: ID for the task, can be found as an attribute on your task
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
 
 auto_reply_enable:
   name: Auto reply enable
@@ -215,22 +381,18 @@ auto_reply_enable:
       name: Start date & time
       description: The start time of the schedule
       example: "2023-01-01T12:00:00+0000"
-      required: false
       selector:
-        datetime:
+        text:
     end:
       name: End date & time
       description: The end time of the schedule
       example: "2023-01-02T12:30:00+0000"
-      required: false
       selector:
-        datetime:
+        text:
     external_audience:
       name: External Audience
       description: "The set of audience external to the signed-in user's organization who will receive the ExternalReplyMessage. The possible values are: none, contactsOnly, all."
       example: all
-      required: false
-      default: all
       selector:
         select:
           mode: dropdown
