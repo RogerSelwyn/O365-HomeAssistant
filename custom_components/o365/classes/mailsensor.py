@@ -18,7 +18,6 @@ from ..const import (
     CONF_MAX_ITEMS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
-    CONST_UTC_TIMEZONE,
     PERM_MAILBOX_SETTINGS,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     SENSOR_MAIL,
@@ -49,19 +48,22 @@ class O365MailSensor(O365Sensor):
         """Device state attributes."""
         return self.coordinator.data[self.entity_id][ATTR_ATTRIBUTES]
 
-    def auto_reply_enable(self, start, end, external_reply, internal_reply):
+    def auto_reply_enable(
+        self,
+        external_reply,
+        internal_reply,
+        start=None,
+        end=None,
+        external_audience=None,
+    ):
         """Enable out of office autoreply."""
         if not self._validate_permissions():
             return
 
-        start = as_utc(start)
-        end = as_utc(end)
-        starttime = start.strftime("%Y-%m-%dT%H:%M:%S")
-        endtime = end.strftime("%Y-%m-%dT%H:%M:%S")
         account = self._config[CONF_ACCOUNT]
         mailbox = account.mailbox()
         mailbox.set_automatic_reply(
-            internal_reply, external_reply, starttime, endtime, CONST_UTC_TIMEZONE
+            internal_reply, external_reply, start, end, external_audience
         )
 
     def auto_reply_disable(self):

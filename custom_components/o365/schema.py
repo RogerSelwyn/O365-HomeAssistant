@@ -9,9 +9,11 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
+
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
+from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 
 from .const import (
     ATTR_ATTACHMENTS,
@@ -23,6 +25,7 @@ from .const import (
     ATTR_EMAIL,
     ATTR_END,
     ATTR_EVENT_ID,
+    ATTR_EXTERNAL_AUDIENCE,
     ATTR_EXTERNALREPLY,
     ATTR_INTERNALREPLY,
     ATTR_IS_ALL_DAY,
@@ -270,10 +273,11 @@ DELETE_TASK_SCHEMA = {
 }
 
 AUTO_REPLY_ENABLE_SCHEMA = {
-    vol.Required(ATTR_START): cv.datetime,
-    vol.Required(ATTR_END): cv.datetime,
     vol.Required(ATTR_EXTERNALREPLY): cv.string,
     vol.Required(ATTR_INTERNALREPLY): cv.string,
+    vol.Optional(ATTR_START): cv.datetime,
+    vol.Optional(ATTR_END): cv.datetime,
+    vol.Optional(ATTR_EXTERNAL_AUDIENCE): vol.Coerce(ExternalAudience),
 }
 
 AUTO_REPLY_DISABLE_SCHEMA = {}

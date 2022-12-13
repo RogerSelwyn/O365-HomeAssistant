@@ -197,22 +197,51 @@ auto_reply_enable:
       integration: o365
       domain: sensor
   fields:
-    start:
-      description: The start time of the schedule
-      example: "2023-01-01T12:00:00+0000"
-      required: true
-    end:
-      description: The end time of the schedule
-      example: "2023-01-02T12:30:00+0000"
-      required: true
     external_reply:
+      name: External reply
       description: The message to be send to external emails (or to all emails, if you don't have an organisation email)
       example: I'm currently on holliday, please email Bob for answers
       required: true
+      selector:
+        text:
     internal_reply:
+      name: Internal Reply
       description: The message to be send to internal emails
       example: I'm currently on holliday
       required: true
+      selector:
+        text:
+    start:
+      name: Start date & time
+      description: The start time of the schedule
+      example: "2023-01-01T12:00:00+0000"
+      required: false
+      selector:
+        datetime:
+    end:
+      name: End date & time
+      description: The end time of the schedule
+      example: "2023-01-02T12:30:00+0000"
+      required: false
+      selector:
+        datetime:
+    external_audience:
+      name: External Audience
+      description: "The set of audience external to the signed-in user's organization who will receive the ExternalReplyMessage. The possible values are: none, contactsOnly, all."
+      example: all
+      required: false
+      default: all
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: "All"
+              value: "all"
+            - label: "Contacts Only"
+              value: "contactsOnly"
+            - label: "None"
+              value: "none"
+
 
 auto_reply_disable:
   name: Auto reply disable
