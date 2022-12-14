@@ -9,7 +9,7 @@ Historically the Office 365 Calendar o=integration supported a single account. O
 Having two schemas introduces extra complexity into the integration, so the secondary/legacy schema is now being marked as deprecated to encourage migration to the new schema (which has been the preferred one since May 2022).
 
 To assist in this migration, when you restart Home Assistant, the following things will happen:
-1.	A modified version of the configuration will be created on the `o365_storage` folder called `o365_converted_configuration.yaml`. You should be able to copy the contents of this file and replace your existing configuration. Your `client_id` and `client_secret` have been obfuscated with `xxxx` so you will need to replace these.
+1.	A modified version of the configuration will be created on the `o365_storage` folder called `o365_converted_configuration.yaml`. You should be able to copy the contents of this file and replace your existing configuration. Your `client_id` and `client_secret` have been obfuscated with `xxxx` so, you will need to replace these.
 2.	Your token file has been copied as `o365_converted.token`
 3.	Your `o365_calendar.yaml` file has been copied as `o365_calendars_convetted.yaml`
 

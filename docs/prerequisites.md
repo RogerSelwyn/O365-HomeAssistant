@@ -5,16 +5,16 @@ nav_order: 2
 
 # Prerequisites
 
-## Getting the client id and client secret
+## Getting the client ID and client secret
 To allow authentication, you first need to register your application at Azure App Registrations:
 
 1. Login at [Azure Portal (App Registrations)](https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Personal accounts may receive an authentication notification that can be ignored.
 
-2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory (Any Azure AD directory - Multitenant)" or "Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)" as needed by your setup. Do not use "Accounts in this organizational directory only (xxxxx only - Single tenant)" or "	Personal Microsoft accounts only".
+2. Create a new App Registration. Give it a name. In Supported account types, choose "Accounts in any organizational directory (Any Azure AD directory - Multitenant)" or "Accounts in any organizational directory (Any Azure AD directory - Multitenant) and personal Microsoft accounts (e.g. Skype, Xbox)" as needed by your setup. Do not use "Accounts in this organizational directory only (xxxxx only - Single tenant)" or "Personal Microsoft accounts only".
 
 3. Click Add a Redirect URI. Click Add a platform. Select Web. Set redirect URI to: `https://login.microsoftonline.com/common/oauth2/nativeclient`, leave the other fields blank and click Configure.
 
-   An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to setup correctly. See [Authentication](./authentication.md) section for more details.
+   An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to set up correctly. See [Authentication](./authentication.md) section for more details.
 
    _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
@@ -38,7 +38,7 @@ To allow authentication, you first need to register your application at Azure Ap
 
    If you are enabling todo_sensor (not supported in legacy installs) you will need:
    * Tasks.Read - *Read user's tasks and task lists*
-   * Tasks.ReadWrite - *Create, read, update, and delete user’s tasks and task lists* - To enable creation of tasks in Todo lists if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
+   * Tasks.ReadWrite - *Create, read, update, and delete user’s tasks and task lists* - To enable creation of tasks in To-do lists if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
 
    If you intend to set [enable_update](./installation_and_configuration.md#configuration_variables) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
    * Calendars.ReadWrite - *Read and write user calendars*

@@ -11,6 +11,7 @@ This integration enables:
 3. Sending emails via the notify.o365_email service.
 4. Getting presence from Teams (not for personal accounts)
 5. Getting the latest chat message from Teams (not for personal accounts)
-6. Getting and creating tasks/ToDos.
+6. Getting and creating To-Do tasks.
+7. Setting Auto Reply/ Out of Office response
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).

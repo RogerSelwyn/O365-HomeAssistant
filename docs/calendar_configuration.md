@@ -49,7 +49,7 @@ The integration supports Group calendars in a fairly simple form. The below are 
 * There is no discovery. You will need to find them in the MS Graph api. Using the MS Graph API you can call https://graph.microsoft.com/v1.0/me/transitiveMemberOf/microsoft.graph.group to get the groups. You will need the relevant group's `id` for configuration purposes, see below
 * You can create events using the standard service, but you cannot modify/delete/respond to them.
 
-To configure a Group Calendar, add an extra section to `o365_calendars_<account_name>.yaml`. Set `cal_id` to `group:xxxxxxxxxxxxxxx` using the id you found via the api above. Make sure to set the `device_id` to something unique.
+To configure a Group Calendar, add an extra section to `o365_calendars_<account_name>.yaml`. Set `cal_id` to `group:xxxxxxxxxxxxxxx` using the ID you found via the api above. Make sure to set the `device_id` to something unique.
 
 ```yaml
   - cal_id: group:xxxx

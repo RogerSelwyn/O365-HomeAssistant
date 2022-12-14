@@ -87,7 +87,7 @@ o365:
 
 Key | Type | Required | Description
 -- | -- | -- | --
-`account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. e.g `calendar.calendar_account1`
+`account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. `calendar.calendar_account1`
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
 `alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](./authentication.md)
@@ -98,7 +98,7 @@ Key | Type | Required | Description
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 `chat_sensors` | `list<chat_sensors>` | `False` | List of chat_sensor config entries. *Not for use on personal accounts*
-`todo_sensors` | `object<query_sensors>` | `False` | ToDo sensor options
+`todo_sensors` | `object<query_sensors>` | `False` | To-Do sensor options
 
 #### Secondary format
 
@@ -118,7 +118,7 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
-`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder" Default is Inbox
+`folder` | `string` | `False` | Mail folder to monitor, for nested calendars separate with '/' ex. "Inbox/SubFolder/FinalFolder" Default is Inbox
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
@@ -128,7 +128,7 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
-`folder` | `string` | `False` | Mail folder to monitor, for nested calendars seperate with '/' ex. "Inbox/SubFolder/FinalFolder" Default is Inbox
+`folder` | `string` | `False` | Mail folder to monitor, for nested calendars separate with '/' ex. "Inbox/SubFolder/FinalFolder" Default is Inbox
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `from` | `string` | `False` | Only retrieve emails from this email address
@@ -155,4 +155,4 @@ Key | Type | Required | Description
 
 Key | Type | Required | Description
 -- | -- | -- | --
-`enabled` | `boolean` | `True` | True=Enables ToDo sensors, **False**=Disables ToDo sensors.
+`enabled` | `boolean` | `True` | True=Enables To-Do sensors, **False**=Disables To-Do sensors.

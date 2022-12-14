@@ -5,7 +5,7 @@ nav_order: 9
 
 # Errors
 * **The reply URL specified in the request does not match the reply URLs configured for the application.**
-  * Please ensure that you have configured the internet url on your Home Assistant network settings config and that you have added the correct redirect uri to your Azure app
+  * Please ensure that you have configured the internet URL on your Home Assistant network settings config and that you have added the correct redirect URI to your Azure app
 * **Client is public so neither 'client_assertion' nor 'client_secret' should be presented.**
   * Please ensure that you have set "Allow public client flows" to Yes in your Azure app under Authentication ![image](https://user-images.githubusercontent.com/36969394/198787952-9f818372-7684-42e1-ac30-a8ab05a5f478.png)
 * **Application {x} is not configured as a multi-tenant application.**
