@@ -4,9 +4,12 @@ nav_order: 8
 ---
 
 # Services
-## notify.o365_email
 
-### Service data
+##  Notify Services
+
+### notify.o365_email_xxxxxxxx
+
+#### Service data
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -14,7 +17,7 @@ Key | Type | Required | Description
 `title` | `string` | `False` | The email subject
 `data` | `dict<data>` | `False` | Additional attributes - see table below
 
-### Extended data
+#### Extended data
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -26,10 +29,10 @@ Key | Type | Required | Description
 `zip_attachments` | `boolean` | `False` | Zip files from attachments into a zip file before sending
 `zip_name` | `string` | `False` | Name of the generated zip file
 
-### Example notify service call
+#### Example notify service call
 
 ```yaml
-service: notify.o365_email
+service: notify.o365_email_xxxxxxxx
 data:
   message: The garage door has been open for 10 minutes.
   title: Your Garage Door Friend
@@ -56,7 +59,7 @@ Respond to an event in the specified calendar - All parameters are shown in the 
 ### o365.scan_for_calendars
 Scan for new calendars and add to o365_calendars.yaml - No parameters. Does not scan for group calendars.
 
-### Example create event service call
+#### Example create event service call
 
 ```yaml
 service: o365.create_calendar_event
@@ -89,7 +92,7 @@ Delete a To-Do Task - All parameters are shown in the available parameter list o
 ### o365.scan_for_task_lists
 Scan for new task lists and add to o365_tasks.yaml - No parameters.
 
-### Example create task service call
+#### Example create task service call
 
 ```yaml
 service: o365.new_task
@@ -111,7 +114,7 @@ Schedule the auto reply - All parameters are shown in the available parameter li
 ### o365.disable_auto_reply
 Disable the auto reply - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
 
-### Example enable auto reply service call
+#### Example enable auto reply service call
 
 ```yaml
 service: o365.auto_reply_enable
