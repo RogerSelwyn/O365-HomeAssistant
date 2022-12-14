@@ -89,7 +89,7 @@ Delete a To-Do Task - All parameters are shown in the available parameter list o
 ### o365.scan_for_task_lists
 Scan for new task lists and add to o365_tasks.yaml - No parameters.
 
-### Example enable create task service call
+### Example create task service call
 
 ```yaml
 service: o365.new_task
