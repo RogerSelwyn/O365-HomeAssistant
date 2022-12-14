@@ -1,5 +1,36 @@
 # Changelog
 
+## v4.0.4 (2022/12/14)
+### Enhancements
+- Add update/delete task services
+- Add enable/disable auto reply services
+- Add data co-ordinator to reduce parallel calls to O365 api
+- Improve quality of service calls. Provide proper inputs via UI.
+
+### Maintenance
+- Break out sensors into separate class files for simplification.
+- Change name of module to `Office 365` rather than `Office 365 Calendar`
+
+<details>
+  <summary>Full list of changes</summary>
+- [Split out sensors](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ee1a2307612ebff87e7bdeda370be791d3894fa2) - @RogerSelwyn
+- [Incorporate conflicting changes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/54cb00217701a70f62e4b890facb5316f42f9b24) - @RogerSelwyn
+- [Remove blank lines](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cc2573bdab052c891d5d64d1b8d9b03f06d255d0) - @RogerSelwyn
+- [Refit previous changes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/acd9ab231d76a1567e26c83d9cb871b8967638e6) - @RogerSelwyn
+- ['Refactored by Sourcery'](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/adb49403c8b5aa3351fd604fa8b2002c3f6b2532) - @None
+- [Convert to inclusion as a platform service on Inbox and Query sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c2ea6093ba85597c7bec006927f77358fcded76e) - @RogerSelwyn
+- [Remove necessary parameter](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/09721ad4a47f6d54d200f202ae88ad86e78b1f88) - @RogerSelwyn
+- [Change name of module since it it no longer just a calendar](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4a0bf8c1090aca3459bace40a492c4c70027247d) - @RogerSelwyn
+- [Fix setup of services](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/71611761ef34bcda2c5d78c362d86c4071f814af) - @RogerSelwyn
+- [Add description](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b1f72337aef6b82b14bdbc2137b534b8030f6c6d) - @RogerSelwyn
+- [Minor tweaks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e630bbcf9806bdb35c446b9befb83b7a4100825c) - @RogerSelwyn
+- [Add services for update/delete task](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7f550969697b62e8e576b6391977ad1df74bad47) - @RogerSelwyn
+- [Extend autoreply capabilities](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ed678c1cedd9d7d06bead73f1a5c0c261399915e) - @RogerSelwyn
+- [Improve quality of service calls via UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1d107b61234868061e35c37288549275a53f5e4e) - @RogerSelwyn
+- [Bump to v4.0.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b9d4332cdfdaba8095c2f43710650b0c888751c2) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8aa0158478b47dbc9a4fa7da5cf56f0238a7795a) - @actions-user
+</details>
+
 ## v4.0.3 (2022/12/08)
 ### Enhancements
 - [Add reminder to tasks, and shorten due to just date](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6d4adc8ac65021afa3361c9a749772fca5caeffe) - @RogerSelwyn
