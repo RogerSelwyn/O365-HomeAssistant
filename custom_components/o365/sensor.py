@@ -248,7 +248,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         tasks = self._account.tasks()
         for task in task_lists:
-            name = task.get(CONF_NAME)
+            name = f"{task.get(CONF_NAME)} {self._account_name}"
             track = task.get(CONF_TRACK)
             task_list_id = task.get(CONF_TASK_LIST_ID)
             entity_id = _build_entity_id(self.hass, name, self._config)
