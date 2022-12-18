@@ -1,5 +1,10 @@
 # Changelog
 
+
+# v4.0.6 (2022/12/18)
+### Maintenance
+- [Fix Todo Entity Names](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/27b81b0bceccd64c356b1cc737b81cb67994e87a) - @RogerSelwyn
+
 # v4.0.5 (2022/12/18)
 ### Enhancements
 - [Add unique_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7386123d30a4a81d303f0db9965309d28b8e118d) - @RogerSelwyn
