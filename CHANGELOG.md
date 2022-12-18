@@ -8,7 +8,8 @@
 - [Update services.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2a5feb6dcbbf96b4eb8b08a2f41bad29e1c1d4ff) - @RogerSelwyn
 - [Update index.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4e1ab05be189838177bba63279fdaf544563d69e) - @RogerSelwyn
 - [Bump to v4.0.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d2dd978365665862500daf3cfb2a7ffacaedb376) - @RogerSelwyn
-
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6bbf74c5378cf38dabb8dedc2fde7744248e708a) - @RogerSelwyn
+- [Correct unique_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/316adcb1aa27826fe13cd1582daa4ef8f773a870) - @RogerSelwyn
 
 # v4.0.4 (2022/12/14)
 ### Enhancements
