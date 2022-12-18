@@ -1,6 +1,16 @@
 # Changelog
 
-## v4.0.4 (2022/12/14)
+# v4.0.5 (2022/12/18)
+### Enhancements
+- [Add unique_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7386123d30a4a81d303f0db9965309d28b8e118d) - @RogerSelwyn
+
+### Maintenance
+- [Update services.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2a5feb6dcbbf96b4eb8b08a2f41bad29e1c1d4ff) - @RogerSelwyn
+- [Update index.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4e1ab05be189838177bba63279fdaf544563d69e) - @RogerSelwyn
+- [Bump to v4.0.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d2dd978365665862500daf3cfb2a7ffacaedb376) - @RogerSelwyn
+
+
+# v4.0.4 (2022/12/14)
 ### Enhancements
 - Add update/delete task services
 - Add enable/disable auto reply services
