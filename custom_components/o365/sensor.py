@@ -149,8 +149,15 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     name,
                     hass=self.hass,
                 )
+                unique_id = f"{mail_folder.folder_id}_{self._account_name}"
                 emailsensor = O365EmailSensor(
-                    self, self._config, sensor_conf, mail_folder, name, entity_id
+                    self,
+                    self._config,
+                    sensor_conf,
+                    mail_folder,
+                    name,
+                    entity_id,
+                    unique_id,
                 )
                 _LOGGER.debug(
                     "Email sensor added: %s, %s",
@@ -173,8 +180,15 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     name,
                     hass=self.hass,
                 )
+                unique_id = f"{mail_folder.folder_id}_{self._account_name}"
                 querysensor = O365QuerySensor(
-                    self, self._config, sensor_conf, mail_folder, name, entity_id
+                    self,
+                    self._config,
+                    sensor_conf,
+                    mail_folder,
+                    name,
+                    entity_id,
+                    unique_id,
                 )
                 entities.append(querysensor)
         return entities
@@ -189,11 +203,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 name,
                 hass=self.hass,
             )
+            unique_id = f"{name}_{self._account_name}"
             teams_status_sensor = O365TeamsStatusSensor(
-                self,
-                self._account,
-                name,
-                entity_id,
+                self, self._account, name, entity_id, unique_id
             )
             entities.append(teams_status_sensor)
         return entities
@@ -208,8 +220,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 name,
                 hass=self.hass,
             )
+            unique_id = f"{name}_{self._account_name}"
             teams_chat_sensor = O365TeamsChatSensor(
-                self, self._account, name, entity_id
+                self, self._account, name, entity_id, unique_id
             )
             entities.append(teams_chat_sensor)
         return entities
@@ -250,7 +263,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-                todo_sensor = O365TasksSensor(self, todo, name, entity_id, config)
+                unique_id = f"{task_list_id}_{self._account_name}"
+                todo_sensor = O365TasksSensor(
+                    self, todo, name, entity_id, config, unique_id
+                )
                 entities.append(todo_sensor)
             except HTTPError:
                 _LOGGER.warning(
@@ -321,7 +337,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             self._get_attributes, data, entity
         )
         attrs.sort(key=itemgetter("received"), reverse=True)
-        self._data[entity.entity_id] = {
+        self._data[entity.entity_key] = {
             ATTR_STATE: len(attrs),
             ATTR_ATTRIBUTES: {"data": attrs},
         }
@@ -332,7 +348,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
     async def _async_teams_status_update(self, entity):
         """Update state."""
         if data := await self.hass.async_add_executor_job(entity.teams.get_my_presence):
-            self._data[entity.entity_id] = {ATTR_STATE: data.activity}
+            self._data[entity.entity_key] = {ATTR_STATE: data.activity}
 
     async def _async_teams_chat_update(self, entity):
         """Update state."""
@@ -345,14 +361,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
             state = self._process_chat_messages(messages, entity)
             if state:
                 break
-        self._data[entity.entity_id][ATTR_STATE] = state
+        self._data[entity.entity_key][ATTR_STATE] = state
 
     def _process_chat_messages(self, messages, entity):
         state = None
         for message in messages:
             if not state and message.content != "<systemEventMessage/>":
                 state = message.created_date
-                self._data[entity.entity_id] = {
+                self._data[entity.entity_key] = {
                     ATTR_FROM_DISPLAY_NAME: message.from_display_name,
                     ATTR_CONTENT: message.content,
                     ATTR_CHAT_ID: message.chat_id,
@@ -366,10 +382,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def _async_todos_update(self, entity):
         """Update state."""
-        if entity.entity_id in self._data:
-            error = self._data[entity.entity_id][ATTR_ERROR]
+        if entity.entity_key in self._data:
+            error = self._data[entity.entity_key][ATTR_ERROR]
         else:
-            self._data[entity.entity_id] = {ATTR_TASKS: {}, ATTR_STATE: 0}
+            self._data[entity.entity_key] = {ATTR_TASKS: {}, ATTR_STATE: 0}
             error = False
         try:
             data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
@@ -379,8 +395,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 _LOGGER.info("Task list reconnected for: %s", entity.name)
                 error = False
             tasks = list(data)
-            self._data[entity.entity_id][ATTR_TASKS] = tasks
-            self._data[entity.entity_id][ATTR_STATE] = len(tasks)
+            self._data[entity.entity_key][ATTR_TASKS] = tasks
+            self._data[entity.entity_key][ATTR_STATE] = len(tasks)
         except HTTPError:
             if not error:
                 _LOGGER.error(
@@ -388,7 +404,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     entity.name,
                 )
                 error = True
-        self._data[entity.entity_id][ATTR_ERROR] = error
+        self._data[entity.entity_key][ATTR_ERROR] = error
 
 
 def _build_entity_id(hass, name, conf):

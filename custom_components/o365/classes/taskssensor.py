@@ -1,6 +1,6 @@
 """O365 tasks sensors."""
 import voluptuous as vol
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.util import dt
 
 from ..const import (
@@ -21,12 +21,12 @@ from ..utils import build_token_filename, get_permissions, validate_minimum_perm
 from .sensorentity import O365Sensor
 
 
-class O365TasksSensor(O365Sensor, Entity):
+class O365TasksSensor(O365Sensor, SensorEntity):
     """O365 Tasks sensor processing."""
 
-    def __init__(self, coordinator, todo, name, entity_id, config):
+    def __init__(self, coordinator, todo, name, entity_id, config, unqique_id):
         """Initialise the Tasks Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_TODO)
+        super().__init__(coordinator, name, entity_id, SENSOR_TODO, unqique_id)
         self.todo = todo
         self.query = self.todo.new_query("status").unequal("completed")
         self._config = config
@@ -41,7 +41,7 @@ class O365TasksSensor(O365Sensor, Entity):
         """Extra state attributes."""
         all_tasks = []
         overdue_tasks = []
-        for item in self.coordinator.data[self.entity_id][ATTR_TASKS]:
+        for item in self.coordinator.data[self.entity_key][ATTR_TASKS]:
             task = {ATTR_SUBJECT: item.subject, ATTR_TASK_ID: item.task_id}
             if item.body:
                 task[ATTR_DESCRIPTION] = item.body

@@ -283,7 +283,7 @@ new_task:
     due:
       name: Due date
       description: When the task is due by
-      example: "2023-01-01"
+      example: "YYYY-MM-DD"
       selector:
         date:
     reminder:

@@ -2,7 +2,7 @@
 import datetime
 
 import voluptuous as vol
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import SensorEntity
 
 from ..const import (
     ATTR_ATTRIBUTES,
@@ -28,9 +28,11 @@ from .sensorentity import O365Sensor
 class O365MailSensor(O365Sensor):
     """O365 generic Mail Sensor class."""
 
-    def __init__(self, coordinator, config, sensor_conf, mail_folder, name, entity_id):
+    def __init__(
+        self, coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
+    ):
         """Initialise the O365 Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_MAIL)
+        super().__init__(coordinator, name, entity_id, SENSOR_MAIL, unique_id)
         self.mail_folder = mail_folder
         self.download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
         self.max_items = sensor_conf.get(CONF_MAX_ITEMS, 5)
@@ -45,7 +47,7 @@ class O365MailSensor(O365Sensor):
     @property
     def extra_state_attributes(self):
         """Device state attributes."""
-        return self.coordinator.data[self.entity_id][ATTR_ATTRIBUTES]
+        return self.coordinator.data[self.entity_key][ATTR_ATTRIBUTES]
 
     def auto_reply_enable(
         self,
@@ -90,12 +92,16 @@ class O365MailSensor(O365Sensor):
         return True
 
 
-class O365QuerySensor(O365MailSensor, Entity):
+class O365QuerySensor(O365MailSensor, SensorEntity):
     """O365 Query sensor processing."""
 
-    def __init__(self, coordinator, config, sensor_conf, mail_folder, name, entity_id):
+    def __init__(
+        self, coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
+    ):
         """Initialise the O365 Query."""
-        super().__init__(coordinator, config, sensor_conf, mail_folder, name, entity_id)
+        super().__init__(
+            coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
+        )
 
         self.query = self.mail_folder.new_query()
         self.query.order_by("receivedDateTime", ascending=False)
@@ -144,12 +150,16 @@ class O365QuerySensor(O365MailSensor, Entity):
             self.query.chain("and").on_attribute(attribute_name).equals(attribute_value)
 
 
-class O365EmailSensor(O365MailSensor, Entity):
+class O365EmailSensor(O365MailSensor, SensorEntity):
     """O365 Email sensor processing."""
 
-    def __init__(self, coordinator, config, sensor_conf, mail_folder, name, entity_id):
+    def __init__(
+        self, coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
+    ):
         """Initialise the O365 Email sensor."""
-        super().__init__(coordinator, config, sensor_conf, mail_folder, name, entity_id)
+        super().__init__(
+            coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
+        )
 
         is_unread = sensor_conf.get(CONF_IS_UNREAD)
 

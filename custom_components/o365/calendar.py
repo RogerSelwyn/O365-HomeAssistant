@@ -188,6 +188,7 @@ class O365CalendarEntity(CalendarEntity):
         self._offset_reached = False
         self._data_attribute = []
         self.data = self._init_data(account, calendar_id, entity)
+        self._unique_id = calendar_id
 
     def _init_data(self, account, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
@@ -226,6 +227,11 @@ class O365CalendarEntity(CalendarEntity):
     def name(self):
         """Name property."""
         return self._name
+
+    @property
+    def unique_id(self):
+        """Entity unique id."""
+        return self._unique_id
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get events."""
