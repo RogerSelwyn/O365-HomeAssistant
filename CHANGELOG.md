@@ -2,8 +2,10 @@
 
 
 # v4.0.6 (2022/12/18)
-### Maintenance
+### Fixes
 - [Fix Todo Entity Names](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/27b81b0bceccd64c356b1cc737b81cb67994e87a) - @RogerSelwyn
+- [Fix Todo entity name for converted accounts](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/05ecf1a7d8489bba61676789bd90722770e42e06) - @RogerSelwyn
+
 
 # v4.0.5 (2022/12/18)
 ### Enhancements
