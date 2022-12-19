@@ -40,6 +40,7 @@ from .const import (
     CONF_TRACK,
     CONF_TRACK_NEW,
     DOMAIN,
+    LEGACY_ACCOUNT_NAME,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
     SENSOR_ENTITY_ID_FORMAT,
@@ -248,7 +249,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         tasks = self._account.tasks()
         for task in task_lists:
-            name = f"{task.get(CONF_NAME)} {self._account_name}"
+            if self._account_name != LEGACY_ACCOUNT_NAME:
+                name = f"{task.get(CONF_NAME)} {self._account_name}"
+            else:
+                name = task.get(CONF_NAME)
             track = task.get(CONF_TRACK)
             task_list_id = task.get(CONF_TASK_LIST_ID)
             entity_id = _build_entity_id(self.hass, name, self._config)
