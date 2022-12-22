@@ -1,5 +1,14 @@
 # Changelog
 
+# v4.0.7 (2022/12/22)
+### Fixes
+- [Fix notify service name for converted accounts](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cd6b14c6c908ab67e3c7b7aaf4316243ffc10ba7) - @RogerSelwyn
+
+### Maintenance
+- [Update prerequisites.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e51d714dc4ac4d0a94097f9d0fdd63b23f2d02a5) - @RogerSelwyn
+- [Update prerequisites.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/faa1f88c6a9314096266b2bc9dba2089f02bb122) - @RogerSelwyn
+- [Update errors.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/898067cbd375028fd8c24b8e1c78e727cd84c8a4) - @RogerSelwyn
+- [Bump to v4.0.7](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ca9631e50f300f3de7d2731b36e4a15e0da722c8) - @RogerSelwyn
 
 # v4.0.6 (2022/12/18)
 ### Fixes
