@@ -20,6 +20,7 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_CONFIG_TYPE,
     DOMAIN,
+    LEGACY_ACCOUNT_NAME,
     PERM_MAIL_SEND,
     PERM_MINIMUM_SEND,
 )
@@ -67,9 +68,12 @@ class O365EmailService(BaseNotificationService):
         )
         self._cleanup_files = []
         self._hass = hass
-        if account_name := config.get(CONF_ACCOUNT_NAME, None):
-            account_name = f"_{account_name}"
-        self._account_name = account_name
+        self._account_name = config.get(CONF_ACCOUNT_NAME, None)
+        if self._account_name:
+            if self._account_name == LEGACY_ACCOUNT_NAME:
+                self._account_name = ""
+            else:
+                self._account_name = f"_{self._account_name}"
 
     @property
     def targets(self):
