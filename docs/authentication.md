@@ -1,6 +1,6 @@
 ---
 title: Authentication
-nav_order: 4
+nav_order: 5
 ---
 
 # Authentication
@@ -34,10 +34,3 @@ After setting up configuration.yaml with the key set to _True_ and restarting Ho
 
 ## Multi-Factor Authentication (MFA)
 If you are using Multi-factor Authentication (MFA), you may find you also need to add `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` to your redirect URIs.
-
-## Changing Features and Permissions
-If you decide to enable new features in the integration, or decide to change from read only to read/write, you will very likely get a warning message similar to the following in your logs.
-
-`Minimum required permissions not granted: ['Tasks.Read', ['Tasks.ReadWrite']]`
-
-You will need to delete the relevant token from the `<config>/o365_storage/.O365-token-cache` directory. When you restart HA, you will then be prompted to re-authenticate with O365 which will store a new token with the new permission
