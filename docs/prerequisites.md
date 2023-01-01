@@ -28,32 +28,45 @@ To allow authentication, you first need to register your application at Azure Ap
 
 5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Copy the Value of the client secret now. It will be hidden later on.  If you lose track of the secret, return here to generate a new one.
 
-6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the following permissions:
-   * offline_access - *Maintain access to data you have given it access to*
-   * Calendars.Read - *Read user calendars*
-   * Users.Read - *Sign in and read user profile*
+6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the permissions as detailed in the list and table below:
+  * Calendar - The core permissions required for calendars to work
+  * Email - For an email_sensor or a query_sensor
+  * Status - For a status_sensor
+  * Chat - For a chat_sensor
+  * ToDo - For a todo_sensor
+  * Group Calendar - For a manually added Group calendar
+  * AutoReply - For Auto reply/Out of Office message configuration
 
-   If you are creating an email_sensor or a query_sensor you will need:
-   * Mail.Read - *Read access to user mail*
+  If you intend to use update functionality, then set [enable_update](./installation_and_configuration.md#configuration_variables) to `true`. Then for any sensor type, add the relevant `ReadWrite` permission as denoted by a `Y` in the update column.
+   
 
-   If you are creating a status_sensor you will need:
-   * Presence.Read - *Read user's presence information* (**Not for personal accounts**)
+   | Feature  | Permissions           | Update | O365 Description                      | Notes |
+   |----------|-----------------------|:------:|---------------------------------------|-------|
+   | Calendar | offline_access        |   | *Maintain access to data you have given it access to* |       |
+   | Calendar | Calendars.Read        |   | *Read user calendars*  |       |
+   | Calendar | Calendars.ReadWrite   | Y | *Read and write user calendars* |       |
+   | Calendar | Users.Read            |   | *Sign in and read user profile* |       |
+   | Email    | Mail.Read             |   | *Read access to user mail* |       |
+   | Email    | Mail.ReadWrite        | Y | *Read and write access to user mail* |       |
+   | Email    | Mail.Send             | Y | *Send mail as a user* |       |
+   | Status   | Presence.Read         |   | *Read user's presence information* | Not for personal accounts |
+   | Chat     | Chat.Read             |   | *Read user chat messages* | Not for personal accounts |
+   | ToDo     | Tasks.Read            |   | *Read user's tasks and task lists* |       |
+   | ToDo     | Tasks.ReadWrite       | Y | *Create, read, update, and delete user’s tasks and task lists* |   |
+   | Group Calendar | Group.Read.All  |   | *Read all groups* | Not supported in legacy installs |
+   | Group Calendar | Group.ReadWrite.All | Y | *Read and write all groups* | Not supported in legacy installs |
+   | AutoReply | MailboxSettings.ReadWrite | Y | *Read and write user mailbox settings* |       |
+   
+**Note** It should be noted that these are the permissions that are requested at authentication time (as appropriate for each sensor configured). When `enable_update` is configured to `true` all the associated `ReadWrite` permissions are requested as well, however you do not need to add `ReadWrite` for any sensor type where you do not what update permissions, it will still act as a Read Only sensor. This excludes the AutoReply option which is only `ReadWrite` at this time since there is no associated sensor.
 
-   If you are creating a chat_sensor you will need:
-   * Chat.Read - *Read user chat messages* (**Not for personal accounts**)
+For example, permissions as below (and with `enable_update` set to `true`) will create calendar sensors but not enable create/modify/remove/respond services, create chat sensors, and create auto reply enable/disable services:
+```json
+ "scope": [
+  "Calendars.Read",
+  "Chat.Read",
+  "MailboxSettings.ReadWrite",
+  "User.Read",
+ ]
+```
 
-   If you are enabling todo_sensor (not supported in legacy installs) you will need:
-   * Tasks.Read - *Read user's tasks and task lists*
-   * Tasks.ReadWrite - *Create, read, update, and delete user’s tasks and task lists* - To enable creation of tasks in To-do lists if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
-
-   If you intend to set [enable_update](./installation_and_configuration.md#configuration_variables) to True, (it defaults to False for multi-account installs and True for other installs so as not to break existing installs), then the following permissions are also required (you can always remove permissions later):
-   * Calendars.ReadWrite - *Read and write user calendars*
-   * Mail.ReadWrite - *Read and write access to user mail*
-   * Mail.Send - *Send mail as a user*
-
-   If you intend to set [groups](./installation_and_configuration.md#configuration_variables) to True, (not supported in legacy installs), then the following permissions are also required:
-   * Group.Read.All - *Read all groups*
-   * Group.ReadWrite.All - *Read and write all groups* - To enable creation of events in group calendars if you have set [enable_update](./installation_and_configuration.md#configuration_variables).
-
-   If you are enabling/disabling the auto reply you will need:
-   * MailboxSettings.ReadWrite - *Read and write user mailbox settings*
+See also [Changing Features and Permissions](./authentication.md#changing_features_and_permissions) should you decide to change your needs after initial setup.
