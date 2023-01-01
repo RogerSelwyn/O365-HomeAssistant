@@ -46,8 +46,6 @@ For example, permissions as below (and with `enable_update` set to `true`) will 
  ]
 ```
 
-See also [Changing Features and Permissions](./authentication.md#changing_features_and_permissions) should you decide to change your needs after initial setup.
-
 ## Changing Features and Permissions
 If you decide to enable new features in the integration, or decide to change from read only to read/write, you will very likely get a warning message similar to the following in your logs.
 
