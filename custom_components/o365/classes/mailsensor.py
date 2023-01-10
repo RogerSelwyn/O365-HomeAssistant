@@ -4,6 +4,8 @@ import datetime
 import voluptuous as vol
 from homeassistant.components.sensor import SensorEntity
 
+from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
+
 from ..const import (
     ATTR_ATTRIBUTES,
     CONF_ACCOUNT,
@@ -19,6 +21,7 @@ from ..const import (
     CONF_SUBJECT_IS,
     PERM_MAILBOX_SETTINGS,
     PERM_MINIMUM_MAILBOX_SETTINGS,
+    SENSOR_AUTO_REPLY,
     SENSOR_MAIL,
 )
 from ..utils import build_token_filename, get_permissions, validate_minimum_permission
@@ -48,48 +51,6 @@ class O365MailSensor(O365Sensor):
     def extra_state_attributes(self):
         """Device state attributes."""
         return self.coordinator.data[self.entity_key][ATTR_ATTRIBUTES]
-
-    def auto_reply_enable(
-        self,
-        external_reply,
-        internal_reply,
-        start=None,
-        end=None,
-        external_audience=None,
-    ):
-        """Enable out of office autoreply."""
-        if not self._validate_permissions():
-            return
-
-        account = self._config[CONF_ACCOUNT]
-        mailbox = account.mailbox()
-        mailbox.set_automatic_reply(
-            internal_reply, external_reply, start, end, external_audience
-        )
-
-    def auto_reply_disable(self):
-        """Disable out of office autoreply."""
-        if not self._validate_permissions():
-            return
-
-        account = self._config[CONF_ACCOUNT]
-        mailbox = account.mailbox()
-        mailbox.set_disable_reply()
-
-    def _validate_permissions(self):
-        permissions = get_permissions(
-            self.hass,
-            filename=build_token_filename(
-                self._config, self._config.get(CONF_CONFIG_TYPE)
-            ),
-        )
-        if not validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
-            raise vol.Invalid(
-                "Not authorisied to update auto reply - requires permission: "
-                + f"{PERM_MAILBOX_SETTINGS}"
-            )
-
-        return True
 
 
 class O365QuerySensor(O365MailSensor, SensorEntity):
@@ -167,3 +128,64 @@ class O365EmailSensor(O365MailSensor, SensorEntity):
         if is_unread is not None:
             self.query = self.mail_folder.new_query()
             self.query.chain("and").on_attribute("IsRead").equals(not is_unread)
+
+
+class O365AutoReplySensor(O365Sensor, SensorEntity):
+    """O365 Tasks sensor processing."""
+
+    def __init__(self, coordinator, name, entity_id, config, unqique_id):
+        """Initialise the Tasks Sensor."""
+        super().__init__(coordinator, name, entity_id, SENSOR_AUTO_REPLY, unqique_id)
+        self._config = config
+
+    @property
+    def state(self):
+        """Sensor state."""
+        return "TBC"
+
+    @property
+    def icon(self):
+        """Entity icon."""
+        return "mdi:reply-all"
+
+    def auto_reply_enable(
+        self,
+        external_reply,
+        internal_reply,
+        start=None,
+        end=None,
+        external_audience=ExternalAudience.ALL,
+    ):
+        """Enable out of office autoreply."""
+        if not self._validate_permissions():
+            return
+
+        account = self._config[CONF_ACCOUNT]
+        mailbox = account.mailbox()
+        mailbox.set_automatic_reply(
+            internal_reply, external_reply, start, end, external_audience
+        )
+
+    def auto_reply_disable(self):
+        """Disable out of office autoreply."""
+        if not self._validate_permissions():
+            return
+
+        account = self._config[CONF_ACCOUNT]
+        mailbox = account.mailbox()
+        mailbox.set_disable_reply()
+
+    def _validate_permissions(self):
+        permissions = get_permissions(
+            self.hass,
+            filename=build_token_filename(
+                self._config, self._config.get(CONF_CONFIG_TYPE)
+            ),
+        )
+        if not validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
+            raise vol.Invalid(
+                "Not authorisied to update auto reply - requires permission: "
+                + f"{PERM_MAILBOX_SETTINGS}"
+            )
+
+        return True

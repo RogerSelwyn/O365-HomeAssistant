@@ -25,6 +25,7 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_ACCOUNTS,
     CONF_ALT_AUTH_METHOD,
+    CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
@@ -196,6 +197,7 @@ def do_setup(hass, config, account, account_name, conf_type):
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
+    auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
 
     account_config = {
@@ -205,6 +207,7 @@ def do_setup(hass, config, account, account_name, conf_type):
         CONF_STATUS_SENSORS: status_sensors,
         CONF_CHAT_SENSORS: chat_sensors,
         CONF_TODO_SENSORS: todo_sensors,
+        CONF_AUTO_REPLY_SENSORS: auto_reply_sensors,
         CONF_ENABLE_UPDATE: enable_update,
         CONF_TRACK_NEW_CALENDAR: config.get(CONF_TRACK_NEW_CALENDAR, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),

@@ -10,11 +10,13 @@ from pathlib import Path
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 from voluptuous.error import Error as VoluptuousError
+
+from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 
 from .const import (
     CONF_ACCOUNT_NAME,
+    CONF_AUTO_REPLY_SENSORS,
     CONF_CAL_ID,
     CONF_CHAT_SENSORS,
     CONF_CONFIG_TYPE,
@@ -46,6 +48,7 @@ from .const import (
     PERM_MINIMUM_CHAT,
     PERM_MINIMUM_GROUP,
     PERM_MINIMUM_MAIL,
+    PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_PRESENCE,
     PERM_MINIMUM_TASKS,
     PERM_MINIMUM_USER,
@@ -87,6 +90,7 @@ def build_minimum_permissions(hass, config, conf_type):
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
+    auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
     minimum_permissions = [PERM_MINIMUM_USER, PERM_MINIMUM_CALENDAR]
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_MAIL)
@@ -96,6 +100,8 @@ def build_minimum_permissions(hass, config, conf_type):
         minimum_permissions.append(PERM_MINIMUM_CHAT)
     if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED, False):
         minimum_permissions.append(PERM_MINIMUM_TASKS)
+    if len(auto_reply_sensors) > 0:
+        minimum_permissions.append(PERM_MINIMUM_MAILBOX_SETTINGS)
 
     if group_permissions_required(hass, config, conf_type):
         minimum_permissions.append(PERM_MINIMUM_GROUP)
@@ -112,6 +118,7 @@ def build_requested_permissions(config):
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
     groups = config.get(CONF_GROUPS, False)
+    auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
     scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
     if enable_update:
         scope.extend((PERM_MAIL_SEND, PERM_CALENDARS_READWRITE))
@@ -124,8 +131,8 @@ def build_requested_permissions(config):
             scope.append(PERM_GROUP_READ_ALL)
     if len(email_sensors) > 0 or len(query_sensors) > 0:
         scope.append(PERM_MAIL_READ)
-        if enable_update:
-            scope.append(PERM_MAILBOX_SETTINGS)
+    if len(auto_reply_sensors) > 0:
+        scope.append(PERM_MAILBOX_SETTINGS)
     if len(status_sensors) > 0:
         scope.append(PERM_PRESENCE_READ)
     if len(chat_sensors) > 0:

@@ -12,7 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 )  # UpdateFailed,
 from requests.exceptions import HTTPError
 
-from .classes.mailsensor import O365EmailSensor, O365QuerySensor
+from .classes.mailsensor import O365AutoReplySensor, O365EmailSensor, O365QuerySensor
 from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import (
@@ -28,6 +28,7 @@ from .const import (
     ATTR_TASKS,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
@@ -122,12 +123,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
         status_entities = self._status_sensors()
         chat_entities = self._chat_sensors()
         todo_entities = await self._async_todo_sensors()
+        auto_reply_entities = await self._async_auto_reply_sensors()
         self._entities = (
             email_entities
             + query_entities
             + status_entities
             + chat_entities
             + todo_entities
+            + auto_reply_entities
         )
         return self._entities
 
@@ -278,6 +281,23 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     name,
                     self._account_name,
                 )
+        return entities
+
+    async def _async_auto_reply_sensors(self):
+        auto_reply_sensors = self._config.get(CONF_AUTO_REPLY_SENSORS, [])
+        entities = []
+        for sensor_conf in auto_reply_sensors:
+            name = sensor_conf.get(CONF_NAME)
+            entity_id = async_generate_entity_id(
+                SENSOR_ENTITY_ID_FORMAT,
+                name,
+                hass=self.hass,
+            )
+            unique_id = f"{name}_{self._account_name}"
+            auto_reply_sensor = O365AutoReplySensor(
+                self, name, entity_id, self._config, unique_id
+            )
+            entities.append(auto_reply_sensor)
         return entities
 
     async def _async_get_mail_folder(self, sensor_conf, sensor_type):

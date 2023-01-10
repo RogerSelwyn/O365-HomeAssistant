@@ -24,9 +24,9 @@ from .sensorentity import O365Sensor
 class O365TasksSensor(O365Sensor, SensorEntity):
     """O365 Tasks sensor processing."""
 
-    def __init__(self, coordinator, todo, name, entity_id, config, unqique_id):
+    def __init__(self, coordinator, todo, name, entity_id, config, unique_id):
         """Initialise the Tasks Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_TODO, unqique_id)
+        super().__init__(coordinator, name, entity_id, SENSOR_TODO, unique_id)
         self.todo = todo
         self.query = self.todo.new_query("status").unequal("completed")
         self._config = config

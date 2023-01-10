@@ -64,6 +64,7 @@ CONF_ACCOUNTS = "accounts"
 CONF_ACCOUNT_NAME = "account_name"
 CONF_ALIASES = "aliases"
 CONF_ALT_AUTH_METHOD = "alt_auth_method"
+CONF_AUTO_REPLY_SENSORS = "auto_reply_sensors"
 CONF_BODY_CONTAINS = "body_contains"
 CONF_CACHE_PATH = "cache_path"
 CONF_CALENDAR_NAME = "calendar_name"
@@ -175,6 +176,7 @@ PERM_MINIMUM_SEND = [
     [PERM_MAIL_SEND_SHARED],
 ]
 
+SENSOR_AUTO_REPLY = "auto_reply"
 SENSOR_DOMAIN = "sensor"
 SENSOR_ENTITY_ID_FORMAT = SENSOR_DOMAIN + ".{}"
 SENSOR_MAIL = "inbox"
