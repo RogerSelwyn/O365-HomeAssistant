@@ -1,5 +1,19 @@
 # Changelog
 
+# v4.0.8 (2023/01/10)
+### Enhancements
+- [Added sensor for targeting auto-reply](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bdb4e20055fbaafdcf6e04b98e5ab2621c3e67b4) - @RogerSelwyn
+
+### Maintenance
+- [Update index.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ffe0491077819e92499c616f1483edf637fb97dd) - @RogerSelwyn
+- [Add documentation for Tasks and new security permissions](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5ab0dae2be4e3a4b50d8f393b050a943f25909fd) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a97c49be9904302db29b9f832c0e3bc3f237f6e8) - @RogerSelwyn
+- [Added separate permissions page](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3022f20d80cba0aec37ac1fad114d8f3d919b485) - @RogerSelwyn
+- [Correction](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a7c1d4095e3fb1aab0b406b33991bbf3d5685e04) - @RogerSelwyn
+- [Update sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/38967f9a0b8d29e039110bb98627d8e4024cd833) - @RogerSelwyn
+- [Update docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3ff2927d13bb908ce9aec5a11611eb19edc9bde8) - @RogerSelwyn
+- [Bump to v4.0.8](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a5164a6ab20ed932530ce13b3c8d2d63ebe48aca) - @RogerSelwyn
+
 # v4.0.7 (2022/12/22)
 ### Fixes
 - [Fix notify service name for converted accounts](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cd6b14c6c908ab67e3c7b7aaf4316243ffc10ba7) - @RogerSelwyn
