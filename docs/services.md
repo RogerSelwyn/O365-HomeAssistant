@@ -107,7 +107,7 @@ data:
 
 ## Auto reply Services
 
-These services must be targeted at `email` or `query` sensors. 
+These services must be targeted at `auto_reply` sensors. 
 
 ### o365.set_auto_reply
 Schedule the auto reply - All parameters are shown in the available parameter list on the Developer Tools/Services tab.

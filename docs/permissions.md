@@ -32,11 +32,11 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
    | ToDo     | Tasks.ReadWrite       | Y | *Create, read, update, and delete user’s tasks and task lists* |   |
    | Group Calendar | Group.Read.All  |   | *Read all groups* | Not supported in legacy installs |
    | Group Calendar | Group.ReadWrite.All | Y | *Read and write all groups* | Not supported in legacy installs |
-   | AutoReply | MailboxSettings.ReadWrite | Y | *Read and write user mailbox settings* |       |
+   | AutoReply | MailboxSettings.ReadWrite |   | *Read and write user mailbox settings* |       |
    
-**Note** It should be noted that these are the permissions that are requested at authentication time (as appropriate for each sensor configured). When `enable_update` is configured to `true` all the associated `ReadWrite` permissions are requested as well, however you do not need to add `ReadWrite` for any sensor type where you do not what update permissions, it will still act as a Read Only sensor. This excludes the AutoReply option which is only `ReadWrite` at this time since there is no associated sensor.
+**Note** It should be noted that these are the permissions that are requested at authentication time (as appropriate for each sensor configured). When `enable_update` is configured to `true` all the associated `ReadWrite` permissions are requested as well, however you do not need to add `ReadWrite` for any sensor type where you do not what update permissions, it will still act as a Read Only sensor. This excludes the AutoReply option which is only `ReadWrite`.
 
-For example, permissions as below (and with `enable_update` set to `true`) will create calendar sensors but not enable create/modify/remove/respond services, create chat sensors, and create auto reply enable/disable services:
+For example, permissions as below (and with `enable_update` set to `true`) will create calendar sensors, create chat sensors, and create auto reply enable/disable services but will not enable create/modify/remove/respond services:
 ```json
  "scope": [
   "Calendars.Read",

@@ -30,3 +30,8 @@ content: |-
   - {{ task['subject'] }}
   {% endfor %}{% endraw %}
 ```
+
+## Auto Reply Sensor
+Eventually this will show the current auto_reply settings, however at this time this functionality is awaiting release at the back-end. 
+
+The sensor does support the services for enabling and disabling auto-reply. 
