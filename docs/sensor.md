@@ -32,6 +32,4 @@ content: |-
 ```
 
 ## Auto Reply Sensor
-Eventually this will show the current auto_reply settings, however at this time this functionality is awaiting release at the back-end. 
-
-The sensor does support the services for enabling and disabling auto-reply. 
+Shows the current auto reply settings for your account. Supports the enabling and disabling of auto reply. Note that all attributes are displayed even if auto reply is disabled for reference purposes.
