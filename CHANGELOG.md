@@ -1,5 +1,13 @@
 # Changelog
 
+# v4.1.0 (2023/01/17)
+### Enhancements
+- [Add existing auto reply settings display](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/84132fabac2144d2bed7ce080f91de6c17781a5c) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.1.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2cbbf3edf27437a8adb24c5f2661ef073dcf4e5b) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/63c89fc4054ae35d4f57748b7d9e01511b4a942a) - @actions-user
+
 # v4.0.8 (2023/01/10)
 ### Enhancements
 - [Added sensor for targeting auto-reply](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bdb4e20055fbaafdcf6e04b98e5ab2621c3e67b4) - @RogerSelwyn
