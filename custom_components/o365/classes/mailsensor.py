@@ -8,6 +8,12 @@ from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 
 from ..const import (
     ATTR_ATTRIBUTES,
+    ATTR_AUTOREPLIESSETTINGS,
+    ATTR_END,
+    ATTR_EXTERNAL_AUDIENCE,
+    ATTR_EXTERNALREPLY,
+    ATTR_INTERNALREPLY,
+    ATTR_START,
     CONF_ACCOUNT,
     CONF_BODY_CONTAINS,
     CONF_CONFIG_TYPE,
@@ -19,12 +25,18 @@ from ..const import (
     CONF_MAX_ITEMS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
+    DATETIME_FORMAT,
     PERM_MAILBOX_SETTINGS,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     SENSOR_AUTO_REPLY,
     SENSOR_MAIL,
 )
-from ..utils import build_token_filename, get_permissions, validate_minimum_permission
+from ..utils import (
+    build_token_filename,
+    clean_html,
+    get_permissions,
+    validate_minimum_permission,
+)
 from .sensorentity import O365Sensor
 
 
@@ -131,22 +143,31 @@ class O365EmailSensor(O365MailSensor, SensorEntity):
 
 
 class O365AutoReplySensor(O365Sensor, SensorEntity):
-    """O365 Tasks sensor processing."""
+    """O365 Auto Reply sensor processing."""
 
     def __init__(self, coordinator, name, entity_id, config, unqique_id):
-        """Initialise the Tasks Sensor."""
+        """Initialise the Auto reply Sensor."""
         super().__init__(coordinator, name, entity_id, SENSOR_AUTO_REPLY, unqique_id)
         self._config = config
-
-    @property
-    def state(self):
-        """Sensor state."""
-        return "TBC"
+        account = self._config[CONF_ACCOUNT]
+        self.mailbox = account.mailbox()
 
     @property
     def icon(self):
         """Entity icon."""
         return "mdi:reply-all"
+
+    @property
+    def extra_state_attributes(self):
+        """Return entity specific state attributes."""
+        ars = self.coordinator.data[self.entity_key][ATTR_AUTOREPLIESSETTINGS]
+        return {
+            ATTR_INTERNALREPLY: clean_html(ars.internal_reply_message),
+            ATTR_EXTERNALREPLY: clean_html(ars.external_reply_message),
+            ATTR_EXTERNAL_AUDIENCE: ars.external_audience.value,
+            ATTR_START: ars.scheduled_startdatetime.strftime(DATETIME_FORMAT),
+            ATTR_END: ars.scheduled_enddatetime.strftime(DATETIME_FORMAT),
+        }
 
     def auto_reply_enable(
         self,
@@ -160,9 +181,7 @@ class O365AutoReplySensor(O365Sensor, SensorEntity):
         if not self._validate_permissions():
             return
 
-        account = self._config[CONF_ACCOUNT]
-        mailbox = account.mailbox()
-        mailbox.set_automatic_reply(
+        self.mailbox.set_automatic_reply(
             internal_reply, external_reply, start, end, external_audience
         )
 
@@ -171,9 +190,7 @@ class O365AutoReplySensor(O365Sensor, SensorEntity):
         if not self._validate_permissions():
             return
 
-        account = self._config[CONF_ACCOUNT]
-        mailbox = account.mailbox()
-        mailbox.set_disable_reply()
+        self.mailbox.set_disable_reply()
 
     def _validate_permissions(self):
         permissions = get_permissions(

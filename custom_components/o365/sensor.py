@@ -17,6 +17,7 @@ from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import (
     ATTR_ATTRIBUTES,
+    ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
     ATTR_CONTENT,
     ATTR_ERROR,
@@ -44,6 +45,7 @@ from .const import (
     LEGACY_ACCOUNT_NAME,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
+    SENSOR_AUTO_REPLY,
     SENSOR_ENTITY_ID_FORMAT,
     SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
@@ -344,6 +346,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 await self._async_teams_chat_update(entity)
             elif entity.entity_type == SENSOR_TODO:
                 await self._async_todos_update(entity)
+            elif entity.entity_type == SENSOR_AUTO_REPLY:
+                await self._async_auto_reply_update(entity)
 
         return self._data
 
@@ -429,6 +433,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 )
                 error = True
         self._data[entity.entity_key][ATTR_ERROR] = error
+
+    async def _async_auto_reply_update(self, entity):
+        """Update state."""
+        if data := await self.hass.async_add_executor_job(entity.mailbox.get_settings):
+            self._data[entity.entity_key] = {
+                ATTR_STATE: data.automaticrepliessettings.status.value,
+                ATTR_AUTOREPLIESSETTINGS: data.automaticrepliessettings,
+            }
 
 
 def _build_entity_id(hass, name, conf):
