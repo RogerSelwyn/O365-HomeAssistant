@@ -1,5 +1,13 @@
 # Changelog
 
+# v4.1.1 (2023/01/22)
+### Fixes
+- [Fix for non-unique unique_ids](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2f685bed0af709a157fe1fde0adc4a10bc4b417a) - @RogerSelwyn
+
+### Maintenance
+- [Update sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a0a28231c747faba123973d147c7e4ced9ae335a) - @RogerSelwyn
+- [Bump to 4.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9e9bedcf0e0db85719909a38d29fdad16fb1973c) - @RogerSelwyn
+
 # v4.1.0 (2023/01/17)
 ### Enhancements
 - [Add existing auto reply settings display](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/84132fabac2144d2bed7ce080f91de6c17781a5c) - @RogerSelwyn
