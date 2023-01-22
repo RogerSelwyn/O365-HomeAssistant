@@ -1,5 +1,12 @@
 # Changelog
 
+# v4.1.2 (2023/01/22)
+### Fixes
+- [Fix unique_id for new calendars](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7f76812cb43ae000d32e32981fcbec77d87f74ff) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.1.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d26ba9c4ce6cb8783b29eceb5334ab8d2f6e9b6b) - @RogerSelwyn
+
 # v4.1.1 (2023/01/22)
 ### Fixes
 - [Fix for non-unique unique_ids](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2f685bed0af709a157fe1fde0adc4a10bc4b417a) - @RogerSelwyn
