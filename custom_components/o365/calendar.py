@@ -247,7 +247,7 @@ class O365CalendarEntity(CalendarEntity):
     def _check_unique_id(self, unique_id):
         ent_reg = entity_registry.async_get(self.hass)
         entry = ent_reg.async_get(self.entity_id)
-        if entry.unique_id != unique_id:
+        if entry and entry.unique_id != unique_id:
             ent_reg.async_update_entity(self.entity_id, new_unique_id=unique_id)
             self._uid_checked = True
 
