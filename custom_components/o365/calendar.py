@@ -13,7 +13,7 @@ from homeassistant.components.calendar import (
     is_offset_reached,
 )
 from homeassistant.const import CONF_NAME
-from homeassistant.helpers import entity_platform
+from homeassistant.helpers import entity_platform, entity_registry
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
 from requests.exceptions import HTTPError, RetryError
@@ -100,9 +100,12 @@ def _setup_add_entities(hass, account, add_entities, conf):
             if not entity[CONF_TRACK]:
                 continue
             entity_id = _build_entity_id(hass, entity, conf)
-            # _LOGGER.debug("Connecting to calendar: %s", cal_id)
+
+            device_id = entity["device_id"]
             try:
-                cal = O365CalendarEntity(account, cal_id, entity, entity_id, conf)
+                cal = O365CalendarEntity(
+                    account, cal_id, entity, entity_id, device_id, conf
+                )
             except HTTPError:
                 _LOGGER.warning(
                     "No permission for calendar, please remove - Name: %s; Device: %s;",
@@ -176,7 +179,7 @@ async def _async_setup_register_services(hass, conf):
 class O365CalendarEntity(CalendarEntity):
     """O365 Calendar Event Processing."""
 
-    def __init__(self, account, calendar_id, entity, entity_id, config):
+    def __init__(self, account, calendar_id, entity, entity_id, device_id, config):
         """Initialise the O365 Calendar Event."""
         self._config = config
         self._account = account
@@ -188,7 +191,9 @@ class O365CalendarEntity(CalendarEntity):
         self._offset_reached = False
         self._data_attribute = []
         self.data = self._init_data(account, calendar_id, entity)
-        self._unique_id = f"{calendar_id}_{self._config[CONF_ACCOUNT_NAME]}"
+        self._calendar_id = calendar_id
+        self._device_id = device_id
+        self._uid_checked = False
 
     def _init_data(self, account, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
@@ -231,7 +236,20 @@ class O365CalendarEntity(CalendarEntity):
     @property
     def unique_id(self):
         """Entity unique id."""
-        return self._unique_id
+        unique_id = (
+            f"{self._calendar_id}_{self._config[CONF_ACCOUNT_NAME]}_{self._device_id}"
+        )
+        if not self._uid_checked:
+            self._check_unique_id(unique_id)
+        return unique_id
+
+    # Can be removed by start of 2024 at latest, temporary fudge to correct wrong UIDs
+    def _check_unique_id(self, unique_id):
+        ent_reg = entity_registry.async_get(self.hass)
+        entry = ent_reg.async_get(self.entity_id)
+        if entry.unique_id != unique_id:
+            ent_reg.async_update_entity(self.entity_id, new_unique_id=unique_id)
+            self._uid_checked = True
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get events."""
