@@ -13,7 +13,7 @@
 
 ### Maintenance
 - [Update sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a0a28231c747faba123973d147c7e4ced9ae335a) - @RogerSelwyn
-- [Bump to 4.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9e9bedcf0e0db85719909a38d29fdad16fb1973c) - @RogerSelwyn
+- [Bump to v4.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9e9bedcf0e0db85719909a38d29fdad16fb1973c) - @RogerSelwyn
 
 # v4.1.0 (2023/01/17)
 ### Enhancements
