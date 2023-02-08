@@ -58,6 +58,7 @@ from .const import (
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
+    CONF_EXCLUDE,
     CONF_GROUPS,
     CONF_HAS_ATTACHMENT,
     CONF_HOURS_BACKWARD_TO_GET,
@@ -263,13 +264,14 @@ AUTO_REPLY_SERVICE_ENABLE_SCHEMA = {
 AUTO_REPLY_SERVICE_DISABLE_SCHEMA = {}
 
 
-SINGLE_CALSEARCH_CONFIG = vol.Schema(
+CALENDAR_ENTITY_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
         vol.Required(CONF_DEVICE_ID): cv.string,
         vol.Optional(CONF_HOURS_FORWARD_TO_GET, default=24): int,
         vol.Optional(CONF_HOURS_BACKWARD_TO_GET, default=0): int,
         vol.Optional(CONF_SEARCH): cv.string,
+        vol.Optional(CONF_EXCLUDE): [cv.string],
         vol.Optional(CONF_TRACK): cv.boolean,
         vol.Optional(CONF_MAX_RESULTS): cv.positive_int,
     }
@@ -279,7 +281,7 @@ CALENDAR_DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CAL_ID): cv.string,
         vol.Required(CONF_ENTITIES, None): vol.All(
-            cv.ensure_list, [SINGLE_CALSEARCH_CONFIG]
+            cv.ensure_list, [CALENDAR_ENTITY_SCHEMA]
         ),
     },
     extra=vol.ALLOW_EXTRA,

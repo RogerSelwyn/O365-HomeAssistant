@@ -39,6 +39,7 @@ Key | Type | Required | Description
 `name` | `string` | `True` | The name of your sensor that you’ll see in the frontend.
 `track` | `boolean` | `True` | **True**=Create calendar entity. False=Don't create entity
 `search` | `string` | `False` | Only get events if subject contains this string
+`exclude` | `list[string]` | `False` | Exclude events where the subject contains any one of items in the list of strings
 `start_offset` | `integer` | `False` | Number of hours to offset the start time to search for events for (negative numbers to offset into the past).
 `end_offset` | `integer` | `False` | Number of hours to offset the end time to search for events for (negative numbers to offset into the past).
 

@@ -28,6 +28,7 @@ from .const import (
     CONF_DEVICE_ID,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
+    CONF_EXCLUDE,
     CONF_HOURS_BACKWARD_TO_GET,
     CONF_HOURS_FORWARD_TO_GET,
     CONF_MAX_RESULTS,
@@ -149,7 +150,6 @@ async def _async_setup_register_services(hass, conf):
     if conf[CONF_ENABLE_UPDATE] and validate_minimum_permission(
         PERM_MINIMUM_CALENDAR_WRITE, permissions
     ):
-
         platform.async_register_entity_service(
             "create_calendar_event",
             CALENDAR_SERVICE_CREATE_SCHEMA,
@@ -198,12 +198,14 @@ class O365CalendarEntity(CalendarEntity):
     def _init_data(self, account, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
         search = entity.get(CONF_SEARCH)
+        exclude = entity.get(CONF_EXCLUDE)
         # _LOGGER.debug("Initialising calendar: %s", calendar_id)
         return O365CalendarData(
             account,
             self.entity_id,
             calendar_id,
             search,
+            exclude,
             max_results,
         )
 
@@ -425,6 +427,7 @@ class O365CalendarData:
         entity_id,
         calendar_id,
         search=None,
+        exclude=None,
         limit=999,
     ):
         """Initialise the O365 Calendar Data."""
@@ -438,6 +441,7 @@ class O365CalendarData:
             self._schedule = account.schedule()
             self.calendar = None
         self._search = search
+        self._exclude = exclude
         self.event = None
         self._entity_id = entity_id
 
@@ -451,9 +455,28 @@ class O365CalendarData:
         if not self.calendar:
             await self._async_get_calendar(hass)
 
-        return await self._async_calendar_schedule_get_events(
+        events = await self._async_calendar_schedule_get_events(
             hass, self.calendar, start_date, end_date
         )
+
+        return self._filter_events(events) or events
+
+    def _filter_events(self, events):
+        if not events:
+            return None
+        if not self._exclude:
+            return None
+        lst_events = list(events)
+        rtn_events = []
+        for event in lst_events:
+            include = True
+            for exclude in self._exclude:
+                if event.subject.find(exclude) > -1:
+                    include = False
+            if include:
+                rtn_events.append(event)
+
+        return rtn_events
 
     async def _async_calendar_schedule_get_events(
         self, hass, calendar_schedule, start_date, end_date
@@ -463,7 +486,9 @@ class O365CalendarData:
         query.chain("and").on_attribute("end").less_equal(end_date)
         if self._search is not None:
             query.chain("and").on_attribute("subject").contains(self._search)
-        # _LOGGER.debug("get events: %s", self._calendar_id)
+        # As at March 2023 not contains is not supported by Graph API
+        # if self._exclude is not None:
+        #     query.chain("and").on_attribute("subject").negate().contains(self._exclude)
         try:
             return await hass.async_add_executor_job(
                 ft.partial(
