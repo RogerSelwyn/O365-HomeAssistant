@@ -24,6 +24,7 @@ Key | Type | Required | Description
 `target` | `string` | `False` | Recipient of the email, if not set will use the configured account's email address
 `sender` | `string` | `False` | Sender of the email, if not set will use the configured account's email address - where the authenticated user has been delegated access to the mailbox
 `message_is_html` | `boolean` | `False` | Is the message formatted as HTML
+`importance` | `string` | `False` | Set importance to `low`, `medium` or `high`
 `photos` | `list<string>` | `False` | File paths or URLs of pictures to embed into the email body
 `attachments` | `list<string>` | `False` | File paths to attach to email
 `zip_attachments` | `boolean` | `False` | Zip files from attachments into a zip file before sending
