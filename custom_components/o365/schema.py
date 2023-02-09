@@ -14,6 +14,7 @@ from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
+from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
 from .const import (
     ATTR_ATTACHMENTS,
@@ -27,6 +28,7 @@ from .const import (
     ATTR_EVENT_ID,
     ATTR_EXTERNAL_AUDIENCE,
     ATTR_EXTERNALREPLY,
+    ATTR_IMPORTANCE,
     ATTR_INTERNALREPLY,
     ATTR_IS_ALL_DAY,
     ATTR_LOCATION,
@@ -175,6 +177,7 @@ NOTIFY_SERVICE_DATA_SCHEMA = vol.Schema(
         vol.Optional(ATTR_ZIP_NAME): cv.string,
         vol.Optional(ATTR_PHOTOS, default=[]): [cv.string],
         vol.Optional(ATTR_ATTACHMENTS, default=[]): [cv.string],
+        vol.Optional(ATTR_IMPORTANCE): vol.Coerce(ImportanceLevel),
     }
 )
 

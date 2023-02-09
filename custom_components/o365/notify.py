@@ -11,6 +11,7 @@ from homeassistant.components.notify import (
 
 from .const import (
     ATTR_ATTACHMENTS,
+    ATTR_IMPORTANCE,
     ATTR_MESSAGE_IS_HTML,
     ATTR_PHOTOS,
     ATTR_SENDER,
@@ -111,8 +112,11 @@ class O365EmailService(BaseNotificationService):
         message = self._build_message(data, message, new_message.attachments)
         self._build_attachments(data, new_message.attachments)
         new_message.to.add(target)
-        if data and data.get(ATTR_SENDER, None):
-            new_message.sender = data.get(ATTR_SENDER)
+        if data:
+            if data.get(ATTR_SENDER, None):
+                new_message.sender = data.get(ATTR_SENDER)
+            if data.get(ATTR_IMPORTANCE, None):
+                new_message.importance = data.get(ATTR_IMPORTANCE)
         new_message.subject = title
         new_message.body = message
         await self.hass.async_add_executor_job(new_message.send)
@@ -154,7 +158,6 @@ class O365EmailService(BaseNotificationService):
         return photos_content
 
     def _build_attachments(self, data, new_message_attachments):
-
         attachments = []
         zip_attachments = False
         zip_name = None
