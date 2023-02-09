@@ -1,6 +1,7 @@
 """Main calendar processing."""
 import functools as ft
 import logging
+import re
 from copy import deepcopy
 from datetime import date, datetime, timedelta
 from operator import attrgetter, itemgetter
@@ -471,7 +472,7 @@ class O365CalendarData:
         for event in lst_events:
             include = True
             for exclude in self._exclude:
-                if event.subject.find(exclude) > -1:
+                if re.search(exclude, event.subject):
                     include = False
             if include:
                 rtn_events.append(event)
