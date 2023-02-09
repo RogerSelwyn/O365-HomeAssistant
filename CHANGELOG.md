@@ -1,5 +1,12 @@
 # Changelog
 
+# v4.2.1 (2023/02/09)
+### Enhancements
+- [Add regex support to calendar excludes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7cd1d397ad9b7dd577cec3898df8339c061292df) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.2.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/686e0332259a8fb1ae0609d1ebda65895b88859b) - @RogerSelwyn 
+
 # v4.2.0 (2023/02/08)
 ### Enhancements
 - [Add ability to exclude events containing string from list](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ebe861eede9da2ffceaf5c0cc702468c1f9f46b8) - @RogerSelwyn
