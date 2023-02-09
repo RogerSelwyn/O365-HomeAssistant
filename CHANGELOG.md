@@ -1,5 +1,14 @@
 # Changelog
 
+
+# v4.2.2 (2023/02/09)
+### Enhancements
+- [Add importance as option for send email](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/08da2c0774f98bd6fb7abde10f97d3f523df4423) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.2.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/910942819a14a14d65b33d396dcf852ad0031dfe) - @RogerSelwyn
+- [Update service details](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/30f2eafd9aac16e0c001b0b90cc8f26a41d24de6) - @RogerSelwyn
+
 # v4.2.1 (2023/02/09)
 ### Enhancements
 - [Add regex support to calendar excludes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7cd1d397ad9b7dd577cec3898df8339c061292df) - @RogerSelwyn
