@@ -22,7 +22,6 @@
 
 ### Maintenance
 - [Bump o365 from 2.0.25 to 2.0.26](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/21d8e16d99f04368bed641036c69fdd2a2f69896) - @dependabot[bot]
-- [Add ability to exclude events containing string from list](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ebe861eede9da2ffceaf5c0cc702468c1f9f46b8) - @RogerSelwyn
 - [Bump to 4.2.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/fdc2e46ff27fd8ec09f7415d7ba952311eb82e88) - @RogerSelwyn
 - [Bump O365 to 2.0.26](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/10b037e8ac54c5371291f49d43b5dffff255968d) - @RogerSelwyn
 - [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b632dc60711739bf1d978bcaf11df85aeae1fc26) - @actions-user
