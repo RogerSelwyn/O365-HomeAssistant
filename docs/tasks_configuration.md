@@ -3,7 +3,7 @@ title: Tasks Configuration
 nav_order: 7
 ---
 
-# Calendar configuration
+# Tasks configuration
 The integration uses an external `o365_tasks_<account_name>.yaml` file which is stored in the `o365_storage` directory.
 ## Example Tasks yaml:
 ```yaml
