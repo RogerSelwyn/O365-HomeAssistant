@@ -73,6 +73,7 @@ from .const import (
     CONF_MAX_RESULTS,
     CONF_QUERY_SENSORS,
     CONF_SEARCH,
+    CONF_SHOW_COMPLETED,
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
@@ -294,6 +295,7 @@ TASK_LIST_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_TASK_LIST_ID): cv.string,
         vol.Required(CONF_NAME): cv.string,
-        vol.Required(CONF_TRACK): cv.boolean,
+        vol.Optional(CONF_TRACK, default=True): cv.boolean,
+        vol.Optional(CONF_SHOW_COMPLETED, default=False): cv.boolean,
     }
 )

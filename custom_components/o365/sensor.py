@@ -1,15 +1,14 @@
 """Sensor processing."""
-import datetime
 import functools as ft
 import logging
+from datetime import datetime, timedelta
 from operator import itemgetter
 
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import async_generate_entity_id
-from homeassistant.helpers.update_coordinator import (
-    DataUpdateCoordinator,
-)  # UpdateFailed,
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
 from .classes.mailsensor import O365AutoReplySensor, O365EmailSensor, O365QuerySensor
@@ -19,13 +18,16 @@ from .const import (
     ATTR_ATTRIBUTES,
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
+    ATTR_COMPLETED,
     ATTR_CONTENT,
+    ATTR_CREATED,
     ATTR_ERROR,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
     ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
+    ATTR_TASK_ID,
     ATTR_TASKS,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
@@ -36,12 +38,16 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_MAIL_FOLDER,
     CONF_QUERY_SENSORS,
+    CONF_SHOW_COMPLETED,
     CONF_STATUS_SENSORS,
     CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
     CONF_TRACK,
     CONF_TRACK_NEW,
     DOMAIN,
+    EVENT_COMPLETED_TASK,
+    EVENT_HA_EVENT,
+    EVENT_NEW_TASK,
     LEGACY_ACCOUNT_NAME,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
@@ -110,13 +116,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
             # Name of the data. For logging purposes.
             name="My sensor",
             # Polling interval. Will only be polled if there are subscribers.
-            update_interval=datetime.timedelta(seconds=30),
+            update_interval=timedelta(seconds=30),
         )
         self._config = config
         self._account = config[CONF_ACCOUNT]
         self._account_name = config[CONF_ACCOUNT_NAME]
         self._entities = []
         self._data = {}
+        self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
@@ -259,6 +266,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             else:
                 name = task.get(CONF_NAME)
             track = task.get(CONF_TRACK)
+            show_completed = task.get(CONF_SHOW_COMPLETED)
             task_list_id = task.get(CONF_TASK_LIST_ID)
             entity_id = _build_entity_id(self.hass, name, self._config)
             if not track:
@@ -274,7 +282,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 )
                 unique_id = f"{task_list_id}_{self._account_name}"
                 todo_sensor = O365TasksSensor(
-                    self, todo, name, entity_id, config, unique_id
+                    self, todo, name, entity_id, config, unique_id, show_completed
                 )
                 entities.append(todo_sensor)
             except HTTPError:
@@ -425,6 +433,29 @@ class O365SensorCordinator(DataUpdateCoordinator):
             tasks = list(data)
             self._data[entity.entity_key][ATTR_TASKS] = tasks
             self._data[entity.entity_key][ATTR_STATE] = len(tasks)
+            task_last_completed = self._zero_date
+            task_last_created = self._zero_date
+            for task in tasks:
+                if task.completed and task.completed > entity.task_last_completed:
+                    self._raise_event(
+                        EVENT_COMPLETED_TASK,
+                        task.task_id,
+                        ATTR_COMPLETED,
+                        task.completed,
+                    )
+                    if task.completed > task_last_completed:
+                        task_last_completed = task.completed
+                if task.created and task.created > entity.task_last_created:
+                    self._raise_event(
+                        EVENT_NEW_TASK, task.task_id, ATTR_CREATED, task.created
+                    )
+                    if task.created > task_last_created:
+                        task_last_created = task.created
+
+            if task_last_completed > self._zero_date:
+                entity.task_last_completed = task_last_completed
+            if task_last_created > self._zero_date:
+                entity.task_last_created = task_last_created
         except HTTPError:
             if not error:
                 _LOGGER.error(
@@ -442,6 +473,13 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 ATTR_AUTOREPLIESSETTINGS: data.automaticrepliessettings,
             }
 
+    def _raise_event(self, event_type, task_id, time_type, task_datetime):
+        self.hass.bus.fire(
+            f"{DOMAIN}_{event_type}",
+            {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
+        )
+        _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
+
 
 def _build_entity_id(hass, name, conf):
     return async_generate_entity_id(
@@ -452,13 +490,11 @@ def _build_entity_id(hass, name, conf):
 
 
 async def _async_setup_register_services(hass, config):
-
     await _async_setup_task_services(hass, config)
     await _async_setup_mailbox_services(hass, config)
 
 
 async def _async_setup_task_services(hass, config):
-
     if not config.get(CONF_ENABLE_UPDATE):
         return
 
@@ -495,7 +531,6 @@ async def _async_setup_task_services(hass, config):
 
 
 async def _async_setup_mailbox_services(hass, config):
-
     if not config.get(CONF_ENABLE_UPDATE):
         return
 

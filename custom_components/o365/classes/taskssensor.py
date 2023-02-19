@@ -1,10 +1,14 @@
 """O365 tasks sensors."""
+import logging
+from datetime import timedelta
+
 import voluptuous as vol
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.util import dt
 
 from ..const import (
     ATTR_ALL_TASKS,
+    ATTR_COMPLETED,
     ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_OVERDUE_TASKS,
@@ -13,6 +17,12 @@ from ..const import (
     ATTR_TASK_ID,
     ATTR_TASKS,
     CONF_CONFIG_TYPE,
+    DATETIME_FORMAT,
+    DOMAIN,
+    EVENT_DELETE_TASK,
+    EVENT_HA_EVENT,
+    EVENT_NEW_TASK,
+    EVENT_UPDATE_TASK,
     PERM_MINIMUM_TASKS_WRITE,
     PERM_TASKS_READWRITE,
     SENSOR_TODO,
@@ -20,16 +30,26 @@ from ..const import (
 from ..utils import build_token_filename, get_permissions, validate_minimum_permission
 from .sensorentity import O365Sensor
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class O365TasksSensor(O365Sensor, SensorEntity):
     """O365 Tasks sensor processing."""
 
-    def __init__(self, coordinator, todo, name, entity_id, config, unique_id):
+    def __init__(
+        self, coordinator, todo, name, entity_id, config, unique_id, show_completed
+    ):
         """Initialise the Tasks Sensor."""
         super().__init__(coordinator, name, entity_id, SENSOR_TODO, unique_id)
         self.todo = todo
-        self.query = self.todo.new_query("status").unequal("completed")
+        self._show_completed = show_completed
+        if show_completed:
+            self.query = self.todo.new_query("status")
+        else:
+            self.query = self.todo.new_query("status").unequal("completed")
         self._config = config
+        self.task_last_created = dt.utcnow() - timedelta(minutes=5)
+        self.task_last_completed = dt.utcnow() - timedelta(minutes=5)
 
     @property
     def icon(self):
@@ -45,6 +65,12 @@ class O365TasksSensor(O365Sensor, SensorEntity):
             task = {ATTR_SUBJECT: item.subject, ATTR_TASK_ID: item.task_id}
             if item.body:
                 task[ATTR_DESCRIPTION] = item.body
+            if self._show_completed:
+                task[ATTR_COMPLETED] = (
+                    item.completed.strftime(DATETIME_FORMAT)
+                    if item.completed
+                    else False
+                )
             if item.due:
                 due = item.due.date()
                 task[ATTR_DUE] = due
@@ -75,6 +101,8 @@ class O365TasksSensor(O365Sensor, SensorEntity):
 
         new_task = self.todo.new_task()
         self._save_task(new_task, subject, description, due, reminder)
+        self._raise_event(EVENT_NEW_TASK, new_task.task_id)
+        self.task_last_created = new_task.created
         return True
 
     def update_task(
@@ -86,6 +114,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
 
         task = self.todo.get_task(task_id)
         self._save_task(task, subject, description, due, reminder)
+        self._raise_event(EVENT_UPDATE_TASK, task_id)
         return True
 
     def delete_task(self, task_id):
@@ -95,6 +124,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
 
         task = self.todo.get_task(task_id)
         task.delete()
+        self._raise_event(EVENT_DELETE_TASK, task_id)
         return True
 
     def _save_task(self, task, subject, description, due, reminder):
@@ -117,6 +147,13 @@ class O365TasksSensor(O365Sensor, SensorEntity):
             task.reminder = reminder
 
         task.save()
+
+    def _raise_event(self, event_type, task_id):
+        self.hass.bus.fire(
+            f"{DOMAIN}_{event_type}",
+            {ATTR_TASK_ID: task_id, EVENT_HA_EVENT: True},
+        )
+        _LOGGER.debug("%s - %s", event_type, task_id)
 
     def _validate_permissions(self):
         permissions = get_permissions(

@@ -20,6 +20,7 @@ from homeassistant.util import dt
 from requests.exceptions import HTTPError, RetryError
 
 from .const import (
+    ATTR_EVENT_ID,
     CALENDAR_ENTITY_ID_FORMAT,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
@@ -40,6 +41,11 @@ from .const import (
     CONST_GROUP,
     DEFAULT_OFFSET,
     DOMAIN,
+    EVENT_CREATE_CALENDAR_EVENT,
+    EVENT_HA_EVENT,
+    EVENT_MODIFY_CALENDAR_EVENT,
+    EVENT_REMOVE_CALENDAR_EVENT,
+    EVENT_RESPOND_CALENDAR_EVENT,
     LEGACY_ACCOUNT_NAME,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
@@ -319,6 +325,7 @@ class O365CalendarEntity(CalendarEntity):
             attendees,
         )
         event.save()
+        self._raise_event(EVENT_CREATE_CALENDAR_EVENT, event.object_id)
 
     def modify_calendar_event(
         self,
@@ -362,6 +369,7 @@ class O365CalendarEntity(CalendarEntity):
             attendees,
         )
         event.save()
+        self._raise_event(EVENT_MODIFY_CALENDAR_EVENT, event_id)
 
     def remove_calendar_event(self, event_id):
         """Remove the event."""
@@ -374,6 +382,7 @@ class O365CalendarEntity(CalendarEntity):
 
         event = self._get_event_from_calendar(event_id)
         event.delete()
+        self._raise_event(EVENT_REMOVE_CALENDAR_EVENT, event_id)
 
     def respond_calendar_event(
         self, event_id, response, send_response=True, message=None
@@ -387,6 +396,7 @@ class O365CalendarEntity(CalendarEntity):
             return
 
         self._send_response(event_id, response, send_response, message)
+        self._raise_event(EVENT_RESPOND_CALENDAR_EVENT, event_id)
 
     def _send_response(self, event_id, response, send_response, message):
         event = self._get_event_from_calendar(event_id)
@@ -417,6 +427,12 @@ class O365CalendarEntity(CalendarEntity):
             )
 
         return True
+
+    def _raise_event(self, event_type, event_id):
+        self.hass.bus.fire(
+            f"{DOMAIN}_{event_type}",
+            {ATTR_EVENT_ID: event_id, EVENT_HA_EVENT: True},
+        )
 
 
 class O365CalendarData:
