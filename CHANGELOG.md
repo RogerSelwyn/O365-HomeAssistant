@@ -1,5 +1,14 @@
 # Changelog
 
+
+# v4.2.2 (2023/02/09)
+### Enhancements
+- [Add importance as option for send email](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/08da2c0774f98bd6fb7abde10f97d3f523df4423) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.2.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/910942819a14a14d65b33d396dcf852ad0031dfe) - @RogerSelwyn
+- [Update service details](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/30f2eafd9aac16e0c001b0b90cc8f26a41d24de6) - @RogerSelwyn
+
 # v4.2.1 (2023/02/09)
 ### Enhancements
 - [Add regex support to calendar excludes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7cd1d397ad9b7dd577cec3898df8339c061292df) - @RogerSelwyn
@@ -13,7 +22,6 @@
 
 ### Maintenance
 - [Bump o365 from 2.0.25 to 2.0.26](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/21d8e16d99f04368bed641036c69fdd2a2f69896) - @dependabot[bot]
-- [Add ability to exclude events containing string from list](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ebe861eede9da2ffceaf5c0cc702468c1f9f46b8) - @RogerSelwyn
 - [Bump to 4.2.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/fdc2e46ff27fd8ec09f7415d7ba952311eb82e88) - @RogerSelwyn
 - [Bump O365 to 2.0.26](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/10b037e8ac54c5371291f49d43b5dffff255968d) - @RogerSelwyn
 - [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b632dc60711739bf1d978bcaf11df85aeae1fc26) - @actions-user
