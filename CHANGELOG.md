@@ -1,5 +1,12 @@
 # Changelog
 
+# v4.2.3 (2023/02/19)
+### Enhancements
+- [Add event raising for task/calendar actions. Also add ability to show completed tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/037ec04f22cbf67892e82651d82744d8747a278d) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.2.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0a9aebe0be07172116ecad1f6570e2d1ae84be0e) - @RogerSelwyn
+
 
 # v4.2.2 (2023/02/09)
 ### Enhancements
