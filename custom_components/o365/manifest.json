@@ -1,19 +1,19 @@
 {
   "domain": "o365",
   "name": "Office 365",
-  "documentation": "https://github.com/RogerSelwyn/O365-HomeAssistant",
-  "issue_tracker": "https://github.com/RogerSelwyn/O365-HomeAssistant/issues",
+  "codeowners": [
+    "@RogerSelwyn"
+  ],
   "dependencies": [
     "configurator",
     "http"
   ],
-  "codeowners": [
-    "@RogerSelwyn"
-  ],
+  "documentation": "https://github.com/RogerSelwyn/O365-HomeAssistant",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/RogerSelwyn/O365-HomeAssistant/issues",
   "requirements": [
     "O365==2.0.26",
     "BeautifulSoup4>=4.10.0"
   ],
-  "version": "v4.2.3",
-  "iot_class": "cloud_polling"
+  "version": "v4.2.3"
 }
