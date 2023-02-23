@@ -1,5 +1,17 @@
 # Changelog
 
+
+# v4.2.4 (2023/02/23)
+### Enhancements
+- [Add option to output email as html](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5981450b1f4a9f13c3e0a32b6ce7c6abdd9e5abc) - @RogerSelwyn
+
+### Maintenance
+- [Update hassfest.yaml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6cc77d6794b053e7594ce4f7b92f617ef61ea41c) - @RogerSelwyn
+- [Update hacs.yaml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/58464bca85162b685b483c4a4b51e6df0fee971b) - @RogerSelwyn
+- [Update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/950cce020d532ce9bfe7a835e3e03865add61ba4) - @RogerSelwyn
+- [Bump to v4.2.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0a68bdd4b1f6183a47cd38fe6220a5d24b10104b) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/50a4e2f274c67bc7cf73025c6c45eb6e6be16887) - @actions-user
+
 # v4.2.3 (2023/02/19)
 ### Enhancements
 - [Add event raising for task/calendar actions. Also add ability to show completed tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/037ec04f22cbf67892e82651d82744d8747a278d) - @RogerSelwyn
