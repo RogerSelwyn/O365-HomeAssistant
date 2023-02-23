@@ -379,7 +379,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
         }
 
     def _get_attributes(self, data, entity):
-        return [get_email_attributes(x, entity.download_attachments) for x in data]
+        return [
+            get_email_attributes(x, entity.download_attachments, entity.html_body)
+            for x in data
+        ]
 
     async def _async_teams_status_update(self, entity):
         """Update state."""

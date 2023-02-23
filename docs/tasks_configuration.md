@@ -23,5 +23,5 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `task_list_id` | `string` | `True` | O365 generated unique ID, DO NOT CHANGE
 `name` | `string` | `True` | The name of your sensor that you’ll see in the frontend.
-`track` | `boolean` | `False` | **True**=Create sensor entity. False=Don't create entity
-`show_completed` | `boolean` | `False` | **False**=Don't show completed items. True=Show completed items
+`track` | `boolean` | `False` | **True**=Create sensor entity. False=Don't create entity.
+`show_completed` | `boolean` | `False` | True=Show completed items. **False**=Don't show completed items.

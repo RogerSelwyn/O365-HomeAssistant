@@ -83,6 +83,19 @@ def clean_html(html):
     return html
 
 
+def safe_html(html):
+    """Make the HTML safe."""
+    blacklist = ["script", "style"]
+    soup = BeautifulSoup(html, features="html.parser")
+    if soup.find("body"):
+        for tag in soup.findAll():
+            if tag.name.lower() in blacklist:
+                # blacklisted tags are removed in their entirety
+                tag.extract()
+        return str(soup.find("body"))
+    return html
+
+
 def build_minimum_permissions(hass, config, conf_type):
     """Build the minimum permissions required to operate."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
@@ -227,11 +240,10 @@ def zip_files(filespaths, zip_name):
     return zip_name
 
 
-def get_email_attributes(mail, download_attachments):
+def get_email_attributes(mail, download_attachments, html_body):
     """Get the email attributes."""
     data = {
         "subject": mail.subject,
-        "body": clean_html(mail.body),
         "received": mail.received.strftime(DATETIME_FORMAT),
         "to": [x.address for x in mail.to],
         "cc": [x.address for x in mail.cc],
@@ -240,6 +252,11 @@ def get_email_attributes(mail, download_attachments):
         "importance": mail.importance.value,
         "is_read": mail.is_read,
     }
+    if html_body:
+        data["body"] = safe_html(mail.body)
+    else:
+        data["body"] = clean_html(mail.body)
+
     if download_attachments:
         data["attachments"] = [x.name for x in mail.attachments]
 

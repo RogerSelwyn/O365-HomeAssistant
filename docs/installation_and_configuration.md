@@ -123,6 +123,7 @@ Key | Type | Required | Description
 `max_items` | `integer` | `False` | Max number of items to retrieve (default 5)
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
+`html_body` | `boolean` | `False` | True=Output HTML body, **False**=Output plain text body
 
 #### query_sensors
 
@@ -138,6 +139,7 @@ Key | Type | Required | Description
 `subject_contains` | `string` | `False` | Only get emails where the subject contains this string (Mutually exclusive with `subject_is`)
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
+`html_body` | `boolean` | `False` | True=Output HTML body, **False**=Output plain text body
 `body_contains` | `string` | `False` | Only get emails where the body contains this string
 
 #### status_sensors (not for personal accounts)

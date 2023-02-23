@@ -19,6 +19,7 @@ from ..const import (
     CONF_CONFIG_TYPE,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_HAS_ATTACHMENT,
+    CONF_HTML_BODY,
     CONF_IMPORTANCE,
     CONF_IS_UNREAD,
     CONF_MAIL_FROM,
@@ -49,7 +50,8 @@ class O365MailSensor(O365Sensor):
         """Initialise the O365 Sensor."""
         super().__init__(coordinator, name, entity_id, SENSOR_MAIL, unique_id)
         self.mail_folder = mail_folder
-        self.download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS, True)
+        self.download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
+        self.html_body = sensor_conf.get(CONF_HTML_BODY)
         self.max_items = sensor_conf.get(CONF_MAX_ITEMS, 5)
         self.query = None
         self._config = config

@@ -65,6 +65,7 @@ from .const import (
     CONF_HAS_ATTACHMENT,
     CONF_HOURS_BACKWARD_TO_GET,
     CONF_HOURS_FORWARD_TO_GET,
+    CONF_HTML_BODY,
     CONF_IMPORTANCE,
     CONF_IS_UNREAD,
     CONF_MAIL_FOLDER,
@@ -91,7 +92,8 @@ EMAIL_SENSOR = vol.Schema(
         vol.Optional(CONF_MAIL_FOLDER): cv.string,
         vol.Optional(CONF_MAX_ITEMS, default=5): int,
         vol.Optional(CONF_IS_UNREAD): bool,
-        vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
+        vol.Optional(CONF_DOWNLOAD_ATTACHMENTS, default=True): bool,
+        vol.Optional(CONF_HTML_BODY, default=False): bool,
     }
 )
 STATUS_SENSOR = vol.Schema(
@@ -121,7 +123,8 @@ QUERY_SENSOR = vol.Schema(
         vol.Exclusive(CONF_BODY_CONTAINS, "body_*"): cv.string,
         vol.Exclusive(CONF_SUBJECT_CONTAINS, "subject_*"): cv.string,
         vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): cv.string,
-        vol.Optional(CONF_DOWNLOAD_ATTACHMENTS): bool,
+        vol.Optional(CONF_DOWNLOAD_ATTACHMENTS, default=True): bool,
+        vol.Optional(CONF_HTML_BODY, default=False): bool,
     }
 )
 TODO_SENSOR = vol.Schema(
