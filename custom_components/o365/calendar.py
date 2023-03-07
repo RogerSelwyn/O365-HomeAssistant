@@ -5,10 +5,17 @@ import re
 from copy import deepcopy
 from datetime import date, datetime, timedelta
 from operator import attrgetter, itemgetter
+from typing import Any
 
 import voluptuous as vol
 from homeassistant.components.calendar import (
+    EVENT_DESCRIPTION,
+    EVENT_END,
+    EVENT_RRULE,
+    EVENT_START,
+    EVENT_SUMMARY,
     CalendarEntity,
+    CalendarEntityFeature,
     CalendarEvent,
     extract_offset,
     is_offset_reached,
@@ -89,14 +96,24 @@ async def async_setup_platform(
     if not account.is_authenticated:
         return False
 
-    cal_ids = _setup_add_entities(hass, account, add_entities, conf)
+    update_supported = False
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
+    )
+    if conf[CONF_ENABLE_UPDATE] and validate_minimum_permission(
+        PERM_MINIMUM_CALENDAR_WRITE, permissions
+    ):
+        update_supported = True
+
+    cal_ids = _setup_add_entities(hass, account, add_entities, conf, update_supported)
     hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
-    await _async_setup_register_services(hass, conf)
+    await _async_setup_register_services(hass, update_supported)
 
     return True
 
 
-def _setup_add_entities(hass, account, add_entities, conf):
+def _setup_add_entities(hass, account, add_entities, conf, update_supported):
     yaml_filename = build_yaml_filename(conf, YAML_CALENDARS)
     yaml_filepath = build_config_file_path(hass, yaml_filename)
     check_file_location(hass, yaml_filename, yaml_filepath)
@@ -112,7 +129,13 @@ def _setup_add_entities(hass, account, add_entities, conf):
             device_id = entity["device_id"]
             try:
                 cal = O365CalendarEntity(
-                    account, cal_id, entity, entity_id, device_id, conf
+                    account,
+                    cal_id,
+                    entity,
+                    entity_id,
+                    device_id,
+                    conf,
+                    update_supported,
                 )
             except HTTPError:
                 _LOGGER.warning(
@@ -145,18 +168,12 @@ def _build_entity_id(hass, entity, conf):
     )
 
 
-async def _async_setup_register_services(hass, conf):
+async def _async_setup_register_services(hass, update_supported):
     platform = entity_platform.async_get_current_platform()
     calendar_services = CalendarServices(hass)
     await calendar_services.async_scan_for_calendars(None)
 
-    permissions = get_permissions(
-        hass,
-        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
-    )
-    if conf[CONF_ENABLE_UPDATE] and validate_minimum_permission(
-        PERM_MINIMUM_CALENDAR_WRITE, permissions
-    ):
+    if update_supported:
         platform.async_register_entity_service(
             "create_calendar_event",
             CALENDAR_SERVICE_CREATE_SCHEMA,
@@ -186,7 +203,16 @@ async def _async_setup_register_services(hass, conf):
 class O365CalendarEntity(CalendarEntity):
     """O365 Calendar Event Processing."""
 
-    def __init__(self, account, calendar_id, entity, entity_id, device_id, config):
+    def __init__(
+        self,
+        account,
+        calendar_id,
+        entity,
+        entity_id,
+        device_id,
+        config,
+        update_supported,
+    ):
         """Initialise the O365 Calendar Event."""
         self._config = config
         self._account = account
@@ -201,6 +227,10 @@ class O365CalendarEntity(CalendarEntity):
         self._calendar_id = calendar_id
         self._device_id = device_id
         self._uid_checked = False
+        if update_supported:
+            self._attr_supported_features = (
+                CalendarEntityFeature.CREATE_EVENT | CalendarEntityFeature.DELETE_EVENT
+            )
 
     def _init_data(self, account, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
@@ -287,6 +317,37 @@ class O365CalendarEntity(CalendarEntity):
         self._data_attribute.sort(key=itemgetter("start"))
         self._event = event
 
+    async def async_create_event(self, **kwargs: Any) -> None:
+        """Add a new event to calendar."""
+        start = kwargs[EVENT_START]
+        end = kwargs[EVENT_END]
+        is_all_day = True
+        if isinstance(start, datetime):
+            is_all_day = False
+        subject = kwargs[EVENT_SUMMARY]
+        body = kwargs.get(EVENT_DESCRIPTION)
+        rrule = kwargs.get(EVENT_RRULE)
+        await self.hass.async_add_executor_job(
+            ft.partial(
+                self.create_calendar_event,
+                subject,
+                start,
+                end,
+                body=body,
+                is_all_day=is_all_day,
+                rrule=rrule,
+            )
+        )
+
+    async def async_delete_event(
+        self,
+        uid: str,
+        recurrence_id: str | None = None,
+        recurrence_range: str | None = None,
+    ) -> None:
+        """Delete an event on the calendar."""
+        await self.hass.async_add_executor_job(self.remove_calendar_event, uid)
+
     def create_calendar_event(
         self,
         subject,
@@ -299,6 +360,7 @@ class O365CalendarEntity(CalendarEntity):
         show_as=None,
         is_all_day=False,
         attendees=None,
+        rrule=None,
     ):
         """Create the event."""
         if categories is None:
@@ -323,6 +385,7 @@ class O365CalendarEntity(CalendarEntity):
             show_as,
             is_all_day,
             attendees,
+            rrule,
         )
         event.save()
         self._raise_event(EVENT_CREATE_CALENDAR_EVENT, event.object_id)
@@ -340,6 +403,7 @@ class O365CalendarEntity(CalendarEntity):
         show_as=None,
         is_all_day=False,
         attendees=None,
+        rrule=None,
     ):
         """Modify the event."""
         if categories is None:
@@ -367,6 +431,7 @@ class O365CalendarEntity(CalendarEntity):
             show_as,
             is_all_day,
             attendees,
+            rrule,
         )
         event.save()
         self._raise_event(EVENT_MODIFY_CALENDAR_EVENT, event_id)
@@ -534,6 +599,7 @@ class O365CalendarData:
                 vevent.subject,
                 clean_html(vevent.body),
                 vevent.location["displayName"],
+                uid=vevent.object_id,
             )
             event_list.append(event)
 

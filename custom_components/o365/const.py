@@ -204,3 +204,20 @@ SENSOR_TODO = "todo"
 TOKEN_FILENAME = "o365{0}.token"  # nosec
 YAML_CALENDARS = "{0}_calendars{1}.yaml"
 YAML_TASK_LISTS = "{0}_tasks{1}.yaml"
+
+DAYS = {
+    "MO": "monday",
+    "TU": "tuesday",
+    "WE": "wednesday",
+    "TH": "thursday",
+    "FR": "friday",
+    "SA": "saturday",
+    "SU": "sunday",
+}
+INDEXES = {
+    "+1": "first",
+    "+2": "second",
+    "+3": "third",
+    "+4": "fourth",
+    "-1": "last",
+}

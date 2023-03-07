@@ -33,8 +33,10 @@ from .const import (
     CONST_CONFIG_TYPE_LIST,
     CONST_GROUP,
     DATETIME_FORMAT,
+    DAYS,
     DEFAULT_CACHE_PATH,
     DOMAIN,
+    INDEXES,
     O365_STORAGE,
     PERM_CALENDARS_READ,
     PERM_CALENDARS_READWRITE,
@@ -295,6 +297,7 @@ def add_call_data_to_event(
     show_as,
     is_all_day,
     attendees,
+    rrule,
 ):
     """Add the call data."""
     if subject:
@@ -339,7 +342,60 @@ def add_call_data_to_event(
 
     if sensitivity:
         event.sensitivity = sensitivity
+    if rrule:
+        _rrule_processing(event, rrule)
     return event
+
+
+def _rrule_processing(event, rrule):
+    rules = {}
+    for item in rrule.split(";"):
+        keys = item.split("=")
+        rules.update({keys[0]: keys[1]})
+
+    kwargs = {}
+    if "COUNT" in rules:
+        kwargs.update({"occurrences": int(rules["COUNT"])})
+    if "UNTIL" in rules:
+        end = datetime.strptime(rules["UNTIL"], "%Y%m%dT%H%M%S")
+        end.replace(tzinfo=event.start.tzinfo)
+        kwargs.update({"end": end})
+    interval = 1
+    if "INTERVAL" in rules:
+        interval = int(rules["INTERVAL"])
+    if "BYDAY" in rules:
+        days, index = _process_byday(rules["BYDAY"])
+        kwargs.update({"days_of_week": days})
+        if index:
+            kwargs.update({"index": index})
+
+    if rules["FREQ"] == "YEARLY":
+        kwargs.update({"day_of_month": event.start.day})
+        event.recurrence.set_yearly(interval, event.start.month, **kwargs)
+
+    if rules["FREQ"] == "MONTHLY":
+        if "BYDAY" not in rules:
+            kwargs.update({"day_of_month": event.start.day})
+        event.recurrence.set_monthly(interval, **kwargs)
+
+    if rules["FREQ"] == "WEEKLY":
+        kwargs.update({"first_day_of_week": "sunday"})
+        event.recurrence.set_weekly(interval, **kwargs)
+
+    if rules["FREQ"] == "DAILY":
+        event.recurrence.set_daily(interval, **kwargs)
+
+
+def _process_byday(byday):
+    days = []
+    for item in byday.split(","):
+        if len(item) > 2:
+            days.append(DAYS[item[2:4]])
+            index = INDEXES[item[0:2]]
+        else:
+            days.append(DAYS[item[0:2]])
+            index = None
+    return days, index
 
 
 def load_yaml_file(path, item_id, item_schema):
