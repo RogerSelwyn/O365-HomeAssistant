@@ -1,5 +1,12 @@
 # Changelog
 
+# v4.2.6 (2023/03/07)
+### Enhancements
+- [Enable recurrence delete via calendar UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/028c2763e245ca7edcabbae858e041cd39e6771b) - @RogerSelwyn
+
+### Maintenance
+- [Add information on calendar panel](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/af1c4b0598fa2517288a1b3d2d63ca0699e5a1ef) - @RogerSelwyn
+- [Bump to v4.2.6](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c3fb444afeaab1b965fc8fd5ce4291f51bc68c3a) - @RogerSelwyn
 
 # v4.2.5 (2023/03/07)
 ### Enhancements
