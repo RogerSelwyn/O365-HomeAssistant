@@ -1,6 +1,13 @@
 # Changelog
 
 
+# v4.2.5 (2023/03/07)
+### Enhancements
+- [Add ability to add/delete events via calendar UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0d078174809c991cf24ed7412e028fb62e730b85) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.2.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/216d4dc1f00e628665cbbd2189cc9fc8d0292182) - @RogerSelwyn
+
 # v4.2.4 (2023/02/23)
 ### Enhancements
 - [Add option to output email as html](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5981450b1f4a9f13c3e0a32b6ce7c6abdd9e5abc) - @RogerSelwyn
