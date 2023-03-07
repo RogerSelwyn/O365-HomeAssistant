@@ -346,7 +346,9 @@ class O365CalendarEntity(CalendarEntity):
         recurrence_range: str | None = None,
     ) -> None:
         """Delete an event on the calendar."""
-        await self.hass.async_add_executor_job(self.remove_calendar_event, uid)
+        await self.hass.async_add_executor_job(
+            self.remove_calendar_event, uid, recurrence_id, recurrence_range
+        )
 
     def create_calendar_event(
         self,
@@ -436,7 +438,7 @@ class O365CalendarEntity(CalendarEntity):
         event.save()
         self._raise_event(EVENT_MODIFY_CALENDAR_EVENT, event_id)
 
-    def remove_calendar_event(self, event_id):
+    def remove_calendar_event(self, event_id, recurrence_id, recurrence_range):
         """Remove the event."""
         if not self._validate_permissions("delete"):
             return
@@ -445,7 +447,10 @@ class O365CalendarEntity(CalendarEntity):
             _group_calendar_log(self.entity_id)
             return
 
-        event = self._get_event_from_calendar(event_id)
+        if recurrence_range:
+            event = self._get_event_from_calendar(recurrence_id)
+        else:
+            event = self._get_event_from_calendar(event_id)
         event.delete()
         self._raise_event(EVENT_REMOVE_CALENDAR_EVENT, event_id)
 
@@ -601,6 +606,8 @@ class O365CalendarData:
                 vevent.location["displayName"],
                 uid=vevent.object_id,
             )
+            if vevent.series_master_id:
+                event.recurrence_id = vevent.series_master_id
             event_list.append(event)
 
         return event_list
