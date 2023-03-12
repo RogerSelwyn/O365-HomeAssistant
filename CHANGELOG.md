@@ -1,5 +1,12 @@
 # Changelog
 
+# v4.2.7 (2023/03/12)
+### Fixes
+- [Fix issue with use of subdirectories in attachments and photos](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/417eb5c4eb8a72a6f0a13beb5404fa680ecd0987) - @RogerSelwyn
+
+### Maintenance
+- [Bump to 4.2.7](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5524fc8acf8be8f6f2624a8fe48aae6f572e3615) - @RogerSelwyn
+
 # v4.2.6 (2023/03/07)
 ### Enhancements
 - [Enable recurrence delete via calendar UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/028c2763e245ca7edcabbae858e041cd39e6771b) - @RogerSelwyn
