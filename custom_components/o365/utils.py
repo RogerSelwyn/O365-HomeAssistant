@@ -220,7 +220,7 @@ def get_ha_filepath(hass, filepath):
     """Get the file path."""
     _filepath = Path(filepath)
     if _filepath.parts[0] == "/" and _filepath.parts[1] == "config":
-        _filepath = build_config_file_path(hass, *_filepath.parts[2:])
+        _filepath = os.path.join(hass.config.config_dir, *_filepath.parts[2:])
 
     if not os.path.isfile(_filepath):
         if not os.path.isfile(filepath):
