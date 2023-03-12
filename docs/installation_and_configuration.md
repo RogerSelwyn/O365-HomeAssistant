@@ -26,7 +26,7 @@ nav_order: 4
 # Example configuration.yaml entry for multiple accounts
 o365:
   accounts:
-    - account_name: Account1
+    - account_name: Account1 # Do not use email address or spaces
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       alt_auth_method: False
