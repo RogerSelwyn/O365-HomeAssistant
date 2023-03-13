@@ -16,4 +16,11 @@ nav_order: 12
 * **The logged in user is not authorized to fetch tokens for extension 'Microsoft_AAD_RegisteredApps' because the account is not a member of tenant 'xxxx'.**
   * Please make sure you have set the Supported accounts correctly as described in the [Prerequisites](./prerequisites.md)
 
+* **No token, or token doesn't have all required permissions; requesting authorization for account: Account1 Minimum required permissions not granted: ['Presence.Read', []]**
+  * Where this error mentions `Presence.Read` or `Chat.Read` it probably means you have tried to configure a Teams Presence or Chat sensor when your account is a Personal Account (such as @outlook.com)
+  * For other items, it means you have changed your configuration to require new permissions. You will likely need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
+
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
+
+# Installation issues
+ * If your installation does not complete authentication, or the sensors are not created, please go back and ensure you have accurately followed the steps detailed, also look in the logs to see if there are any errors. 

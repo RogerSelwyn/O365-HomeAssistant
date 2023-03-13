@@ -5,19 +5,23 @@ nav_order: 4
 
 # Installation and Configuration
 ## Installation
+1. Ensure you have followed the [prerequisites instructions](./prerequisites.md)
+1. Optionally you can set up the [permissions](./permissions.md), alternatively you will be requested to approve permissions when you authenticate to MS 365.
 1. Install this integration:
     * Recommended - [Home Assistant Community Store (HACS)](https://hacs.xyz/) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
-2. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-examples) below.
-3. Restart your Home Assistant instance.
+1. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-examples) below.
+1. Restart your Home Assistant instance.
    **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
-4. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
+1. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/o365_storage/.O365-token-cache
     * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary (deprecated) configuration method) will be created under the config directory in the `o365_storage` directory.
     * If todo_sensors is enabled then `o365_tasks_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.
-5. [Configure Calendars](./calendar_configuration.md)
-6. [Configure Tasks](./tasks_configuration.md) (if required)
-7. Restart your Home Assistant instance.
+1. [Configure Calendars](./calendar_configuration.md)
+1. [Configure Tasks](./tasks_configuration.md) (if required)
+1. Restart your Home Assistant instance.
+
+**Note** If your installation does not complete authentication, or the sensors are not created, please go back and ensure you have accurately followed the steps detailed, also look in the logs to see if there are any errors. You can also look at the [errors page](./errors.md) for some other possibilities.
 
 ## Configuration examples
 
@@ -92,7 +96,7 @@ Key | Type | Required | Description
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
 `alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](./authentication.md)
 `enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the various services that allow the sending of emails and updates to calendars
-`groups` | `boolean` | `False` | If True (**default is False**), will enable support for group calendars. No discovery is performed. You will need to know how to get the group id from the MS Graph API.
+`groups` | `boolean` | `False` | If True (**default is False**), will enable support for group calendars. No discovery is performed. You will need to know how to get the group ID from the MS Graph API.
 `track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
 `email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
