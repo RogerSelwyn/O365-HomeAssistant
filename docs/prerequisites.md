@@ -26,6 +26,6 @@ To allow authentication, you first need to register your application at Azure Ap
 
 4. From the Overview page, copy the Application (client) ID.
 
-5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Copy the Value of the client secret now. It will be hidden later on.  If you lose track of the secret, return here to generate a new one.
+5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Copy the **Value** of the client secret now (not the ID), it will be hidden later on.  If you lose track of the secret, return here to generate a new one.
 
 6. Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the permissions as detailed on the [permissions page](./permissions.md).
