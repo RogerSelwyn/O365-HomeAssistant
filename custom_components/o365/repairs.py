@@ -120,11 +120,9 @@ class AuthorizationRepairFlow(RepairsFlow):
 
     async def _async_validate_response(self, user_input):
         errors = {}
-        if not self._alt_config:
-            url = user_input[CONF_URL]
-        else:
-            url = self._callback_view.token_url
-
+        url = (
+            self._callback_view.token_url if self._alt_config else user_input[CONF_URL]
+        )
         if url[:5].lower() == "http:":
             url = f"https:{url[5:]}"
         if "code" not in url:

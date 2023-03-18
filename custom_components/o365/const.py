@@ -1,5 +1,4 @@
-"""Constantants."""
-from datetime import timedelta
+"""Constants."""
 from enum import Enum
 
 
