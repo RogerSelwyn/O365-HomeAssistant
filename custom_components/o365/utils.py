@@ -184,7 +184,7 @@ def validate_permissions(
     """Validate the permissions."""
     permissions = get_permissions(hass, token_path=token_path, filename=filename)
     if not permissions:
-        return False
+        return False, None
 
     failed_permissions = []
     for minimum_perm in minimum_permissions:
