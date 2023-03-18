@@ -1,5 +1,18 @@
 # Changelog
 
+# v4.2.8 (2023/03/18)
+### Enhancements
+- [Migrate authorization to Repair UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0c6fc8c4dfe5b84d7f9cf1c43a7be6f8e3acb0fb) - @RogerSelwyn
+
+### Maintenance
+- [Update docs for installation problems](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6dc8bfc39a01ba91bda48ff47d4538503561fc24) - @RogerSelwyn
+- [Update prerequisites.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9af30e5ca0065bba47ae4cfe85d6293db6c0dacf) - @RogerSelwyn
+- [Remove redundant constants](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d59b3345a799e84648bae9cc83740c306e758149) - @RogerSelwyn
+- [Fix issue with validating token](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c874c1d3aff79bec96072f5a62c63c9054d8907e) - @RogerSelwyn
+- [Code tidy up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f95012fb0f15a03baaea28def97d9f97a4beaa5e) - @RogerSelwyn
+- [Bump to v4.2.8](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/76f0c8e73dd6019f938cf072b59318e20b77fb8c) - @RogerSelwyn
+- [Sourcery refactoring](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c20a93d3acf175dd5b1b0ec3cc38583a7d7ede53) - @RogerSelwyn
+
 # v4.2.7 (2023/03/12)
 ### Fixes
 - [Fix issue with use of subdirectories in attachments and photos](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/417eb5c4eb8a72a6f0a13beb5404fa680ecd0987) - @RogerSelwyn
