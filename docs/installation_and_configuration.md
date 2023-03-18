@@ -13,7 +13,7 @@ nav_order: 4
 1. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-examples) below.
 1. Restart your Home Assistant instance.
    **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
-1. A persistent notification will be shown in the Notifications panel of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
+1. A notification will be shown in the Repairs dialogue of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/o365_storage/.O365-token-cache
     * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary (deprecated) configuration method) will be created under the config directory in the `o365_storage` directory.
     * If todo_sensors is enabled then `o365_tasks_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.

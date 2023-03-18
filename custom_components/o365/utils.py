@@ -10,11 +10,14 @@ from pathlib import Path
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
+from homeassistant.helpers.network import get_url
 from voluptuous.error import Error as VoluptuousError
 
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 
 from .const import (
+    AUTH_CALLBACK_PATH_ALT,
+    AUTH_CALLBACK_PATH_DEFAULT,
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CAL_ID,
@@ -87,9 +90,9 @@ def clean_html(html):
 
 def safe_html(html):
     """Make the HTML safe."""
-    blacklist = ["script", "style"]
     soup = BeautifulSoup(html, features="html.parser")
     if soup.find("body"):
+        blacklist = ["script", "style"]
         for tag in soup.findAll():
             if tag.name.lower() in blacklist:
                 # blacklisted tags are removed in their entirety
@@ -183,15 +186,20 @@ def validate_permissions(
     if not permissions:
         return False
 
+    failed_permissions = []
     for minimum_perm in minimum_permissions:
         permission_granted = validate_minimum_permission(minimum_perm, permissions)
         if not permission_granted:
-            _LOGGER.warning(
-                "Minimum required permissions not granted: %s", minimum_perm
-            )
-            return False
+            failed_permissions.append(minimum_perm[0])
 
-    return True
+    if failed_permissions:
+        _LOGGER.warning(
+            "Minimum required permissions not granted: %s",
+            ", ".join(failed_permissions),
+        )
+        return False, failed_permissions
+
+    return True, None
 
 
 def validate_minimum_permission(minimum_perm, permissions):
@@ -254,11 +262,7 @@ def get_email_attributes(mail, download_attachments, html_body):
         "importance": mail.importance.value,
         "is_read": mail.is_read,
     }
-    if html_body:
-        data["body"] = safe_html(mail.body)
-    else:
-        data["body"] = clean_html(mail.body)
-
+    data["body"] = safe_html(mail.body) if html_body else clean_html(mail.body)
     if download_attachments:
         data["attachments"] = [x.name for x in mail.attachments]
 
@@ -351,35 +355,33 @@ def _rrule_processing(event, rrule):
     rules = {}
     for item in rrule.split(";"):
         keys = item.split("=")
-        rules.update({keys[0]: keys[1]})
+        rules[keys[0]] = keys[1]
 
     kwargs = {}
     if "COUNT" in rules:
-        kwargs.update({"occurrences": int(rules["COUNT"])})
+        kwargs["occurrences"] = int(rules["COUNT"])
     if "UNTIL" in rules:
         end = datetime.strptime(rules["UNTIL"], "%Y%m%dT%H%M%S")
         end.replace(tzinfo=event.start.tzinfo)
-        kwargs.update({"end": end})
-    interval = 1
-    if "INTERVAL" in rules:
-        interval = int(rules["INTERVAL"])
+        kwargs["end"] = end
+    interval = int(rules["INTERVAL"]) if "INTERVAL" in rules else 1
     if "BYDAY" in rules:
         days, index = _process_byday(rules["BYDAY"])
-        kwargs.update({"days_of_week": days})
+        kwargs["days_of_week"] = days
         if index:
-            kwargs.update({"index": index})
+            kwargs["index"] = index
 
     if rules["FREQ"] == "YEARLY":
-        kwargs.update({"day_of_month": event.start.day})
+        kwargs["day_of_month"] = event.start.day
         event.recurrence.set_yearly(interval, event.start.month, **kwargs)
 
     if rules["FREQ"] == "MONTHLY":
         if "BYDAY" not in rules:
-            kwargs.update({"day_of_month": event.start.day})
+            kwargs["day_of_month"] = event.start.day
         event.recurrence.set_monthly(interval, **kwargs)
 
     if rules["FREQ"] == "WEEKLY":
-        kwargs.update({"first_day_of_week": "sunday"})
+        kwargs["first_day_of_week"] = "sunday"
         event.recurrence.set_weekly(interval, **kwargs)
 
     if rules["FREQ"] == "DAILY":
@@ -391,9 +393,9 @@ def _process_byday(byday):
     for item in byday.split(","):
         if len(item) > 2:
             days.append(DAYS[item[2:4]])
-            index = INDEXES[item[0:2]]
+            index = INDEXES[item[:2]]
         else:
-            days.append(DAYS[item[0:2]])
+            days.append(DAYS[item[:2]])
             index = None
     return days, index
 
@@ -513,3 +515,11 @@ def check_file_location(hass, filepath, newpath):
     )
     if os.path.exists(oldpath):
         shutil.move(oldpath, newpath)
+
+
+def get_callback_url(hass, alt_config):
+    """Get the callback URL."""
+    if alt_config:
+        return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
+
+    return AUTH_CALLBACK_PATH_DEFAULT

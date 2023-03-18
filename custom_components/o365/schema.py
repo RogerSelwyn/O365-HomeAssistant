@@ -83,6 +83,7 @@ from .const import (
     CONF_TRACK,
     CONF_TRACK_NEW,
     CONF_TRACK_NEW_CALENDAR,
+    CONF_URL,
     EventResponse,
 )
 
@@ -302,3 +303,5 @@ TASK_LIST_SCHEMA = vol.Schema(
         vol.Optional(CONF_SHOW_COMPLETED, default=False): cv.boolean,
     }
 )
+
+REQUEST_AUTHORIZATION_DEFAULT_SCHEMA = {vol.Required(CONF_URL): cv.string}

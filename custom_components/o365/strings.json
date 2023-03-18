@@ -1,8 +1,31 @@
 {
   "issues": {
-    "deprecated_legacy_configuration": {
-      "title": "Deprecated Secondary/Legacy configuration method",
-      "description": "Secondary/Legacy configuration method is now deprecated and will be removed in a future release. Please migrate to the Primary configuration method. Click 'Learn More' for details on configuration. A potential configuration has been placed in the o365_storage folder."
-    }
+     "deprecated_legacy_configuration": {
+          "title": "Deprecated Secondary/Legacy configuration method",
+          "description": "Secondary/Legacy configuration method is now deprecated and will be removed in a future release. Please migrate to the Primary configuration method. Click 'Learn More' for details on configuration. A potential configuration has been placed in the o365_storage folder."
+      },
+      "authorization": {
+          "title": "Authorization Required - {account_name}",
+          "fix_flow": {
+              "error": {
+                  "invalid_url": "Error, the originating url does not seem to be a valid microsoft redirect",
+                  "minimum_permissions": "Minimum permissions not granted for account: {account_name}"
+              },
+              "step": {
+                  "request_default": {
+                      "title": "Authorization Required - {account_name}",
+                      "description": "Complete the configuration by clicking on the link and copying the returned url into this field afterwards and submit\n\n[Link O365 account]({auth_url}){failed_permissions}",
+                      "data": {
+                          "url": "Returned URL"
+                      }
+                  },
+                  "request_alt": {
+                      "title": "Authorization Required - {account_name}",
+                      "description": "To link your O365 account, click the link, login, and authorize:\n\n[Link O365 account]({auth_url}){failed_permissions}",
+                      "submit": "I authorized successfully"
+                  }
+              }
+          }
+      }
   }
 }
