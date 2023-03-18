@@ -85,7 +85,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_platform(
     hass, config, add_entities, discovery_info=None
-):  # pylint: disable=unused-argument
+):    # pylint: disable=unused-argument
     """Set up the O365 platform."""
     if discovery_info is None:
         return None
@@ -96,16 +96,16 @@ async def async_setup_platform(
     if not account.is_authenticated:
         return False
 
-    update_supported = False
     permissions = get_permissions(
         hass,
         filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
     )
-    if conf[CONF_ENABLE_UPDATE] and validate_minimum_permission(
-        PERM_MINIMUM_CALENDAR_WRITE, permissions
-    ):
-        update_supported = True
-
+    update_supported = bool(
+        conf[CONF_ENABLE_UPDATE]
+        and validate_minimum_permission(
+            PERM_MINIMUM_CALENDAR_WRITE, permissions
+        )
+    )
     cal_ids = _setup_add_entities(hass, account, add_entities, conf, update_supported)
     hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
     await _async_setup_register_services(hass, update_supported)
@@ -321,9 +321,7 @@ class O365CalendarEntity(CalendarEntity):
         """Add a new event to calendar."""
         start = kwargs[EVENT_START]
         end = kwargs[EVENT_END]
-        is_all_day = True
-        if isinstance(start, datetime):
-            is_all_day = False
+        is_all_day = not isinstance(start, datetime)
         subject = kwargs[EVENT_SUMMARY]
         body = kwargs.get(EVENT_DESCRIPTION)
         rrule = kwargs.get(EVENT_RRULE)
