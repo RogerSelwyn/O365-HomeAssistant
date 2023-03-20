@@ -68,8 +68,8 @@ async def _async_legacy_migration_repair(hass):
     url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
     message = (
         "Secondary/Legacy configuration method is now deprecated and will be "
-        + "removed in a future release. Please migrate to the Primary configuration method "
-        + "documented here - "
+        + "removed in a future release. Please migrate to the Primary configuration "
+        + "method documented here - "
         + f"{url}"
     )
     _LOGGER.warning(message)

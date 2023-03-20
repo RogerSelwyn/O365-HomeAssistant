@@ -123,6 +123,7 @@ EVENT_UPDATE_TASK = "update_task"
 EVENT_CREATE_CALENDAR_EVENT = "create_calendar_event"
 EVENT_MODIFY_CALENDAR_EVENT = "modify_calendar_event"
 EVENT_REMOVE_CALENDAR_EVENT = "remove_calendar_event"
+EVENT_REMOVE_CALENDAR_RECURRENCES = "remove_calendar_recurrences"
 EVENT_RESPOND_CALENDAR_EVENT = "respond_calendar_event"
 
 LEGACY_ACCOUNT_NAME = "converted"

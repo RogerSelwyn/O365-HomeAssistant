@@ -52,6 +52,7 @@ from .const import (
     EVENT_HA_EVENT,
     EVENT_MODIFY_CALENDAR_EVENT,
     EVENT_REMOVE_CALENDAR_EVENT,
+    EVENT_REMOVE_CALENDAR_RECURRENCES,
     EVENT_RESPOND_CALENDAR_EVENT,
     LEGACY_ACCOUNT_NAME,
     PERM_CALENDARS_READWRITE,
@@ -444,11 +445,16 @@ class O365CalendarEntity(CalendarEntity):
             return
 
         if recurrence_range:
-            event = self._get_event_from_calendar(recurrence_id)
+            self._delete_calendar_event(
+                recurrence_id, EVENT_REMOVE_CALENDAR_RECURRENCES
+            )
         else:
-            event = self._get_event_from_calendar(event_id)
+            self._delete_calendar_event(event_id, EVENT_REMOVE_CALENDAR_EVENT)
+
+    def _delete_calendar_event(self, event_id, ha_event):
+        event = self._get_event_from_calendar(event_id)
         event.delete()
-        self._raise_event(EVENT_REMOVE_CALENDAR_EVENT, event_id)
+        self._raise_event(ha_event, event_id)
 
     def respond_calendar_event(
         self, event_id, response, send_response=True, message=None
