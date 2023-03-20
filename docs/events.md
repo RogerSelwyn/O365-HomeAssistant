@@ -14,6 +14,7 @@ Events will be raised for the following items.
 - o365_create_calendar_event - Creation of a new event via the O365 integration
 - o365_modify_calendar_event - Update of an event via the O365 integration
 - o365_remove_calendar_event - Removal of an event via the O365 integration
+- o365_remove_calendar_recurrences - Removal of a recurring event series via the O365 integration
 - o365_respond_calendar_event - Response to an event via the O365 integration
 
 The events have the following general structure:
