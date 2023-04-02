@@ -571,7 +571,21 @@ class O365CalendarData:
         self, hass, calendar_schedule, start_date, end_date
     ):
         """Get the events for the calendar."""
-        query = calendar_schedule.new_query("start").greater_equal(start_date)
+        query = calendar_schedule.new_query()
+        query = query.select(
+            "subject",
+            "body",
+            "start",
+            "end",
+            "is_all_day",
+            "location",
+            "categories",
+            "sensitivity",
+            "show_as",
+            "attendees",
+            "series_master_id",
+        )
+        query = query.on_attribute("start").greater_equal(start_date)
         query.chain("and").on_attribute("end").less_equal(end_date)
         if self._search is not None:
             query.chain("and").on_attribute("subject").contains(self._search)

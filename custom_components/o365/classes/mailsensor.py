@@ -53,7 +53,23 @@ class O365MailSensor(O365Sensor):
         self.download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
         self.html_body = sensor_conf.get(CONF_HTML_BODY)
         self.max_items = sensor_conf.get(CONF_MAX_ITEMS, 5)
-        self.query = None
+        self.query = self.mail_folder.new_query()
+        self.query = self.query.select(
+            "sender",
+            "from",
+            "subject",
+            "body",
+            "receivedDateTime",
+            "toRecipients",
+            "ccRecipients",
+            "has_attachments",
+            "importance",
+            "is_read",
+        )
+        if self.download_attachments:
+            self.query = self.query.select(
+                "attachments",
+            )
         self._config = config
 
     @property
@@ -78,7 +94,6 @@ class O365QuerySensor(O365MailSensor, SensorEntity):
             coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
         )
 
-        self.query = self.mail_folder.new_query()
         self.query.order_by("receivedDateTime", ascending=False)
 
         self._build_query(sensor_conf)
@@ -138,9 +153,7 @@ class O365EmailSensor(O365MailSensor, SensorEntity):
 
         is_unread = sensor_conf.get(CONF_IS_UNREAD)
 
-        self.query = None
         if is_unread is not None:
-            self.query = self.mail_folder.new_query()
             self.query.chain("and").on_attribute("IsRead").equals(not is_unread)
 
 
