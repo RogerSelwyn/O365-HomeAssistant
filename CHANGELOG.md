@@ -3,7 +3,7 @@
 ## v4.2.9 (2023/04/03)
 ### Enhancements
 - [Improve performance by reducing retrieved data](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/822c7ab445ec52e2996f73a0b1ed6e86cddacd76) - @RogerSelwyn
-- [Add permission granularity for ToDO Tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/73cd2609544af6454dc470e8e5ffe150ac677c66) - @RogerSelwyn
+- [Add permission granularity for ToDo Tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/73cd2609544af6454dc470e8e5ffe150ac677c66) - @RogerSelwyn
 
 ### Maintenance
 - [Minor code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4dccb9ec1302570dab89de4f8e7a7a92409cc56c) - @RogerSelwyn
