@@ -34,7 +34,7 @@ o365:
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       alt_auth_method: False
-      enable_update: True
+      enable_update: False
       email_sensor:
         - name: inbox
           max_items: 2
@@ -163,6 +163,7 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `enabled` | `boolean` | `True` | True=Enables To-Do sensors, **False**=Disables To-Do sensors.
+`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services to create/update/delete tasks
 
 #### auto_reply_sensors 
 

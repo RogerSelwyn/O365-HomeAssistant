@@ -498,11 +498,12 @@ async def _async_setup_register_services(hass, config):
 
 
 async def _async_setup_task_services(hass, config):
-    if not config.get(CONF_ENABLE_UPDATE):
-        return
-
     todo_sensors = config.get(CONF_TODO_SENSORS)
-    if not todo_sensors or not todo_sensors.get(CONF_ENABLED):
+    if (
+        not todo_sensors
+        or not todo_sensors.get(CONF_ENABLED)
+        or not todo_sensors.get(CONF_ENABLE_UPDATE)
+    ):
         return
 
     sensor_services = SensorServices(hass)

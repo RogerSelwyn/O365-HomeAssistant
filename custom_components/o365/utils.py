@@ -156,7 +156,7 @@ def build_requested_permissions(config):
     if len(chat_sensors) > 0:
         scope.append(PERM_CHAT_READ)
     if todo_sensors and todo_sensors.get(CONF_ENABLED, False):
-        if enable_update:
+        if todo_sensors[CONF_ENABLE_UPDATE]:
             scope.append(PERM_TASKS_READWRITE)
         else:
             scope.append(PERM_TASKS_READ)

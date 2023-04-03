@@ -43,10 +43,13 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         super().__init__(coordinator, name, entity_id, SENSOR_TODO, unique_id)
         self.todo = todo
         self._show_completed = show_completed
-        if show_completed:
-            self.query = self.todo.new_query("status")
-        else:
-            self.query = self.todo.new_query("status").unequal("completed")
+        self.query = self.todo.new_query()
+        if not show_completed:
+            self.query = self.query.on_attribute("status").unequal("completed")
+
+        # self.query.chain("and").on_attribute("duedatetime").less_equal(
+        #     datetime.now(timezone.utc)
+        # )
         self._config = config
         self.task_last_created = dt.utcnow() - timedelta(minutes=5)
         self.task_last_completed = dt.utcnow() - timedelta(minutes=5)

@@ -14,7 +14,7 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
   * Group Calendar - For a manually added Group calendar
   * AutoReply - For Auto reply/Out of Office message configuration
 
-  If you intend to use update functionality, then set [enable_update](./installation_and_configuration.md#configuration_variables) to `true`. Then for any sensor type, add the relevant `ReadWrite` permission as denoted by a `Y` in the update column.
+  If you intend to send emails use calendar update functionality, then set [enable_update](./installation_and_configuration.md#configuration_variables) at the top level to `true`. For Todo sensors set [enable_update](installation_and_configuration.md#todo_sensors) to true. Then for any sensor type, add the relevant `ReadWrite` permission as denoted by a `Y` in the update column.
    
 
    | Feature  | Permissions           | Update | O365 Description                      | Notes |
