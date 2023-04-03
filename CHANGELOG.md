@@ -1,6 +1,6 @@
 # Changelog
 
-# v4.2.9 (2023/04/03)
+## v4.2.9 (2023/04/03)
 ### Enhancements
 - [Improve performance by reducing retrieved data](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/822c7ab445ec52e2996f73a0b1ed6e86cddacd76) - @RogerSelwyn
 - [Add permission granularity for ToDO Tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/73cd2609544af6454dc470e8e5ffe150ac677c66) - @RogerSelwyn
@@ -10,7 +10,7 @@
 - [Update events.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c2d0a835790861f575b7e7e25db17a40c4cd2a00) - @RogerSelwyn
 - [Bump to v4.2.9](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/36ec710bccab06c37612df027a0cdd401a5389ba) - @RogerSelwyn
 
-# v4.2.8 (2023/03/18)
+## v4.2.8 (2023/03/18)
 ### Enhancements
 - [Migrate authorization to Repair UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0c6fc8c4dfe5b84d7f9cf1c43a7be6f8e3acb0fb) - @RogerSelwyn
 
@@ -23,14 +23,14 @@
 - [Bump to v4.2.8](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/76f0c8e73dd6019f938cf072b59318e20b77fb8c) - @RogerSelwyn
 - [Sourcery refactoring](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c20a93d3acf175dd5b1b0ec3cc38583a7d7ede53) - @RogerSelwyn
 
-# v4.2.7 (2023/03/12)
+## v4.2.7 (2023/03/12)
 ### Fixes
 - [Fix issue with use of subdirectories in attachments and photos](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/417eb5c4eb8a72a6f0a13beb5404fa680ecd0987) - @RogerSelwyn
 
 ### Maintenance
 - [Bump to 4.2.7](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5524fc8acf8be8f6f2624a8fe48aae6f572e3615) - @RogerSelwyn
 
-# v4.2.6 (2023/03/07)
+## v4.2.6 (2023/03/07)
 ### Enhancements
 - [Enable recurrence delete via calendar UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/028c2763e245ca7edcabbae858e041cd39e6771b) - @RogerSelwyn
 
@@ -38,14 +38,14 @@
 - [Add information on calendar panel](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/af1c4b0598fa2517288a1b3d2d63ca0699e5a1ef) - @RogerSelwyn
 - [Bump to v4.2.6](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c3fb444afeaab1b965fc8fd5ce4291f51bc68c3a) - @RogerSelwyn
 
-# v4.2.5 (2023/03/07)
+## v4.2.5 (2023/03/07)
 ### Enhancements
 - [Add ability to add/delete events via calendar UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0d078174809c991cf24ed7412e028fb62e730b85) - @RogerSelwyn
 
 ### Maintenance
 - [Bump to v4.2.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/216d4dc1f00e628665cbbd2189cc9fc8d0292182) - @RogerSelwyn
 
-# v4.2.4 (2023/02/23)
+## v4.2.4 (2023/02/23)
 ### Enhancements
 - [Add option to output email as html](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5981450b1f4a9f13c3e0a32b6ce7c6abdd9e5abc) - @RogerSelwyn
 
@@ -56,7 +56,7 @@
 - [Bump to v4.2.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0a68bdd4b1f6183a47cd38fe6220a5d24b10104b) - @RogerSelwyn
 - [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/50a4e2f274c67bc7cf73025c6c45eb6e6be16887) - @actions-user
 
-# v4.2.3 (2023/02/19)
+## v4.2.3 (2023/02/19)
 ### Enhancements
 - [Add event raising for task/calendar actions. Also add ability to show completed tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/037ec04f22cbf67892e82651d82744d8747a278d) - @RogerSelwyn
 
@@ -64,7 +64,7 @@
 - [Bump to v4.2.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0a9aebe0be07172116ecad1f6570e2d1ae84be0e) - @RogerSelwyn
 
 
-# v4.2.2 (2023/02/09)
+## v4.2.2 (2023/02/09)
 ### Enhancements
 - [Add importance as option for send email](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/08da2c0774f98bd6fb7abde10f97d3f523df4423) - @RogerSelwyn
 
@@ -72,14 +72,14 @@
 - [Bump to v4.2.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/910942819a14a14d65b33d396dcf852ad0031dfe) - @RogerSelwyn
 - [Update service details](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/30f2eafd9aac16e0c001b0b90cc8f26a41d24de6) - @RogerSelwyn
 
-# v4.2.1 (2023/02/09)
+## v4.2.1 (2023/02/09)
 ### Enhancements
 - [Add regex support to calendar excludes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7cd1d397ad9b7dd577cec3898df8339c061292df) - @RogerSelwyn
 
 ### Maintenance
 - [Bump to v4.2.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/686e0332259a8fb1ae0609d1ebda65895b88859b) - @RogerSelwyn 
 
-# v4.2.0 (2023/02/08)
+## v4.2.0 (2023/02/08)
 ### Enhancements
 - [Add ability to exclude events containing string from list](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ebe861eede9da2ffceaf5c0cc702468c1f9f46b8) - @RogerSelwyn
 
@@ -89,14 +89,14 @@
 - [Bump O365 to 2.0.26](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/10b037e8ac54c5371291f49d43b5dffff255968d) - @RogerSelwyn
 - [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b632dc60711739bf1d978bcaf11df85aeae1fc26) - @actions-user
 
-# v4.1.2 (2023/01/22)
+## v4.1.2 (2023/01/22)
 ### Fixes
 - [Fix unique_id for new calendars](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7f76812cb43ae000d32e32981fcbec77d87f74ff) - @RogerSelwyn
 
 ### Maintenance
 - [Bump to v4.1.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d26ba9c4ce6cb8783b29eceb5334ab8d2f6e9b6b) - @RogerSelwyn
 
-# v4.1.1 (2023/01/22)
+## v4.1.1 (2023/01/22)
 ### Fixes
 - [Fix for non-unique unique_ids](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2f685bed0af709a157fe1fde0adc4a10bc4b417a) - @RogerSelwyn
 
@@ -104,7 +104,7 @@
 - [Update sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a0a28231c747faba123973d147c7e4ced9ae335a) - @RogerSelwyn
 - [Bump to v4.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9e9bedcf0e0db85719909a38d29fdad16fb1973c) - @RogerSelwyn
 
-# v4.1.0 (2023/01/17)
+## v4.1.0 (2023/01/17)
 ### Enhancements
 - [Add existing auto reply settings display](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/84132fabac2144d2bed7ce080f91de6c17781a5c) - @RogerSelwyn
 
@@ -112,7 +112,7 @@
 - [Bump to v4.1.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2cbbf3edf27437a8adb24c5f2661ef073dcf4e5b) - @RogerSelwyn
 - [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/63c89fc4054ae35d4f57748b7d9e01511b4a942a) - @actions-user
 
-# v4.0.8 (2023/01/10)
+## v4.0.8 (2023/01/10)
 ### Enhancements
 - [Added sensor for targeting auto-reply](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bdb4e20055fbaafdcf6e04b98e5ab2621c3e67b4) - @RogerSelwyn
 
@@ -126,7 +126,7 @@
 - [Update docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3ff2927d13bb908ce9aec5a11611eb19edc9bde8) - @RogerSelwyn
 - [Bump to v4.0.8](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a5164a6ab20ed932530ce13b3c8d2d63ebe48aca) - @RogerSelwyn
 
-# v4.0.7 (2022/12/22)
+## v4.0.7 (2022/12/22)
 ### Fixes
 - [Fix notify service name for converted accounts](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cd6b14c6c908ab67e3c7b7aaf4316243ffc10ba7) - @RogerSelwyn
 
@@ -136,13 +136,13 @@
 - [Update errors.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/898067cbd375028fd8c24b8e1c78e727cd84c8a4) - @RogerSelwyn
 - [Bump to v4.0.7](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ca9631e50f300f3de7d2731b36e4a15e0da722c8) - @RogerSelwyn
 
-# v4.0.6 (2022/12/18)
+## v4.0.6 (2022/12/18)
 ### Fixes
 - [Fix Todo Entity Names](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/27b81b0bceccd64c356b1cc737b81cb67994e87a) - @RogerSelwyn
 - [Fix Todo entity name for converted accounts](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/05ecf1a7d8489bba61676789bd90722770e42e06) - @RogerSelwyn
 
 
-# v4.0.5 (2022/12/18)
+## v4.0.5 (2022/12/18)
 ### Enhancements
 - [Add unique_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7386123d30a4a81d303f0db9965309d28b8e118d) - @RogerSelwyn
 
@@ -153,7 +153,7 @@
 - [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6bbf74c5378cf38dabb8dedc2fde7744248e708a) - @RogerSelwyn
 - [Correct unique_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/316adcb1aa27826fe13cd1582daa4ef8f773a870) - @RogerSelwyn
 
-# v4.0.4 (2022/12/14)
+## v4.0.4 (2022/12/14)
 ### Enhancements
 - Add update/delete task services
 - Add enable/disable auto reply services
