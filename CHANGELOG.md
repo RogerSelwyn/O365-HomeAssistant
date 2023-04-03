@@ -1,5 +1,15 @@
 # Changelog
 
+# v4.2.9 (2023/04/03)
+### Enhancements
+- [Improve performance by reducing retrieved data](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/822c7ab445ec52e2996f73a0b1ed6e86cddacd76) - @RogerSelwyn
+- [Add permission granularity for ToDO Tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/73cd2609544af6454dc470e8e5ffe150ac677c66) - @RogerSelwyn
+
+### Maintenance
+- [Minor code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4dccb9ec1302570dab89de4f8e7a7a92409cc56c) - @RogerSelwyn
+- [Update events.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c2d0a835790861f575b7e7e25db17a40c4cd2a00) - @RogerSelwyn
+- [Bump to v4.2.9](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/36ec710bccab06c37612df027a0cdd401a5389ba) - @RogerSelwyn
+
 # v4.2.8 (2023/03/18)
 ### Enhancements
 - [Migrate authorization to Repair UI](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0c6fc8c4dfe5b84d7f9cf1c43a7be6f8e3acb0fb) - @RogerSelwyn
