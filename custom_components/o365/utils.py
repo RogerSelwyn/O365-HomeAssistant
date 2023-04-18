@@ -4,13 +4,14 @@ import logging
 import os
 import shutil
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers.network import get_url
+from homeassistant.util import dt
 from voluptuous.error import Error as VoluptuousError
 
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
@@ -273,8 +274,8 @@ def format_event_data(event):
     """Format the event data."""
     return {
         "summary": event.subject,
-        "start": event.start,
-        "end": event.end,
+        "start": get_hass_date(event.start, event.is_all_day),
+        "end": get_hass_date(get_end_date(event), event.is_all_day),
         "all_day": event.is_all_day,
         "description": clean_html(event.body),
         "location": event.location["displayName"],
@@ -287,6 +288,31 @@ def format_event_data(event):
         ],
         "uid": event.object_id,
     }
+
+
+def get_hass_date(obj, is_all_day):
+    """Get the date."""
+    if isinstance(obj, datetime) and not is_all_day:
+        return obj
+    else:
+        return dt.as_utc(dt.start_of_local_day(obj))
+    # return obj if isinstance(obj, datetime) and not is_all_day else obj.date()
+
+
+def get_end_date(obj):
+    """Get the end date."""
+    if hasattr(obj, "end"):
+        return obj.end
+
+    if hasattr(obj, "duration"):
+        return obj.start + obj.duration.value
+
+    return obj.start + timedelta(days=1)
+
+
+def get_start_date(obj):
+    """Get the start date."""
+    return obj.start
 
 
 def add_call_data_to_event(

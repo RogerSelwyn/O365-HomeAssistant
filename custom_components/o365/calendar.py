@@ -21,6 +21,7 @@ from homeassistant.components.calendar import (
     is_offset_reached,
 )
 from homeassistant.const import CONF_NAME
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_platform, entity_registry
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
@@ -75,7 +76,10 @@ from .utils import (
     check_file_location,
     clean_html,
     format_event_data,
+    get_end_date,
+    get_hass_date,
     get_permissions,
+    get_start_date,
     load_yaml_file,
     update_calendar_file,
     validate_minimum_permission,
@@ -533,6 +537,7 @@ class O365CalendarData:
         self._exclude = exclude
         self.event = None
         self._entity_id = entity_id
+        self._error = False
 
     async def _async_get_calendar(self, hass):
         self.calendar = await hass.async_add_executor_job(
@@ -611,21 +616,26 @@ class O365CalendarData:
         if not results:
             return
         vevent_list = list(results)
-        vevent_list.sort(key=attrgetter("start"))
         event_list = []
         for vevent in vevent_list:
-            event = CalendarEvent(
-                self.get_hass_date(vevent.start, vevent.is_all_day),
-                self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
-                vevent.subject,
-                clean_html(vevent.body),
-                vevent.location["displayName"],
-                uid=vevent.object_id,
-            )
-            if vevent.series_master_id:
-                event.recurrence_id = vevent.series_master_id
-            event_list.append(event)
+            try:
+                event = CalendarEvent(
+                    get_hass_date(vevent.start, vevent.is_all_day),
+                    get_hass_date(get_end_date(vevent), vevent.is_all_day),
+                    vevent.subject,
+                    clean_html(vevent.body),
+                    vevent.location["displayName"],
+                    uid=vevent.object_id,
+                )
+                if vevent.series_master_id:
+                    event.recurrence_id = vevent.series_master_id
+                event_list.append(event)
+            except HomeAssistantError as err:
+                _LOGGER.warning(
+                    "Invalid event found - Error: %s, Event: %s", err, vevent
+                )
 
+        event_list.sort(key=attrgetter("start"))
         return event_list
 
     async def async_update(self, hass):
@@ -653,13 +663,21 @@ class O365CalendarData:
             self.event = None
             return
 
-        self.event = CalendarEvent(
-            self.get_hass_date(vevent.start, vevent.is_all_day),
-            self.get_hass_date(self.get_end_date(vevent), vevent.is_all_day),
-            vevent.subject,
-            clean_html(vevent.body),
-            vevent.location["displayName"],
-        )
+        try:
+            self.event = CalendarEvent(
+                get_hass_date(vevent.start, vevent.is_all_day),
+                get_hass_date(get_end_date(vevent), vevent.is_all_day),
+                vevent.subject,
+                clean_html(vevent.body),
+                vevent.location["displayName"],
+            )
+            self._error = False
+        except HomeAssistantError as err:
+            if not self._error:
+                _LOGGER.warning(
+                    "Invalid event found - Error: %s, Event: %s", err, vevent
+                )
+                self._error = True
 
     def _get_root_event(self, results):
         started_event = None
@@ -699,21 +717,12 @@ class O365CalendarData:
     @staticmethod
     def is_started(vevent):
         """Is it over."""
-        return dt.utcnow() >= O365CalendarData.to_datetime(
-            O365CalendarData.get_start_date(vevent)
-        )
+        return dt.utcnow() >= O365CalendarData.to_datetime(get_start_date(vevent))
 
     @staticmethod
     def is_finished(vevent):
         """Is it over."""
-        return dt.utcnow() >= O365CalendarData.to_datetime(
-            O365CalendarData.get_end_date(vevent)
-        )
-
-    @staticmethod
-    def get_hass_date(obj, is_all_day):
-        """Get the date."""
-        return obj if isinstance(obj, datetime) and not is_all_day else obj.date()
+        return dt.utcnow() >= O365CalendarData.to_datetime(get_end_date(vevent))
 
     @staticmethod
     def to_datetime(obj):
@@ -733,22 +742,6 @@ class O365CalendarData:
         else:
             date_obj = dt.as_local(dt.parse_datetime(obj["dateTime"]))
         return dt.as_utc(date_obj)
-
-    @staticmethod
-    def get_end_date(obj):
-        """Get the end date."""
-        if hasattr(obj, "end"):
-            return obj.end
-
-        if hasattr(obj, "duration"):
-            return obj.start + obj.duration.value
-
-        return obj.start + timedelta(days=1)
-
-    @staticmethod
-    def get_start_date(obj):
-        """Get the start date."""
-        return obj.start
 
 
 class CalendarServices:

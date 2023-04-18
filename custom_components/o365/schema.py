@@ -10,11 +10,9 @@ from homeassistant.components.notify import (
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 
-from O365.calendar import (
-    AttendeeType,  # pylint: disable=no-name-in-module
-    EventSensitivity,  # pylint: disable=no-name-in-module
-    EventShowAs,  # pylint: disable=no-name-in-module
-)
+from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
+from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
+from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
