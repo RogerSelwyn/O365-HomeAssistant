@@ -1,5 +1,14 @@
 # Changelog
 
+## v4.2.10 (2023/04/24)
+### Enhancements
+- [Add service to mark task complete/incomplete](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6b6f1da3f0f022a9b9fed77e624b3d29b3729bc4) - @RogerSelwyn
+### Fixes
+- [Handle errors raised by core CalendarEvent](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f194d4d930eabc74963bfc001635c9053489ce7a) - @RogerSelwyn
+### Maintenance
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4d3d14bc472807b567594413f6e8d53b26f5a377) - @RogerSelwyn
+- [Bump to v4.2.10](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2a9f2d827a03dd9b51d9639d436c2c7cb0fa4e47) - @RogerSelwyn
+
 ## v4.2.9 (2023/04/03)
 ### Enhancements
 - [Improve performance by reducing retrieved data](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/822c7ab445ec52e2996f73a0b1ed6e86cddacd76) - @RogerSelwyn
