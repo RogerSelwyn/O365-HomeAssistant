@@ -63,6 +63,7 @@ from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
     AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
     TASK_LIST_SCHEMA,
+    TASK_SERVICE_COMPLETE_SCHEMA,
     TASK_SERVICE_DELETE_SCHEMA,
     TASK_SERVICE_NEW_SCHEMA,
     TASK_SERVICE_UPDATE_SCHEMA,
@@ -531,6 +532,11 @@ async def _async_setup_task_services(hass, config):
             "delete_task",
             TASK_SERVICE_DELETE_SCHEMA,
             "delete_task",
+        )
+        platform.async_register_entity_service(
+            "complete_task",
+            TASK_SERVICE_COMPLETE_SCHEMA,
+            "complete_task",
         )
 
 

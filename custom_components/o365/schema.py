@@ -21,6 +21,7 @@ from .const import (
     ATTR_ATTENDEES,
     ATTR_BODY,
     ATTR_CATEGORIES,
+    ATTR_COMPLETED,
     ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_EMAIL,
@@ -260,6 +261,10 @@ TASK_SERVICE_UPDATE_SCHEMA = {
 
 TASK_SERVICE_DELETE_SCHEMA = {
     vol.Required(ATTR_TASK_ID): cv.string,
+}
+TASK_SERVICE_COMPLETE_SCHEMA = {
+    vol.Required(ATTR_TASK_ID): cv.string,
+    vol.Required(ATTR_COMPLETED): bool,
 }
 
 AUTO_REPLY_SERVICE_ENABLE_SCHEMA = {

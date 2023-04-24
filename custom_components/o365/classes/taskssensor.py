@@ -19,9 +19,11 @@ from ..const import (
     CONF_CONFIG_TYPE,
     DATETIME_FORMAT,
     DOMAIN,
+    EVENT_COMPLETED_TASK,
     EVENT_DELETE_TASK,
     EVENT_HA_EVENT,
     EVENT_NEW_TASK,
+    EVENT_UNCOMPLETED_TASK,
     EVENT_UPDATE_TASK,
     PERM_MINIMUM_TASKS_WRITE,
     PERM_TASKS_READWRITE,
@@ -47,8 +49,8 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         if not show_completed:
             self.query = self.query.on_attribute("status").unequal("completed")
 
-        # self.query.chain("and").on_attribute("duedatetime").less_equal(
-        #     datetime.now(timezone.utc)
+        # self.query.chain("and").on_attribute("due").less_equal(
+        #     datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         # )
         self._config = config
         self.task_last_created = dt.utcnow() - timedelta(minutes=5)
@@ -129,6 +131,35 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         task.delete()
         self._raise_event(EVENT_DELETE_TASK, task_id)
         return True
+
+    def complete_task(self, task_id, completed):
+        """Complete task for this task list."""
+        if not self._validate_permissions():
+            return False
+
+        task = self.todo.get_task(task_id)
+        if completed:
+            self._complete_task(task, task_id)
+        else:
+            self._uncomplete_task(task, task_id)
+
+        return True
+
+    def _complete_task(self, task, task_id):
+        if task.completed:
+            raise vol.Invalid("Task is already completed")
+        task.mark_completed()
+        task.save()
+        self._raise_event(EVENT_COMPLETED_TASK, task_id)
+        task = self.todo.get_task(task_id)
+        self.task_last_completed = task.completed
+
+    def _uncomplete_task(self, task, task_id):
+        if not task.completed:
+            raise vol.Invalid("Task has not been completed previously")
+        task.mark_uncompleted()
+        task.save()
+        self._raise_event(EVENT_UNCOMPLETED_TASK, task_id)
 
     def _save_task(self, task, subject, description, due, reminder):
         # sourcery skip: raise-from-previous-error

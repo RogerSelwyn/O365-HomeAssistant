@@ -90,6 +90,8 @@ Create a new To-Do Task - All parameters are shown in the available parameter li
 Update a To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
 ### o365.delete_task
 Delete a To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.complete_task
+(Un)complete a To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
 ### o365.scan_for_task_lists
 Scan for new task lists and add to o365_tasks.yaml - No parameters.
 

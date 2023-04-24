@@ -353,6 +353,31 @@ delete_task:
       selector:
         text:
 
+complete_task:
+  name: Complete a task/ToDo
+  description: Complete a new task/ToDo
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    task_id:
+      name: Task ID
+      description: ID for the task, can be found as an attribute on your task
+      example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
+    completed:
+      name: Completed
+      description: Set whether task is completed or not
+      example: True
+      required: true
+      selector:
+        boolean:
+
 auto_reply_enable:
   name: Auto reply enable
   description: Schedules auto reply

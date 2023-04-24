@@ -118,6 +118,7 @@ EVENT_HA_EVENT = "ha_event"
 EVENT_COMPLETED_TASK = "completed_task"
 EVENT_DELETE_TASK = "delete_task"
 EVENT_NEW_TASK = "new_task"
+EVENT_UNCOMPLETED_TASK = "uncompleted_task"
 EVENT_UPDATE_TASK = "update_task"
 
 EVENT_CREATE_CALENDAR_EVENT = "create_calendar_event"

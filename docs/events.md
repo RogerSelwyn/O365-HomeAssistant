@@ -40,7 +40,8 @@ Events will be raised for the following items.
 - o365_new_task - New task created either by the O365 integration or via some external app
 - o365_update_task - Update of a task via the O365 integration
 - o365_delete_task - Deletion of a task via the O365 integration
-- o365_completed_task - Task marked complete via some external app
+- o365_completed_task - Task marked complete either by the O365 integration or via some external app
+- o365_uncompleted_task - Task marked incomplete via the O365 integration
 
 It should be noted that actions occurring external to HA are identified via a 30-second poll, so will very likely be delayed by up to that time. Any new task or completed task occurring within 5 minutes before HA restart will very likely have a new event sent after the restart.
 
