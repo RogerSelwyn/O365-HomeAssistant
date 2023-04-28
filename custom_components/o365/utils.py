@@ -332,21 +332,27 @@ def add_call_data_to_event(
     rrule,
 ):
     """Add the call data."""
-    if subject:
-        event.subject = subject
+    event.subject = _add_attribute(subject, event.subject)
+    event.body = _add_attribute(body, event.body)
+    event.location = _add_attribute(location, event.location)
+    event.categories = _add_attribute(categories, event.categories)
+    event.show_as = _add_attribute(show_as, event.show_as)
+    event.start = _add_attribute(start, event.start)
+    event.end = _add_attribute(end, event.end)
+    event.sensitivity = _add_attribute(sensitivity, event.sensitivity)
+    _add_attendees(attendees, event)
+    _add_all_day(is_all_day, event)
 
-    if body:
-        event.body = body
+    if rrule:
+        _rrule_processing(event, rrule)
+    return event
 
-    if location:
-        event.location = location
 
-    if categories:
-        event.categories = categories
+def _add_attribute(attribute, event_attribute):
+    return attribute or event_attribute
 
-    if show_as:
-        event.show_as = show_as
 
+def _add_attendees(attendees, event):
     if attendees:
         event.attendees.clear()
         event.attendees.add(
@@ -356,12 +362,8 @@ def add_call_data_to_event(
             ]
         )
 
-    if start:
-        event.start = start
 
-    if end:
-        event.end = end
-
+def _add_all_day(is_all_day, event):
     if is_all_day is not None:
         event.is_all_day = is_all_day
         if event.is_all_day:
@@ -371,12 +373,6 @@ def add_call_data_to_event(
             event.end = datetime(
                 event.end.year, event.end.month, event.end.day, 0, 0, 0
             )
-
-    if sensitivity:
-        event.sensitivity = sensitivity
-    if rrule:
-        _rrule_processing(event, rrule)
-    return event
 
 
 def _rrule_processing(event, rrule):
