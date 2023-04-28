@@ -10,6 +10,7 @@ from pathlib import Path
 import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
+from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.network import get_url
 from homeassistant.util import dt
 from voluptuous.error import Error as VoluptuousError
@@ -63,6 +64,7 @@ from .const import (
     PERM_TASKS_READ,
     PERM_TASKS_READWRITE,
     PERM_USER_READ,
+    SENSOR_ENTITY_ID_FORMAT,
     TOKEN_FILENAME,
     YAML_CALENDARS,
 )
@@ -549,3 +551,12 @@ def get_callback_url(hass, alt_config):
         return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
 
     return AUTH_CALLBACK_PATH_DEFAULT
+
+
+def build_entity_id(hass, name):
+    """Build and entity ID."""
+    return async_generate_entity_id(
+        SENSOR_ENTITY_ID_FORMAT,
+        name,
+        hass=hass,
+    )

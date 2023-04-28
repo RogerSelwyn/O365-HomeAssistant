@@ -20,7 +20,7 @@ class O365TeamsSensor(O365Sensor):
 
     def __init__(self, cordinator, account, name, entity_id, entity_type, unique_id):
         """Initialise the Teams Sensor."""
-        super().__init__(cordinator, name, entity_id, entity_type, unique_id)
+        super().__init__(cordinator, None, name, entity_id, entity_type, unique_id)
         self.teams = account.teams()
 
     @property

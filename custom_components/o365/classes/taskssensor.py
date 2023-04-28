@@ -16,7 +16,7 @@ from ..const import (
     ATTR_SUBJECT,
     ATTR_TASK_ID,
     ATTR_TASKS,
-    CONF_CONFIG_TYPE,
+    CONF_SHOW_COMPLETED,
     DATETIME_FORMAT,
     DOMAIN,
     EVENT_COMPLETED_TASK,
@@ -29,7 +29,6 @@ from ..const import (
     PERM_TASKS_READWRITE,
     SENSOR_TODO,
 )
-from ..utils import build_token_filename, get_permissions, validate_minimum_permission
 from .sensorentity import O365Sensor
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,21 +37,18 @@ _LOGGER = logging.getLogger(__name__)
 class O365TasksSensor(O365Sensor, SensorEntity):
     """O365 Tasks sensor processing."""
 
-    def __init__(
-        self, coordinator, todo, name, entity_id, config, unique_id, show_completed
-    ):
+    def __init__(self, coordinator, todo, name, task, config, entity_id, unique_id):
         """Initialise the Tasks Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_TODO, unique_id)
+        super().__init__(coordinator, config, name, entity_id, SENSOR_TODO, unique_id)
         self.todo = todo
-        self._show_completed = show_completed
+        self._show_completed = task.get(CONF_SHOW_COMPLETED)
         self.query = self.todo.new_query()
-        if not show_completed:
+        if not self._show_completed:
             self.query = self.query.on_attribute("status").unequal("completed")
 
         # self.query.chain("and").on_attribute("due").less_equal(
         #     datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         # )
-        self._config = config
         self.task_last_created = dt.utcnow() - timedelta(minutes=5)
         self.task_last_completed = dt.utcnow() - timedelta(minutes=5)
 
@@ -101,7 +97,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
 
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
-        if not self._validate_permissions():
+        if not self._validate_task_permissions():
             return False
 
         new_task = self.todo.new_task()
@@ -114,7 +110,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         self, task_id, subject=None, description=None, due=None, reminder=None
     ):
         """Update a task for this task list."""
-        if not self._validate_permissions():
+        if not self._validate_task_permissions():
             return False
 
         task = self.todo.get_task(task_id)
@@ -124,7 +120,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
 
     def delete_task(self, task_id):
         """Delete task for this task list."""
-        if not self._validate_permissions():
+        if not self._validate_task_permissions():
             return False
 
         task = self.todo.get_task(task_id)
@@ -134,7 +130,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
 
     def complete_task(self, task_id, completed):
         """Complete task for this task list."""
-        if not self._validate_permissions():
+        if not self._validate_task_permissions():
             return False
 
         task = self.todo.get_task(task_id)
@@ -189,16 +185,8 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         )
         _LOGGER.debug("%s - %s", event_type, task_id)
 
-    def _validate_permissions(self):
-        permissions = get_permissions(
-            self.hass,
-            filename=build_token_filename(
-                self._config, self._config.get(CONF_CONFIG_TYPE)
-            ),
+    def _validate_task_permissions(self):
+        return self._validate_permissions(
+            PERM_MINIMUM_TASKS_WRITE,
+            f"Not authorisied to create new task - requires permission: {PERM_TASKS_READWRITE}",
         )
-        if not validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
-            raise vol.Invalid(
-                f"Not authorisied to create new task - requires permission: {PERM_TASKS_READWRITE}"
-            )
-
-        return True

@@ -1,7 +1,6 @@
 """O365 mail sensors."""
 import datetime
 
-import voluptuous as vol
 from homeassistant.components.sensor import SensorEntity
 
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
@@ -16,7 +15,6 @@ from ..const import (
     ATTR_START,
     CONF_ACCOUNT,
     CONF_BODY_CONTAINS,
-    CONF_CONFIG_TYPE,
     CONF_DOWNLOAD_ATTACHMENTS,
     CONF_HAS_ATTACHMENT,
     CONF_HTML_BODY,
@@ -32,12 +30,7 @@ from ..const import (
     SENSOR_AUTO_REPLY,
     SENSOR_MAIL,
 )
-from ..utils import (
-    build_token_filename,
-    clean_html,
-    get_permissions,
-    validate_minimum_permission,
-)
+from ..utils import clean_html
 from .sensorentity import O365Sensor
 
 
@@ -48,7 +41,7 @@ class O365MailSensor(O365Sensor):
         self, coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id
     ):
         """Initialise the O365 Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_MAIL, unique_id)
+        super().__init__(coordinator, config, name, entity_id, SENSOR_MAIL, unique_id)
         self.mail_folder = mail_folder
         self.download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
         self.html_body = sensor_conf.get(CONF_HTML_BODY)
@@ -160,9 +153,11 @@ class O365EmailSensor(O365MailSensor, SensorEntity):
 class O365AutoReplySensor(O365Sensor, SensorEntity):
     """O365 Auto Reply sensor processing."""
 
-    def __init__(self, coordinator, name, entity_id, config, unqique_id):
+    def __init__(self, coordinator, name, entity_id, config, unique_id):
         """Initialise the Auto reply Sensor."""
-        super().__init__(coordinator, name, entity_id, SENSOR_AUTO_REPLY, unqique_id)
+        super().__init__(
+            coordinator, config, name, entity_id, SENSOR_AUTO_REPLY, unique_id
+        )
         self._config = config
         account = self._config[CONF_ACCOUNT]
         self.mailbox = account.mailbox()
@@ -193,7 +188,7 @@ class O365AutoReplySensor(O365Sensor, SensorEntity):
         external_audience=ExternalAudience.ALL,
     ):
         """Enable out of office autoreply."""
-        if not self._validate_permissions():
+        if not self._validate_autoreply_permissions():
             return
 
         self.mailbox.set_automatic_reply(
@@ -202,22 +197,14 @@ class O365AutoReplySensor(O365Sensor, SensorEntity):
 
     def auto_reply_disable(self):
         """Disable out of office autoreply."""
-        if not self._validate_permissions():
+        if not self._validate_autoreply_permissions():
             return
 
         self.mailbox.set_disable_reply()
 
-    def _validate_permissions(self):
-        permissions = get_permissions(
-            self.hass,
-            filename=build_token_filename(
-                self._config, self._config.get(CONF_CONFIG_TYPE)
-            ),
+    def _validate_autoreply_permissions(self):
+        return self._validate_permissions(
+            PERM_MINIMUM_MAILBOX_SETTINGS,
+            "Not authorisied to update auto reply - requires permission: "
+            + f"{PERM_MAILBOX_SETTINGS}",
         )
-        if not validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
-            raise vol.Invalid(
-                "Not authorisied to update auto reply - requires permission: "
-                + f"{PERM_MAILBOX_SETTINGS}"
-            )
-
-        return True

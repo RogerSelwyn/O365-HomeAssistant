@@ -6,7 +6,6 @@ from operator import itemgetter
 
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
-from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
@@ -38,7 +37,6 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_MAIL_FOLDER,
     CONF_QUERY_SENSORS,
-    CONF_SHOW_COMPLETED,
     CONF_STATUS_SENSORS,
     CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
@@ -52,7 +50,6 @@ from .const import (
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
     SENSOR_AUTO_REPLY,
-    SENSOR_ENTITY_ID_FORMAT,
     SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
@@ -70,6 +67,7 @@ from .schema import (
 )
 from .utils import (
     build_config_file_path,
+    build_entity_id,
     build_token_filename,
     build_yaml_filename,
     get_email_attributes,
@@ -158,11 +156,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             if mail_folder := await self._async_get_mail_folder(
                 sensor_conf, CONF_EMAIL_SENSORS
             ):
-                entity_id = async_generate_entity_id(
-                    SENSOR_ENTITY_ID_FORMAT,
-                    name,
-                    hass=self.hass,
-                )
+                entity_id = build_entity_id(self.hass, name)
                 unique_id = f"{mail_folder.folder_id}_{self._account_name}"
                 emailsensor = O365EmailSensor(
                     self,
@@ -189,11 +183,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 sensor_conf, CONF_QUERY_SENSORS
             ):
                 name = sensor_conf.get(CONF_NAME)
-                entity_id = async_generate_entity_id(
-                    SENSOR_ENTITY_ID_FORMAT,
-                    name,
-                    hass=self.hass,
-                )
+                entity_id = build_entity_id(self.hass, name)
                 unique_id = f"{mail_folder.folder_id}_{self._account_name}"
                 querysensor = O365QuerySensor(
                     self,
@@ -212,11 +202,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         for sensor_conf in status_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = async_generate_entity_id(
-                SENSOR_ENTITY_ID_FORMAT,
-                name,
-                hass=self.hass,
-            )
+            entity_id = build_entity_id(self.hass, name)
             unique_id = f"{name}_{self._account_name}"
             teams_status_sensor = O365TeamsStatusSensor(
                 self, self._account, name, entity_id, unique_id
@@ -229,11 +215,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         for sensor_conf in chat_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = async_generate_entity_id(
-                SENSOR_ENTITY_ID_FORMAT,
-                name,
-                hass=self.hass,
-            )
+            entity_id = build_entity_id(self.hass, name)
             unique_id = f"{name}_{self._account_name}"
             teams_chat_sensor = O365TeamsChatSensor(
                 self, self._account, name, entity_id, unique_id
@@ -262,16 +244,15 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         tasks = self._account.tasks()
         for task in task_lists:
+            track = task.get(CONF_TRACK)
+            if not track:
+                continue
+
+            task_list_id = task.get(CONF_TASK_LIST_ID)
             if self._account_name != LEGACY_ACCOUNT_NAME:
                 name = f"{task.get(CONF_NAME)} {self._account_name}"
             else:
                 name = task.get(CONF_NAME)
-            track = task.get(CONF_TRACK)
-            show_completed = task.get(CONF_SHOW_COMPLETED)
-            task_list_id = task.get(CONF_TASK_LIST_ID)
-            entity_id = _build_entity_id(self.hass, name, self._config)
-            if not track:
-                continue
             try:
                 todo = (
                     await self.hass.async_add_executor_job(  # pylint: disable=no-member
@@ -281,9 +262,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
+                entity_id = build_entity_id(self.hass, name)
                 unique_id = f"{task_list_id}_{self._account_name}"
                 todo_sensor = O365TasksSensor(
-                    self, todo, name, entity_id, config, unique_id, show_completed
+                    self, todo, name, task, config, entity_id, unique_id
                 )
                 entities.append(todo_sensor)
             except HTTPError:
@@ -299,11 +281,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         for sensor_conf in auto_reply_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = async_generate_entity_id(
-                SENSOR_ENTITY_ID_FORMAT,
-                name,
-                hass=self.hass,
-            )
+            entity_id = build_entity_id(self.hass, name)
             unique_id = f"{name}_{self._account_name}"
             auto_reply_sensor = O365AutoReplySensor(
                 self, name, entity_id, self._config, unique_id
@@ -483,14 +461,6 @@ class O365SensorCordinator(DataUpdateCoordinator):
             {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
         )
         _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
-
-
-def _build_entity_id(hass, name, conf):
-    return async_generate_entity_id(
-        SENSOR_ENTITY_ID_FORMAT,
-        f"{name}_{conf[CONF_ACCOUNT_NAME]}",
-        hass=hass,
-    )
 
 
 async def _async_setup_register_services(hass, config):
