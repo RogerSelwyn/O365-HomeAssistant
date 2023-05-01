@@ -11,15 +11,12 @@ import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers.entity import async_generate_entity_id
-from homeassistant.helpers.network import get_url
 from homeassistant.util import dt
 from voluptuous.error import Error as VoluptuousError
 
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 
 from .const import (
-    AUTH_CALLBACK_PATH_ALT,
-    AUTH_CALLBACK_PATH_DEFAULT,
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CAL_ID,
@@ -539,14 +536,6 @@ def check_file_location(hass, filepath, newpath):
     )
     if os.path.exists(oldpath):
         shutil.move(oldpath, newpath)
-
-
-def get_callback_url(hass, alt_config):
-    """Get the callback URL."""
-    if alt_config:
-        return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
-
-    return AUTH_CALLBACK_PATH_DEFAULT
 
 
 def build_entity_id(hass, name):

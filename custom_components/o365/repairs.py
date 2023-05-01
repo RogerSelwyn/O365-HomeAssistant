@@ -9,10 +9,12 @@ from homeassistant import data_entry_flow
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.components.repairs import RepairsFlow  # ConfirmRepairFlow,
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.network import get_url
 
 from .const import (
     AUTH_CALLBACK_NAME,
     AUTH_CALLBACK_PATH_ALT,
+    AUTH_CALLBACK_PATH_DEFAULT,
     CONF_ACCOUNT,
     CONF_ACCOUNT_CONF,
     CONF_ACCOUNT_NAME,
@@ -28,7 +30,6 @@ from .utils import (
     build_minimum_permissions,
     build_requested_permissions,
     build_token_filename,
-    get_callback_url,
     validate_permissions,
 )
 
@@ -185,3 +186,11 @@ class O365AuthCallbackView(HomeAssistantView):
             headers={"content-type": "text/html"},
             text="<script>window.close()</script>This window can be closed",
         )
+
+
+def get_callback_url(hass, alt_config):
+    """Get the callback URL."""
+    if alt_config:
+        return f"{get_url(hass, prefer_external=True)}{AUTH_CALLBACK_PATH_ALT}"
+
+    return AUTH_CALLBACK_PATH_DEFAULT
