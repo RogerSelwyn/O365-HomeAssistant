@@ -48,6 +48,8 @@ from .const import (
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
     CONF_ACCOUNT_NAME,
+    CONF_DUE_HOURS_BACKWARD_TO_GET,
+    CONF_DUE_HOURS_FORWARD_TO_GET,
     CONF_ACCOUNTS,
     CONF_ALT_AUTH_METHOD,
     CONF_AUTO_REPLY_SENSORS,
@@ -307,6 +309,8 @@ TASK_LIST_SCHEMA = vol.Schema(
         vol.Required(CONF_NAME): cv.string,
         vol.Optional(CONF_TRACK, default=True): cv.boolean,
         vol.Optional(CONF_SHOW_COMPLETED, default=False): cv.boolean,
+        vol.Optional(CONF_DUE_HOURS_FORWARD_TO_GET): int,
+        vol.Optional(CONF_DUE_HOURS_BACKWARD_TO_GET): int,
     }
 )
 

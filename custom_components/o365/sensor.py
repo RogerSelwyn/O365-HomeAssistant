@@ -1,6 +1,7 @@
 """Sensor processing."""
 import functools as ft
 import logging
+from copy import deepcopy
 from datetime import datetime, timedelta
 from operator import itemgetter
 
@@ -405,13 +406,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
         else:
             self._data[entity.entity_key] = {ATTR_TASKS: {}, ATTR_STATE: 0}
             error = False
-        try:
-            data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
-                ft.partial(entity.todo.get_tasks, batch=100, query=entity.query)
-            )
-            if error:
-                _LOGGER.info("Task list reconnected for: %s", entity.name)
-                error = False
+        data, error = await self._async_todos_update_query(entity, error)
+        if not error:
             tasks = list(data)
             self._data[entity.entity_key][ATTR_TASKS] = tasks
             self._data[entity.entity_key][ATTR_STATE] = len(tasks)
@@ -438,6 +434,30 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 entity.task_last_completed = task_last_completed
             if task_last_created > self._zero_date:
                 entity.task_last_created = task_last_created
+
+        self._data[entity.entity_key][ATTR_ERROR] = error
+
+    async def _async_todos_update_query(self, entity, error):
+        data = None
+        full_query = deepcopy(entity.query)
+        if entity.start_offset:
+            start = dt.utcnow() + timedelta(hours=entity.start_offset)
+            full_query.chain("and").on_attribute("due").greater_equal(
+                start.strftime("%Y-%m-%dT%H:%M:%S")
+            )
+        if entity.end_offset:
+            end = dt.utcnow() + timedelta(hours=entity.end_offset)
+            full_query.chain("and").on_attribute("due").less_equal(
+                end.strftime("%Y-%m-%dT%H:%M:%S")
+            )
+
+        try:
+            data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+                ft.partial(entity.todo.get_tasks, batch=100, query=full_query)
+            )
+            if error:
+                _LOGGER.info("Task list reconnected for: %s", entity.name)
+                error = False
         except HTTPError:
             if not error:
                 _LOGGER.error(
@@ -445,7 +465,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     entity.name,
                 )
                 error = True
-        self._data[entity.entity_key][ATTR_ERROR] = error
+
+        return data, error
 
     async def _async_auto_reply_update(self, entity):
         """Update state."""

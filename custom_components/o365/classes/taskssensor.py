@@ -16,6 +16,8 @@ from ..const import (
     ATTR_SUBJECT,
     ATTR_TASK_ID,
     ATTR_TASKS,
+    CONF_DUE_HOURS_BACKWARD_TO_GET,
+    CONF_DUE_HOURS_FORWARD_TO_GET,
     CONF_SHOW_COMPLETED,
     DATETIME_FORMAT,
     DOMAIN,
@@ -45,10 +47,9 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         self.query = self.todo.new_query()
         if not self._show_completed:
             self.query = self.query.on_attribute("status").unequal("completed")
+        self.start_offset = task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
+        self.end_offset = task.get(CONF_DUE_HOURS_FORWARD_TO_GET)
 
-        # self.query.chain("and").on_attribute("due").less_equal(
-        #     datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-        # )
         self.task_last_created = dt.utcnow() - timedelta(minutes=5)
         self.task_last_completed = dt.utcnow() - timedelta(minutes=5)
 
