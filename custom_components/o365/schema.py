@@ -75,6 +75,7 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     CONF_MAX_RESULTS,
     CONF_QUERY_SENSORS,
     CONF_SEARCH,
+    CONF_SHARED_MAILBOX,
     CONF_SHOW_COMPLETED,
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
@@ -169,6 +170,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
                     vol.Optional(CONF_TODO_SENSORS): TODO_SENSOR,
                     vol.Optional(CONF_AUTO_REPLY_SENSORS): [AUTO_REPLY_SENSOR],
+                    vol.Optional(CONF_SHARED_MAILBOX): cv.string,
                 }
             ]
         )
