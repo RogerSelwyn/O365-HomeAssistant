@@ -15,6 +15,7 @@ from .const import (
     CONF_ACCOUNT_CONF,
     CONF_ACCOUNT_NAME,
     CONF_ACCOUNTS,
+    CONF_SHARED_MAILBOX,
     CONF_CHAT_SENSORS,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
@@ -127,6 +128,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
         account_conf.get(CONF_CLIENT_SECRET),
     )
     account_name = account_conf.get(CONF_ACCOUNT_NAME, CONST_PRIMARY)
+    main_resource = account_conf.get(CONF_SHARED_MAILBOX, None)
 
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_file = build_token_filename(account_conf, conf_type)
@@ -143,6 +145,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
             credentials,
             token_backend=token_backend,
             timezone=CONST_UTC_TIMEZONE,
+            main_resource=main_resource,
         )
     )
     is_authenticated = account.is_authenticated
