@@ -170,7 +170,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
                     vol.Optional(CONF_TODO_SENSORS): TODO_SENSOR,
                     vol.Optional(CONF_AUTO_REPLY_SENSORS): [AUTO_REPLY_SENSOR],
-                    vol.Optional(CONF_SHARED_MAILBOX): cv.string,
+                    vol.Optional(CONF_SHARED_MAILBOX, None): cv.string,
                 }
             ]
         )
