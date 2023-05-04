@@ -16,7 +16,7 @@ from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
-from .const import (
+from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_TO_GET,
     ATTR_ATTACHMENTS,
     ATTR_ATTENDEES,
     ATTR_BODY,
@@ -168,7 +168,6 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
                     vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
                     vol.Optional(CONF_TODO_SENSORS): TODO_SENSOR,
-                    vol.Optional(CONF_AUTO_REPLY_SENSORS): [AUTO_REPLY_SENSOR],
                 }
             ]
         )
@@ -307,6 +306,8 @@ TASK_LIST_SCHEMA = vol.Schema(
         vol.Required(CONF_NAME): cv.string,
         vol.Optional(CONF_TRACK, default=True): cv.boolean,
         vol.Optional(CONF_SHOW_COMPLETED, default=False): cv.boolean,
+        # vol.Optional(CONF_DUE_HOURS_FORWARD_TO_GET): int,
+        # vol.Optional(CONF_DUE_HOURS_BACKWARD_TO_GET): int,
     }
 )
 
