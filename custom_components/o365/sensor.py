@@ -535,7 +535,7 @@ async def _async_setup_mailbox_services(hass, config):
     if not config.get(CONF_ENABLE_UPDATE):
         return
 
-    if not config.get(CONF_EMAIL_SENSORS) and not config.get(CONF_QUERY_SENSORS):
+    if not config.get(CONF_AUTO_REPLY_SENSORS):
         return
 
     permissions = get_permissions(
