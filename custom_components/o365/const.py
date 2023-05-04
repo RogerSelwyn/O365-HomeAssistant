@@ -63,7 +63,6 @@ CONF_ACCOUNT = "account"
 CONF_ACCOUNTS = "accounts"
 CONF_ACCOUNT_CONF = "account_conf"
 CONF_ACCOUNT_NAME = "account_name"
-CONF_SHARED_MAILBOX = "shared_mailbox"
 CONF_ALT_AUTH_METHOD = "alt_auth_method"
 CONF_AUTH_URL = "auth_url"
 CONF_AUTO_REPLY_SENSORS = "auto_reply_sensors"
@@ -96,6 +95,7 @@ CONF_MAX_ITEMS = "max_items"
 CONF_MAX_RESULTS = "max_results"
 CONF_QUERY_SENSORS = "query_sensors"
 CONF_SEARCH = "search"
+CONF_SHARED_MAILBOX = "shared_mailbox"
 CONF_SHOW_COMPLETED = "show_completed"
 CONF_STATUS_SENSORS = "status_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
@@ -180,6 +180,7 @@ PERM_MINIMUM_SEND = [
     PERM_MAIL_SEND,
     [PERM_MAIL_SEND_SHARED],
 ]
+PERM_SHARED = ".Shared"
 
 SENSOR_AUTO_REPLY = "auto_reply"
 SENSOR_DOMAIN = "sensor"

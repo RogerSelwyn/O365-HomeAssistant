@@ -28,6 +28,7 @@ from .const import (
     CONF_ENTITIES,
     CONF_GROUPS,
     CONF_QUERY_SENSORS,
+    CONF_SHARED_MAILBOX,
     CONF_STATUS_SENSORS,
     CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
@@ -58,6 +59,7 @@ from .const import (
     PERM_MINIMUM_USER,
     PERM_OFFLINE_ACCESS,
     PERM_PRESENCE_READ,
+    PERM_SHARED,
     PERM_TASKS_READ,
     PERM_TASKS_READWRITE,
     PERM_USER_READ,
@@ -109,9 +111,13 @@ def build_minimum_permissions(hass, config, conf_type):
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
     auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
-    minimum_permissions = [PERM_MINIMUM_USER, PERM_MINIMUM_CALENDAR]
+    shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else None
+    minimum_permissions = [
+        PERM_MINIMUM_USER,
+        _add_shared(PERM_MINIMUM_CALENDAR, shared),
+    ]
     if len(email_sensors) > 0 or len(query_sensors) > 0:
-        minimum_permissions.append(PERM_MINIMUM_MAIL)
+        minimum_permissions.append(_add_shared(PERM_MINIMUM_MAIL, shared))
     if len(status_sensors) > 0:
         minimum_permissions.append(PERM_MINIMUM_PRESENCE)
     if len(chat_sensors) > 0:
@@ -127,6 +133,23 @@ def build_minimum_permissions(hass, config, conf_type):
     return minimum_permissions
 
 
+def _add_shared(minimum_permissions, shared):
+    if not shared:
+        return minimum_permissions
+
+    if shared not in minimum_permissions[0]:
+        minimum_permissions[0] = minimum_permissions[0] + shared
+    alt_permissions = []
+    for permission in minimum_permissions[1]:
+        if shared not in permission:
+            permission = permission + shared
+        if permission not in alt_permissions:
+            alt_permissions.append(permission)
+
+    minimum_permissions[1] = alt_permissions
+    return minimum_permissions
+
+
 def build_requested_permissions(config):
     """Build the requested permissions for the scope."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
@@ -138,17 +161,18 @@ def build_requested_permissions(config):
     groups = config.get(CONF_GROUPS, False)
     auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
     scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
+    shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else None
     if enable_update:
-        scope.extend((PERM_MAIL_SEND, PERM_CALENDARS_READWRITE))
+        scope.extend((PERM_MAIL_SEND + shared, PERM_CALENDARS_READWRITE + shared))
     else:
-        scope.append(PERM_CALENDARS_READ)
+        scope.append(PERM_CALENDARS_READ + shared)
     if groups:
         if enable_update:
             scope.append(PERM_GROUP_READWRITE_ALL)
         else:
             scope.append(PERM_GROUP_READ_ALL)
     if len(email_sensors) > 0 or len(query_sensors) > 0:
-        scope.append(PERM_MAIL_READ)
+        scope.append(PERM_MAIL_READ + shared)
     if len(auto_reply_sensors) > 0:
         scope.append(PERM_MAILBOX_SETTINGS)
     if len(status_sensors) > 0:
