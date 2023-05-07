@@ -1,5 +1,19 @@
 # Changelog
 
+## v4.2.11 (2023/05/07)
+### Fixes
+- [Fix incorrect creation of auto_reply services](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/243612d77fe02c55166c76fa9d9c523acaf2cfd0) - @RogerSelwyn
+- [Apply consistent sorting and return date instead of datetime for all day events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/19b6e7cda822d69f52a45e8932a7bb3b4fbeeefe) - @RogerSelwyn
+
+### Maintenance
+- [General code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e3f42d17d040c59839cac5631a9721f4b7dfcc4b) - @RogerSelwyn
+- [More code tidy up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/64a29a560da92c2500a8dcb8cde6809ad884200f) - @RogerSelwyn
+- [Re-organise code](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a6e3e8217d484f093b8f4306cf980ce39fc01bf9) - @RogerSelwyn
+- [Bump to v4.2.11](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8f773c2df7bc925d4a928f08d7e381844a6e2649) - @RogerSelwyn
+
+### Documentation
+- [[Typo] Fix for o365_calendars_convetted](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/fd4655ba47330cadd570d837b940d2590c1ac87b) - @rdeveen
+
 ## v4.2.10 (2023/04/24)
 ### Enhancements
 - [Add service to mark task complete/incomplete](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6b6f1da3f0f022a9b9fed77e624b3d29b3729bc4) - @RogerSelwyn
