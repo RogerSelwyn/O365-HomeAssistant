@@ -4,7 +4,7 @@ import logging
 import re
 from copy import deepcopy
 from datetime import date, datetime, timedelta
-from operator import attrgetter, itemgetter
+from operator import attrgetter
 from typing import Any
 
 import voluptuous as vol
@@ -310,14 +310,11 @@ class O365CalendarEntity(CalendarEntity):
             dt.utcnow() + timedelta(hours=self._start_offset),
             dt.utcnow() + timedelta(hours=self._end_offset),
         )
-        if results:
-            events = list(results)
-        elif self._event:
+
+        if not results and self._event:
             return
-        else:
-            events = []
-        self._data_attribute = [format_event_data(x) for x in events]
-        self._data_attribute.sort(key=itemgetter("start"))
+
+        self._data_attribute = [format_event_data(x) for x in results]
         self._event = event
 
     async def async_create_event(self, **kwargs: Any) -> None:
@@ -553,14 +550,16 @@ class O365CalendarData:
             hass, self.calendar, start_date, end_date
         )
 
-        return self._filter_events(events) or events
+        events = self._filter_events(events)
+        events = self._sort_events(events)
+
+        return events
 
     def _filter_events(self, events):
-        if not events:
-            return None
-        if not self._exclude:
-            return None
         lst_events = list(events)
+        if not events or not self._exclude:
+            return lst_events
+
         rtn_events = []
         for event in lst_events:
             include = True
@@ -571,6 +570,16 @@ class O365CalendarData:
                 rtn_events.append(event)
 
         return rtn_events
+
+    def _sort_events(self, events):
+        for event in events:
+            event.start_sort = event.start
+            if event.is_all_day:
+                event.start_sort = dt.as_utc(dt.start_of_local_day(event.start))
+
+        events.sort(key=attrgetter("start_sort"))
+
+        return events
 
     async def _async_calendar_schedule_get_events(
         self, hass, calendar_schedule, start_date, end_date
@@ -615,9 +624,9 @@ class O365CalendarData:
         results = await self.async_o365_get_events(hass, start_date, end_date)
         if not results:
             return
-        vevent_list = list(results)
+
         event_list = []
-        for vevent in vevent_list:
+        for vevent in results:
             try:
                 event = CalendarEvent(
                     get_hass_date(vevent.start, vevent.is_all_day),
@@ -635,7 +644,6 @@ class O365CalendarData:
                     "Invalid event found - Error: %s, Event: %s", err, vevent
                 )
 
-        event_list.sort(key=attrgetter("start"))
         return event_list
 
     async def async_update(self, hass):
@@ -648,9 +656,6 @@ class O365CalendarData:
         )
         if not results:
             return
-
-        results = list(results)
-        results.sort(key=lambda x: self.to_datetime(x.start))
 
         vevent = self._get_root_event(results)
 
