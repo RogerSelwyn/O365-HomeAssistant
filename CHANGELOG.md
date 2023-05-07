@@ -4,6 +4,7 @@
 ### Fixes
 - [Fix incorrect creation of auto_reply services](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/243612d77fe02c55166c76fa9d9c523acaf2cfd0) - @RogerSelwyn
 - [Apply consistent sorting and return date instead of datetime for all day events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/19b6e7cda822d69f52a45e8932a7bb3b4fbeeefe) - @RogerSelwyn
+- [(Correct) Update schema.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/78bf4ea42a9d0151a72b3d904450f5087a799c5c) - @RogerSelwyn
 
 ### Maintenance
 - [General code improvements](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e3f42d17d040c59839cac5631a9721f4b7dfcc4b) - @RogerSelwyn
