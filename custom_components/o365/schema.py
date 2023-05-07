@@ -168,6 +168,7 @@ MULTI_ACCOUNT_SCHEMA = vol.Schema(
                     vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
                     vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
                     vol.Optional(CONF_TODO_SENSORS): TODO_SENSOR,
+                    vol.Optional(CONF_AUTO_REPLY_SENSORS): [AUTO_REPLY_SENSOR],
                 }
             ]
         )
