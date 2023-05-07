@@ -291,11 +291,7 @@ def format_event_data(event):
 
 def get_hass_date(obj, is_all_day):
     """Get the date."""
-    if isinstance(obj, datetime) and not is_all_day:
-        return obj
-    else:
-        return dt.as_utc(dt.start_of_local_day(obj))
-    # return obj if isinstance(obj, datetime) and not is_all_day else obj.date()
+    return obj if isinstance(obj, datetime) and not is_all_day else obj.date()
 
 
 def get_end_date(obj):
