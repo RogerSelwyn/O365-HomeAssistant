@@ -11,7 +11,6 @@ import yaml
 from bs4 import BeautifulSoup
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers.entity import async_generate_entity_id
-from homeassistant.util import dt
 from voluptuous.error import Error as VoluptuousError
 
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
