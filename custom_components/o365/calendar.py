@@ -623,7 +623,7 @@ class O365CalendarData:
         """Get the via async."""
         results = await self.async_o365_get_events(hass, start_date, end_date)
         if not results:
-            return
+            return []
 
         event_list = []
         for vevent in results:
