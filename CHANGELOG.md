@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.2.12 (2023/05/08)
+### Fixes
+- [Fix error when no events returned to calendar view](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f16328c30c2e869f6c1846e93056f3a957ce5828) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.2.12](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6dd5783d945ebc840fc80e6bc16cf960b9b1145d) - @RogerSelwyn
+
 ## v4.2.11 (2023/05/07)
 ### Fixes
 - [Fix incorrect creation of auto_reply services](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/243612d77fe02c55166c76fa9d9c523acaf2cfd0) - @RogerSelwyn
