@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.3.0 (2023/05/22)
+### Enhancements
+- [Add support for shared mailboxes](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/138) - @jgrieger1 / @RogerSelwyn 
+
+### Maintenance
+- [Bump to v4.3.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a34675b599bd2e3f5fd78ca8eccbfddd3e477001) - @RogerSelwyn
+
+### Documentation
+- [Update documentation for shared mailboxes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2bf828be64b544f53b44b47fc796a131d17092f8) - @RogerSelwyn
+- [Update permissions.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f1bb670ee692503a170f4410b0ef2b16bb27d774) - @RogerSelwyn
+- [Update permissions.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f695a1b898941a5f44f88d669b384e63e972069f) - @RogerSelwyn
+
 ## v4.2.12 (2023/05/08)
 ### Fixes
 - [Fix error when no events returned to calendar view](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f16328c30c2e869f6c1846e93056f3a957ce5828) - @RogerSelwyn
