@@ -6,33 +6,37 @@ nav_order: 3
 # Permissions
 
 Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the permissions as detailed in the list and table below:
-  * Calendar - The core permissions required for calendars to work
-  * Email - For an email_sensor or a query_sensor
+  * Calendar - The core permissions required for calendars to work *Note the requirement for `.shared` permissions for shared mailboxes*
+  * Email - For an email_sensor or a query_sensor *Note the requirement for `.shared` permissions for shared mailboxes*
   * Status - For a status_sensor
   * Chat - For a chat_sensor
   * ToDo - For a todo_sensor
   * Group Calendar - For a manually added Group calendar
   * AutoReply - For Auto reply/Out of Office message configuration
 
+
   If you intend to send emails use calendar update functionality, then set [enable_update](./installation_and_configuration.md#configuration_variables) at the top level to `true`. For Todo sensors set [enable_update](installation_and_configuration.md#todo_sensors) to true. Then for any sensor type, add the relevant `ReadWrite` permission as denoted by a `Y` in the update column.
    
 
-   | Feature  | Permissions           | Update | O365 Description                      | Notes |
+   | Feature  | Permissions           | Update | Shared | O365 Description                      | Notes |
    |----------|-----------------------|:------:|---------------------------------------|-------|
-   | Calendar | offline_access        |   | *Maintain access to data you have given it access to* |       |
-   | Calendar | Calendars.Read        |   | *Read user calendars*  |       |
-   | Calendar | Calendars.ReadWrite   | Y | *Read and write user calendars* |       |
-   | Calendar | Users.Read            |   | *Sign in and read user profile* |       |
-   | Email    | Mail.Read             |   | *Read access to user mail* |       |
-   | Email    | Mail.ReadWrite        | Y | *Read and write access to user mail* |       |
-   | Email    | Mail.Send             | Y | *Send mail as a user* |       |
-   | Status   | Presence.Read         |   | *Read user's presence information* | Not for personal accounts |
-   | Chat     | Chat.Read             |   | *Read user chat messages* | Not for personal accounts |
-   | ToDo     | Tasks.Read            |   | *Read user's tasks and task lists* |       |
-   | ToDo     | Tasks.ReadWrite       | Y | *Create, read, update, and delete user’s tasks and task lists* |   |
-   | Group Calendar | Group.Read.All  |   | *Read all groups* | Not supported in legacy installs |
-   | Group Calendar | Group.ReadWrite.All | Y | *Read and write all groups* | Not supported in legacy installs |
-   | AutoReply | MailboxSettings.ReadWrite |   | *Read and write user mailbox settings* |       |
+   | Calendar | offline_access        |   |   |  *Maintain access to data you have given it access to* |       |
+   | Calendar | Calendars.Read        |   |   |  *Read user calendars*  |       |
+   | Calendar | Calendars.ReadWrite   | Y |   |  *Read and write user calendars* |       |
+   | Calendar | Calendars.Read.Shared |   | Y |  *Read user and shared calendars*  |       |
+   | Calendar | Calendars.ReadWrite.Shared | Y | Y |  *Read and write user and shared calendars* |       |
+   | Calendar | Users.Read            |   |   |  *Sign in and read user profile* |       |
+   | Email    | Mail.Read             |   |   |  *Read access to user mail* |       |
+   | Email    | Mail.Send             | Y |   |  *Send mail as a user* |       |
+   | Email    | Mail.Read.Shared      |   | Y |  *Read user and shared mail* |       |
+   | Email    | Mail.Send.Shared      | Y | Y |  *Send mail on behalf of others* |       |
+   | Status   | Presence.Read         |   |   |  *Read user's presence information* | Not for personal accounts |
+   | Chat     | Chat.Read             |   |   |  *Read user chat messages* | Not for personal accounts |
+   | ToDo     | Tasks.Read            |   |   |  *Read user's tasks and task lists* |       |
+   | ToDo     | Tasks.ReadWrite       | Y |   |  *Create, read, update, and delete user’s tasks and task lists* |   |
+   | Group Calendar | Group.Read.All  |   |   |  *Read all groups* | Not supported in legacy installs |
+   | Group Calendar | Group.ReadWrite.All | Y |   |  *Read and write all groups* | Not supported in legacy installs |
+   | AutoReply | MailboxSettings.ReadWrite |   |   |  *Read and write user mailbox settings* |       |
    
 **Note** It should be noted that these are the permissions that are requested at authentication time (as appropriate for each sensor configured). When `enable_update` is configured to `true` all the associated `ReadWrite` permissions are requested as well, however you do not need to add `ReadWrite` for any sensor type where you do not what update permissions, it will still act as a Read Only sensor. This excludes the AutoReply option which is only `ReadWrite`.
 
