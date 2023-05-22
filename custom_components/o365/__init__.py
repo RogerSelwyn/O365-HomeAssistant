@@ -6,6 +6,7 @@ import os
 import shutil
 
 import yaml
+from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
 
 from O365 import Account, FileSystemTokenBackend
@@ -15,14 +16,18 @@ from .const import (
     CONF_ACCOUNT_CONF,
     CONF_ACCOUNT_NAME,
     CONF_ACCOUNTS,
+    CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
     CONF_FAILED_PERMISSIONS,
+    CONF_GROUPS,
     CONF_QUERY_SENSORS,
+    CONF_SHARED_MAILBOX,
     CONF_STATUS_SENSORS,
+    CONF_TODO_SENSORS,
     CONST_CONFIG_TYPE_DICT,
     CONST_CONFIG_TYPE_LIST,
     CONST_PRIMARY,
@@ -127,6 +132,9 @@ async def _async_setup_account(hass, account_conf, conf_type):
         account_conf.get(CONF_CLIENT_SECRET),
     )
     account_name = account_conf.get(CONF_ACCOUNT_NAME, CONST_PRIMARY)
+    main_resource = account_conf.get(CONF_SHARED_MAILBOX)
+    if not _validate_shared_schema(account_name, main_resource, account_conf):
+        return
 
     token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
     token_file = build_token_filename(account_conf, conf_type)
@@ -143,6 +151,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
             credentials,
             token_backend=token_backend,
             timezone=CONST_UTC_TIMEZONE,
+            main_resource=main_resource,
         )
     )
     is_authenticated = account.is_authenticated
@@ -156,6 +165,35 @@ async def _async_setup_account(hass, account_conf, conf_type):
         await _async_authorization_repair(
             hass, account_conf, account, account_name, conf_type, failed_permissions
         )
+
+
+def _validate_shared_schema(account_name, main_account, config):
+    if not main_account:
+        return True
+
+    error = False
+    if config.get(CONF_STATUS_SENSORS, None):
+        _LOGGER.error("Status sensor not allowed for shared account: %s", account_name)
+        error = True
+    if config.get(CONF_CHAT_SENSORS, None):
+        _LOGGER.error("Chat sensor not allowed for shared account: %s", account_name)
+        error = True
+    if (
+        config.get(CONF_TODO_SENSORS, None)
+        and config.get(CONF_TODO_SENSORS)[CONF_ENABLED]
+    ):
+        _LOGGER.error("Todo sensors not allowed for shared account: %s", account_name)
+        error = True
+    if config.get(CONF_GROUPS, None):
+        _LOGGER.error("Groups not allowed for shared account: %s", account_name)
+        error = True
+    if config.get(CONF_AUTO_REPLY_SENSORS, None):
+        _LOGGER.error(
+            "AutoReply sensor not allowed for shared account: %s", account_name
+        )
+        error = True
+
+    return not error
 
 
 def _copy_token_file(hass, account_name):

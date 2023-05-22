@@ -95,6 +95,7 @@ CONF_MAX_ITEMS = "max_items"
 CONF_MAX_RESULTS = "max_results"
 CONF_QUERY_SENSORS = "query_sensors"
 CONF_SEARCH = "search"
+CONF_SHARED_MAILBOX = "shared_mailbox"
 CONF_SHOW_COMPLETED = "show_completed"
 CONF_STATUS_SENSORS = "status_sensors"
 CONF_SUBJECT_CONTAINS = "subject_contains"
@@ -179,6 +180,7 @@ PERM_MINIMUM_SEND = [
     PERM_MAIL_SEND,
     [PERM_MAIL_SEND_SHARED],
 ]
+PERM_SHARED = ".Shared"
 
 SENSOR_AUTO_REPLY = "auto_reply"
 SENSOR_DOMAIN = "sensor"
