@@ -28,7 +28,10 @@ from homeassistant.util import dt
 from requests.exceptions import HTTPError, RetryError
 
 from .const import (
+    ATTR_ALL_DAY,
+    ATTR_DATA,
     ATTR_EVENT_ID,
+    ATTR_OFFSET,
     CALENDAR_ENTITY_ID_FORMAT,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
@@ -254,15 +257,15 @@ class O365CalendarEntity(CalendarEntity):
         """Extra state attributes."""
         if self._event:
             return {
-                "all_day": self._event.all_day
+                ATTR_ALL_DAY: self._event.all_day
                 if self.data.event is not None
                 else False,
-                "offset_reached": self._offset_reached,
-                "data": self._data_attribute,
+                ATTR_OFFSET: self._offset_reached,
+                ATTR_DATA: self._data_attribute,
             }
 
         return {
-            "data": self._data_attribute,
+            ATTR_DATA: self._data_attribute,
         }
 
     @property
