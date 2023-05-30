@@ -2,7 +2,6 @@
 import datetime
 
 from homeassistant.components.sensor import SensorEntity
-
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 
 from ..const import (
@@ -30,7 +29,7 @@ from ..const import (
     SENSOR_AUTO_REPLY,
     SENSOR_MAIL,
 )
-from ..utils import clean_html
+from ..utils.utils import clean_html
 from .sensorentity import O365Sensor
 
 

@@ -71,21 +71,22 @@ from .schema import (
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
 )
-from .utils import (
-    add_call_data_to_event,
+from .utils.filemgmt import (
     build_config_file_path,
     build_token_filename,
     build_yaml_filename,
     check_file_location,
+    load_yaml_file,
+    update_calendar_file,
+)
+from .utils.permissions import get_permissions, validate_minimum_permission
+from .utils.utils import (
+    add_call_data_to_event,
     clean_html,
     format_event_data,
     get_end_date,
     get_hass_date,
-    get_permissions,
     get_start_date,
-    load_yaml_file,
-    update_calendar_file,
-    validate_minimum_permission,
 )
 
 _LOGGER = logging.getLogger(__name__)

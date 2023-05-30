@@ -26,10 +26,10 @@ from .const import (
 )
 from .schema import REQUEST_AUTHORIZATION_DEFAULT_SCHEMA
 from .setup import do_setup
-from .utils import (
+from .utils.filemgmt import build_token_filename
+from .utils.permissions import (
     build_minimum_permissions,
     build_requested_permissions,
-    build_token_filename,
     validate_permissions,
 )
 

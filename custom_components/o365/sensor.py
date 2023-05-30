@@ -1,6 +1,4 @@
 """Sensor processing."""
-
-
 import functools as ft
 import logging
 from copy import deepcopy
@@ -74,17 +72,15 @@ from .schema import (
     TASK_SERVICE_NEW_SCHEMA,
     TASK_SERVICE_UPDATE_SCHEMA,
 )
-from .utils import (
+from .utils.filemgmt import (
     build_config_file_path,
-    build_entity_id,
     build_token_filename,
     build_yaml_filename,
-    get_email_attributes,
-    get_permissions,
     load_yaml_file,
     update_task_list_file,
-    validate_minimum_permission,
 )
+from .utils.permissions import get_permissions, validate_minimum_permission
+from .utils.utils import build_entity_id, get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
 

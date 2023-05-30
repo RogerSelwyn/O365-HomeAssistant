@@ -8,7 +8,6 @@ import shutil
 import yaml
 from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
-
 from O365 import Account, FileSystemTokenBackend
 
 from .const import (
@@ -40,13 +39,12 @@ from .const import (
 )
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .setup import do_setup
-from .utils import (
+from .utils.filemgmt import (
     build_config_file_path,
-    build_minimum_permissions,
     build_token_filename,
     check_file_location,
-    validate_permissions,
 )
+from .utils.permissions import build_minimum_permissions, validate_permissions
 
 _LOGGER = logging.getLogger(__name__)
 

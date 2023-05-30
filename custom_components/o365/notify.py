@@ -26,13 +26,8 @@ from .const import (
     PERM_MINIMUM_SEND,
 )
 from .schema import NOTIFY_SERVICE_BASE_SCHEMA
-from .utils import (
-    build_token_filename,
-    get_ha_filepath,
-    get_permissions,
-    validate_minimum_permission,
-    zip_files,
-)
+from .utils.filemgmt import build_token_filename, get_ha_filepath, zip_files
+from .utils.permissions import get_permissions, validate_minimum_permission
 
 _LOGGER = logging.getLogger(__name__)
 

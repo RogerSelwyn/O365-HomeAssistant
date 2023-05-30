@@ -3,7 +3,8 @@ import voluptuous as vol
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from ..const import ATTR_STATE, CONF_CONFIG_TYPE
-from ..utils import build_token_filename, get_permissions, validate_minimum_permission
+from ..utils.filemgmt import build_token_filename
+from ..utils.permissions import get_permissions, validate_minimum_permission
 
 
 class O365Sensor(CoordinatorEntity):
