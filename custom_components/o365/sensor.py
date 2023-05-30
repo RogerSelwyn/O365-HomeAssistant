@@ -1,4 +1,6 @@
 """Sensor processing."""
+
+
 import functools as ft
 import logging
 from copy import deepcopy
@@ -18,17 +20,21 @@ from .const import (
     ATTR_ATTRIBUTES,
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
+    ATTR_CHAT_TYPE,
     ATTR_COMPLETED,
     ATTR_CONTENT,
     ATTR_CREATED,
+    ATTR_DATA,
     ATTR_ERROR,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
+    ATTR_MEMBERS,
     ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     ATTR_TASK_ID,
     ATTR_TASKS,
+    ATTR_TOPIC,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
@@ -48,6 +54,7 @@ from .const import (
     EVENT_HA_EVENT,
     EVENT_NEW_TASK,
     LEGACY_ACCOUNT_NAME,
+    PERM_MINIMUM_CHAT_WRITE,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
     SENSOR_AUTO_REPLY,
@@ -60,6 +67,7 @@ from .const import (
 from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
     AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
+    CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
     TASK_LIST_SCHEMA,
     TASK_SERVICE_COMPLETE_SCHEMA,
     TASK_SERVICE_DELETE_SCHEMA,
@@ -124,6 +132,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._entities = []
         self._data = {}
         self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
+        self._chat_members = {}
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
@@ -206,7 +215,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             entity_id = build_entity_id(self.hass, name)
             unique_id = f"{name}_{self._account_name}"
             teams_status_sensor = O365TeamsStatusSensor(
-                self, self._account, name, entity_id, unique_id
+                self, self._account, name, entity_id, self._config, unique_id
             )
             entities.append(teams_status_sensor)
         return entities
@@ -216,10 +225,17 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         for sensor_conf in chat_sensors:
             name = sensor_conf.get(CONF_NAME)
+            enable_update = sensor_conf.get(CONF_ENABLE_UPDATE)
             entity_id = build_entity_id(self.hass, name)
             unique_id = f"{name}_{self._account_name}"
             teams_chat_sensor = O365TeamsChatSensor(
-                self, self._account, name, entity_id, unique_id
+                self,
+                self._account,
+                name,
+                entity_id,
+                self._config,
+                unique_id,
+                enable_update,
             )
             entities.append(teams_chat_sensor)
         return entities
@@ -372,22 +388,48 @@ class O365SensorCordinator(DataUpdateCoordinator):
     async def _async_teams_chat_update(self, entity):
         """Update state."""
         state = None
-        chats = await self.hass.async_add_executor_job(entity.teams.get_my_chats)
+        data = []
+        self._data[entity.entity_key] = {}
+        extra_attributes = {}
+        chats = await self.hass.async_add_executor_job(
+            ft.partial(entity.teams.get_my_chats, limit=20)
+        )
         for chat in chats:
-            messages = await self.hass.async_add_executor_job(
-                ft.partial(chat.get_messages, limit=10)
-            )
-            state = self._process_chat_messages(messages, entity)
-            if state:
-                break
-        self._data[entity.entity_key][ATTR_STATE] = state
+            if chat.chat_type == "unknownFutureValue":
+                continue
+            if not state:
+                messages = await self.hass.async_add_executor_job(
+                    ft.partial(chat.get_messages, limit=10)
+                )
+                state, extra_attributes = self._process_chat_messages(messages)
 
-    def _process_chat_messages(self, messages, entity):
+            if not entity.enable_update:
+                if state:
+                    break
+                continue
+
+            memberlist = await self._async_get_memberlist(chat)
+            chatitems = {
+                ATTR_CHAT_ID: chat.object_id,
+                ATTR_CHAT_TYPE: chat.chat_type,
+                ATTR_MEMBERS: ",".join(memberlist),
+            }
+            if chat.chat_type == "group":
+                chatitems[ATTR_TOPIC] = chat.topic
+
+            data.append(chatitems)
+
+        self._data[entity.entity_key] = (
+            {ATTR_STATE: state} | extra_attributes | {ATTR_DATA: data}
+        )
+
+    def _process_chat_messages(self, messages):
         state = None
+        extra_attributes = {}
         for message in messages:
             if not state and message.content != "<systemEventMessage/>":
                 state = message.created_date
-                self._data[entity.entity_key] = {
+                extra_attributes = {
                     ATTR_FROM_DISPLAY_NAME: message.from_display_name,
                     ATTR_CONTENT: message.content,
                     ATTR_CHAT_ID: message.chat_id,
@@ -395,9 +437,16 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     ATTR_SUBJECT: message.subject,
                     ATTR_SUMMARY: message.summary,
                 }
-
                 break
-        return state
+        return state, extra_attributes
+
+    async def _async_get_memberlist(self, chat):
+        if chat.object_id in self._chat_members and chat.chat_type != "oneOnOne":
+            return self._chat_members[chat.object_id]
+        members = await self.hass.async_add_executor_job(chat.get_members)
+        memberlist = [member.display_name for member in members]
+        self._chat_members[chat.object_id] = memberlist
+        return memberlist
 
     async def _async_todos_update(self, entity):
         """Update state."""
@@ -486,6 +535,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
 async def _async_setup_register_services(hass, config):
     await _async_setup_task_services(hass, config)
+    await _async_setup_chat_services(hass, config)
     await _async_setup_mailbox_services(hass, config)
 
 
@@ -528,6 +578,27 @@ async def _async_setup_task_services(hass, config):
             "complete_task",
             TASK_SERVICE_COMPLETE_SCHEMA,
             "complete_task",
+        )
+
+
+async def _async_setup_chat_services(hass, config):
+    chat_sensors = config.get(CONF_CHAT_SENSORS)
+    if not chat_sensors:
+        return
+    chat_sensor = chat_sensors[0]
+    if not chat_sensor or not chat_sensor.get(CONF_ENABLE_UPDATE):
+        return
+
+    permissions = get_permissions(
+        hass,
+        filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
+    )
+    platform = entity_platform.async_get_current_platform()
+    if validate_minimum_permission(PERM_MINIMUM_CHAT_WRITE, permissions):
+        platform.async_register_entity_service(
+            "send_chat_message",
+            CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
+            "send_chat_message",
         )
 
 

@@ -43,6 +43,7 @@ from .const import (
     PERM_CALENDARS_READ,
     PERM_CALENDARS_READWRITE,
     PERM_CHAT_READ,
+    PERM_CHAT_READWRITE,
     PERM_GROUP_READ_ALL,
     PERM_GROUP_READWRITE_ALL,
     PERM_MAIL_READ,
@@ -160,7 +161,7 @@ def build_requested_permissions(config):
     groups = config.get(CONF_GROUPS, False)
     auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
     scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
-    shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else None
+    shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else ""
     if enable_update:
         scope.extend((PERM_MAIL_SEND + shared, PERM_CALENDARS_READWRITE + shared))
     else:
@@ -177,7 +178,10 @@ def build_requested_permissions(config):
     if len(status_sensors) > 0:
         scope.append(PERM_PRESENCE_READ)
     if len(chat_sensors) > 0:
-        scope.append(PERM_CHAT_READ)
+        if chat_sensors[0][CONF_ENABLE_UPDATE]:
+            scope.append(PERM_CHAT_READWRITE)
+        else:
+            scope.append(PERM_CHAT_READ)
     if todo_sensors and todo_sensors.get(CONF_ENABLED, False):
         if todo_sensors[CONF_ENABLE_UPDATE]:
             scope.append(PERM_TASKS_READWRITE)

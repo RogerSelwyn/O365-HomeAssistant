@@ -21,6 +21,7 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     ATTR_ATTENDEES,
     ATTR_BODY,
     ATTR_CATEGORIES,
+    ATTR_CHAT_ID,
     ATTR_COMPLETED,
     ATTR_DESCRIPTION,
     ATTR_DUE,
@@ -107,6 +108,7 @@ STATUS_SENSOR = vol.Schema(
 CHAT_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
+        vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
     }
 )
 AUTO_REPLY_SENSOR = vol.Schema(
@@ -315,3 +317,8 @@ TASK_LIST_SCHEMA = vol.Schema(
 )
 
 REQUEST_AUTHORIZATION_DEFAULT_SCHEMA = {vol.Required(CONF_URL): cv.string}
+
+CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
+    vol.Required(ATTR_CHAT_ID): cv.string,
+    vol.Required(ATTR_MESSAGE): cv.string,
+}

@@ -32,6 +32,7 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
    | Email    | Mail.Send.Shared      | Y | *Send mail on behalf of others* | For shared mailboxes |
    | Status   | Presence.Read         |   | *Read user's presence information* | Not for personal accounts/shared mailboxes |
    | Chat     | Chat.Read             |   | *Read user chat messages* | Not for personal accounts/shared mailboxes |
+   | Chat     | Chat.ReadWrite        | Y | *Read and write user chat messages* | Not for personal accounts/shared mailboxes |
    | ToDo     | Tasks.Read            |   | *Read user's tasks and task lists* | Not for shared mailboxes |
    | ToDo     | Tasks.ReadWrite       | Y | *Create, read, update, and delete user’s tasks and task lists* | Not for shared mailboxes |
    | Group Calendar | Group.Read.All  |   | *Read all groups* | Not supported in legacy installs or shared mailboxes |

@@ -49,7 +49,7 @@ class O365Sensor(CoordinatorEntity):
         )
         if not validate_minimum_permission(minimum_perm_list, permissions):
             raise vol.Invalid(
-                f"Not authorisied to create new task - requires permission: {required_permission}"
+                f"Not authorisied requires permission: {required_permission}"
             )
 
         return True

@@ -18,7 +18,7 @@ respond_calendar_event:
   fields:
     event_id:
       name: Event ID
-      description: ID for event, can be found as an attribute on you calendar entity's events
+      description: ID for event, can be found as an attribute on your calendar entity's events
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       required: true
       selector:
@@ -429,7 +429,6 @@ auto_reply_enable:
             - label: "None"
               value: "none"
 
-
 auto_reply_disable:
   name: Auto reply disable
   description: Disables auto reply
@@ -439,3 +438,28 @@ auto_reply_disable:
     entity:
       integration: o365
       domain: sensor
+
+send_chat_message:
+  name: Send chat message
+  description: "Send message to a specified chat"
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    chat_id:
+      name: Chat ID
+      description: ID for chat, can be found as an attribute on your chat entity
+      example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      required: true
+      selector:
+        text:
+    message:
+      name: Message
+      description: "Message to send to the chat"
+      example: Hello team
+      required: true
+      selector:
+        text:

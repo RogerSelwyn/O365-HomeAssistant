@@ -130,3 +130,21 @@ data:
   end: 2023-01-02T12:30:00+0000
   external_audience: all
 ```
+
+## Chat Services
+
+These services must be targeted at a `chat` sensor. 
+
+### o365.send_chat_message
+Send message to specified chat - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
+
+#### Example send chat message service call
+
+```yaml
+service: o365.send_chat_message
+target:
+  entity_id: sensor.roger_chats
+data:
+  chat_id: xxxxxxxxxxxxxxxxxxxxxxxxx
+  message: Hello world
+```
