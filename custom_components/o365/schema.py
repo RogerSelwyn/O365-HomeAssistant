@@ -9,7 +9,6 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-
 from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
 from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
 from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
@@ -59,6 +58,8 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     CONF_CLIENT_SECRET,
     CONF_DEVICE_ID,
     CONF_DOWNLOAD_ATTACHMENTS,
+    CONF_DUE_HOURS_BACKWARD_TO_GET,
+    CONF_DUE_HOURS_FORWARD_TO_GET,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
@@ -311,8 +312,8 @@ TASK_LIST_SCHEMA = vol.Schema(
         vol.Required(CONF_NAME): cv.string,
         vol.Optional(CONF_TRACK, default=True): cv.boolean,
         vol.Optional(CONF_SHOW_COMPLETED, default=False): cv.boolean,
-        # vol.Optional(CONF_DUE_HOURS_FORWARD_TO_GET): int,
-        # vol.Optional(CONF_DUE_HOURS_BACKWARD_TO_GET): int,
+        vol.Optional(CONF_DUE_HOURS_FORWARD_TO_GET): int,
+        vol.Optional(CONF_DUE_HOURS_BACKWARD_TO_GET): int,
     }
 )
 
