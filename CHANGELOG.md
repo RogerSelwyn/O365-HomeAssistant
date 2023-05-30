@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.3.2 (2023/05/30)
+### Enhancements
+- [Enable filter for upcoming tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9860cf2138b3ebbf78efdec930785074877f5600) - @RogerSelwyn
+
+### Maintenance
+- [Bump to v4.3.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5b68110108d1b350a23e0e8c082c3d8f97fcf78b) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/724da269980141b5b8bd3e12d9b88ac26ef37e63) - @actions-user
+
 ## v4.3.1 (2023/05/30)
 ### Enhancements
 - [Add ability to send chat message](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/07c8a848bb73a6968ba36297af20860de2dd6e7c) - @RogerSelwyn
