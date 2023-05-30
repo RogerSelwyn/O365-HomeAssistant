@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.3.1 (2023/05/30)
+### Enhancements
+- [Add ability to send chat message](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/07c8a848bb73a6968ba36297af20860de2dd6e7c) - @RogerSelwyn
+
+### Fixes
+- [Spelling correction](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d3cad5c38dde37c3b3978efb31236fa02fba83a8) - @RogerSelwyn
+
+### Maintenance
+- [Convert strings to constants](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3d77e080406dd805ea9ed34a40b417db5a68a986) - @RogerSelwyn
+- [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7c6fda46e384721134612b466aad48eb289c3249) - @actions-user
+
 ## v4.3.0 (2023/05/22)
 ### Enhancements
 - [Add support for shared mailboxes](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/138) - @jgrieger1 / @RogerSelwyn 
