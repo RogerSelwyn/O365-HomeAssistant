@@ -189,5 +189,5 @@ class O365TasksSensor(O365Sensor, SensorEntity):
     def _validate_task_permissions(self):
         return self._validate_permissions(
             PERM_MINIMUM_TASKS_WRITE,
-            f"Not authorisied to create new task - requires permission: {PERM_TASKS_READWRITE}",
+            f"Not authorised to create new task - requires permission: {PERM_TASKS_READWRITE}",
         )
