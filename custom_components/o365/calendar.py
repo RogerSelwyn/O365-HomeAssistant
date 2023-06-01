@@ -71,6 +71,7 @@ from .schema import (
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
 )
+from .utils.event import add_call_data_to_event
 from .utils.filemgmt import (
     build_config_file_path,
     build_token_filename,
@@ -81,7 +82,6 @@ from .utils.filemgmt import (
 )
 from .utils.permissions import get_permissions, validate_minimum_permission
 from .utils.utils import (
-    add_call_data_to_event,
     clean_html,
     format_event_data,
     get_end_date,
