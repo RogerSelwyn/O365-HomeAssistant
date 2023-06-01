@@ -6,7 +6,20 @@ from bs4 import BeautifulSoup
 from homeassistant.helpers.entity import async_generate_entity_id
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
 
-from ..const import DATETIME_FORMAT, DAYS, INDEXES, SENSOR_ENTITY_ID_FORMAT
+from ..const import (
+    ATTR_ATTENDEES,
+    ATTR_BODY,
+    ATTR_CATEGORIES,
+    ATTR_IS_ALL_DAY,
+    ATTR_LOCATION,
+    ATTR_RRULE,
+    ATTR_SENSITIVITY,
+    ATTR_SHOW_AS,
+    DATETIME_FORMAT,
+    DAYS,
+    INDEXES,
+    SENSOR_ENTITY_ID_FORMAT,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -102,34 +115,23 @@ def get_start_date(obj):
     return obj.start
 
 
-def add_call_data_to_event(
-    event,
-    subject,
-    start,
-    end,
-    body,
-    location,
-    categories,
-    sensitivity,
-    show_as,
-    is_all_day,
-    attendees,
-    rrule,
-):
+def add_call_data_to_event(event, subject, start, end, **kwargs):
     """Add the call data."""
     event.subject = _add_attribute(subject, event.subject)
-    event.body = _add_attribute(body, event.body)
-    event.location = _add_attribute(location, event.location)
-    event.categories = _add_attribute(categories, event.categories)
-    event.show_as = _add_attribute(show_as, event.show_as)
+    event.body = _add_attribute(kwargs.get(ATTR_BODY, None), event.body)
+    event.location = _add_attribute(kwargs.get(ATTR_LOCATION, None), event.location)
+    event.categories = _add_attribute(kwargs.get(ATTR_CATEGORIES, []), event.categories)
+    event.show_as = _add_attribute(kwargs.get(ATTR_SHOW_AS, None), event.show_as)
     event.start = _add_attribute(start, event.start)
     event.end = _add_attribute(end, event.end)
-    event.sensitivity = _add_attribute(sensitivity, event.sensitivity)
-    _add_attendees(attendees, event)
-    _add_all_day(is_all_day, event)
+    event.sensitivity = _add_attribute(
+        kwargs.get(ATTR_SENSITIVITY, None), event.sensitivity
+    )
+    _add_attendees(kwargs.get(ATTR_ATTENDEES, []), event)
+    _add_all_day(kwargs.get(ATTR_IS_ALL_DAY, False), event)
 
-    if rrule:
-        _rrule_processing(event, rrule)
+    if kwargs.get(ATTR_RRULE, None):
+        _rrule_processing(event, kwargs[ATTR_RRULE])
     return event
 
 

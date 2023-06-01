@@ -352,68 +352,23 @@ class O365CalendarEntity(CalendarEntity):
             self.remove_calendar_event, uid, recurrence_id, recurrence_range
         )
 
-    def create_calendar_event(
-        self,
-        subject,
-        start,
-        end,
-        body=None,
-        location=None,
-        categories=None,
-        sensitivity=None,
-        show_as=None,
-        is_all_day=False,
-        attendees=None,
-        rrule=None,
-    ):
+    def create_calendar_event(self, subject, start, end, **kwargs):
         """Create the event."""
-        if categories is None:
-            categories = []
-        if attendees is None:
-            attendees = []
+
         if not self._validate_permissions("create"):
             return
 
         calendar = self.data.calendar
 
         event = calendar.new_event()
-        event = add_call_data_to_event(
-            event,
-            subject,
-            start,
-            end,
-            body,
-            location,
-            categories,
-            sensitivity,
-            show_as,
-            is_all_day,
-            attendees,
-            rrule,
-        )
+        event = add_call_data_to_event(event, subject, start, end, **kwargs)
         event.save()
         self._raise_event(EVENT_CREATE_CALENDAR_EVENT, event.object_id)
 
     def modify_calendar_event(
-        self,
-        event_id,
-        subject=None,
-        start=None,
-        end=None,
-        body=None,
-        location=None,
-        categories=None,
-        sensitivity=None,
-        show_as=None,
-        is_all_day=False,
-        attendees=None,
-        rrule=None,
+        self, event_id, subject=None, start=None, end=None, **kwargs
     ):
         """Modify the event."""
-        if categories is None:
-            categories = []
-        if attendees is None:
-            attendees = []
 
         if not self._validate_permissions("modify"):
             return
@@ -423,20 +378,7 @@ class O365CalendarEntity(CalendarEntity):
             return
 
         event = self._get_event_from_calendar(event_id)
-        event = add_call_data_to_event(
-            event,
-            subject,
-            start,
-            end,
-            body,
-            location,
-            categories,
-            sensitivity,
-            show_as,
-            is_all_day,
-            attendees,
-            rrule,
-        )
+        event = add_call_data_to_event(event, subject, start, end, **kwargs)
         event.save()
         self._raise_event(EVENT_MODIFY_CALENDAR_EVENT, event_id)
 
@@ -510,6 +452,7 @@ class O365CalendarEntity(CalendarEntity):
             f"{DOMAIN}_{event_type}",
             {ATTR_EVENT_ID: event_id, EVENT_HA_EVENT: True},
         )
+        _LOGGER.debug("%s - %s", event_type, event_id)
 
 
 class O365CalendarData:
