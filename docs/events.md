@@ -61,3 +61,24 @@ context:
   parent_id: null
   user_id: null
 ```
+##  Chat Events
+
+Events will be raised for the following items.
+
+- o365_send_chat_message - Message sent to specified chat via the O365 integration
+
+The events have the following general structure:
+
+```yaml
+event_type: o365_send_chat_message
+data:
+  chat_id: >-
+    19:5f6d6952-ace3-9999-9999-14af19704e05_99999999-a5c7-46da-8107-b25090a1ed66@unq.gbl.spaces
+  ha_event: true
+origin: LOCAL
+time_fired: "2023-06-07T17:43:39.509758+00:00"
+context:
+  id: 01H2BFA0QNCGEN2ZYRWGBFFHRF
+  parent_id: null
+  user_id: null
+```
