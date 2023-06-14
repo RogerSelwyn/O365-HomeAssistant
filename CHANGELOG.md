@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.3.3 (2023/06/14)
+### Enhancements
+- [Add capture of expired client secret error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8324414889fb2be3b3c7142705a54d0bbf4ff3cf) - @RogerSelwyn
+
+### Maintenance
+- [Break up utilities for readability](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2fee043a6d0496f6a3a06f2ed4432c40b61afaa0) - @RogerSelwyn
+- [Code tidy up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/39ecebf34190a300c1639f5bfc624253628d89a6) - @RogerSelwyn
+- [Code split up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/06f72a17693114bf6ce979428e857dafaefad670) - @RogerSelwyn
+- [Revert "Code split up"](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ace798c7afb90a868ddac91f88e317a51cfb60cd) - @RogerSelwyn
+- [Remove redundant utils.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9adb83b62b81c04c8551404dd363bdee9891e2ff) - @RogerSelwyn
+- [Bump to v4.3.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7e7b3a31223c7a13d2db8b05aa989751a9605ed5) - @RogerSelwyn
+
+### Documentation
+- [Add chat event docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7dc9b86306b52bb0150ed543a2632461e34282a8) - @RogerSelwyn
+- [Add re-authentication info](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d0115eaf92cbdc18db91956ec26ebdc3ff00a89f) - @RogerSelwyn
+
 ## v4.3.2 (2023/05/30)
 ### Enhancements
 - [Enable filter for upcoming tasks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9860cf2138b3ebbf78efdec930785074877f5600) - @RogerSelwyn
