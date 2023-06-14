@@ -20,6 +20,9 @@ nav_order: 12
   * Where this error mentions `Presence.Read` or `Chat.Read` it probably means you have tried to configure a Teams Presence or Chat sensor when your account is a Personal Account (such as @outlook.com)
   * For other items, it means you have changed your configuration to require new permissions. You will likely need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
 
+* **Client secret expired for account: xxxxxxxx. Create new client id in Azure App.**
+  * The Client Secret on your Azure App has expired. Create a new secret and update your O365 configuration.
+
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
 
 # Installation issues

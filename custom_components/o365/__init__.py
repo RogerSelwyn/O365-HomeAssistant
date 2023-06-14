@@ -9,6 +9,7 @@ import yaml
 from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
 from O365 import Account, FileSystemTokenBackend
+from oauthlib.oauth2.rfc6749.errors import InvalidClientError
 
 from .const import (
     CONF_ACCOUNT,
@@ -142,7 +143,6 @@ async def _async_setup_account(hass, account_conf, conf_type):
             FileSystemTokenBackend, token_path=token_path, token_filename=token_file
         )
     )
-
     account = await hass.async_add_executor_job(
         ft.partial(
             Account,
@@ -157,12 +157,32 @@ async def _async_setup_account(hass, account_conf, conf_type):
     permissions, failed_permissions = validate_permissions(
         hass, minimum_permissions, filename=token_file
     )
+    check_token = None
     if is_authenticated and permissions:
-        do_setup(hass, account_conf, account, account_name, conf_type)
+        check_token = await _async_check_token(hass, account, account_name)
+        if check_token:
+            do_setup(hass, account_conf, account, account_name, conf_type)
     else:
         await _async_authorization_repair(
             hass, account_conf, account, account_name, conf_type, failed_permissions
         )
+
+
+async def _async_check_token(hass, account, account_name):
+    try:
+        await hass.async_add_executor_job(account.get_current_user)
+        return True
+    except InvalidClientError as err:
+        if "client secret" in err.description and "expired" in err.description:
+            _LOGGER.warning(
+                "Client Secret expired for account: %s. Create new Client Secret in Azure App.",
+                account_name,
+            )
+        else:
+            _LOGGER.warning(
+                "Token error for account: %s. Error - %s", account_name, err.description
+            )
+        return False
 
 
 def _validate_shared_schema(account_name, main_account, config):
