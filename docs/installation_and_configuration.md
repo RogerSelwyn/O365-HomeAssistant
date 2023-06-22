@@ -10,9 +10,9 @@ nav_order: 4
 1. Install this integration:
     * Recommended - [Home Assistant Community Store (HACS)](https://hacs.xyz/) or
     * Manually - Copy [these files](https://github.com/RogerSelwyn/O365-HomeAssistant/tree/master/custom_components/o365) to custom_components/o365/.
+1. Restart your Home Assistant instance to enable the integration
 1. Add o365 configuration to configuration.yaml using the [Configuration example](#configuration-examples) below.
-1. Restart your Home Assistant instance.
-   **Note:** if Home Assistant gives the error "module not found", try restarting Home Assistant once more.
+1. Restart your Home Assistant instance again to enable your configuration.
 1. A notification will be shown in the Repairs dialogue of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/o365_storage/.O365-token-cache
     * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary (deprecated) configuration method) will be created under the config directory in the `o365_storage` directory.
