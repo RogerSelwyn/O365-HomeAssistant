@@ -118,7 +118,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             # Name of the data. For logging purposes.
-            name="My sensor",
+            name="O365 Sensors",
             # Polling interval. Will only be polled if there are subscribers.
             update_interval=timedelta(seconds=30),
         )
