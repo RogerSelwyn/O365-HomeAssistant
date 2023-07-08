@@ -25,7 +25,7 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
    | Calendar | Calendars.ReadWrite   | Y | *Read and write user calendars* |       |
    | Calendar | Calendars.Read.Shared |   | *Read user and shared calendars*  | For shared mailboxes |
    | Calendar | Calendars.ReadWrite.Shared | Y | *Read and write user and shared calendars* | For shared mailboxes |
-   | Calendar | Users.Read            |   | *Sign in and read user profile* |       |
+   | Calendar | User.Read             |   | *Sign in and read user profile* |       |
    | Email    | Mail.Read             |   | *Read access to user mail* |       |
    | Email    | Mail.Send             | Y | *Send mail as a user* |       |
    | Email    | Mail.Read.Shared      |   | *Read user and shared mail* | For shared mailboxes |
