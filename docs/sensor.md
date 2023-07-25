@@ -10,7 +10,23 @@ The status of the calendar sensor indicates (on/off) whether there is an event o
 The `data` attribute provides an array of events for the period defined by the `start_offset` and `end_offset` in `o365_calendars_<account_name>.yaml`. Individual array elements can be accessed using the template notation `states.calendar.calendar_<account_name>.attributes.data[0...n]`.
 
 ## Teams Status Sensor
-The Teams Status sensor shows whether the user is online or offline on Teams.
+The Teams Status sensor shows the user's current status on Teams:
+
+* `available`
+* `away`
+* `beRightBack`
+* `busy`
+* `doNotDisturb`
+* `inACall`
+* `inAConferenceCall`
+* `inactive`
+* `inAMeeting`
+* `offline`
+* `offWork`
+* `outOfOffice`
+* `presenceUnknown`
+* `presenting`
+* `urgentInterruptionsOnly`
 
 ## Teams Chat Sensor
 Shows the latest chat found on MS Teams. Shows the date and time as the status of the sensor, plus content, ID and importance of the chat item.
