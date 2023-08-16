@@ -35,6 +35,7 @@ from .const import (
     DEFAULT_CACHE_PATH,
     DOMAIN,
     LEGACY_ACCOUNT_NAME,
+    TOKEN_FILE_MISSING,
     TOKEN_FILENAME,
     YAML_CALENDARS,
 )
@@ -158,13 +159,19 @@ async def _async_setup_account(hass, account_conf, conf_type):
         hass, minimum_permissions, filename=token_file
     )
     check_token = None
-    if is_authenticated and permissions:
+    if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:
             do_setup(hass, account_conf, account, account_name, conf_type)
     else:
         await _async_authorization_repair(
-            hass, account_conf, account, account_name, conf_type, failed_permissions
+            hass,
+            account_conf,
+            account,
+            account_name,
+            conf_type,
+            failed_permissions,
+            permissions,
         )
 
 
@@ -231,11 +238,18 @@ def _copy_token_file(hass, account_name):
 
 
 async def _async_authorization_repair(
-    hass, account_conf, account, account_name, conf_type, failed_permissions
+    hass,
+    account_conf,
+    account,
+    account_name,
+    conf_type,
+    failed_permissions,
+    token_missing,
 ):
     message = (
-        "No token, or token doesn't have all required permissions;"
-        + f" requesting authorization for account: {account_name}"
+        f"No token file found; requesting authorization for account: {account_name}"
+        if token_missing == TOKEN_FILE_MISSING
+        else f"Token doesn't have all required permissions; requesting authorization for account: {account_name}"
     )
     _LOGGER.warning(message)
     # url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
