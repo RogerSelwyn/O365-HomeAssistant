@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import functools as ft
+import logging
 
 import voluptuous as vol
 from aiohttp import web_response
@@ -23,6 +24,7 @@ from .const import (
     CONF_CONFIG_TYPE,
     CONF_FAILED_PERMISSIONS,
     CONF_URL,
+    TOKEN_FILE_MISSING,
 )
 from .schema import REQUEST_AUTHORIZATION_DEFAULT_SCHEMA
 from .setup import do_setup
@@ -32,6 +34,8 @@ from .utils.permissions import (
     build_requested_permissions,
     validate_permissions,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class AuthorizationRepairFlow(RepairsFlow):
@@ -72,6 +76,7 @@ class AuthorizationRepairFlow(RepairsFlow):
     ) -> data_entry_flow.FlowResult:
         """Handle the confirm step of a fix flow."""
         errors = {}
+        _LOGGER.debug("Token file: %s", self._account.con.token_backend)
         if user_input is not None:
             errors = await self._async_validate_response(user_input)
             if not errors:
@@ -130,7 +135,7 @@ class AuthorizationRepairFlow(RepairsFlow):
             errors[CONF_URL] = "invalid_url"
             return errors
 
-        await self.hass.async_add_executor_job(
+        result = await self.hass.async_add_executor_job(
             ft.partial(
                 self._account.con.request_token,
                 url,
@@ -139,6 +144,11 @@ class AuthorizationRepairFlow(RepairsFlow):
             )
         )
 
+        if result is not True:
+            _LOGGER.error("Token file error: %s", result)
+            errors[CONF_URL] = "token_file_error"
+            return errors
+
         token_file = build_token_filename(self._conf, self._conf_type)
         minimum_permissions = build_minimum_permissions(
             self.hass, self._conf, self._conf_type
@@ -146,11 +156,19 @@ class AuthorizationRepairFlow(RepairsFlow):
         permissions, self._failed_permissions = validate_permissions(
             self.hass, minimum_permissions, filename=token_file
         )
+        if permissions == TOKEN_FILE_MISSING:
+            errors[CONF_URL] = "missing_token_file"
+            return errors
+
         if not permissions:
             errors[CONF_URL] = "minimum_permissions"
 
         do_setup(
-            self.hass, self._conf, self._account, self._account_name, self._conf_type
+            self.hass,
+            self._conf,
+            self._account,
+            self._account_name,
+            self._conf_type,
         )
 
         return errors

@@ -201,6 +201,7 @@ SENSOR_TEAMS_STATUS = "teams_status"
 SENSOR_TEAMS_CHAT = "teams_chat"
 SENSOR_TODO = "todo"
 TOKEN_FILENAME = "o365{0}.token"  # nosec
+TOKEN_FILE_MISSING = "missing"
 YAML_CALENDARS = "{0}_calendars{1}.yaml"
 YAML_TASK_LISTS = "{0}_tasks{1}.yaml"
 

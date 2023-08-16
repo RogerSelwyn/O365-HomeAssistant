@@ -43,6 +43,7 @@ from ..const import (
     PERM_TASKS_READ,
     PERM_TASKS_READWRITE,
     PERM_USER_READ,
+    TOKEN_FILE_MISSING,
     TOKEN_FILENAME,
     YAML_CALENDARS,
 )
@@ -159,8 +160,8 @@ def validate_permissions(
 ):
     """Validate the permissions."""
     permissions = get_permissions(hass, token_path=token_path, filename=filename)
-    if not permissions:
-        return False, None
+    if permissions == TOKEN_FILE_MISSING:
+        return TOKEN_FILE_MISSING, None
 
     failed_permissions = []
     for minimum_perm in minimum_permissions:
@@ -192,7 +193,7 @@ def get_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME
     full_token_path = os.path.join(config_path, filename)
     if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
         _LOGGER.warning("Could not locate token at %s", full_token_path)
-        return []
+        return TOKEN_FILE_MISSING
     with open(full_token_path, "r", encoding="UTF-8") as file_handle:
         raw = file_handle.read()
         permissions = json.loads(raw)["scope"]
