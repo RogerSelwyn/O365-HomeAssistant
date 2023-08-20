@@ -145,7 +145,7 @@ class AuthorizationRepairFlow(RepairsFlow):
         )
 
         if result is not True:
-            _LOGGER.error("Token file error: %s", result)
+            _LOGGER.error("Token file error - check log for errors from O365")
             errors[CONF_URL] = "token_file_error"
             return errors
 

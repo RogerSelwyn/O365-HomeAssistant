@@ -246,12 +246,13 @@ async def _async_authorization_repair(
     failed_permissions,
     token_missing,
 ):
+    base_message = f"requesting authorization for account: {account_name}"
     message = (
-        f"No token file found; requesting authorization for account: {account_name}"
+        "No token file found;"
         if token_missing == TOKEN_FILE_MISSING
-        else f"Token doesn't have all required permissions; requesting authorization for account: {account_name}"
+        else "Token doesn't have all required permissions;"
     )
-    _LOGGER.warning(message)
+    _LOGGER.warning("%s %s", message, base_message)
     # url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
     data = {
         CONF_ACCOUNT_CONF: account_conf,

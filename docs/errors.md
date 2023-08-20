@@ -23,6 +23,9 @@ nav_order: 12
 * **Client secret expired for account: xxxxxxxx. Create new client id in Azure App.**
   * The Client Secret on your Azure App has expired. Create a new secret and update your O365 configuration.
 
+* **Unable to fetch auth token. Error: (invalid_client) AADSTS7000215: Invalid client secret provided.**
+  * Ensure the configured secret is the client secret __value__, not the client secret ID
+
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
 
 # Installation issues
