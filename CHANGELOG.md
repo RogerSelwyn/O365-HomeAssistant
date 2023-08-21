@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.3.4 (2023/08/21)
+### Maintenance
+- [Added extra validation in support of issue 155](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/87ee2d11c2c1d85b97eec369ccf9c7b3a17dcb00) - @RogerSelwyn
+- [Update __init__.py](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/04e5a5b5cb10849fa91c41e22ff12312a3693fa7) - @RogerSelwyn
+- [Refine messaging for authentication/token errors](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6a65d11cbb07101e43bcabc6e95286f23fe9b2a9) - @RogerSelwyn
+- [Bump to v4.3.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9f5a6ec708c8f35dd08a2c5aa7d4c2b93d6013e9) - @RogerSelwyn
+
+### Documentation
+- [Adjust installation restart steps for 2023.6.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/48e1c5abd72030e1a7739405c0c9fd7933a299fc) - @lunmay
+- [Added possible teams status, from microsoft graph documentation, fix typo on user permissions table](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cac42f4a355efd01f1675aec7a367d84cec6b406) - @fixtse
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/02d85719fd98ef2794a7de70d2089d4b484c2cf3) - @RogerSelwyn
+
 ## v4.3.3 (2023/06/14)
 ### Enhancements
 - [Add capture of expired client secret error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8324414889fb2be3b3c7142705a54d0bbf4ff3cf) - @RogerSelwyn
