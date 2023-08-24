@@ -6,6 +6,7 @@ nav_order: 4
 # Installation and Configuration
 ## Installation
 1. Ensure you have followed the [prerequisites instructions](./prerequisites.md)
+    * Ensure you have a copy of the Client ID and the Client Secret **Value** (not the ID)
 1. Optionally you can set up the [permissions](./permissions.md), alternatively you will be requested to approve permissions when you authenticate to MS 365.
 1. Install this integration:
     * Recommended - [Home Assistant Community Store (HACS)](https://hacs.xyz/) or
