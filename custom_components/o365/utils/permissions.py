@@ -119,8 +119,8 @@ def build_requested_permissions(config):
     if basic_calendar:
         if enable_update:
             _LOGGER.warning(
-                "'enable_update' should not be true when 'basic_calendar' is true for account"
-                ": %s. ReadBasic used. ",
+                "'enable_update' should not be true when 'basic_calendar' is true for account: %s."
+                + " ReadBasic used. ",
                 config[CONF_ACCOUNT_NAME],
             )
         scope.append(PERM_CALENDARS_READBASIC + shared)
