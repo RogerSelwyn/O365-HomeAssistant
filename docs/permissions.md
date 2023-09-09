@@ -21,6 +21,7 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
    | Feature  | Permissions           | Update | O365 Description                      | Notes |
    |----------|-----------------------|:------:|---------------------------------------|-------|
    | Calendar | offline_access        |   | *Maintain access to data you have given it access to* |       |
+   | Calendar | Calendars.ReadBasic   |   | *Read basic details of user calendars*  | Used when `basic_calendar` is set to `true` |
    | Calendar | Calendars.Read        |   | *Read user calendars*  |       |
    | Calendar | Calendars.ReadWrite   | Y | *Read and write user calendars* |       |
    | Calendar | Calendars.Read.Shared |   | *Read user and shared calendars*  | For shared mailboxes |

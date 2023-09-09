@@ -6,7 +6,9 @@ import os
 from homeassistant.const import CONF_ENABLED
 
 from ..const import (
+    CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
+    CONF_BASIC_CALENDAR,
     CONF_CAL_ID,
     CONF_CHAT_SENSORS,
     CONF_EMAIL_SENSORS,
@@ -21,6 +23,7 @@ from ..const import (
     CONST_GROUP,
     DEFAULT_CACHE_PATH,
     PERM_CALENDARS_READ,
+    PERM_CALENDARS_READBASIC,
     PERM_CALENDARS_READWRITE,
     PERM_CHAT_READ,
     PERM_CHAT_READWRITE,
@@ -107,12 +110,21 @@ def build_requested_permissions(config):
     status_sensors = config.get(CONF_STATUS_SENSORS, [])
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
-    enable_update = config.get(CONF_ENABLE_UPDATE, True)
+    enable_update = config.get(CONF_ENABLE_UPDATE, False)
+    basic_calendar = config.get(CONF_BASIC_CALENDAR, False)
     groups = config.get(CONF_GROUPS, False)
     auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
     scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
     shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else ""
-    if enable_update:
+    if basic_calendar:
+        if enable_update:
+            _LOGGER.warning(
+                "'enable_update' should not be true when 'basic_calendar' is true for account"
+                ": %s. ReadBasic used. ",
+                config[CONF_ACCOUNT_NAME],
+            )
+        scope.append(PERM_CALENDARS_READBASIC + shared)
+    elif enable_update:
         scope.extend((PERM_MAIL_SEND + shared, PERM_CALENDARS_READWRITE + shared))
     else:
         scope.append(PERM_CALENDARS_READ + shared)
