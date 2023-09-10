@@ -11,6 +11,7 @@ from .const import (
     CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
+    CONF_PERMISSIONS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TODO_SENSORS,
@@ -19,7 +20,7 @@ from .const import (
 )
 
 
-def do_setup(hass, config, account, account_name, conf_type):
+def do_setup(hass, config, account, account_name, conf_type, perms):
     """Run the setup after we have everything configured."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
@@ -41,6 +42,7 @@ def do_setup(hass, config, account, account_name, conf_type):
         CONF_TRACK_NEW_CALENDAR: config.get(CONF_TRACK_NEW_CALENDAR, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
         CONF_CONFIG_TYPE: conf_type,
+        CONF_PERMISSIONS: perms,
     }
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}

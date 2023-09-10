@@ -37,10 +37,10 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
-    CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_MAIL_FOLDER,
+    CONF_PERMISSIONS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
     CONF_TASK_LIST_ID,
@@ -74,12 +74,10 @@ from .schema import (
 )
 from .utils.filemgmt import (
     build_config_file_path,
-    build_token_filename,
     build_yaml_filename,
     load_yaml_file,
     update_task_list_file,
 )
-from .utils.permissions import get_permissions, validate_minimum_permission
 from .utils.utils import build_entity_id, get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
@@ -530,12 +528,13 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
 
 async def _async_setup_register_services(hass, config):
-    await _async_setup_task_services(hass, config)
-    await _async_setup_chat_services(hass, config)
-    await _async_setup_mailbox_services(hass, config)
+    perms = config[CONF_PERMISSIONS]
+    await _async_setup_task_services(hass, config, perms)
+    await _async_setup_chat_services(config, perms)
+    await _async_setup_mailbox_services(config, perms)
 
 
-async def _async_setup_task_services(hass, config):
+async def _async_setup_task_services(hass, config, perms):
     todo_sensors = config.get(CONF_TODO_SENSORS)
     if (
         not todo_sensors
@@ -549,12 +548,8 @@ async def _async_setup_task_services(hass, config):
         DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
     )
 
-    permissions = get_permissions(
-        hass,
-        filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
-    )
     platform = entity_platform.async_get_current_platform()
-    if validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE, permissions):
+    if perms.validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE):
         platform.async_register_entity_service(
             "new_task",
             TASK_SERVICE_NEW_SCHEMA,
@@ -577,7 +572,7 @@ async def _async_setup_task_services(hass, config):
         )
 
 
-async def _async_setup_chat_services(hass, config):
+async def _async_setup_chat_services(config, perms):
     chat_sensors = config.get(CONF_CHAT_SENSORS)
     if not chat_sensors:
         return
@@ -585,12 +580,8 @@ async def _async_setup_chat_services(hass, config):
     if not chat_sensor or not chat_sensor.get(CONF_ENABLE_UPDATE):
         return
 
-    permissions = get_permissions(
-        hass,
-        filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
-    )
     platform = entity_platform.async_get_current_platform()
-    if validate_minimum_permission(PERM_MINIMUM_CHAT_WRITE, permissions):
+    if perms.validate_minimum_permission(PERM_MINIMUM_CHAT_WRITE):
         platform.async_register_entity_service(
             "send_chat_message",
             CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
@@ -598,19 +589,15 @@ async def _async_setup_chat_services(hass, config):
         )
 
 
-async def _async_setup_mailbox_services(hass, config):
+async def _async_setup_mailbox_services(config, perms):
     if not config.get(CONF_ENABLE_UPDATE):
         return
 
     if not config.get(CONF_AUTO_REPLY_SENSORS):
         return
 
-    permissions = get_permissions(
-        hass,
-        filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE)),
-    )
     platform = entity_platform.async_get_current_platform()
-    if validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS, permissions):
+    if perms.validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS):
         platform.async_register_entity_service(
             "auto_reply_enable",
             AUTO_REPLY_SERVICE_ENABLE_SCHEMA,

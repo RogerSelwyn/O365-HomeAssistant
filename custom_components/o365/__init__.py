@@ -11,6 +11,7 @@ from homeassistant.helpers.issue_registry import IssueSeverity, async_create_iss
 from O365 import Account, FileSystemTokenBackend
 from oauthlib.oauth2.rfc6749.errors import InvalidClientError
 
+from .classes.permissions import Permissions
 from .const import (
     CONF_ACCOUNT,
     CONF_ACCOUNT_CONF,
@@ -46,7 +47,6 @@ from .utils.filemgmt import (
     build_token_filename,
     check_file_location,
 )
-from .utils.permissions import build_minimum_permissions, validate_permissions
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -154,15 +154,13 @@ async def _async_setup_account(hass, account_conf, conf_type):
         )
     )
     is_authenticated = account.is_authenticated
-    minimum_permissions = build_minimum_permissions(hass, account_conf, conf_type)
-    permissions, failed_permissions = validate_permissions(
-        hass, minimum_permissions, filename=token_file
-    )
+    perms = Permissions(hass, account_conf)
+    permissions, failed_permissions = perms.validate_permissions()
     check_token = None
     if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:
-            do_setup(hass, account_conf, account, account_name, conf_type)
+            do_setup(hass, account_conf, account, account_name, conf_type, perms)
     else:
         await _async_authorization_repair(
             hass,

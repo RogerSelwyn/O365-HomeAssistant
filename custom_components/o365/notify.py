@@ -19,15 +19,14 @@ from .const import (
     ATTR_ZIP_NAME,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
-    CONF_CONFIG_TYPE,
+    CONF_PERMISSIONS,
     DOMAIN,
     LEGACY_ACCOUNT_NAME,
     PERM_MAIL_SEND,
     PERM_MINIMUM_SEND,
 )
 from .schema import NOTIFY_SERVICE_BASE_SCHEMA
-from .utils.filemgmt import build_token_filename, get_ha_filepath, zip_files
-from .utils.permissions import get_permissions, validate_minimum_permission
+from .utils.filemgmt import get_ha_filepath, zip_files
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,12 +40,8 @@ async def async_get_service(
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    permissions = get_permissions(
-        hass,
-        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
-    )
-    if account.is_authenticated and validate_minimum_permission(
-        PERM_MINIMUM_SEND, permissions
+    if account.is_authenticated and conf[CONF_PERMISSIONS].validate_minimum_permission(
+        PERM_MINIMUM_SEND
     ):
         return O365EmailService(account, hass, conf)
 
@@ -59,9 +54,7 @@ class O365EmailService(BaseNotificationService):
     def __init__(self, account, hass, config):
         """Initialize the service."""
         self.account = account
-        self._permissions = get_permissions(
-            hass, filename=build_token_filename(config, config.get(CONF_CONFIG_TYPE))
-        )
+        self._config = config
         self._cleanup_files = []
         self._hass = hass
         self._account_name = config.get(CONF_ACCOUNT_NAME, None)
@@ -82,7 +75,9 @@ class O365EmailService(BaseNotificationService):
 
     async def async_send_message(self, message="", **kwargs):
         """Send an async message to a user."""
-        if not validate_minimum_permission(PERM_MINIMUM_SEND, self._permissions):
+        if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
+            PERM_MINIMUM_SEND
+        ):
             _LOGGER.error(
                 "Not authorisied to send mail - requires permission: %s", PERM_MAIL_SEND
             )

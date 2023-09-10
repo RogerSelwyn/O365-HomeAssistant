@@ -2,9 +2,7 @@
 import voluptuous as vol
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..const import ATTR_STATE, CONF_CONFIG_TYPE
-from ..utils.filemgmt import build_token_filename
-from ..utils.permissions import get_permissions, validate_minimum_permission
+from ..const import ATTR_STATE, CONF_PERMISSIONS
 
 
 class O365Sensor(CoordinatorEntity):
@@ -42,13 +40,9 @@ class O365Sensor(CoordinatorEntity):
         return self._unique_id
 
     def _validate_permissions(self, minimum_perm_list, required_permission):
-        permissions = get_permissions(
-            self.hass,
-            filename=build_token_filename(
-                self._config, self._config.get(CONF_CONFIG_TYPE)
-            ),
-        )
-        if not validate_minimum_permission(minimum_perm_list, permissions):
+        if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
+            minimum_perm_list
+        ):
             raise vol.Invalid(
                 f"Not authorisied requires permission: {required_permission}"
             )

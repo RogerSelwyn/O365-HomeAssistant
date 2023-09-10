@@ -45,6 +45,7 @@ from .const import (
     CONF_HOURS_BACKWARD_TO_GET,
     CONF_HOURS_FORWARD_TO_GET,
     CONF_MAX_RESULTS,
+    CONF_PERMISSIONS,
     CONF_SEARCH,
     CONF_TRACK,
     CONF_TRACK_NEW_CALENDAR,
@@ -73,13 +74,11 @@ from .schema import (
 )
 from .utils.filemgmt import (
     build_config_file_path,
-    build_token_filename,
     build_yaml_filename,
     check_file_location,
     load_yaml_file,
     update_calendar_file,
 )
-from .utils.permissions import get_permissions, validate_minimum_permission
 from .utils.utils import (
     add_call_data_to_event,
     clean_html,
@@ -105,13 +104,11 @@ async def async_setup_platform(
     if not account.is_authenticated:
         return False
 
-    permissions = get_permissions(
-        hass,
-        filename=build_token_filename(conf, conf.get(CONF_CONFIG_TYPE)),
-    )
     update_supported = bool(
         conf[CONF_ENABLE_UPDATE]
-        and validate_minimum_permission(PERM_MINIMUM_CALENDAR_WRITE, permissions)
+        and conf[CONF_PERMISSIONS].validate_minimum_permission(
+            PERM_MINIMUM_CALENDAR_WRITE
+        )
     )
     cal_ids = _setup_add_entities(hass, account, add_entities, conf, update_supported)
     hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
@@ -433,13 +430,9 @@ class O365CalendarEntity(CalendarEntity):
         return calendar.get_event(event_id)
 
     def _validate_permissions(self, error_message):
-        permissions = get_permissions(
-            self.hass,
-            filename=build_token_filename(
-                self._config, self._config.get(CONF_CONFIG_TYPE)
-            ),
-        )
-        if not validate_minimum_permission(PERM_MINIMUM_CALENDAR_WRITE, permissions):
+        if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
+            PERM_MINIMUM_CALENDAR_WRITE
+        ):
             raise vol.Invalid(
                 f"Not authorisied to {PERM_CALENDARS_READWRITE} calendar event "
                 + f"- requires permission: {error_message}"

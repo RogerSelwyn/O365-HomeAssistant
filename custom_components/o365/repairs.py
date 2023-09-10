@@ -12,6 +12,7 @@ from homeassistant.components.repairs import RepairsFlow  # ConfirmRepairFlow,
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.network import get_url
 
+from .classes.permissions import Permissions
 from .const import (
     AUTH_CALLBACK_NAME,
     AUTH_CALLBACK_PATH_ALT,
@@ -28,12 +29,6 @@ from .const import (
 )
 from .schema import REQUEST_AUTHORIZATION_DEFAULT_SCHEMA
 from .setup import do_setup
-from .utils.filemgmt import build_token_filename
-from .utils.permissions import (
-    build_minimum_permissions,
-    build_requested_permissions,
-    validate_permissions,
-)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,7 +50,8 @@ class AuthorizationRepairFlow(RepairsFlow):
         self._alt_config = self._conf.get(CONF_ALT_AUTH_METHOD)
         self._account_name = self._conf.get(CONF_ACCOUNT_NAME)
         self._callback_url = get_callback_url(hass, self._alt_config)
-        scope = build_requested_permissions(self._conf)
+        self._permissions = Permissions(hass, self._conf)
+        scope = self._permissions.requested_permissions
         self._url, self._state = self._account.con.get_authorization_url(
             requested_scopes=scope, redirect_uri=self._callback_url
         )
@@ -149,13 +145,7 @@ class AuthorizationRepairFlow(RepairsFlow):
             errors[CONF_URL] = "token_file_error"
             return errors
 
-        token_file = build_token_filename(self._conf, self._conf_type)
-        minimum_permissions = build_minimum_permissions(
-            self.hass, self._conf, self._conf_type
-        )
-        permissions, self._failed_permissions = validate_permissions(
-            self.hass, minimum_permissions, filename=token_file
-        )
+        permissions, self._failed_permissions = self._permissions.validate_permissions()
         if permissions == TOKEN_FILE_MISSING:
             errors[CONF_URL] = "missing_token_file"
             return errors
