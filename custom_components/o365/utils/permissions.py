@@ -58,113 +58,14 @@ _LOGGER = logging.getLogger(__name__)
 
 def build_minimum_permissions(hass, config, conf_type):
     """Build the minimum permissions required to operate."""
-    email_sensors = config.get(CONF_EMAIL_SENSORS, [])
-    query_sensors = config.get(CONF_QUERY_SENSORS, [])
-    status_sensors = config.get(CONF_STATUS_SENSORS, [])
-    chat_sensors = config.get(CONF_CHAT_SENSORS, [])
-    todo_sensors = config.get(CONF_TODO_SENSORS, [])
-    auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
-    shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else None
-    minimum_permissions = [
-        PERM_MINIMUM_USER,
-        _add_shared(PERM_MINIMUM_CALENDAR, shared),
-    ]
-    if len(email_sensors) > 0 or len(query_sensors) > 0:
-        minimum_permissions.append(_add_shared(PERM_MINIMUM_MAIL, shared))
-    if len(status_sensors) > 0:
-        minimum_permissions.append(PERM_MINIMUM_PRESENCE)
-    if len(chat_sensors) > 0:
-        minimum_permissions.append(PERM_MINIMUM_CHAT)
-    if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED, False):
-        minimum_permissions.append(PERM_MINIMUM_TASKS)
-    if len(auto_reply_sensors) > 0:
-        minimum_permissions.append(PERM_MINIMUM_MAILBOX_SETTINGS)
-
-    if group_permissions_required(hass, config, conf_type):
-        minimum_permissions.append(PERM_MINIMUM_GROUP)
-
-    return minimum_permissions
-
-
-def _add_shared(minimum_permissions, shared):
-    if not shared:
-        return minimum_permissions
-
-    if shared not in minimum_permissions[0]:
-        minimum_permissions[0] = minimum_permissions[0] + shared
-    alt_permissions = []
-    for permission in minimum_permissions[1]:
-        if shared not in permission:
-            permission = permission + shared
-        if permission not in alt_permissions:
-            alt_permissions.append(permission)
-
-    minimum_permissions[1] = alt_permissions
-    return minimum_permissions
+    scope = MinumumPermissions(hass, config, conf_type).scope
+    return scope
 
 
 def build_requested_permissions(config):
     """Build the requested permissions for the scope."""
-    email_sensors = config.get(CONF_EMAIL_SENSORS, [])
-    query_sensors = config.get(CONF_QUERY_SENSORS, [])
-    status_sensors = config.get(CONF_STATUS_SENSORS, [])
-    chat_sensors = config.get(CONF_CHAT_SENSORS, [])
-    todo_sensors = config.get(CONF_TODO_SENSORS, [])
-    enable_update = config.get(CONF_ENABLE_UPDATE, False)
-    basic_calendar = config.get(CONF_BASIC_CALENDAR, False)
-    groups = config.get(CONF_GROUPS, False)
-    auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
-    scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
-    shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else ""
-    if basic_calendar:
-        if enable_update:
-            _LOGGER.warning(
-                "'enable_update' should not be true when 'basic_calendar' is true for account: %s."
-                + " ReadBasic used. ",
-                config[CONF_ACCOUNT_NAME],
-            )
-        scope.append(PERM_CALENDARS_READBASIC + shared)
-    elif enable_update:
-        scope.extend((PERM_MAIL_SEND + shared, PERM_CALENDARS_READWRITE + shared))
-    else:
-        scope.append(PERM_CALENDARS_READ + shared)
-    if groups:
-        if enable_update:
-            scope.append(PERM_GROUP_READWRITE_ALL)
-        else:
-            scope.append(PERM_GROUP_READ_ALL)
-    if len(email_sensors) > 0 or len(query_sensors) > 0:
-        scope.append(PERM_MAIL_READ + shared)
-    if len(auto_reply_sensors) > 0:
-        scope.append(PERM_MAILBOX_SETTINGS)
-    if len(status_sensors) > 0:
-        scope.append(PERM_PRESENCE_READ)
-    if len(chat_sensors) > 0:
-        if chat_sensors[0][CONF_ENABLE_UPDATE]:
-            scope.append(PERM_CHAT_READWRITE)
-        else:
-            scope.append(PERM_CHAT_READ)
-    if todo_sensors and todo_sensors.get(CONF_ENABLED, False):
-        if todo_sensors[CONF_ENABLE_UPDATE]:
-            scope.append(PERM_TASKS_READWRITE)
-        else:
-            scope.append(PERM_TASKS_READ)
-
+    scope = RequiredPermissions(config).scope
     return scope
-
-
-def group_permissions_required(hass, config, conf_type):
-    """Return if group permissions are required."""
-    yaml_filename = build_yaml_filename(config, YAML_CALENDARS, conf_type)
-    calendars = load_yaml_file(
-        build_config_file_path(hass, yaml_filename), CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA
-    )
-    for cal_id, calendar in calendars.items():
-        if cal_id.startswith(CONST_GROUP):
-            for entity in calendar.get(CONF_ENTITIES):
-                if entity[CONF_TRACK]:
-                    return True
-    return False
 
 
 def validate_permissions(
@@ -211,3 +112,171 @@ def get_permissions(hass, token_path=DEFAULT_CACHE_PATH, filename=TOKEN_FILENAME
         permissions = json.loads(raw)["scope"]
 
     return permissions
+
+
+class RequiredPermissions:
+    """Class in support of building required permssions."""
+
+    def __init__(self, config):
+        """Initialise the class."""
+        self._config = config
+        self._enable_update = self._config.get(CONF_ENABLE_UPDATE, False)
+        self._scope = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
+        self._shared = PERM_SHARED if self._config.get(CONF_SHARED_MAILBOX) else ""
+
+    @property
+    def scope(self):
+        """Return the required scope."""
+        self._build_calendar_permissions()
+        self._build_group_permissions()
+        self._build_email_permissions()
+        self._build_autoreply_permissions()
+        self._build_status_permissions()
+        self._build_chat_permissions()
+        self._build_todo_permissions()
+        return self._scope
+
+    def _build_calendar_permissions(self):
+        if self._config.get(CONF_BASIC_CALENDAR, False):
+            if self._enable_update:
+                _LOGGER.warning(
+                    "'enable_update' should not be true when 'basic_calendar' is true ."
+                    + "for account: %s ReadBasic used. ",
+                    self._config[CONF_ACCOUNT_NAME],
+                )
+            self._scope.append(PERM_CALENDARS_READBASIC + self._shared)
+        elif self._enable_update:
+            self._scope.extend(
+                (PERM_MAIL_SEND + self._shared, PERM_CALENDARS_READWRITE + self._shared)
+            )
+        else:
+            self._scope.append(PERM_CALENDARS_READ + self._shared)
+
+    def _build_group_permissions(self):
+        if self._config.get(CONF_GROUPS, False):
+            if self._enable_update:
+                self._scope.append(PERM_GROUP_READWRITE_ALL)
+            else:
+                self._scope.append(PERM_GROUP_READ_ALL)
+
+    def _build_email_permissions(self):
+        email_sensors = self._config.get(CONF_EMAIL_SENSORS, [])
+        query_sensors = self._config.get(CONF_QUERY_SENSORS, [])
+        if len(email_sensors) > 0 or len(query_sensors) > 0:
+            self._scope.append(PERM_MAIL_READ + self._shared)
+
+    def _build_autoreply_permissions(self):
+        auto_reply_sensors = self._config.get(CONF_AUTO_REPLY_SENSORS, [])
+        if len(auto_reply_sensors) > 0:
+            self._scope.append(PERM_MAILBOX_SETTINGS)
+
+    def _build_status_permissions(self):
+        status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
+        if len(status_sensors) > 0:
+            self._scope.append(PERM_PRESENCE_READ)
+
+    def _build_chat_permissions(self):
+        chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
+        if len(chat_sensors) > 0:
+            if chat_sensors[0][CONF_ENABLE_UPDATE]:
+                self._scope.append(PERM_CHAT_READWRITE)
+            else:
+                self._scope.append(PERM_CHAT_READ)
+
+    def _build_todo_permissions(self):
+        todo_sensors = self._config.get(CONF_TODO_SENSORS, [])
+        if todo_sensors and todo_sensors.get(CONF_ENABLED, False):
+            if todo_sensors[CONF_ENABLE_UPDATE]:
+                self._scope.append(PERM_TASKS_READWRITE)
+            else:
+                self._scope.append(PERM_TASKS_READ)
+
+
+class MinumumPermissions:
+    """Class in support of building minimum permssions."""
+
+    def __init__(self, hass, config, conf_type):
+        """Initialise the class."""
+        self._hass = hass
+        self._config = config
+        self._conf_type = conf_type
+
+        self._shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else None
+        self._minimum_permissions = [
+            PERM_MINIMUM_USER,
+            self._add_shared(PERM_MINIMUM_CALENDAR),
+        ]
+
+    @property
+    def scope(self):
+        """Return the required scope."""
+        self._build_email_permissions()
+        self._build_status_permissions()
+        self._build_chat_permissions()
+        self._build_todo_permissions()
+        self._build_autoreply_permissions()
+        self._build_group_permssions()
+        return self._minimum_permissions
+
+    def _build_email_permissions(self):
+        email_sensors = self._config.get(CONF_EMAIL_SENSORS, [])
+        query_sensors = self._config.get(CONF_QUERY_SENSORS, [])
+        if len(email_sensors) > 0 or len(query_sensors) > 0:
+            self._minimum_permissions.append(self._add_shared(PERM_MINIMUM_MAIL))
+
+    def _build_status_permissions(self):
+        status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
+        if len(status_sensors) > 0:
+            self._minimum_permissions.append(PERM_MINIMUM_PRESENCE)
+
+    def _build_chat_permissions(self):
+        chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
+        if len(chat_sensors) > 0:
+            self._minimum_permissions.append(PERM_MINIMUM_CHAT)
+
+    def _build_todo_permissions(self):
+        todo_sensors = self._config.get(CONF_TODO_SENSORS, [])
+        if len(todo_sensors) > 0 and todo_sensors.get(CONF_ENABLED, False):
+            self._minimum_permissions.append(PERM_MINIMUM_TASKS)
+
+    def _build_autoreply_permissions(self):
+        auto_reply_sensors = self._config.get(CONF_AUTO_REPLY_SENSORS, [])
+        if len(auto_reply_sensors) > 0:
+            self._minimum_permissions.append(PERM_MINIMUM_MAILBOX_SETTINGS)
+
+    def _build_group_permssions(self):
+        if self._group_permissions_required():
+            self._minimum_permissions.append(PERM_MINIMUM_GROUP)
+
+    def _add_shared(self, minimum_permissions):
+        if not self._shared:
+            return minimum_permissions
+
+        if self._shared not in minimum_permissions[0]:
+            minimum_permissions[0] = minimum_permissions[0] + self._shared
+        alt_permissions = []
+        for permission in minimum_permissions[1]:
+            if self._shared not in permission:
+                permission = permission + self._shared
+            if permission not in alt_permissions:
+                alt_permissions.append(permission)
+
+        minimum_permissions[1] = alt_permissions
+        return minimum_permissions
+
+    def _group_permissions_required(self):
+        """Return if group permissions are required."""
+        yaml_filename = build_yaml_filename(
+            self._config, YAML_CALENDARS, self._conf_type
+        )
+        calendars = load_yaml_file(
+            build_config_file_path(self._hass, yaml_filename),
+            CONF_CAL_ID,
+            CALENDAR_DEVICE_SCHEMA,
+        )
+        for cal_id, calendar in calendars.items():
+            if cal_id.startswith(CONST_GROUP):
+                for entity in calendar.get(CONF_ENTITIES):
+                    if entity[CONF_TRACK]:
+                        return True
+        return False
