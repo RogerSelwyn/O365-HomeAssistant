@@ -75,7 +75,6 @@ from .schema import (
 from .utils.filemgmt import (
     build_config_file_path,
     build_yaml_filename,
-    check_file_location,
     load_yaml_file,
     update_calendar_file,
 )
@@ -120,7 +119,6 @@ async def async_setup_platform(
 def _setup_add_entities(hass, account, add_entities, conf, update_supported):
     yaml_filename = build_yaml_filename(conf, YAML_CALENDARS)
     yaml_filepath = build_config_file_path(hass, yaml_filename)
-    check_file_location(hass, yaml_filename, yaml_filepath)
     calendars = load_yaml_file(yaml_filepath, CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA)
     cal_ids = {}
 
@@ -286,7 +284,7 @@ class O365CalendarEntity(CalendarEntity):
             self._check_unique_id(unique_id)
         return unique_id
 
-    # Can be removed by start of 2024 at latest, temporary fudge to correct wrong UIDs
+    # To be removed at start of 2024, temporary fudge to correct wrong UIDs
     def _check_unique_id(self, unique_id):
         ent_reg = entity_registry.async_get(self.hass)
         entry = ent_reg.async_get(self.entity_id)

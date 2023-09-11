@@ -1,7 +1,6 @@
 """File management processes."""
 import logging
 import os
-import shutil
 import zipfile
 from pathlib import Path
 
@@ -131,17 +130,6 @@ def build_yaml_filename(conf, filename, conf_type=None):
             else ""
         )
     return filename.format(DOMAIN, config_file)
-
-
-def check_file_location(hass, filepath, newpath):
-    """Check if file has been moved. If not move it. This function to be removed 2023/05/30."""
-    root = hass.config.config_dir
-    oldpath = os.path.join(
-        root,
-        filepath,
-    )
-    if os.path.exists(oldpath):
-        shutil.move(oldpath, newpath)
 
 
 def get_ha_filepath(hass, filepath):

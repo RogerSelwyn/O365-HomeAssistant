@@ -42,11 +42,7 @@ from .const import (
 )
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .setup import do_setup
-from .utils.filemgmt import (
-    build_config_file_path,
-    build_token_filename,
-    check_file_location,
-)
+from .utils.filemgmt import build_config_file_path, build_token_filename
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,7 +69,7 @@ async def _async_legacy_migration_repair(hass):
     url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
     message = (
         "Secondary/Legacy configuration method is now deprecated and will be "
-        + "removed in a future release. Please migrate to the Primary configuration "
+        + "removed in first release in 2024. Please migrate to the Primary configuration "
         + "method documented here - "
         + f"{url}"
     )
@@ -138,7 +134,6 @@ async def _async_setup_account(hass, account_conf, conf_type):
 
     token_path = build_config_file_path(hass, O365_STORAGE_TOKEN)
     token_file = build_token_filename(account_conf, conf_type)
-    check_file_location(hass, O365_STORAGE_TOKEN, token_path)
     token_backend = await hass.async_add_executor_job(
         ft.partial(
             FileSystemTokenBackend, token_path=token_path, token_filename=token_file
