@@ -33,9 +33,9 @@ from .const import (
     CONST_CONFIG_TYPE_LIST,
     CONST_PRIMARY,
     CONST_UTC_TIMEZONE,
-    DEFAULT_CACHE_PATH,
     DOMAIN,
     LEGACY_ACCOUNT_NAME,
+    O365_STORAGE_TOKEN,
     TOKEN_FILE_MISSING,
     TOKEN_FILENAME,
     YAML_CALENDARS,
@@ -136,9 +136,9 @@ async def _async_setup_account(hass, account_conf, conf_type):
     if not _validate_shared_schema(account_name, main_resource, account_conf):
         return
 
-    token_path = build_config_file_path(hass, DEFAULT_CACHE_PATH)
+    token_path = build_config_file_path(hass, O365_STORAGE_TOKEN)
     token_file = build_token_filename(account_conf, conf_type)
-    check_file_location(hass, DEFAULT_CACHE_PATH, token_path)
+    check_file_location(hass, O365_STORAGE_TOKEN, token_path)
     token_backend = await hass.async_add_executor_job(
         ft.partial(
             FileSystemTokenBackend, token_path=token_path, token_filename=token_file
@@ -222,8 +222,8 @@ def _validate_shared_schema(account_name, main_account, config):
 def _copy_token_file(hass, account_name):
     old_file = TOKEN_FILENAME.format("")
     new_file = TOKEN_FILENAME.format(f"_{account_name}")
-    old_filepath = build_config_file_path(hass, f"{DEFAULT_CACHE_PATH}/{old_file}")
-    new_filepath = build_config_file_path(hass, f"{DEFAULT_CACHE_PATH}/{new_file}")
+    old_filepath = build_config_file_path(hass, f"{O365_STORAGE_TOKEN}/{old_file}")
+    new_filepath = build_config_file_path(hass, f"{O365_STORAGE_TOKEN}/{new_file}")
     if os.path.exists(old_filepath):
         shutil.copy(src=old_filepath, dst=new_filepath)
 

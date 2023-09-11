@@ -21,7 +21,7 @@ from ..const import (
     CONF_TODO_SENSORS,
     CONF_TRACK,
     CONST_GROUP,
-    DEFAULT_CACHE_PATH,
+    O365_STORAGE_TOKEN,
     PERM_CALENDARS_READ,
     PERM_CALENDARS_READBASIC,
     PERM_CALENDARS_READWRITE,
@@ -74,7 +74,7 @@ class Permissions:
         self._minimum_permissions = []
         self._requested_permissions = []
         self._filename = build_token_filename(config, self._conf_type)
-        self._token_path = DEFAULT_CACHE_PATH
+        self._token_path = O365_STORAGE_TOKEN
         self._permissions = []
 
     @property
@@ -111,22 +111,9 @@ class Permissions:
     def permissions(self):
         """Return the permission set."""
         if not self._permissions:
-            self._permissions = self.get_permissions()
+            self._permissions = self._get_permissions()
 
         return self._permissions
-
-    def get_permissions(self):
-        """Get the permissions from the token file."""
-        config_path = build_config_file_path(self._hass, self._token_path)
-        full_token_path = os.path.join(config_path, self._filename)
-        if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
-            _LOGGER.warning("Could not locate token at %s", full_token_path)
-            return TOKEN_FILE_MISSING
-        with open(full_token_path, "r", encoding="UTF-8") as file_handle:
-            raw = file_handle.read()
-            permissions = json.loads(raw)["scope"]
-
-        return permissions
 
     def validate_permissions(self):
         """Validate the permissions."""
@@ -156,6 +143,19 @@ class Permissions:
         return any(
             alternate_perm in self.permissions for alternate_perm in minimum_perm[1]
         )
+
+    def _get_permissions(self):
+        """Get the permissions from the token file."""
+        config_path = build_config_file_path(self._hass, self._token_path)
+        full_token_path = os.path.join(config_path, self._filename)
+        if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
+            _LOGGER.warning("Could not locate token at %s", full_token_path)
+            return TOKEN_FILE_MISSING
+        with open(full_token_path, "r", encoding="UTF-8") as file_handle:
+            raw = file_handle.read()
+            permissions = json.loads(raw)["scope"]
+
+        return permissions
 
     def _build_email_min_permissions(self):
         email_sensors = self._config.get(CONF_EMAIL_SENSORS, [])
