@@ -11,7 +11,6 @@ from ..const import (
     CONF_BASIC_CALENDAR,
     CONF_CAL_ID,
     CONF_CHAT_SENSORS,
-    CONF_CONFIG_TYPE,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
@@ -64,11 +63,11 @@ _LOGGER = logging.getLogger(__name__)
 class Permissions:
     """Class in support of building permssion sets."""
 
-    def __init__(self, hass, config):
+    def __init__(self, hass, config, conf_type):
         """Initialise the class."""
         self._hass = hass
         self._config = config
-        self._conf_type = config.get(CONF_CONFIG_TYPE)
+        self._conf_type = conf_type
 
         self._shared = PERM_SHARED if config.get(CONF_SHARED_MAILBOX) else ""
         self._enable_update = self._config.get(CONF_ENABLE_UPDATE, False)
@@ -81,29 +80,31 @@ class Permissions:
     @property
     def minimum_permissions(self):
         """Return the required scope."""
-        self._minimum_permissions = [
-            PERM_MINIMUM_USER,
-            self._add_shared(PERM_MINIMUM_CALENDAR),
-        ]
-        self._build_email_min_permissions()
-        self._build_status_min_permissions()
-        self._build_chat_min_permissions()
-        self._build_todo_min_permissions()
-        self._build_autoreply_min_permissions()
-        self._build_group_min_permssions()
+        if not self._minimum_permissions:
+            self._minimum_permissions = [
+                PERM_MINIMUM_USER,
+                self._add_shared(PERM_MINIMUM_CALENDAR),
+            ]
+            self._build_email_min_permissions()
+            self._build_status_min_permissions()
+            self._build_chat_min_permissions()
+            self._build_todo_min_permissions()
+            self._build_autoreply_min_permissions()
+            self._build_group_min_permssions()
         return self._minimum_permissions
 
     @property
     def requested_permissions(self):
         """Return the required scope."""
-        self._requested_permissions = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
-        self._build_calendar_permissions()
-        self._build_group_permissions()
-        self._build_email_permissions()
-        self._build_autoreply_permissions()
-        self._build_status_permissions()
-        self._build_chat_permissions()
-        self._build_todo_permissions()
+        if not self._requested_permissions:
+            self._requested_permissions = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
+            self._build_calendar_permissions()
+            self._build_group_permissions()
+            self._build_email_permissions()
+            self._build_autoreply_permissions()
+            self._build_status_permissions()
+            self._build_chat_permissions()
+            self._build_todo_permissions()
         return self._requested_permissions
 
     @property

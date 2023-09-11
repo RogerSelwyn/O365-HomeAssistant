@@ -50,7 +50,7 @@ class AuthorizationRepairFlow(RepairsFlow):
         self._alt_config = self._conf.get(CONF_ALT_AUTH_METHOD)
         self._account_name = self._conf.get(CONF_ACCOUNT_NAME)
         self._callback_url = get_callback_url(hass, self._alt_config)
-        self._permissions = Permissions(hass, self._conf)
+        self._permissions = Permissions(hass, self._conf, self._conf_type)
         scope = self._permissions.requested_permissions
         self._url, self._state = self._account.con.get_authorization_url(
             requested_scopes=scope, redirect_uri=self._callback_url
@@ -159,6 +159,7 @@ class AuthorizationRepairFlow(RepairsFlow):
             self._account,
             self._account_name,
             self._conf_type,
+            self._permissions,
         )
 
         return errors

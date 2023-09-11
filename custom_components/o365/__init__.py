@@ -154,7 +154,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
         )
     )
     is_authenticated = account.is_authenticated
-    perms = Permissions(hass, account_conf)
+    perms = Permissions(hass, account_conf, conf_type)
     permissions, failed_permissions = perms.validate_permissions()
     check_token = None
     if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
