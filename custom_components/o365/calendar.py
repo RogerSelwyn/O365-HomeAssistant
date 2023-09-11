@@ -379,7 +379,12 @@ class O365CalendarEntity(CalendarEntity):
         event.save()
         self._raise_event(EVENT_MODIFY_CALENDAR_EVENT, event_id)
 
-    def remove_calendar_event(self, event_id, recurrence_id, recurrence_range):
+    def remove_calendar_event(
+        self,
+        event_id,
+        recurrence_id: str | None = None,
+        recurrence_range: str | None = None,
+    ):
         """Remove the event."""
         if not self._validate_permissions("delete"):
             return
