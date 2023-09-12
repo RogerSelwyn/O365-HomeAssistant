@@ -20,6 +20,7 @@ from ..const import (
     CONF_STATUS_SENSORS,
     CONF_TODO_SENSORS,
     CONF_TRACK,
+    CONST_CONFIG_TYPE_LIST,
     CONST_GROUP,
     O365_STORAGE_TOKEN,
     PERM_CALENDARS_READ,
@@ -47,15 +48,11 @@ from ..const import (
     PERM_TASKS_READWRITE,
     PERM_USER_READ,
     TOKEN_FILE_MISSING,
+    TOKEN_FILENAME,
     YAML_CALENDARS,
 )
 from ..schema import CALENDAR_DEVICE_SCHEMA
-from ..utils.filemgmt import (
-    build_config_file_path,
-    build_token_filename,
-    build_yaml_filename,
-    load_yaml_file,
-)
+from ..utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,8 +70,8 @@ class Permissions:
         self._enable_update = self._config.get(CONF_ENABLE_UPDATE, False)
         self._minimum_permissions = []
         self._requested_permissions = []
-        self._filename = build_token_filename(config, self._conf_type)
-        self._token_path = O365_STORAGE_TOKEN
+        self.token_filename = self._build_token_filename()
+        self.token_path = build_config_file_path(self._hass, O365_STORAGE_TOKEN)
         self._permissions = []
 
     @property
@@ -144,10 +141,18 @@ class Permissions:
             alternate_perm in self.permissions for alternate_perm in minimum_perm[1]
         )
 
+    def _build_token_filename(self):
+        """Create the token file name."""
+        config_file = (
+            f"_{self._config.get(CONF_ACCOUNT_NAME)}"
+            if self._conf_type == CONST_CONFIG_TYPE_LIST
+            else ""
+        )
+        return TOKEN_FILENAME.format(config_file)
+
     def _get_permissions(self):
         """Get the permissions from the token file."""
-        config_path = build_config_file_path(self._hass, self._token_path)
-        full_token_path = os.path.join(config_path, self._filename)
+        full_token_path = os.path.join(self.token_path, self.token_filename)
         if not os.path.exists(full_token_path) or not os.path.isfile(full_token_path):
             _LOGGER.warning("Could not locate token at %s", full_token_path)
             return TOKEN_FILE_MISSING

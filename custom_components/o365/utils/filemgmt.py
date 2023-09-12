@@ -1,8 +1,6 @@
 """File management processes."""
 import logging
 import os
-import zipfile
-from pathlib import Path
 
 import yaml
 from homeassistant.const import CONF_NAME
@@ -19,7 +17,8 @@ from ..const import (
     CONST_CONFIG_TYPE_LIST,
     DOMAIN,
     O365_STORAGE,
-    TOKEN_FILENAME,
+    YAML_CALENDARS,
+    YAML_TASK_LISTS,
 )
 from ..schema import CALENDAR_DEVICE_SCHEMA, TASK_LIST_SCHEMA
 
@@ -47,7 +46,7 @@ def load_yaml_file(path, item_id, item_schema):
     return items
 
 
-def get_calendar_info(calendar, track_new_devices):
+def _get_calendar_info(calendar, track_new_devices):
     """Convert data from O365 into DEVICE_SCHEMA."""
     return CALENDAR_DEVICE_SCHEMA(
         {
@@ -63,13 +62,14 @@ def get_calendar_info(calendar, track_new_devices):
     )
 
 
-def update_calendar_file(path, calendar, hass, track_new_devices):
+def update_calendar_file(config, calendar, hass, track_new_devices):
     """Update the calendar file."""
+    path = build_yaml_filename(config, YAML_CALENDARS)
     yaml_filepath = build_config_file_path(hass, path)
     existing_calendars = load_yaml_file(
         yaml_filepath, CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA
     )
-    cal = get_calendar_info(calendar, track_new_devices)
+    cal = _get_calendar_info(calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
         return
     with open(yaml_filepath, "a", encoding="UTF8") as out:
@@ -78,7 +78,7 @@ def update_calendar_file(path, calendar, hass, track_new_devices):
         out.close()
 
 
-def get_task_list_info(task_list, track_new_devices):
+def _get_task_list_info(task_list, track_new_devices):
     """Convert data from O365 into DEVICE_SCHEMA."""
     return TASK_LIST_SCHEMA(
         {
@@ -89,13 +89,14 @@ def get_task_list_info(task_list, track_new_devices):
     )
 
 
-def update_task_list_file(path, task_list, hass, track_new_devices):
+def update_task_list_file(config, task_list, hass, track_new_devices):
     """Update the calendar file."""
+    path = build_yaml_filename(config, YAML_TASK_LISTS)
     yaml_filepath = build_config_file_path(hass, path)
     existing_task_lists = load_yaml_file(
         yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
     )
-    task_list = get_task_list_info(task_list, track_new_devices)
+    task_list = _get_task_list_info(task_list, track_new_devices)
     if task_list[CONF_TASK_LIST_ID] in existing_task_lists:
         return
     with open(yaml_filepath, "a", encoding="UTF8") as out:
@@ -111,14 +112,6 @@ def build_config_file_path(hass, filepath):
     return os.path.join(root, O365_STORAGE, filepath)
 
 
-def build_token_filename(conf, conf_type):
-    """Create the token file name."""
-    config_file = (
-        f"_{conf.get(CONF_ACCOUNT_NAME)}" if conf_type == CONST_CONFIG_TYPE_LIST else ""
-    )
-    return TOKEN_FILENAME.format(config_file)
-
-
 def build_yaml_filename(conf, filename, conf_type=None):
     """Create the token file name."""
     if conf_type:
@@ -130,29 +123,3 @@ def build_yaml_filename(conf, filename, conf_type=None):
             else ""
         )
     return filename.format(DOMAIN, config_file)
-
-
-def get_ha_filepath(hass, filepath):
-    """Get the file path."""
-    _filepath = Path(filepath)
-    if _filepath.parts[0] == "/" and _filepath.parts[1] == "config":
-        _filepath = os.path.join(hass.config.config_dir, *_filepath.parts[2:])
-
-    if not os.path.isfile(_filepath):
-        if not os.path.isfile(filepath):
-            raise ValueError(f"Could not access file {filepath} at {_filepath}")
-        return filepath
-    return _filepath
-
-
-def zip_files(filespaths, zip_name):
-    """Zip the files."""
-    if not zip_name:
-        zip_name = "archive.zip"
-    if Path(zip_name).suffix != ".zip":
-        zip_name += ".zip"
-
-    with zipfile.ZipFile(zip_name, mode="w") as zip_file:
-        for file_path in filespaths:
-            zip_file.write(file_path, os.path.basename(file_path))
-    return zip_name

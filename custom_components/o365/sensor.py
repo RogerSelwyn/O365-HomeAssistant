@@ -7,6 +7,7 @@ from operator import itemgetter
 
 from homeassistant.const import CONF_ENABLED, CONF_NAME
 from homeassistant.helpers import entity_platform
+from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
@@ -56,6 +57,7 @@ from .const import (
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_TASKS_WRITE,
     SENSOR_AUTO_REPLY,
+    SENSOR_ENTITY_ID_FORMAT,
     SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
@@ -78,7 +80,7 @@ from .utils.filemgmt import (
     load_yaml_file,
     update_task_list_file,
 )
-from .utils.utils import build_entity_id, get_email_attributes
+from .utils.utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -160,7 +162,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             if mail_folder := await self._async_get_mail_folder(
                 sensor_conf, CONF_EMAIL_SENSORS
             ):
-                entity_id = build_entity_id(self.hass, name)
+                entity_id = self._build_entity_id(name)
                 unique_id = f"{mail_folder.folder_id}_{self._account_name}"
                 emailsensor = O365EmailSensor(
                     self,
@@ -187,7 +189,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 sensor_conf, CONF_QUERY_SENSORS
             ):
                 name = sensor_conf.get(CONF_NAME)
-                entity_id = build_entity_id(self.hass, name)
+                entity_id = self._build_entity_id(name)
                 unique_id = f"{mail_folder.folder_id}_{self._account_name}"
                 querysensor = O365QuerySensor(
                     self,
@@ -206,7 +208,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         for sensor_conf in status_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = build_entity_id(self.hass, name)
+            entity_id = self._build_entity_id(name)
             unique_id = f"{name}_{self._account_name}"
             teams_status_sensor = O365TeamsStatusSensor(
                 self, self._account, name, entity_id, self._config, unique_id
@@ -220,7 +222,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in chat_sensors:
             name = sensor_conf.get(CONF_NAME)
             enable_update = sensor_conf.get(CONF_ENABLE_UPDATE)
-            entity_id = build_entity_id(self.hass, name)
+            entity_id = self._build_entity_id(name)
             unique_id = f"{name}_{self._account_name}"
             teams_chat_sensor = O365TeamsChatSensor(
                 self,
@@ -273,7 +275,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-                entity_id = build_entity_id(self.hass, name)
+                entity_id = self._build_entity_id(name)
                 unique_id = f"{task_list_id}_{self._account_name}"
                 todo_sensor = O365TasksSensor(
                     self, todo, name, task, config, entity_id, unique_id
@@ -292,7 +294,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         entities = []
         for sensor_conf in auto_reply_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = build_entity_id(self.hass, name)
+            entity_id = self._build_entity_id(name)
             unique_id = f"{name}_{self._account_name}"
             auto_reply_sensor = O365AutoReplySensor(
                 self, name, entity_id, self._config, unique_id
@@ -519,6 +521,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 ATTR_AUTOREPLIESSETTINGS: data.automaticrepliessettings,
             }
 
+    def _build_entity_id(self, name):
+        """Build and entity ID."""
+        return async_generate_entity_id(
+            SENSOR_ENTITY_ID_FORMAT,
+            name,
+            hass=self.hass,
+        )
+
     def _raise_event(self, event_type, task_id, time_type, task_datetime):
         self.hass.bus.fire(
             f"{DOMAIN}_{event_type}",
@@ -629,7 +639,7 @@ class SensorServices:
                 track = todo_sensor.get(CONF_TRACK_NEW)
                 for todo in todolists:
                     update_task_list_file(
-                        build_yaml_filename(config, YAML_TASK_LISTS),
+                        config,
                         todo,
                         self._hass,
                         track,

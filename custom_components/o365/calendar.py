@@ -72,20 +72,20 @@ from .schema import (
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
 )
+from .utils.calendar_utils import (
+    add_call_data_to_event,
+    format_event_data,
+    get_end_date,
+    get_hass_date,
+    get_start_date,
+)
 from .utils.filemgmt import (
     build_config_file_path,
     build_yaml_filename,
     load_yaml_file,
     update_calendar_file,
 )
-from .utils.utils import (
-    add_call_data_to_event,
-    clean_html,
-    format_event_data,
-    get_end_date,
-    get_hass_date,
-    get_start_date,
-)
+from .utils.utils import clean_html
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -711,7 +711,7 @@ class CalendarServices:
                 track = config.get(CONF_TRACK_NEW_CALENDAR, True)
                 for calendar in calendars:
                     update_calendar_file(
-                        build_yaml_filename(config, YAML_CALENDARS),
+                        config,
                         calendar,
                         self._hass,
                         track,

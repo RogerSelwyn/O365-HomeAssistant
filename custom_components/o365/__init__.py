@@ -42,7 +42,7 @@ from .const import (
 )
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .setup import do_setup
-from .utils.filemgmt import build_config_file_path, build_token_filename
+from .utils.filemgmt import build_config_file_path
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ async def _async_legacy_migration_repair(hass):
 
 
 def _write_out_config(hass, accounts):
+    """Remove when legacy is removed in first release 2024."""
     yaml_filepath = build_config_file_path(hass, "o365_converted_configuration.yaml")
     account_name = LEGACY_ACCOUNT_NAME
     account = copy.deepcopy(accounts[0])
@@ -132,11 +133,12 @@ async def _async_setup_account(hass, account_conf, conf_type):
     if not _validate_shared_schema(account_name, main_resource, account_conf):
         return
 
-    token_path = build_config_file_path(hass, O365_STORAGE_TOKEN)
-    token_file = build_token_filename(account_conf, conf_type)
+    perms = Permissions(hass, account_conf, conf_type)
     token_backend = await hass.async_add_executor_job(
         ft.partial(
-            FileSystemTokenBackend, token_path=token_path, token_filename=token_file
+            FileSystemTokenBackend,
+            token_path=perms.token_path,
+            token_filename=perms.token_filename,
         )
     )
     account = await hass.async_add_executor_job(
@@ -149,7 +151,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
         )
     )
     is_authenticated = account.is_authenticated
-    perms = Permissions(hass, account_conf, conf_type)
+
     permissions, failed_permissions = perms.validate_permissions()
     check_token = None
     if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
