@@ -310,9 +310,6 @@ class O365CalendarEntity(CalendarEntity):
             dt.utcnow() + timedelta(hours=self._end_offset),
         )
 
-        if not results and self._event:
-            return
-
         self._data_attribute = [format_event_data(x) for x in results]
         self._event = event
 
@@ -612,6 +609,11 @@ class O365CalendarData:
             start_of_day_utc + timedelta(days=1),
         )
         if not results:
+            _LOGGER.debug(
+                "No current event found for %s",
+                self._entity_id,
+            )
+            self.event = None
             return
 
         vevent = self._get_root_event(results)
