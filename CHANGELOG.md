@@ -1,5 +1,31 @@
 # Changelog
 
+## v4.3.4 (2023/10/05)
+### ✨ Enhancements
+- [Add basic calendar permission support](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0739e510afc336639544dd52d2eac4aa1d4107e0) - @RogerSelwyn
+- [Update calendar entity quicker after add/change/delete](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7036b2c08fbc29a61286baae48809c1868fdd4f6) - @RogerSelwyn
+
+### 🐛 Fixes
+- [Logger fix](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/07d20115f725dd89c38bd430c7053d4079d759b2) - @RogerSelwyn
+- [Fix issue with deleting events using service](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d39de0390022e105cfd2d3bc59d87757bfe00384) - @RogerSelwyn
+- [Fix token filename creation](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3169f9d065e517f6faf285f0c891552a0af14422) - @RogerSelwyn
+- [Fix calendar entity not updating after last event delete](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3b3c1f664d80c72845ec9282db1492b4e42eb8cb) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Restructure permission code for maintainability](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2270f0359a8cd396bc8b3b1c66c27b6ad37489ce) - @RogerSelwyn
+- [Minor code tidy up](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/04a7c8bc596118e5a4a12b336d4b3994b0afffe2) - @RogerSelwyn
+- [Remove redundant check for file location](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1c535a0e0e0d25f1b8adf401c4572935dde61731) - @RogerSelwyn
+- [Further refactoring](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0f6075282d8d8706930b5803d6eccf84c2e35b1d) - @RogerSelwyn
+- [Update dependabot.yml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/824e6a270b782b095c459005cee70176c5c36425) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/372c0c890e08e2b89e977e02c0e6e286d57e9c9f) - @actions-user
+- [Pull all permissions methods into Permissions class](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/882eddf229b951d9c096293b959b45b816bf534b) - @RogerSelwyn
+- [Bump actions/checkout from 2 to 4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e6dc0816067c0f8351a635e3a1787cb7b1ec00a4) - @dependabot[bot]
+
+
+### 📚 Documentation
+- [Add clarification on events for external task closure](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/33edd56d84fa6c70f58dc46ff954318073725bf1) - @RogerSelwyn
+- [Make it clear that Client Secret Value is required, not ID](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/55e7930664493622f44c36e1ec1b44a3bd60bdac) - @RogerSelwyn
+
 ## v4.3.4 (2023/08/21)
 ### Maintenance
 - [Added extra validation in support of issue 155](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/87ee2d11c2c1d85b97eec369ccf9c7b3a17dcb00) - @RogerSelwyn
