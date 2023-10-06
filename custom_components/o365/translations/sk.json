@@ -1,0 +1,33 @@
+{
+    "issues": {
+       "deprecated_legacy_configuration": {
+            "title": "Zastaraná sekundárna/stará metóda konfigurácie",
+            "description": "Sekundárna/stará metóda konfigurácie je teraz zastaraná a bude odstránená v budúcom vydaní. Prejdite na primárnu metódu konfigurácie. Kliknutím na „Viac informácií“ získate podrobnosti o konfigurácii. Potenciálna konfigurácia bola umiestnená do priečinka o365_storage."
+        },
+        "authorization": {
+            "title": "Je potrebná autorizácia - {account_name}",
+            "fix_flow": {
+                "error": {
+                    "invalid_url": "Chyba, pôvodná adresa URL sa nezdá byť platným presmerovaním spoločnosti Microsoft",
+                    "minimum_permissions": "Minimálne povolenia nie sú udelené pre účet: {account_name}",
+                    "missing_token_file": "Po úspešnom overení chýba súbor tokenu, skontrolujte denník kvôli chybám systému súborov",
+                    "token_file_error": "Chyba pri načítaní súboru tokenu, skontrolujte protokol, či neobsahuje chyby od O365"
+                    },
+                "step": {
+                    "request_default": {
+                        "title": "Je potrebná autorizácia - {account_name}",
+                        "description": "Dokončite konfiguráciu kliknutím na odkaz, skopírovaním vrátenej adresy URL do tohto poľa a odoslaním\n\n[Link O365 account]({auth_url}){failed_permissions}",
+                        "data": {
+                            "url": "Vrátená adresa URL"
+                        }
+                    },
+                    "request_alt": {
+                        "title": "Je potrebná autorizácia - {account_name}",
+                        "description": "Ak chcete prepojiť svoj účet O365, kliknite na odkaz, prihláste sa a autorizujte:\n\n[Link O365 account]({auth_url}){failed_permissions}",
+                        "submit": "Úspešne som autorizoval"
+                    }
+                }
+            }
+        }
+    }
+}
