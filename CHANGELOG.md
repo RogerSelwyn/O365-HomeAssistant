@@ -1,6 +1,17 @@
 # Changelog
 
-## v4.3.4 (2023/10/05)
+## v4.4.1 (2023/10/06)
+### ✨ Enhancements
+- [Slovak translation - Thanks!!](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/76cf7030f69e226b03beabafd3c16f25219fd38b) - @misa1515
+
+### 🔨 Maintenance
+- [Bump to v4.4.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3ec08ca74fe00c93546af698a381734e178e3ac8) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7faded291068b194a09c104e870f6e3adc7af8bd) - @actions-user
+
+### ⬆️ Depenencies
+- [Bump python-o365 to 2.0.28](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c8bfc090644ca5216c2a2586f2ec7ea8d69d7417) - @RogerSelwyn
+- 
+## v4.4.0 (2023/10/05)
 ### ✨ Enhancements
 - [Add basic calendar permission support](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0739e510afc336639544dd52d2eac4aa1d4107e0) - @RogerSelwyn
 - [Update calendar entity quicker after add/change/delete](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7036b2c08fbc29a61286baae48809c1868fdd4f6) - @RogerSelwyn
