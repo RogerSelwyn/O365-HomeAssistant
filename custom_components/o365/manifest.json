@@ -12,7 +12,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/RogerSelwyn/O365-HomeAssistant/issues",
   "requirements": [
-    "O365==2.0.27",
+    "O365==2.0.28",
     "BeautifulSoup4>=4.10.0"
   ],
   "version": "v4.4.0"
