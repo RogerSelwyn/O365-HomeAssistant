@@ -8,8 +8,9 @@ import shutil
 import yaml
 from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
-from O365 import Account, FileSystemTokenBackend
 from oauthlib.oauth2.rfc6749.errors import InvalidClientError
+
+from O365 import Account, FileSystemTokenBackend
 
 from .classes.permissions import Permissions
 from .const import (
