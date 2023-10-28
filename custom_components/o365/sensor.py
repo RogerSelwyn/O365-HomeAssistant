@@ -367,7 +367,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._data[entity.entity_key] = {
             ATTR_STATE: len(attrs),
-            ATTR_ATTRIBUTES: {"data": attrs},
+            ATTR_ATTRIBUTES: {ATTR_DATA: attrs},
         }
 
     def _get_attributes(self, data, entity):

@@ -60,6 +60,8 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
 class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
     """O365 Teams Chat sensor processing."""
 
+    _unrecorded_attributes = frozenset((ATTR_DATA,))
+
     def __init__(
         self, coordinator, account, name, entity_id, config, unique_id, enable_update
     ):

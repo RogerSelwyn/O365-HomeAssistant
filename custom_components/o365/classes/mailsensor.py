@@ -2,11 +2,13 @@
 import datetime
 
 from homeassistant.components.sensor import SensorEntity
+
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 
 from ..const import (
     ATTR_ATTRIBUTES,
     ATTR_AUTOREPLIESSETTINGS,
+    ATTR_DATA,
     ATTR_END,
     ATTR_EXTERNAL_AUDIENCE,
     ATTR_EXTERNALREPLY,
@@ -35,6 +37,8 @@ from .sensorentity import O365Sensor
 
 class O365MailSensor(O365Sensor):
     """O365 generic Mail Sensor class."""
+
+    _unrecorded_attributes = frozenset((ATTR_DATA,))
 
     def __init__(
         self, coordinator, config, sensor_conf, mail_folder, name, entity_id, unique_id

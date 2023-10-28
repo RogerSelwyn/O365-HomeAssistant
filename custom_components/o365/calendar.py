@@ -205,6 +205,8 @@ async def _async_setup_register_services(hass, update_supported):
 class O365CalendarEntity(CalendarEntity):
     """O365 Calendar Event Processing."""
 
+    _unrecorded_attributes = frozenset((ATTR_DATA,))
+
     def __init__(
         self,
         account,
