@@ -2,13 +2,14 @@
 import voluptuous as vol
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..const import ATTR_STATE, CONF_PERMISSIONS
+from ..const import ATTR_DATA, ATTR_STATE, CONF_PERMISSIONS
 
 
 class O365Sensor(CoordinatorEntity):
     """O365 generic Sensor class."""
 
     _attr_should_poll = False
+    _unrecorded_attributes = frozenset((ATTR_DATA,))
 
     def __init__(self, coordinator, config, name, entity_id, entity_type, unique_id):
         """Initialise the O365 Sensor."""
