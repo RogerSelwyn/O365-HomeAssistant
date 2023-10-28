@@ -3,7 +3,7 @@ import datetime
 
 from homeassistant.components.sensor import SensorEntity
 
-from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
+from O365 import mailbox  # pylint: disable=no-name-in-module
 
 from ..const import (
     ATTR_ATTRIBUTES,
@@ -185,7 +185,7 @@ class O365AutoReplySensor(O365Sensor, SensorEntity):
         internal_reply,
         start=None,
         end=None,
-        external_audience=ExternalAudience.ALL,
+        external_audience=mailbox.ExternalAudience.ALL,
     ):
         """Enable out of office autoreply."""
         if not self._validate_autoreply_permissions():
