@@ -5,11 +5,12 @@ import logging
 from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_platform
 
+from .classes.mailsensor import O365AutoReplySensor
 from .classes.taskssensor import O365TasksSensor, O365TasksSensorSensorServices
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
-from .const import CONF_ACCOUNT_NAME  # SENSOR_TODO,
 from .const import (
     CONF_ACCOUNT,
+    CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_COORDINATOR,
@@ -68,9 +69,9 @@ async def async_setup_platform(
         in [
             SENSOR_MAIL,
             # SENSOR_TEAMS_STATUS,
-            SENSOR_TEAMS_CHAT,
+            # SENSOR_TEAMS_CHAT,
             # SENSOR_TODO,
-            SENSOR_AUTO_REPLY,
+            # SENSOR_AUTO_REPLY,
         ]
     ]
     coordinator = conf[CONF_COORDINATOR]
@@ -82,7 +83,7 @@ async def async_setup_platform(
                     key[CONF_TODO],
                     key[CONF_NAME],
                     key[CONF_TASK_LIST],
-                    config,
+                    conf,
                     key[CONF_ENTITY_KEY],
                     key[CONF_UNIQUE_ID],
                 )
@@ -91,10 +92,9 @@ async def async_setup_platform(
             sensorentities.append(
                 O365TeamsChatSensor(
                     coordinator,
-                    account,
                     key[CONF_NAME],
                     key[CONF_ENTITY_KEY],
-                    config,
+                    conf,
                     key[CONF_UNIQUE_ID],
                     key[CONF_ENABLE_UPDATE],
                 )
@@ -103,10 +103,19 @@ async def async_setup_platform(
             sensorentities.append(
                 O365TeamsStatusSensor(
                     coordinator,
-                    account,
                     key[CONF_NAME],
                     key[CONF_ENTITY_KEY],
-                    config,
+                    conf,
+                    key[CONF_UNIQUE_ID],
+                )
+            )
+        elif key[CONF_ENTITY_TYPE] == SENSOR_AUTO_REPLY:
+            sensorentities.append(
+                O365AutoReplySensor(
+                    coordinator,
+                    key[CONF_NAME],
+                    key[CONF_ENTITY_KEY],
+                    conf,
                     key[CONF_UNIQUE_ID],
                 )
             )

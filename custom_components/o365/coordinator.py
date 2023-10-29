@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
-from .classes.mailsensor import O365AutoReplySensor, O365EmailSensor, O365QuerySensor
+from .classes.mailsensor import O365EmailSensor, O365QuerySensor
 from .classes.taskssensor import O365TasksSensorSensorServices
 from .const import (
     ATTR_ATTRIBUTES,
@@ -95,8 +95,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
         chat_keys = self._chat_sensors()
         todo_keys = await self._async_todo_sensors()
         auto_reply_entities = await self._async_auto_reply_sensors()
-        self._entities = email_entities + query_entities + auto_reply_entities
-        self._keys = chat_keys + status_keys + todo_keys
+        self._entities = email_entities + query_entities
+        self._keys = chat_keys + status_keys + todo_keys + auto_reply_entities
         return self._entities, self._keys
 
     async def _async_email_sensors(self):
@@ -245,16 +245,18 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def _async_auto_reply_sensors(self):
         auto_reply_sensors = self._config.get(CONF_AUTO_REPLY_SENSORS, [])
-        entities = []
+        keys = []
         for sensor_conf in auto_reply_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = self._build_entity_id(name)
-            unique_id = f"{name}_{self._account_name}"
-            auto_reply_sensor = O365AutoReplySensor(
-                self, name, entity_id, self._config, unique_id
-            )
-            entities.append(auto_reply_sensor)
-        return entities
+            new_key = {
+                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_UNIQUE_ID: f"{name}_{self._account_name}",
+                CONF_NAME: name,
+                CONF_ENTITY_TYPE: SENSOR_AUTO_REPLY,
+            }
+
+            keys.append(new_key)
+        return keys
 
     async def _async_get_mail_folder(self, sensor_conf, sensor_type):
         """Get the configured folder."""
@@ -294,8 +296,6 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for entity in self._entities:
             if entity.entity_type == SENSOR_MAIL:
                 await self._async_email_update(entity)
-            elif entity.entity_type == SENSOR_AUTO_REPLY:
-                await self._async_auto_reply_update(entity)
 
         for key in self._keys:
             entity_type = key[CONF_ENTITY_TYPE]
@@ -305,6 +305,8 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 await self._async_teams_chat_update(key)
             elif entity_type == SENSOR_TEAMS_STATUS:
                 await self._async_teams_status_update(key)
+            elif entity_type == SENSOR_AUTO_REPLY:
+                await self._async_auto_reply_update(key)
 
         return self._data
 
@@ -463,10 +465,13 @@ class O365SensorCordinator(DataUpdateCoordinator):
             )
         return query
 
-    async def _async_auto_reply_update(self, entity):
+    async def _async_auto_reply_update(self, key):
         """Update state."""
-        if data := await self.hass.async_add_executor_job(entity.mailbox.get_settings):
-            self._data[entity.entity_key] = {
+        entity_key = key[CONF_ENTITY_KEY]
+        if data := await self.hass.async_add_executor_job(
+            self._account.mailbox().get_settings
+        ):
+            self._data[entity_key] = {
                 ATTR_STATE: data.automaticrepliessettings.status.value,
                 ATTR_AUTOREPLIESSETTINGS: data.automaticrepliessettings,
             }
