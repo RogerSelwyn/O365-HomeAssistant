@@ -6,6 +6,7 @@ from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_platform
 
 from .classes.taskssensor import O365TasksSensor, O365TasksSensorSensorServices
+from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import CONF_ACCOUNT_NAME  # SENSOR_TODO,
 from .const import (
     CONF_ACCOUNT,
@@ -15,6 +16,7 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_ENTITIES,
     CONF_ENTITY_KEY,
+    CONF_ENTITY_TYPE,
     CONF_KEYS,
     CONF_PERMISSIONS,
     CONF_TASK_LIST,
@@ -28,6 +30,7 @@ from .const import (
     SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
+    SENSOR_TODO,
 )
 from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
@@ -64,25 +67,50 @@ async def async_setup_platform(
         if entity.entity_type
         in [
             SENSOR_MAIL,
-            SENSOR_TEAMS_STATUS,
+            # SENSOR_TEAMS_STATUS,
             SENSOR_TEAMS_CHAT,
             # SENSOR_TODO,
             SENSOR_AUTO_REPLY,
         ]
     ]
     coordinator = conf[CONF_COORDINATOR]
-    sensorentities.extend(
-        O365TasksSensor(
-            coordinator,
-            key[CONF_TODO],
-            key[CONF_NAME],
-            key[CONF_TASK_LIST],
-            config,
-            key[CONF_ENTITY_KEY],
-            key[CONF_UNIQUE_ID],
-        )
-        for key in conf[CONF_KEYS]
-    )
+    for key in conf[CONF_KEYS]:
+        if key[CONF_ENTITY_TYPE] == SENSOR_TODO:
+            sensorentities.append(
+                O365TasksSensor(
+                    coordinator,
+                    key[CONF_TODO],
+                    key[CONF_NAME],
+                    key[CONF_TASK_LIST],
+                    config,
+                    key[CONF_ENTITY_KEY],
+                    key[CONF_UNIQUE_ID],
+                )
+            )
+        elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_CHAT:
+            sensorentities.append(
+                O365TeamsChatSensor(
+                    coordinator,
+                    account,
+                    key[CONF_NAME],
+                    key[CONF_ENTITY_KEY],
+                    config,
+                    key[CONF_UNIQUE_ID],
+                    key[CONF_ENABLE_UPDATE],
+                )
+            )
+        elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_STATUS:
+            sensorentities.append(
+                O365TeamsStatusSensor(
+                    coordinator,
+                    account,
+                    key[CONF_NAME],
+                    key[CONF_ENTITY_KEY],
+                    config,
+                    key[CONF_UNIQUE_ID],
+                )
+            )
+
     async_add_entities(sensorentities, False)
     await _async_setup_register_services(hass, conf)
 

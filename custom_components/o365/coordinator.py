@@ -12,7 +12,6 @@ from requests.exceptions import HTTPError
 
 from .classes.mailsensor import O365AutoReplySensor, O365EmailSensor, O365QuerySensor
 from .classes.taskssensor import O365TasksSensorSensorServices
-from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import (
     ATTR_ATTRIBUTES,
     ATTR_AUTOREPLIESSETTINGS,
@@ -92,19 +91,12 @@ class O365SensorCordinator(DataUpdateCoordinator):
         """Do the initial setup of the entities."""
         email_entities = await self._async_email_sensors()
         query_entities = await self._async_query_sensors()
-        status_entities = self._status_sensors()
-        chat_entities = self._chat_sensors()
-        todo_entities, todo_keys = await self._async_todo_sensors()
+        status_keys = self._status_sensors()
+        chat_keys = self._chat_sensors()
+        todo_keys = await self._async_todo_sensors()
         auto_reply_entities = await self._async_auto_reply_sensors()
-        self._entities = (
-            email_entities
-            + query_entities
-            + status_entities
-            + chat_entities
-            + todo_entities
-            + auto_reply_entities
-        )
-        self._keys = todo_keys
+        self._entities = email_entities + query_entities + auto_reply_entities
+        self._keys = chat_keys + status_keys + todo_keys
         return self._entities, self._keys
 
     async def _async_email_sensors(self):
@@ -164,40 +156,37 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     def _status_sensors(self):
         status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
-        entities = []
+        keys = []
         for sensor_conf in status_sensors:
             name = sensor_conf.get(CONF_NAME)
-            entity_id = self._build_entity_id(name)
-            unique_id = f"{name}_{self._account_name}"
-            teams_status_sensor = O365TeamsStatusSensor(
-                self, self._account, name, entity_id, self._config, unique_id
-            )
-            entities.append(teams_status_sensor)
-        return entities
+            new_key = {
+                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_UNIQUE_ID: f"{name}_{self._account_name}",
+                CONF_NAME: name,
+                CONF_ENTITY_TYPE: SENSOR_TEAMS_STATUS,
+            }
+
+            keys.append(new_key)
+        return keys
 
     def _chat_sensors(self):
         chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
-        entities = []
+        keys = []
         for sensor_conf in chat_sensors:
             name = sensor_conf.get(CONF_NAME)
-            enable_update = sensor_conf.get(CONF_ENABLE_UPDATE)
-            entity_id = self._build_entity_id(name)
-            unique_id = f"{name}_{self._account_name}"
-            teams_chat_sensor = O365TeamsChatSensor(
-                self,
-                self._account,
-                name,
-                entity_id,
-                self._config,
-                unique_id,
-                enable_update,
-            )
-            entities.append(teams_chat_sensor)
-        return entities
+            new_key = {
+                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_UNIQUE_ID: f"{name}_{self._account_name}",
+                CONF_NAME: name,
+                CONF_ENTITY_TYPE: SENSOR_TEAMS_CHAT,
+                CONF_ENABLE_UPDATE: sensor_conf.get(CONF_ENABLE_UPDATE),
+            }
+
+            keys.append(new_key)
+        return keys
 
     async def _async_todo_sensors(self):
         todo_sensors = self._config.get(CONF_TODO_SENSORS)
-        entities = []
         keys = []
         if todo_sensors and todo_sensors.get(CONF_ENABLED):
             sensor_services = O365TasksSensorSensorServices(self.hass)
@@ -209,12 +198,11 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
             )
             task_lists = list(task_dict.values())
-            entities, keys = await self._async_todo_entities(task_lists)
+            keys = await self._async_todo_entities(task_lists)
 
-        return entities, keys
+        return keys
 
     async def _async_todo_entities(self, task_lists):
-        entities = []
         keys = []
         tasks = self._account.tasks()
         for tasklist in task_lists:
@@ -236,12 +224,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-                entity_id = self._build_entity_id(name)
-                unique_id = f"{task_list_id}_{self._account_name}"
 
                 new_key = {
-                    CONF_ENTITY_KEY: entity_id,
-                    CONF_UNIQUE_ID: unique_id,
+                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_UNIQUE_ID: f"{task_list_id}_{self._account_name}",
                     CONF_TODO: todo,
                     CONF_NAME: name,
                     CONF_TASK_LIST: tasklist,
@@ -255,7 +241,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     name,
                     self._account_name,
                 )
-        return entities, keys
+        return keys
 
     async def _async_auto_reply_sensors(self):
         auto_reply_sensors = self._config.get(CONF_AUTO_REPLY_SENSORS, [])
@@ -308,18 +294,17 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for entity in self._entities:
             if entity.entity_type == SENSOR_MAIL:
                 await self._async_email_update(entity)
-            elif entity.entity_type == SENSOR_TEAMS_STATUS:
-                await self._async_teams_status_update(entity)
-            elif entity.entity_type == SENSOR_TEAMS_CHAT:
-                await self._async_teams_chat_update(entity)
-            elif entity.entity_type == SENSOR_TODO:
-                await self._async_todos_update(entity)
             elif entity.entity_type == SENSOR_AUTO_REPLY:
                 await self._async_auto_reply_update(entity)
 
         for key in self._keys:
-            if key[CONF_ENTITY_TYPE] == SENSOR_TODO:
+            entity_type = key[CONF_ENTITY_TYPE]
+            if entity_type == SENSOR_TODO:
                 await self._async_todos_update(key)
+            elif entity_type == SENSOR_TEAMS_CHAT:
+                await self._async_teams_chat_update(key)
+            elif entity_type == SENSOR_TEAMS_STATUS:
+                await self._async_teams_status_update(key)
 
         return self._data
 
@@ -348,19 +333,22 @@ class O365SensorCordinator(DataUpdateCoordinator):
             for x in data
         ]
 
-    async def _async_teams_status_update(self, entity):
+    async def _async_teams_status_update(self, key):
         """Update state."""
-        if data := await self.hass.async_add_executor_job(entity.teams.get_my_presence):
-            self._data[entity.entity_key] = {ATTR_STATE: data.activity}
+        entity_key = key[CONF_ENTITY_KEY]
+        if data := await self.hass.async_add_executor_job(
+            self._account.teams().get_my_presence
+        ):
+            self._data[entity_key] = {ATTR_STATE: data.activity}
 
-    async def _async_teams_chat_update(self, entity):
-        """Update state."""
+    async def _async_teams_chat_update(self, key):
+        entity_key = key[CONF_ENTITY_KEY]
         state = None
         data = []
-        self._data[entity.entity_key] = {}
+        self._data[entity_key] = {}
         extra_attributes = {}
         chats = await self.hass.async_add_executor_job(
-            ft.partial(entity.teams.get_my_chats, limit=20)
+            ft.partial(self._account.teams().get_my_chats, limit=20)
         )
         for chat in chats:
             if chat.chat_type == "unknownFutureValue":
@@ -371,7 +359,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 )
                 state, extra_attributes = self._process_chat_messages(messages)
 
-            if not entity.enable_update:
+            if not key[CONF_ENABLE_UPDATE]:
                 if state:
                     break
                 continue
@@ -387,7 +375,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
             data.append(chatitems)
 
-        self._data[entity.entity_key] = (
+        self._data[entity_key] = (
             {ATTR_STATE: state} | extra_attributes | {ATTR_DATA: data}
         )
 
@@ -418,7 +406,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def _async_todos_update(self, key):
         """Update state."""
-        entity_key = key["entity_key"]
+        entity_key = key[CONF_ENTITY_KEY]
         if entity_key in self._data:
             error = self._data[entity_key][ATTR_ERROR]
         else:
