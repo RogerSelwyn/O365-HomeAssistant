@@ -153,7 +153,7 @@ class AuthorizationRepairFlow(RepairsFlow):
         if not permissions:
             errors[CONF_URL] = "minimum_permissions"
 
-        do_setup(
+        await do_setup(
             self.hass,
             self._conf,
             self._account,

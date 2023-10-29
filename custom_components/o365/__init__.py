@@ -158,7 +158,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
     if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:
-            do_setup(hass, account_conf, account, account_name, conf_type, perms)
+            await do_setup(hass, account_conf, account, account_name, conf_type, perms)
     else:
         await _async_authorization_repair(
             hass,

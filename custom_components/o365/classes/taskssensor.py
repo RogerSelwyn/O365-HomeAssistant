@@ -1,14 +1,16 @@
 """O365 tasks sensors."""
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import voluptuous as vol
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import CONF_ENABLED
 from homeassistant.util import dt
 
 from ..const import (
     ATTR_ALL_TASKS,
     ATTR_COMPLETED,
+    ATTR_CREATED,
     ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_OVERDUE_TASKS,
@@ -16,9 +18,10 @@ from ..const import (
     ATTR_SUBJECT,
     ATTR_TASK_ID,
     ATTR_TASKS,
-    CONF_DUE_HOURS_BACKWARD_TO_GET,
-    CONF_DUE_HOURS_FORWARD_TO_GET,
+    CONF_ACCOUNT,
     CONF_SHOW_COMPLETED,
+    CONF_TODO_SENSORS,
+    CONF_TRACK_NEW,
     DATETIME_FORMAT,
     DOMAIN,
     EVENT_COMPLETED_TASK,
@@ -31,6 +34,7 @@ from ..const import (
     PERM_TASKS_READWRITE,
     SENSOR_TODO,
 )
+from ..utils.filemgmt import update_task_list_file
 from .sensorentity import O365Sensor
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,14 +48,10 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         super().__init__(coordinator, config, name, entity_id, SENSOR_TODO, unique_id)
         self.todo = todo
         self._show_completed = task.get(CONF_SHOW_COMPLETED)
-        self.query = self.todo.new_query()
-        if not self._show_completed:
-            self.query = self.query.on_attribute("status").unequal("completed")
-        self.start_offset = task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
-        self.end_offset = task.get(CONF_DUE_HOURS_FORWARD_TO_GET)
 
         self.task_last_created = dt.utcnow() - timedelta(minutes=5)
         self.task_last_completed = dt.utcnow() - timedelta(minutes=5)
+        self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
 
     @property
     def icon(self):
@@ -95,6 +95,34 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         if overdue_tasks:
             extra_attributes[ATTR_OVERDUE_TASKS] = overdue_tasks
         return extra_attributes
+
+    def _handle_coordinator_update(self) -> None:
+        tasks = self.coordinator.data[self.entity_key][ATTR_TASKS]
+        task_last_completed = self._zero_date
+        task_last_created = self._zero_date
+        for task in tasks:
+            if task.completed and task.completed > self.task_last_completed:
+                self._raise_event_external(
+                    EVENT_COMPLETED_TASK,
+                    task.task_id,
+                    ATTR_COMPLETED,
+                    task.completed,
+                )
+                if task.completed > task_last_completed:
+                    task_last_completed = task.completed
+            if task.created and task.created > self.task_last_created:
+                self._raise_event_external(
+                    EVENT_NEW_TASK, task.task_id, ATTR_CREATED, task.created
+                )
+                if task.created > task_last_created:
+                    task_last_created = task.created
+
+        if task_last_completed > self._zero_date:
+            self.task_last_completed = task_last_completed
+        if task_last_created > self._zero_date:
+            self.task_last_created = task_last_created
+
+        self.async_write_ha_state()
 
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
@@ -186,8 +214,41 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         )
         _LOGGER.debug("%s - %s", event_type, task_id)
 
+    def _raise_event_external(self, event_type, task_id, time_type, task_datetime):
+        self.hass.bus.fire(
+            f"{DOMAIN}_{event_type}",
+            {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
+        )
+        _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
+
     def _validate_task_permissions(self):
         return self._validate_permissions(
             PERM_MINIMUM_TASKS_WRITE,
             f"Not authorised to create new task - requires permission: {PERM_TASKS_READWRITE}",
         )
+
+
+class O365TasksSensorSensorServices:
+    """Sensor Services."""
+
+    def __init__(self, hass):
+        """Initialise the sensor services."""
+        self._hass = hass
+
+    async def async_scan_for_task_lists(self, call):  # pylint: disable=unused-argument
+        """Scan for new task lists."""
+        for config in self._hass.data[DOMAIN]:
+            config = self._hass.data[DOMAIN][config]
+            todo_sensor = config.get(CONF_TODO_SENSORS)
+            if todo_sensor and CONF_ACCOUNT in config and todo_sensor.get(CONF_ENABLED):
+                todos = config[CONF_ACCOUNT].tasks()
+
+                todolists = await self._hass.async_add_executor_job(todos.list_folders)
+                track = todo_sensor.get(CONF_TRACK_NEW)
+                for todo in todolists:
+                    update_task_list_file(
+                        config,
+                        todo,
+                        self._hass,
+                        track,
+                    )
