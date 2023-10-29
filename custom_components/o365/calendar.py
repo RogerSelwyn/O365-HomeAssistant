@@ -29,8 +29,10 @@ from requests.exceptions import HTTPError, RetryError
 
 from .const import (
     ATTR_ALL_DAY,
+    ATTR_COLOR,
     ATTR_DATA,
     ATTR_EVENT_ID,
+    ATTR_HEX_COLOR,
     ATTR_OFFSET,
     CALENDAR_ENTITY_ID_FORMAT,
     CONF_ACCOUNT,
@@ -253,18 +255,18 @@ class O365CalendarEntity(CalendarEntity):
     @property
     def extra_state_attributes(self):
         """Extra state attributes."""
-        if self._event:
-            return {
-                ATTR_ALL_DAY: self._event.all_day
-                if self.data.event is not None
-                else False,
-                ATTR_OFFSET: self._offset_reached,
-                ATTR_DATA: self._data_attribute,
-            }
-
-        return {
+        attributes = {
             ATTR_DATA: self._data_attribute,
+            ATTR_COLOR: self.data.calendar.color,
         }
+        if self.data.calendar.hex_color:
+            attributes[ATTR_HEX_COLOR] = self.data.calendar.hex_color
+        if self._event:
+            attributes[ATTR_ALL_DAY] = (
+                self._event.all_day if self.data.event is not None else False
+            )
+            attributes[ATTR_OFFSET] = self._offset_reached
+        return attributes
 
     @property
     def event(self):
