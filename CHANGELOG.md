@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.4.2 (2023/10/29)
+### ✨ Enhancements
+- [Add color attributes to calendar](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b2622a29e17576b4ffdc56625adb3d0906af69ad) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Reduce attributes stored in recorder](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bd47a103ccb9c2fe2d9b238317a0ecd34456be79) - @RogerSelwyn
+- [Imports sorted](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4079894631f1156c925af91c3ba307ca589bffaf) - @RogerSelwyn
+- [Limit data attribute recording for all sensor entities](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/193b255f44662361ebd125e167f930d893370c87) - @RogerSelwyn
+- [Remove linting error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/94004753d4bbdbeb35c0908cafeb48f22335e303) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/93c08d4c9c7ddc05edf354d83bc63e1242845f84) - @RogerSelwyn
+
+### 🔖 Release
+- [Bump to v4.4.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/41a31b00523852af37810b5432c4f75a891dc634) - @RogerSelwyn
+
 ## v4.4.1 (2023/10/06)
 ### ✨ Enhancements
 - [Slovak translation - Thanks!!](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/76cf7030f69e226b03beabafd3c16f25219fd38b) - @misa1515
