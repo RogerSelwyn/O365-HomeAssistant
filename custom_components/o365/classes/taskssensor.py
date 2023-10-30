@@ -79,7 +79,6 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         self._state = len(tasks)
         self._extra_attributes = self._update_extra_state_attributes(tasks)
 
-        tasks = self.coordinator.data[self.entity_key][ATTR_TASKS]
         task_last_completed = self._zero_date
         task_last_created = self._zero_date
         for task in tasks:
