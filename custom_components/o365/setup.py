@@ -9,8 +9,10 @@ from .const import (
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_CONFIG_TYPE,
+    CONF_COORDINATOR,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
+    CONF_KEYS,
     CONF_PERMISSIONS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
@@ -18,9 +20,10 @@ from .const import (
     CONF_TRACK_NEW_CALENDAR,
     DOMAIN,
 )
+from .coordinator import O365SensorCordinator
 
 
-def do_setup(hass, config, account, account_name, conf_type, perms):
+async def do_setup(hass, config, account, account_name, conf_type, perms):
     """Run the setup after we have everything configured."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
@@ -47,6 +50,12 @@ def do_setup(hass, config, account, account_name, conf_type, perms):
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][account_name] = account_config
+
+    coordinator = O365SensorCordinator(hass, account_config)
+    keys = await coordinator.async_setup_entries()
+    await coordinator.async_config_entry_first_refresh()
+    hass.data[DOMAIN][account_name][CONF_KEYS] = keys
+    hass.data[DOMAIN][account_name][CONF_COORDINATOR] = coordinator
 
     _load_platforms(hass, account_name, config, account_config)
 

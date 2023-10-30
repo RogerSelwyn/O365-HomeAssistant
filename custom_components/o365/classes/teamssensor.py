@@ -12,6 +12,7 @@ from ..const import (
     ATTR_IMPORTANCE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
+    CONF_ACCOUNT,
     DOMAIN,
     EVENT_HA_EVENT,
     EVENT_SEND_CHAT_MESSAGE,
@@ -28,12 +29,10 @@ _LOGGER = logging.getLogger(__name__)
 class O365TeamsSensor(O365Sensor):
     """O365 Teams sensor processing."""
 
-    def __init__(
-        self, cordinator, account, name, entity_id, config, entity_type, unique_id
-    ):
+    def __init__(self, cordinator, name, entity_id, config, entity_type, unique_id):
         """Initialise the Teams Sensor."""
         super().__init__(cordinator, config, name, entity_id, entity_type, unique_id)
-        self.teams = account.teams()
+        self.teams = self._config[CONF_ACCOUNT].teams()
 
     @property
     def icon(self):
@@ -44,11 +43,10 @@ class O365TeamsSensor(O365Sensor):
 class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
     """O365 Teams sensor processing."""
 
-    def __init__(self, coordinator, account, name, entity_id, config, unique_id):
+    def __init__(self, coordinator, name, entity_id, config, unique_id):
         """Initialise the Teams Sensor."""
         super().__init__(
             coordinator,
-            account,
             name,
             entity_id,
             config,
@@ -60,14 +58,11 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
 class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
     """O365 Teams Chat sensor processing."""
 
-    def __init__(
-        self, coordinator, account, name, entity_id, config, unique_id, enable_update
-    ):
+    def __init__(self, coordinator, name, entity_id, config, unique_id):
         """Initialise the Teams Chat Sensor."""
         super().__init__(
-            coordinator, account, name, entity_id, config, SENSOR_TEAMS_CHAT, unique_id
+            coordinator, name, entity_id, config, SENSOR_TEAMS_CHAT, unique_id
         )
-        self.enable_update = enable_update
 
     @property
     def extra_state_attributes(self):

@@ -242,7 +242,6 @@ class O365CalendarEntity(CalendarEntity):
         max_results = entity.get(CONF_MAX_RESULTS)
         search = entity.get(CONF_SEARCH)
         exclude = entity.get(CONF_EXCLUDE)
-        # _LOGGER.debug("Initialising calendar: %s", calendar_id)
         return O365CalendarData(
             account,
             self.entity_id,
