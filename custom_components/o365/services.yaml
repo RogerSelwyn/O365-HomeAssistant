@@ -265,7 +265,7 @@ new_task:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     subject:
       name: Subject
@@ -301,7 +301,7 @@ update_task:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     task_id:
       name: Task ID
@@ -343,7 +343,7 @@ delete_task:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     task_id:
       name: Task ID
@@ -361,7 +361,7 @@ complete_task:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     task_id:
       name: Task ID

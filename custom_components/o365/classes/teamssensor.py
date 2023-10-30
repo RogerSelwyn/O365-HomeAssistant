@@ -21,12 +21,12 @@ from ..const import (
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
 )
-from .sensorentity import O365Sensor
+from .entity import O365Entity
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class O365TeamsSensor(O365Sensor):
+class O365TeamsSensor(O365Entity):
     """O365 Teams sensor processing."""
 
     def __init__(self, cordinator, name, entity_id, config, entity_type, unique_id):

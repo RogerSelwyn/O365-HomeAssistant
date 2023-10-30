@@ -104,7 +104,7 @@ Key | Type | Required | Description
 `query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
 `status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts or shared mailboxes*
 `chat_sensors` | `list<chat_sensors>` | `False` | List of chat_sensor config entries. *Not for use on personal accounts or shared mailboxes*
-`todo_sensors` | `object<todo_sensors>` | `False` | To-Do sensor options *Not for use on shared mailboxes*
+`todo_sensors` | `object<todo_sensors>` | `False` | To-Do List options *Not for use on shared mailboxes*
 `auto_reply_sensors` | `object<auto_reply_sensors>` | `False` | Auto-reply sensor options *Not for use on shared mailboxes*
 `shared_mailbox` | `string` | `False` | Email address or ID of shared mailbox *Only available for calendar and email sensors*
 
@@ -166,7 +166,7 @@ Key | Type | Required | Description
 
 Key | Type | Required | Description
 -- | -- | -- | --
-`enabled` | `boolean` | `True` | True=Enables To-Do sensors, **False**=Disables To-Do sensors.
+`enabled` | `boolean` | `True` | True=Enables To-Do Lists, **False**=Disables To-Do Lists.
 `enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services to create/update/delete tasks
 
 #### auto_reply_sensors 

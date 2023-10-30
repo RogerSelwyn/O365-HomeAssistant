@@ -10,7 +10,6 @@ from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
 from .classes.mailsensor import build_inbox_query, build_query_query
-from .classes.taskssensor import O365TasksSensorSensorServices, build_todo_query
 from .const import (
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
@@ -56,10 +55,11 @@ from .const import (
     SENSOR_ENTITY_ID_FORMAT,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
-    SENSOR_TODO,
+    TODO_TODO,
     YAML_TASK_LISTS,
 )
 from .schema import TASK_LIST_SCHEMA
+from .todo import O365TodoEntityServices, build_todo_query
 from .utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
 
 _LOGGER = logging.getLogger(__name__)
@@ -186,7 +186,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         todo_sensors = self._config.get(CONF_TODO_SENSORS)
         keys = []
         if todo_sensors and todo_sensors.get(CONF_ENABLED):
-            sensor_services = O365TasksSensorSensorServices(self.hass)
+            sensor_services = O365TodoEntityServices(self.hass)
             await sensor_services.async_scan_for_task_lists(None)
 
             yaml_filename = build_yaml_filename(self._config, YAML_TASK_LISTS)
@@ -228,7 +228,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                     CONF_TODO: todo,
                     CONF_NAME: name,
                     CONF_TASK_LIST: tasklist,
-                    CONF_ENTITY_TYPE: SENSOR_TODO,
+                    CONF_ENTITY_TYPE: TODO_TODO,
                 }
 
                 keys.append(new_key)
@@ -295,7 +295,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             entity_type = key[CONF_ENTITY_TYPE]
             if entity_type == SENSOR_EMAIL:
                 await self._async_email_update(key)
-            elif entity_type == SENSOR_TODO:
+            elif entity_type == TODO_TODO:
                 await self._async_todos_update(key)
             elif entity_type == SENSOR_TEAMS_CHAT:
                 await self._async_teams_chat_update(key)

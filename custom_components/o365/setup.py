@@ -83,7 +83,10 @@ def _load_platforms(hass, account_name, config, account_config):
         )
     ):
         hass.async_create_task(
+            # discovery.async_load_platform(
+            #     hass, "sensor", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
+            # )
             discovery.async_load_platform(
-                hass, "sensor", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
+                hass, "todo", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
             )
         )

@@ -5,7 +5,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from ..const import ATTR_DATA, ATTR_STATE, CONF_PERMISSIONS
 
 
-class O365Sensor(CoordinatorEntity):
+class O365Entity(CoordinatorEntity):
     """O365 generic Sensor class."""
 
     _attr_should_poll = False
