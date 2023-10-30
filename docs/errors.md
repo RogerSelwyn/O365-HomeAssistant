@@ -26,6 +26,9 @@ nav_order: 19
 * **Unable to fetch auth token. Error: (invalid_client) AADSTS7000215: Invalid client secret provided.**
   * Ensure the configured secret is the client secret __value__, not the client secret ID
 
+* **Token corrupt for account - please delete and re-authenticate.**
+  * You will need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
+
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
 
 # Installation issues
