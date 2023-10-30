@@ -1,6 +1,7 @@
 """Main initialisation code."""
 import copy
 import functools as ft
+import json
 import logging
 import os
 import shutil
@@ -8,9 +9,8 @@ import shutil
 import yaml
 from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
-from oauthlib.oauth2.rfc6749.errors import InvalidClientError
-
 from O365 import Account, FileSystemTokenBackend
+from oauthlib.oauth2.rfc6749.errors import InvalidClientError
 
 from .classes.permissions import Permissions
 from .const import (
@@ -151,7 +151,15 @@ async def _async_setup_account(hass, account_conf, conf_type):
             main_resource=main_resource,
         )
     )
-    is_authenticated = account.is_authenticated
+    try:
+        is_authenticated = account.is_authenticated
+    except json.decoder.JSONDecodeError as err:
+        _LOGGER.warning(
+            "Token corrupt for account - please delete and re-authenticate: %s. Error - %s",
+            account_name,
+            err,
+        )
+        return
 
     permissions, failed_permissions = perms.validate_permissions()
     check_token = None
