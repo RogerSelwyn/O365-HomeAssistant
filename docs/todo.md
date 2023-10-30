@@ -14,7 +14,7 @@ In order to show the tasks in the front end, a markdown card can be used. The fo
 type: markdown
 title: Tasks
 content: |-
-  {% raw %}{% for task in state_attr('sensor.tasks_sc_personal', 'all_tasks') -%}
+  {% raw %}{% for task in state_attr('todo.tasks_sc_personal', 'all_tasks') -%}
   - {{ task['subject'] }}
   {% endfor %}{% endraw %}
 ```
