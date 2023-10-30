@@ -190,7 +190,7 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     def _update_status(self, hass):
         tasks = list(self.coordinator.data[self.entity_key][ATTR_DATA])
-        self._state = len(tasks)
+        self._state = sum(not task.completed for task in tasks)
         self._todo_items = []
         for task in tasks:
             completed = (
