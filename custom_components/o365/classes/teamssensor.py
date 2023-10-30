@@ -58,12 +58,11 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
 class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
     """O365 Teams Chat sensor processing."""
 
-    def __init__(self, coordinator, name, entity_id, config, unique_id, enable_update):
+    def __init__(self, coordinator, name, entity_id, config, unique_id):
         """Initialise the Teams Chat Sensor."""
         super().__init__(
             coordinator, name, entity_id, config, SENSOR_TEAMS_CHAT, unique_id
         )
-        self.enable_update = enable_update
 
     @property
     def extra_state_attributes(self):

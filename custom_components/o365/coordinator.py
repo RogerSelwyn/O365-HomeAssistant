@@ -2,7 +2,6 @@
 import functools as ft
 import logging
 from datetime import datetime, timedelta
-from operator import itemgetter
 
 from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers.entity import async_generate_entity_id
@@ -10,10 +9,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
-from .classes.mailsensor import O365EmailSensor, O365QuerySensor
-from .classes.taskssensor import O365TasksSensorSensorServices
+from .classes.mailsensor import build_inbox_query, build_query_query
+from .classes.taskssensor import O365TasksSensorSensorServices, build_todo_query
 from .const import (
-    ATTR_ATTRIBUTES,
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
     ATTR_CHAT_TYPE,
@@ -33,14 +31,17 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
-    CONF_DUE_HOURS_BACKWARD_TO_GET,
-    CONF_DUE_HOURS_FORWARD_TO_GET,
+    CONF_DOWNLOAD_ATTACHMENTS,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_ENTITY_KEY,
     CONF_ENTITY_TYPE,
     CONF_MAIL_FOLDER,
+    CONF_MAX_ITEMS,
+    CONF_O365_MAIL_FOLDER,
+    CONF_QUERY,
     CONF_QUERY_SENSORS,
+    CONF_SENSOR_CONF,
     CONF_STATUS_SENSORS,
     CONF_TASK_LIST,
     CONF_TASK_LIST_ID,
@@ -51,8 +52,8 @@ from .const import (
     EVENT_HA_EVENT,
     LEGACY_ACCOUNT_NAME,
     SENSOR_AUTO_REPLY,
+    SENSOR_EMAIL,
     SENSOR_ENTITY_ID_FORMAT,
-    SENSOR_MAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
     SENSOR_TODO,
@@ -60,7 +61,6 @@ from .const import (
 )
 from .schema import TASK_LIST_SCHEMA
 from .utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
-from .utils.utils import get_email_attributes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,7 +81,6 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._config = config
         self._account = config[CONF_ACCOUNT]
         self._account_name = config[CONF_ACCOUNT_NAME]
-        self._entities = []
         self._keys = []
         self._data = {}
         self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
@@ -89,19 +88,25 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
-        email_entities = await self._async_email_sensors()
-        query_entities = await self._async_query_sensors()
+        email_keys = await self._async_email_sensors()
+        query_keys = await self._async_query_sensors()
         status_keys = self._status_sensors()
         chat_keys = self._chat_sensors()
         todo_keys = await self._async_todo_sensors()
         auto_reply_entities = await self._async_auto_reply_sensors()
-        self._entities = email_entities + query_entities
-        self._keys = chat_keys + status_keys + todo_keys + auto_reply_entities
-        return self._entities, self._keys
+        self._keys = (
+            email_keys
+            + query_keys
+            + chat_keys
+            + status_keys
+            + todo_keys
+            + auto_reply_entities
+        )
+        return self._keys
 
     async def _async_email_sensors(self):
         email_sensors = self._config.get(CONF_EMAIL_SENSORS, [])
-        entities = []
+        keys = []
         _LOGGER.debug("Email sensor setup: %s ", self._account_name)
         for sensor_conf in email_sensors:
             name = sensor_conf[CONF_NAME]
@@ -113,46 +118,38 @@ class O365SensorCordinator(DataUpdateCoordinator):
             if mail_folder := await self._async_get_mail_folder(
                 sensor_conf, CONF_EMAIL_SENSORS
             ):
-                entity_id = self._build_entity_id(name)
-                unique_id = f"{mail_folder.folder_id}_{self._account_name}"
-                emailsensor = O365EmailSensor(
-                    self,
-                    self._config,
-                    sensor_conf,
-                    mail_folder,
-                    name,
-                    entity_id,
-                    unique_id,
-                )
-                _LOGGER.debug(
-                    "Email sensor added: %s, %s",
-                    self._account_name,
-                    name,
-                )
-                entities.append(emailsensor)
-        return entities
+                new_key = {
+                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
+                    CONF_SENSOR_CONF: sensor_conf,
+                    CONF_O365_MAIL_FOLDER: mail_folder,
+                    CONF_NAME: name,
+                    CONF_ENTITY_TYPE: SENSOR_EMAIL,
+                    CONF_QUERY: build_inbox_query(mail_folder, sensor_conf),
+                }
+
+                keys.append(new_key)
+        return keys
 
     async def _async_query_sensors(self):
         query_sensors = self._config.get(CONF_QUERY_SENSORS, [])
-        entities = []
+        keys = []
         for sensor_conf in query_sensors:
             if mail_folder := await self._async_get_mail_folder(
                 sensor_conf, CONF_QUERY_SENSORS
             ):
                 name = sensor_conf.get(CONF_NAME)
-                entity_id = self._build_entity_id(name)
-                unique_id = f"{mail_folder.folder_id}_{self._account_name}"
-                querysensor = O365QuerySensor(
-                    self,
-                    self._config,
-                    sensor_conf,
-                    mail_folder,
-                    name,
-                    entity_id,
-                    unique_id,
-                )
-                entities.append(querysensor)
-        return entities
+                new_key = {
+                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
+                    CONF_SENSOR_CONF: sensor_conf,
+                    CONF_O365_MAIL_FOLDER: mail_folder,
+                    CONF_NAME: name,
+                    CONF_ENTITY_TYPE: SENSOR_EMAIL,
+                    CONF_QUERY: build_query_query(mail_folder, sensor_conf),
+                }
+                keys.append(new_key)
+        return keys
 
     def _status_sensors(self):
         status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
@@ -293,13 +290,12 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         _LOGGER.debug("Doing sensor update for: %s", self._account_name)
-        for entity in self._entities:
-            if entity.entity_type == SENSOR_MAIL:
-                await self._async_email_update(entity)
 
         for key in self._keys:
             entity_type = key[CONF_ENTITY_TYPE]
-            if entity_type == SENSOR_TODO:
+            if entity_type == SENSOR_EMAIL:
+                await self._async_email_update(key)
+            elif entity_type == SENSOR_TODO:
                 await self._async_todos_update(key)
             elif entity_type == SENSOR_TEAMS_CHAT:
                 await self._async_teams_chat_update(key)
@@ -310,30 +306,24 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
         return self._data
 
-    async def _async_email_update(self, entity):
+    async def _async_email_update(self, key):
         """Update code."""
+        sensor_conf = key[CONF_SENSOR_CONF]
+        download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
+        max_items = sensor_conf.get(CONF_MAX_ITEMS, 5)
+        mail_folder = key[CONF_O365_MAIL_FOLDER]
+        entity_key = key[CONF_ENTITY_KEY]
+        query = key[CONF_QUERY]
+
         data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
             ft.partial(
-                entity.mail_folder.get_messages,
-                limit=entity.max_items,
-                query=entity.query,
-                download_attachments=entity.download_attachments,
+                mail_folder.get_messages,
+                limit=max_items,
+                query=query,
+                download_attachments=download_attachments,
             )
         )
-        attrs = await self.hass.async_add_executor_job(  # pylint: disable=no-member
-            self._get_attributes, data, entity
-        )
-        attrs.sort(key=itemgetter("received"), reverse=True)
-        self._data[entity.entity_key] = {
-            ATTR_STATE: len(attrs),
-            ATTR_ATTRIBUTES: {ATTR_DATA: attrs},
-        }
-
-    def _get_attributes(self, data, entity):
-        return [
-            get_email_attributes(x, entity.download_attachments, entity.html_body)
-            for x in data
-        ]
+        self._data[entity_key] = {ATTR_DATA: data}
 
     async def _async_teams_status_update(self, key):
         """Update state."""
@@ -416,16 +406,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
             error = False
         data, error = await self._async_todos_update_query(key, error)
         if not error:
-            tasks = list(data)
-            self._data[entity_key][ATTR_TASKS] = tasks
-            self._data[entity_key][ATTR_STATE] = len(tasks)
+            self._data[entity_key][ATTR_DATA] = data
 
         self._data[entity_key][ATTR_ERROR] = error
 
     async def _async_todos_update_query(self, key, error):
         data = None
         todo = key[CONF_TODO]
-        full_query = self._create_todo_query(key, todo)
+        full_query = build_todo_query(key, todo)
         name = key[CONF_NAME]
 
         try:
@@ -444,26 +432,6 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 error = True
 
         return data, error
-
-    def _create_todo_query(self, key, todo):
-        task = key[CONF_TASK_LIST]
-        show_completed = task["show_completed"]
-        query = todo.new_query()
-        if not show_completed:
-            query = query.on_attribute("status").unequal("completed")
-        start_offset = task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
-        end_offset = task.get(CONF_DUE_HOURS_FORWARD_TO_GET)
-        if start_offset:
-            start = dt.utcnow() + timedelta(hours=start_offset)
-            query.chain("and").on_attribute("due").greater_equal(
-                start.strftime("%Y-%m-%dT%H:%M:%S")
-            )
-        if end_offset:
-            end = dt.utcnow() + timedelta(hours=end_offset)
-            query.chain("and").on_attribute("due").less_equal(
-                end.strftime("%Y-%m-%dT%H:%M:%S")
-            )
-        return query
 
     async def _async_auto_reply_update(self, key):
         """Update state."""

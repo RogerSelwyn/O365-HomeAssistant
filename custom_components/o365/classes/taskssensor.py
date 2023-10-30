@@ -11,6 +11,7 @@ from ..const import (
     ATTR_ALL_TASKS,
     ATTR_COMPLETED,
     ATTR_CREATED,
+    ATTR_DATA,
     ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_OVERDUE_TASKS,
@@ -19,7 +20,10 @@ from ..const import (
     ATTR_TASK_ID,
     ATTR_TASKS,
     CONF_ACCOUNT,
+    CONF_DUE_HOURS_BACKWARD_TO_GET,
+    CONF_DUE_HOURS_FORWARD_TO_GET,
     CONF_SHOW_COMPLETED,
+    CONF_TASK_LIST,
     CONF_TODO_SENSORS,
     CONF_TRACK_NEW,
     DATETIME_FORMAT,
@@ -52,6 +56,8 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         self.task_last_created = dt.utcnow() - timedelta(minutes=5)
         self.task_last_completed = dt.utcnow() - timedelta(minutes=5)
         self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
+        self._state = None
+        self._extra_attributes = None
 
     @property
     def icon(self):
@@ -59,11 +65,52 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         return "mdi:clipboard-check-outline"
 
     @property
+    def state(self):
+        """Sensor state."""
+        return self._state
+
+    @property
     def extra_state_attributes(self):
+        """Device state attributes."""
+        return self._extra_attributes
+
+    def _handle_coordinator_update(self) -> None:
+        tasks = list(self.coordinator.data[self.entity_key][ATTR_DATA])
+        self._state = len(tasks)
+        self._extra_attributes = self._update_extra_state_attributes(tasks)
+
+        tasks = self.coordinator.data[self.entity_key][ATTR_TASKS]
+        task_last_completed = self._zero_date
+        task_last_created = self._zero_date
+        for task in tasks:
+            if task.completed and task.completed > self.task_last_completed:
+                self._raise_event_external(
+                    EVENT_COMPLETED_TASK,
+                    task.task_id,
+                    ATTR_COMPLETED,
+                    task.completed,
+                )
+                if task.completed > task_last_completed:
+                    task_last_completed = task.completed
+            if task.created and task.created > self.task_last_created:
+                self._raise_event_external(
+                    EVENT_NEW_TASK, task.task_id, ATTR_CREATED, task.created
+                )
+                if task.created > task_last_created:
+                    task_last_created = task.created
+
+        if task_last_completed > self._zero_date:
+            self.task_last_completed = task_last_completed
+        if task_last_created > self._zero_date:
+            self.task_last_created = task_last_created
+
+        self.async_write_ha_state()
+
+    def _update_extra_state_attributes(self, tasks):
         """Extra state attributes."""
         all_tasks = []
         overdue_tasks = []
-        for item in self.coordinator.data[self.entity_key][ATTR_TASKS]:
+        for item in tasks:
             task = {ATTR_SUBJECT: item.subject, ATTR_TASK_ID: item.task_id}
             if item.body:
                 task[ATTR_DESCRIPTION] = item.body
@@ -95,34 +142,6 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         if overdue_tasks:
             extra_attributes[ATTR_OVERDUE_TASKS] = overdue_tasks
         return extra_attributes
-
-    def _handle_coordinator_update(self) -> None:
-        tasks = self.coordinator.data[self.entity_key][ATTR_TASKS]
-        task_last_completed = self._zero_date
-        task_last_created = self._zero_date
-        for task in tasks:
-            if task.completed and task.completed > self.task_last_completed:
-                self._raise_event_external(
-                    EVENT_COMPLETED_TASK,
-                    task.task_id,
-                    ATTR_COMPLETED,
-                    task.completed,
-                )
-                if task.completed > task_last_completed:
-                    task_last_completed = task.completed
-            if task.created and task.created > self.task_last_created:
-                self._raise_event_external(
-                    EVENT_NEW_TASK, task.task_id, ATTR_CREATED, task.created
-                )
-                if task.created > task_last_created:
-                    task_last_created = task.created
-
-        if task_last_completed > self._zero_date:
-            self.task_last_completed = task_last_completed
-        if task_last_created > self._zero_date:
-            self.task_last_created = task_last_created
-
-        self.async_write_ha_state()
 
     def new_task(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
@@ -226,6 +245,28 @@ class O365TasksSensor(O365Sensor, SensorEntity):
             PERM_MINIMUM_TASKS_WRITE,
             f"Not authorised to create new task - requires permission: {PERM_TASKS_READWRITE}",
         )
+
+
+def build_todo_query(key, todo):
+    """Build query for ToDo."""
+    task = key[CONF_TASK_LIST]
+    show_completed = task[CONF_SHOW_COMPLETED]
+    query = todo.new_query()
+    if not show_completed:
+        query = query.on_attribute("status").unequal("completed")
+    start_offset = task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
+    end_offset = task.get(CONF_DUE_HOURS_FORWARD_TO_GET)
+    if start_offset:
+        start = dt.utcnow() + timedelta(hours=start_offset)
+        query.chain("and").on_attribute("due").greater_equal(
+            start.strftime("%Y-%m-%dT%H:%M:%S")
+        )
+    if end_offset:
+        end = dt.utcnow() + timedelta(hours=end_offset)
+        query.chain("and").on_attribute("due").less_equal(
+            end.strftime("%Y-%m-%dT%H:%M:%S")
+        )
+    return query
 
 
 class O365TasksSensorSensorServices:
