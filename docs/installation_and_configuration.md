@@ -55,6 +55,7 @@ o365:
         - name: "User Chat"
       todo_sensors:
         enabled: False
+        enable_update: False # set this to true if you want to be able to create new tasks
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
