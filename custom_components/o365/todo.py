@@ -142,12 +142,6 @@ async def _async_setup_task_services(hass, config, perms):
 class O365TodoList(O365Entity, TodoListEntity):
     """O365 Tasks sensor processing."""
 
-    _attr_supported_features = (
-        TodoListEntityFeature.CREATE_TODO_ITEM
-        | TodoListEntityFeature.UPDATE_TODO_ITEM
-        | TodoListEntityFeature.DELETE_TODO_ITEM
-    )
-
     def __init__(
         self, hass, coordinator, todolist, name, task, config, entity_id, unique_id
     ):
@@ -163,6 +157,12 @@ class O365TodoList(O365Entity, TodoListEntity):
         self._todo_items = None
         self._extra_attributes = None
         self._update_status(hass)
+        if config.get(CONF_TODO_SENSORS).get(CONF_ENABLE_UPDATE):
+            self._attr_supported_features = (
+                TodoListEntityFeature.CREATE_TODO_ITEM
+                | TodoListEntityFeature.UPDATE_TODO_ITEM
+                | TodoListEntityFeature.DELETE_TODO_ITEM
+            )
 
     @property
     def icon(self):
