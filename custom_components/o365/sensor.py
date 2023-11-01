@@ -118,7 +118,7 @@ async def async_setup_platform(
                 )
             )
 
-    async_add_entities(sensorentities, True)
+    async_add_entities(sensorentities, False)
     await _async_setup_register_services(hass, conf)
 
     return True

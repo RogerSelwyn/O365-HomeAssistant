@@ -18,7 +18,6 @@ from ..const import (
     ATTR_REMINDER,
     ATTR_SUBJECT,
     ATTR_TASK_ID,
-    ATTR_TASKS,
     CONF_ACCOUNT,
     CONF_DUE_HOURS_BACKWARD_TO_GET,
     CONF_DUE_HOURS_FORWARD_TO_GET,
@@ -65,7 +64,7 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         return "mdi:clipboard-check-outline"
 
     @property
-    def state(self):
+    def native_value(self):
         """Sensor state."""
         return self._state
 

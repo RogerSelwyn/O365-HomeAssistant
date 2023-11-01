@@ -3,7 +3,6 @@ import datetime
 from operator import itemgetter
 
 from homeassistant.components.sensor import SensorEntity
-
 from O365 import mailbox  # pylint: disable=no-name-in-module
 
 from ..const import (
@@ -34,7 +33,7 @@ from ..utils.utils import clean_html, get_email_attributes
 from .sensorentity import O365Sensor
 
 
-class O365MailSensor(O365Sensor):
+class O365MailSensor(O365Sensor, SensorEntity):
     """O365 generic Mail Sensor class."""
 
     def __init__(self, coordinator, config, sensor_conf, name, entity_id, unique_id):
@@ -51,7 +50,7 @@ class O365MailSensor(O365Sensor):
         return "mdi:microsoft-outlook"
 
     @property
-    def state(self):
+    def native_value(self):
         """Sensor state."""
         return self._state
 
