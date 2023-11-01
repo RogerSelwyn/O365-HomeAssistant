@@ -15,5 +15,5 @@
     "O365==2.0.28",
     "BeautifulSoup4>=4.10.0"
   ],
-  "version": "v4.4.3b2"
+  "version": "v4.4.3b3"
 }

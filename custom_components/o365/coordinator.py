@@ -323,8 +323,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 download_attachments=download_attachments,
             )
         )
-        self._data[entity_key] = {ATTR_DATA: data}
-
+        self._data[entity_key] = {
+            ATTR_DATA: await self.hass.async_add_executor_job(list, data)
+        }
+        
     async def _async_teams_status_update(self, key):
         """Update state."""
         entity_key = key[CONF_ENTITY_KEY]
