@@ -10,6 +10,7 @@ from ..const import (
     ATTR_DATA,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
+    ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     CONF_ACCOUNT,
@@ -38,6 +39,11 @@ class O365TeamsSensor(O365Entity):
     def icon(self):
         """Entity icon."""
         return "mdi:microsoft-teams"
+
+    @property
+    def native_value(self):
+        """Sensor state."""
+        return self.coordinator.data[self.entity_key][ATTR_STATE]
 
 
 class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):

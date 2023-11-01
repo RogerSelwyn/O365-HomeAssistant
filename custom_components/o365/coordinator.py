@@ -48,11 +48,12 @@ from .const import (
     CONF_TODO_SENSORS,
     CONF_TRACK,
     DOMAIN,
+    ENTITY_ID_FORMAT_SENSOR,
+    ENTITY_ID_FORMAT_TODO,
     EVENT_HA_EVENT,
     LEGACY_ACCOUNT_NAME,
     SENSOR_AUTO_REPLY,
     SENSOR_EMAIL,
-    SENSOR_ENTITY_ID_FORMAT,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
     TODO_TODO,
@@ -119,7 +120,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 sensor_conf, CONF_EMAIL_SENSORS
             ):
                 new_key = {
-                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_ENTITY_KEY: self._build_entity_id(
+                        ENTITY_ID_FORMAT_SENSOR, name
+                    ),
                     CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
                     CONF_SENSOR_CONF: sensor_conf,
                     CONF_O365_MAIL_FOLDER: mail_folder,
@@ -140,7 +143,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
             ):
                 name = sensor_conf.get(CONF_NAME)
                 new_key = {
-                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_ENTITY_KEY: self._build_entity_id(
+                        ENTITY_ID_FORMAT_SENSOR, name
+                    ),
                     CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
                     CONF_SENSOR_CONF: sensor_conf,
                     CONF_O365_MAIL_FOLDER: mail_folder,
@@ -157,7 +162,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in status_sensors:
             name = sensor_conf.get(CONF_NAME)
             new_key = {
-                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_SENSOR, name),
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_TEAMS_STATUS,
@@ -172,7 +177,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in chat_sensors:
             name = sensor_conf.get(CONF_NAME)
             new_key = {
-                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_SENSOR, name),
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_TEAMS_CHAT,
@@ -223,7 +228,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 )
 
                 new_key = {
-                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_TODO, name),
                     CONF_UNIQUE_ID: f"{task_list_id}_{self._account_name}",
                     CONF_TODO: todo,
                     CONF_NAME: name,
@@ -246,7 +251,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in auto_reply_sensors:
             name = sensor_conf.get(CONF_NAME)
             new_key = {
-                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_SENSOR, name),
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_AUTO_REPLY,
@@ -326,7 +331,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._data[entity_key] = {
             ATTR_DATA: await self.hass.async_add_executor_job(list, data)
         }
-        
+
     async def _async_teams_status_update(self, key):
         """Update state."""
         entity_key = key[CONF_ENTITY_KEY]
@@ -408,7 +413,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
             error = False
         data, error = await self._async_todos_update_query(key, error)
         if not error:
-            self._data[entity_key][ATTR_DATA] = data
+            self._data[entity_key][ATTR_DATA] = await self.hass.async_add_executor_job(
+                list, data
+            )
 
         self._data[entity_key][ATTR_ERROR] = error
 
@@ -446,10 +453,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 ATTR_AUTOREPLIESSETTINGS: data.automaticrepliessettings,
             }
 
-    def _build_entity_id(self, name):
+    def _build_entity_id(self, entity_id_format, name):
         """Build and entity ID."""
         return async_generate_entity_id(
-            SENSOR_ENTITY_ID_FORMAT,
+            entity_id_format,
             name,
             hass=self.hass,
         )

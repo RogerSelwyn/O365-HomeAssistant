@@ -118,34 +118,34 @@ async def _async_setup_task_services(hass, config, perms):
     platform = entity_platform.async_get_current_platform()
     if perms.validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE):
         platform.async_register_entity_service(
-            "new_task",
+            "new_todo",
             TASK_SERVICE_NEW_SCHEMA,
-            "async_new_task",
+            "async_new_todo",
         )
         platform.async_register_entity_service(
-            "update_task",
+            "update_todo",
             TASK_SERVICE_UPDATE_SCHEMA,
-            "async_update_task",
+            "async_update_todo",
         )
         platform.async_register_entity_service(
-            "delete_task",
+            "delete_todo",
             TASK_SERVICE_DELETE_SCHEMA,
-            "async_delete_task",
+            "async_delete_todo",
         )
         platform.async_register_entity_service(
-            "complete_task",
+            "complete_todo",
             TASK_SERVICE_COMPLETE_SCHEMA,
-            "async_complete_task",
+            "async_complete_todo",
         )
 
 
 class O365TodoList(O365Entity, TodoListEntity):
-    """O365 Tasks sensor processing."""
+    """O365 ToDo processing."""
 
     def __init__(
         self, hass, coordinator, todolist, name, task, config, entity_id, unique_id
     ):
-        """Initialise the Tasks Sensor."""
+        """Initialise the ToDo List."""
         super().__init__(coordinator, config, name, entity_id, TODO_TODO, unique_id)
         self.todolist = todolist
         self._show_completed = task.get(CONF_SHOW_COMPLETED)
@@ -189,7 +189,7 @@ class O365TodoList(O365Entity, TodoListEntity):
         self.async_write_ha_state()
 
     def _update_status(self, hass):
-        tasks = list(self.coordinator.data[self.entity_key][ATTR_DATA])
+        tasks = self.coordinator.data[self.entity_key][ATTR_DATA]
         self._state = sum(not task.completed for task in tasks)
         self._todo_items = []
         for task in tasks:
@@ -268,9 +268,9 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def async_create_todo_item(self, item: TodoItem) -> None:
         """Add an item to the To-do list."""
-        await self.async_new_task(subject=item.summary)
+        await self.async_new_todo(subject=item.summary)
 
-    async def async_new_task(self, subject, description=None, due=None, reminder=None):
+    async def async_new_todo(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
         if not self._validate_task_permissions():
             return False
@@ -286,7 +286,7 @@ class O365TodoList(O365Entity, TodoListEntity):
         """Add an item to the To-do list."""
         task = await self.hass.async_add_executor_job(self.todolist.get_task, item.uid)
         if item.summary and item.summary != task.subject:
-            await self.async_update_task(
+            await self.async_update_todo(
                 task_id=item.uid, subject=item.summary, task=task
             )
         if item.status:
@@ -296,9 +296,9 @@ class O365TodoList(O365Entity, TodoListEntity):
             elif item.status == TodoItemStatus.NEEDS_ACTION and task.completed:
                 completed = False
             if completed is not None:
-                await self.async_complete_task(item.uid, completed, task=task)
+                await self.async_complete_todo(item.uid, completed, task=task)
 
-    async def async_update_task(
+    async def async_update_todo(
         self,
         task_id,
         subject=None,
@@ -323,9 +323,9 @@ class O365TodoList(O365Entity, TodoListEntity):
     async def async_delete_todo_items(self, uids: list[str]) -> None:
         """Delete items from the To-do list."""
         for task_id in uids:
-            await self.async_delete_task(task_id)
+            await self.async_delete_todo(task_id)
 
-    async def async_delete_task(self, task_id):
+    async def async_delete_todo(self, task_id):
         """Delete task for this task list."""
         if not self._validate_task_permissions():
             return False
@@ -336,7 +336,7 @@ class O365TodoList(O365Entity, TodoListEntity):
         await self.coordinator.async_refresh()
         return True
 
-    async def async_complete_task(self, task_id, completed, task=None):
+    async def async_complete_todo(self, task_id, completed, task=None):
         """Complete task for this task list."""
         if not self._validate_task_permissions():
             return False
@@ -355,7 +355,7 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def _async_complete_task(self, task, task_id):
         if task.completed:
-            raise vol.Invalid("Task is already completed")
+            raise vol.Invalid("ToDo is already completed")
         task.mark_completed()
         self.hass.async_add_executor_job(task.save)
         self._raise_event(EVENT_COMPLETED_TASK, task_id)
@@ -363,7 +363,7 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def _async_uncomplete_task(self, task, task_id):
         if not task.completed:
-            raise vol.Invalid("Task has not been completed previously")
+            raise vol.Invalid("ToDo has not been completed previously")
         task.mark_uncompleted()
         self.hass.async_add_executor_job(task.save)
         self._raise_event(EVENT_UNCOMPLETED_TASK, task_id)
@@ -400,7 +400,7 @@ class O365TodoList(O365Entity, TodoListEntity):
     def _validate_task_permissions(self):
         return self._validate_permissions(
             PERM_MINIMUM_TASKS_WRITE,
-            f"Not authorised to create new task - requires permission: {PERM_TASKS_READWRITE}",
+            f"Not authorised to create new ToDo - requires permission: {PERM_TASKS_READWRITE}",
         )
 
 

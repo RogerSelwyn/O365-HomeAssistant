@@ -33,7 +33,7 @@ from ..utils.utils import clean_html, get_email_attributes
 from .entity import O365Entity
 
 
-class O365MailSensor(O365Entity):
+class O365MailSensor(O365Entity, SensorEntity):
     """O365 generic Mail Sensor class."""
 
     def __init__(self, coordinator, config, sensor_conf, name, entity_id, unique_id):
@@ -50,7 +50,7 @@ class O365MailSensor(O365Entity):
         return "mdi:microsoft-outlook"
 
     @property
-    def state(self):
+    def native_value(self):
         """Sensor state."""
         return self._state
 

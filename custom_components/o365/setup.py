@@ -83,6 +83,7 @@ def _load_platforms(hass, account_name, config, account_config):
                 hass, "sensor", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
             )
         )
+
     if len(account_config[CONF_TODO_SENSORS]) > 0 and account_config[
         CONF_TODO_SENSORS
     ].get(CONF_ENABLED, False):

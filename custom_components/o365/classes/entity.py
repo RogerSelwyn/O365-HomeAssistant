@@ -2,7 +2,7 @@
 import voluptuous as vol
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..const import ATTR_DATA, ATTR_STATE, CONF_PERMISSIONS
+from ..const import ATTR_DATA, CONF_PERMISSIONS
 
 
 class O365Entity(CoordinatorEntity):
@@ -29,11 +29,6 @@ class O365Entity(CoordinatorEntity):
     def entity_key(self):
         """Entity Key property."""
         return self._entity_id
-
-    @property
-    def state(self):
-        """Sensor state."""
-        return self.coordinator.data[self.entity_key][ATTR_STATE]
 
     @property
     def unique_id(self):
