@@ -6,7 +6,7 @@ from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_platform
 
 from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
-from .classes.tasksensor import O365TasksSensor
+from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import (
     CONF_ACCOUNT,

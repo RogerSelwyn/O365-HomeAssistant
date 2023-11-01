@@ -31,12 +31,6 @@ class O365Entity(CoordinatorEntity):
         return self._entity_id
 
     @property
-
-    def native_value(self):
-        """Sensor state."""
-        return self.coordinator.data[self.entity_key][ATTR_STATE]
-
-    @property
     def unique_id(self):
         """Entity unique id."""
         return self._unique_id
