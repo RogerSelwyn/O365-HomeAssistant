@@ -34,6 +34,7 @@ from .entity import O365Entity
 
 
 class O365MailSensor(O365Entity, SensorEntity):
+
     """O365 generic Mail Sensor class."""
 
     def __init__(self, coordinator, config, sensor_conf, name, entity_id, unique_id):
