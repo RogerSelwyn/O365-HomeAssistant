@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timedelta
 
 from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
+from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
@@ -86,6 +87,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._data = {}
         self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
         self._chat_members = {}
+        self._ent_reg = entity_registry.async_get(hass)
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
@@ -226,10 +228,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-
+                unique_id = f"{task_list_id}_{self._account_name}"
                 new_key = {
                     CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_TODO, name),
-                    CONF_UNIQUE_ID: f"{task_list_id}_{self._account_name}",
+                    CONF_UNIQUE_ID: unique_id,
                     CONF_TODO: todo,
                     CONF_NAME: name,
                     CONF_TASK_LIST: tasklist,
@@ -237,6 +239,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 }
 
                 keys.append(new_key)
+                # To be deleted in mid 2024 after majority have migtated
+                # to HA 2023.11 and O365 version 4.5
+                await self._async_delete_redundant_sensors(unique_id)
+
             except HTTPError:
                 _LOGGER.warning(
                     "Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
@@ -467,3 +473,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
         )
         _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
+
+    async def _async_delete_redundant_sensors(self, unique_id):
+        if entity_id := self._ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id):
+            self._ent_reg.async_remove(entity_id)

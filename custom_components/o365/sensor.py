@@ -6,12 +6,13 @@ from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_platform
 
 from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
-from .classes.taskssensor import O365TasksSensor
+
+# from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
+from .const import CONF_ACCOUNT  # CONF_TASK_LIST,; CONF_TODO,
 from .const import (
-    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
-    CONF_AUTO_REPLY_SENSORS,
+    CONF_AUTO_REPLY_SENSORS,  # TODO_TODO,
     CONF_CHAT_SENSORS,
     CONF_COORDINATOR,
     CONF_ENABLE_UPDATE,
@@ -20,8 +21,6 @@ from .const import (
     CONF_KEYS,
     CONF_PERMISSIONS,
     CONF_SENSOR_CONF,
-    CONF_TASK_LIST,
-    CONF_TODO,
     DOMAIN,
     PERM_MINIMUM_CHAT_WRITE,
     PERM_MINIMUM_MAILBOX_SETTINGS,
@@ -29,7 +28,6 @@ from .const import (
     SENSOR_EMAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
-    TODO_TODO,
 )
 from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
@@ -69,18 +67,18 @@ async def async_setup_platform(
                     key[CONF_UNIQUE_ID],
                 )
             )
-        elif key[CONF_ENTITY_TYPE] == TODO_TODO:
-            sensorentities.append(
-                O365TasksSensor(
-                    coordinator,
-                    key[CONF_TODO],
-                    key[CONF_NAME],
-                    key[CONF_TASK_LIST],
-                    conf,
-                    key[CONF_ENTITY_KEY],
-                    key[CONF_UNIQUE_ID],
-                )
-            )
+        # elif key[CONF_ENTITY_TYPE] == TODO_TODO:
+        #     sensorentities.append(
+        #         O365TasksSensor(
+        #             coordinator,
+        #             key[CONF_TODO],
+        #             key[CONF_NAME],
+        #             key[CONF_TASK_LIST],
+        #             conf,
+        #             key[CONF_ENTITY_KEY],
+        #             key[CONF_UNIQUE_ID],
+        #         )
+        #     )
         elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_CHAT:
             sensorentities.append(
                 O365TeamsChatSensor(
