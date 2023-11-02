@@ -1,5 +1,22 @@
 # Changelog
 
+## v4.4.3 (2023/11/02)
+### 🐛 Fixes
+- [Fix invalid task handling (as a result of code re-org)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b91b1fd319319bca703614c6de14154ecccba14d) - @RogerSelwyn
+- [Fix error in mail retrieval (as a result of code re-org)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/73f705494505ab3a8213604623023d2529dc2831) - @RogerSelwyn
+- [Fix incorrect sensor setup (as a result of code re-org)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/219367856d00407011a9327f484267a8b7b8558a) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Mark colors as unrecorded](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/db068bb0f2a2cbcea3475021fbf85a3adeaac21a) - @RogerSelwyn
+- [Major coordinator re-organisation to enable simpler maintenance](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/175) - @RogerSelwyn
+- [Add warning indicating corrupt token](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3da9de825dc24fe1a55c52aa63d02d9ecbcc8d9c) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update installation_and_configuration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/94a32a385735f9daf6fbfff8f91375603ce657a4) - @the-smart-home-maker
+
+### 🔖 Release
+- [Bump to v4.4.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/90797b381806b692c293cd6138e4dfb6c79d75de) - @RogerSelwyn
+
 ## v4.4.2 (2023/10/29)
 ### ✨ Enhancements
 - [Add color attributes to calendar](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b2622a29e17576b4ffdc56625adb3d0906af69ad) - @RogerSelwyn
