@@ -2,9 +2,9 @@ scan_for_calendars:
   name: Scan for new calendars
   description: "Scan for newly available calendars"
 
-scan_for_task_lists:
-  name: Scan for new task lists
-  description: "Scan for newly available task lists"
+scan_for_todo_lists:
+  name: Scan for new todo lists
+  description: "Scan for newly available todo lists"
 
 respond_calendar_event:
   name: Respond to an event
@@ -258,31 +258,31 @@ remove_calendar_event:
         text:
 
 new_task:
-  name: Create a task/ToDo
-  description: Create a new task/ToDo
+  name: Create a ToDo
+  description: Create a new ToDo
   target:
     device:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     subject:
       name: Subject
-      description: The subject of the task
+      description: The subject of the todo
       example: Pick up the mail
       required: true
       selector:
         text:
     description:
       name: Description
-      description: Description of the task
+      description: Description of the todo
       example: Walk to the post box and collect the mail
       selector:
         text:
     due:
       name: Due date
-      description: When the task is due by
+      description: When the todo is due by
       example: "YYYY-MM-DD"
       selector:
         date:
@@ -294,37 +294,37 @@ new_task:
         text:
 
 update_task:
-  name: Update a task/ToDo
-  description: Update a new task/ToDo
+  name: Update a ToDo
+  description: Update a ToDo
   target:
     device:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     task_id:
-      name: Task ID
-      description: ID for the task, can be found as an attribute on your task
+      name: ToDo ID
+      description: ID for the todo, can be found as an attribute on your todo
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       required: true
       selector:
         text:
     subject:
       name: Subject
-      description: The subject of the task
+      description: The subject of the todo
       example: Pick up the mail
       selector:
         text:
     description:
       name: Description
-      description: Description of the task
+      description: Description of the todo
       example: Walk to the post box and collect the mail
       selector:
         text:
     due:
       name: Due date
-      description: When the task is due by
+      description: When the todo is due by
       example: "2023-01-01"
       selector:
         date:
@@ -336,47 +336,49 @@ update_task:
         text:
 
 delete_task:
-  name: Delete a task/ToDo
-  description: Delete a new task/ToDo
+  name: Delete a ToDo
+  description: Delete a ToDo
   target:
     device:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     task_id:
-      name: Task ID
-      description: ID for the task, can be found as an attribute on your task
+      name: ToDo ID
+      description: ID for the todo, can be found as an attribute on your todo
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       required: true
       selector:
         text:
 
 complete_task:
-  name: Complete a task/ToDo
-  description: Complete a new task/ToDo
+  name: Complete a ToDo
+  description: Complete a ToDo
   target:
     device:
       integration: o365
     entity:
       integration: o365
-      domain: sensor
+      domain: todo
   fields:
     task_id:
-      name: Task ID
-      description: ID for the task, can be found as an attribute on your task
+      name: Todo ID
+      description: ID for the todo, can be found as an attribute on your todo
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
       required: true
       selector:
         text:
     completed:
       name: Completed
-      description: Set whether task is completed or not
+      description: Set whether todo is completed or not
       example: True
       required: true
       selector:
         boolean:
+
+
 
 auto_reply_enable:
   name: Auto reply enable

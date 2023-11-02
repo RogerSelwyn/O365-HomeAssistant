@@ -2,16 +2,17 @@
 
 import logging
 
-from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
+from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_platform
 
 from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
-from .classes.taskssensor import O365TasksSensor, O365TasksSensorSensorServices
+
+# from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
+from .const import CONF_ACCOUNT  # CONF_TASK_LIST,; CONF_TODO,
 from .const import (
-    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
-    CONF_AUTO_REPLY_SENSORS,
+    CONF_AUTO_REPLY_SENSORS,  # TODO_TODO,
     CONF_CHAT_SENSORS,
     CONF_COORDINATOR,
     CONF_ENABLE_UPDATE,
@@ -20,27 +21,18 @@ from .const import (
     CONF_KEYS,
     CONF_PERMISSIONS,
     CONF_SENSOR_CONF,
-    CONF_TASK_LIST,
-    CONF_TODO,
-    CONF_TODO_SENSORS,
     DOMAIN,
     PERM_MINIMUM_CHAT_WRITE,
     PERM_MINIMUM_MAILBOX_SETTINGS,
-    PERM_MINIMUM_TASKS_WRITE,
     SENSOR_AUTO_REPLY,
     SENSOR_EMAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
-    SENSOR_TODO,
 )
 from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
     AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
     CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
-    TASK_SERVICE_COMPLETE_SCHEMA,
-    TASK_SERVICE_DELETE_SCHEMA,
-    TASK_SERVICE_NEW_SCHEMA,
-    TASK_SERVICE_UPDATE_SCHEMA,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -75,18 +67,18 @@ async def async_setup_platform(
                     key[CONF_UNIQUE_ID],
                 )
             )
-        elif key[CONF_ENTITY_TYPE] == SENSOR_TODO:
-            sensorentities.append(
-                O365TasksSensor(
-                    coordinator,
-                    key[CONF_TODO],
-                    key[CONF_NAME],
-                    key[CONF_TASK_LIST],
-                    conf,
-                    key[CONF_ENTITY_KEY],
-                    key[CONF_UNIQUE_ID],
-                )
-            )
+        # elif key[CONF_ENTITY_TYPE] == TODO_TODO:
+        #     sensorentities.append(
+        #         O365TasksSensor(
+        #             coordinator,
+        #             key[CONF_TODO],
+        #             key[CONF_NAME],
+        #             key[CONF_TASK_LIST],
+        #             conf,
+        #             key[CONF_ENTITY_KEY],
+        #             key[CONF_UNIQUE_ID],
+        #         )
+        #     )
         elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_CHAT:
             sensorentities.append(
                 O365TeamsChatSensor(
@@ -119,54 +111,15 @@ async def async_setup_platform(
             )
 
     async_add_entities(sensorentities, False)
-    await _async_setup_register_services(hass, conf)
+    await _async_setup_register_services(conf)
 
     return True
 
 
-async def _async_setup_register_services(hass, config):
+async def _async_setup_register_services(config):
     perms = config[CONF_PERMISSIONS]
-    await _async_setup_task_services(hass, config, perms)
     await _async_setup_chat_services(config, perms)
     await _async_setup_mailbox_services(config, perms)
-
-
-async def _async_setup_task_services(hass, config, perms):
-    todo_sensors = config.get(CONF_TODO_SENSORS)
-    if (
-        not todo_sensors
-        or not todo_sensors.get(CONF_ENABLED)
-        or not todo_sensors.get(CONF_ENABLE_UPDATE)
-    ):
-        return
-
-    sensor_services = O365TasksSensorSensorServices(hass)
-    hass.services.async_register(
-        DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
-    )
-
-    platform = entity_platform.async_get_current_platform()
-    if perms.validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE):
-        platform.async_register_entity_service(
-            "new_task",
-            TASK_SERVICE_NEW_SCHEMA,
-            "new_task",
-        )
-        platform.async_register_entity_service(
-            "update_task",
-            TASK_SERVICE_UPDATE_SCHEMA,
-            "update_task",
-        )
-        platform.async_register_entity_service(
-            "delete_task",
-            TASK_SERVICE_DELETE_SCHEMA,
-            "delete_task",
-        )
-        platform.async_register_entity_service(
-            "complete_task",
-            TASK_SERVICE_COMPLETE_SCHEMA,
-            "complete_task",
-        )
 
 
 async def _async_setup_chat_services(config, perms):

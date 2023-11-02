@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 import voluptuous as vol
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import CONF_ENABLED
 from homeassistant.util import dt
 
 from ..const import (
@@ -18,13 +17,10 @@ from ..const import (
     ATTR_REMINDER,
     ATTR_SUBJECT,
     ATTR_TASK_ID,
-    CONF_ACCOUNT,
     CONF_DUE_HOURS_BACKWARD_TO_GET,
     CONF_DUE_HOURS_FORWARD_TO_GET,
     CONF_SHOW_COMPLETED,
     CONF_TASK_LIST,
-    CONF_TODO_SENSORS,
-    CONF_TRACK_NEW,
     DATETIME_FORMAT,
     DOMAIN,
     EVENT_COMPLETED_TASK,
@@ -35,20 +31,19 @@ from ..const import (
     EVENT_UPDATE_TASK,
     PERM_MINIMUM_TASKS_WRITE,
     PERM_TASKS_READWRITE,
-    SENSOR_TODO,
+    TODO_TODO,
 )
-from ..utils.filemgmt import update_task_list_file
-from .sensorentity import O365Sensor
+from .entity import O365Entity
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class O365TasksSensor(O365Sensor, SensorEntity):
+class O365TasksSensor(O365Entity, SensorEntity):
     """O365 Tasks sensor processing."""
 
     def __init__(self, coordinator, todo, name, task, config, entity_id, unique_id):
         """Initialise the Tasks Sensor."""
-        super().__init__(coordinator, config, name, entity_id, SENSOR_TODO, unique_id)
+        super().__init__(coordinator, config, name, entity_id, TODO_TODO, unique_id)
         self.todo = todo
         self._show_completed = task.get(CONF_SHOW_COMPLETED)
 
@@ -74,8 +69,8 @@ class O365TasksSensor(O365Sensor, SensorEntity):
         return self._extra_attributes
 
     def _handle_coordinator_update(self) -> None:
-        tasks = list(self.coordinator.data[self.entity_key][ATTR_DATA])
-        self._state = len(tasks)
+        tasks = self.coordinator.data[self.entity_key][ATTR_DATA]
+        self._state = sum(not task.completed for task in tasks)
         self._extra_attributes = self._update_extra_state_attributes(tasks)
 
         task_last_completed = self._zero_date
@@ -265,29 +260,3 @@ def build_todo_query(key, todo):
             end.strftime("%Y-%m-%dT%H:%M:%S")
         )
     return query
-
-
-class O365TasksSensorSensorServices:
-    """Sensor Services."""
-
-    def __init__(self, hass):
-        """Initialise the sensor services."""
-        self._hass = hass
-
-    async def async_scan_for_task_lists(self, call):  # pylint: disable=unused-argument
-        """Scan for new task lists."""
-        for config in self._hass.data[DOMAIN]:
-            config = self._hass.data[DOMAIN][config]
-            todo_sensor = config.get(CONF_TODO_SENSORS)
-            if todo_sensor and CONF_ACCOUNT in config and todo_sensor.get(CONF_ENABLED):
-                todos = config[CONF_ACCOUNT].tasks()
-
-                todolists = await self._hass.async_add_executor_job(todos.list_folders)
-                track = todo_sensor.get(CONF_TRACK_NEW)
-                for todo in todolists:
-                    update_task_list_file(
-                        config,
-                        todo,
-                        self._hass,
-                        track,
-                    )

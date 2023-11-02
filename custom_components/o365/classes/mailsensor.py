@@ -30,10 +30,10 @@ from ..const import (
     SENSOR_EMAIL,
 )
 from ..utils.utils import clean_html, get_email_attributes
-from .sensorentity import O365Sensor
+from .entity import O365Entity
 
 
-class O365MailSensor(O365Sensor, SensorEntity):
+class O365MailSensor(O365Entity, SensorEntity):
     """O365 generic Mail Sensor class."""
 
     def __init__(self, coordinator, config, sensor_conf, name, entity_id, unique_id):
@@ -74,7 +74,7 @@ class O365MailSensor(O365Sensor, SensorEntity):
         ]
 
 
-class O365AutoReplySensor(O365Sensor, SensorEntity):
+class O365AutoReplySensor(O365Entity, SensorEntity):
     """O365 Auto Reply sensor processing."""
 
     def __init__(self, coordinator, name, entity_id, config, unique_id):

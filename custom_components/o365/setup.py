@@ -77,13 +77,18 @@ def _load_platforms(hass, account_name, config, account_config):
         or len(account_config[CONF_QUERY_SENSORS]) > 0
         or len(account_config[CONF_STATUS_SENSORS]) > 0
         or len(account_config[CONF_CHAT_SENSORS]) > 0
-        or (
-            len(account_config[CONF_TODO_SENSORS]) > 0
-            and account_config[CONF_TODO_SENSORS].get(CONF_ENABLED, False)
-        )
     ):
         hass.async_create_task(
             discovery.async_load_platform(
                 hass, "sensor", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
+            )
+        )
+
+    if len(account_config[CONF_TODO_SENSORS]) > 0 and account_config[
+        CONF_TODO_SENSORS
+    ].get(CONF_ENABLED, False):
+        hass.async_create_task(
+            discovery.async_load_platform(
+                hass, "todo", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
             )
         )

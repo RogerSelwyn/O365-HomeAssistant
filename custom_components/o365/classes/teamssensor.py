@@ -10,6 +10,7 @@ from ..const import (
     ATTR_DATA,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
+    ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     CONF_ACCOUNT,
@@ -21,12 +22,12 @@ from ..const import (
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
 )
-from .sensorentity import O365Sensor
+from .entity import O365Entity
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class O365TeamsSensor(O365Sensor):
+class O365TeamsSensor(O365Entity):
     """O365 Teams sensor processing."""
 
     def __init__(self, cordinator, name, entity_id, config, entity_type, unique_id):
@@ -38,6 +39,11 @@ class O365TeamsSensor(O365Sensor):
     def icon(self):
         """Entity icon."""
         return "mdi:microsoft-teams"
+
+    @property
+    def native_value(self):
+        """Sensor state."""
+        return self.coordinator.data[self.entity_key][ATTR_STATE]
 
 
 class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):

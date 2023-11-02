@@ -1,6 +1,6 @@
 ---
 title: Events
-nav_order: 10
+nav_order: 16
 ---
 
 # Events

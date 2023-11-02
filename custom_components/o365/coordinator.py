@@ -4,13 +4,13 @@ import logging
 from datetime import datetime, timedelta
 
 from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
+from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
 from .classes.mailsensor import build_inbox_query, build_query_query
-from .classes.taskssensor import O365TasksSensorSensorServices, build_todo_query
 from .const import (
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
@@ -49,17 +49,19 @@ from .const import (
     CONF_TODO_SENSORS,
     CONF_TRACK,
     DOMAIN,
+    ENTITY_ID_FORMAT_SENSOR,
+    ENTITY_ID_FORMAT_TODO,
     EVENT_HA_EVENT,
     LEGACY_ACCOUNT_NAME,
     SENSOR_AUTO_REPLY,
     SENSOR_EMAIL,
-    SENSOR_ENTITY_ID_FORMAT,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
-    SENSOR_TODO,
+    TODO_TODO,
     YAML_TASK_LISTS,
 )
 from .schema import TASK_LIST_SCHEMA
+from .todo import O365TodoEntityServices, build_todo_query
 from .utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
 
 _LOGGER = logging.getLogger(__name__)
@@ -85,6 +87,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._data = {}
         self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
         self._chat_members = {}
+        self._ent_reg = entity_registry.async_get(hass)
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
@@ -119,7 +122,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 sensor_conf, CONF_EMAIL_SENSORS
             ):
                 new_key = {
-                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_ENTITY_KEY: self._build_entity_id(
+                        ENTITY_ID_FORMAT_SENSOR, name
+                    ),
                     CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
                     CONF_SENSOR_CONF: sensor_conf,
                     CONF_O365_MAIL_FOLDER: mail_folder,
@@ -140,7 +145,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
             ):
                 name = sensor_conf.get(CONF_NAME)
                 new_key = {
-                    CONF_ENTITY_KEY: self._build_entity_id(name),
+                    CONF_ENTITY_KEY: self._build_entity_id(
+                        ENTITY_ID_FORMAT_SENSOR, name
+                    ),
                     CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
                     CONF_SENSOR_CONF: sensor_conf,
                     CONF_O365_MAIL_FOLDER: mail_folder,
@@ -157,7 +164,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in status_sensors:
             name = sensor_conf.get(CONF_NAME)
             new_key = {
-                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_SENSOR, name),
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_TEAMS_STATUS,
@@ -172,7 +179,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in chat_sensors:
             name = sensor_conf.get(CONF_NAME)
             new_key = {
-                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_SENSOR, name),
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_TEAMS_CHAT,
@@ -186,7 +193,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         todo_sensors = self._config.get(CONF_TODO_SENSORS)
         keys = []
         if todo_sensors and todo_sensors.get(CONF_ENABLED):
-            sensor_services = O365TasksSensorSensorServices(self.hass)
+            sensor_services = O365TodoEntityServices(self.hass)
             await sensor_services.async_scan_for_task_lists(None)
 
             yaml_filename = build_yaml_filename(self._config, YAML_TASK_LISTS)
@@ -221,17 +228,21 @@ class O365SensorCordinator(DataUpdateCoordinator):
                         )
                     )
                 )
-
+                unique_id = f"{task_list_id}_{self._account_name}"
                 new_key = {
-                    CONF_ENTITY_KEY: self._build_entity_id(name),
-                    CONF_UNIQUE_ID: f"{task_list_id}_{self._account_name}",
+                    CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_TODO, name),
+                    CONF_UNIQUE_ID: unique_id,
                     CONF_TODO: todo,
                     CONF_NAME: name,
                     CONF_TASK_LIST: tasklist,
-                    CONF_ENTITY_TYPE: SENSOR_TODO,
+                    CONF_ENTITY_TYPE: TODO_TODO,
                 }
 
                 keys.append(new_key)
+                # To be deleted in mid 2024 after majority have migtated
+                # to HA 2023.11 and O365 version 4.5
+                await self._async_delete_redundant_sensors(unique_id)
+
             except HTTPError:
                 _LOGGER.warning(
                     "Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
@@ -246,7 +257,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         for sensor_conf in auto_reply_sensors:
             name = sensor_conf.get(CONF_NAME)
             new_key = {
-                CONF_ENTITY_KEY: self._build_entity_id(name),
+                CONF_ENTITY_KEY: self._build_entity_id(ENTITY_ID_FORMAT_SENSOR, name),
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_AUTO_REPLY,
@@ -295,7 +306,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             entity_type = key[CONF_ENTITY_TYPE]
             if entity_type == SENSOR_EMAIL:
                 await self._async_email_update(key)
-            elif entity_type == SENSOR_TODO:
+            elif entity_type == TODO_TODO:
                 await self._async_todos_update(key)
             elif entity_type == SENSOR_TEAMS_CHAT:
                 await self._async_teams_chat_update(key)
@@ -326,7 +337,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._data[entity_key] = {
             ATTR_DATA: await self.hass.async_add_executor_job(list, data)
         }
-        
+
     async def _async_teams_status_update(self, key):
         """Update state."""
         entity_key = key[CONF_ENTITY_KEY]
@@ -408,7 +419,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
             error = False
         data, error = await self._async_todos_update_query(key, error)
         if not error:
-            self._data[entity_key][ATTR_DATA] = data
+            self._data[entity_key][ATTR_DATA] = await self.hass.async_add_executor_job(
+                list, data
+            )
 
         self._data[entity_key][ATTR_ERROR] = error
 
@@ -446,10 +459,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 ATTR_AUTOREPLIESSETTINGS: data.automaticrepliessettings,
             }
 
-    def _build_entity_id(self, name):
+    def _build_entity_id(self, entity_id_format, name):
         """Build and entity ID."""
         return async_generate_entity_id(
-            SENSOR_ENTITY_ID_FORMAT,
+            entity_id_format,
             name,
             hass=self.hass,
         )
@@ -460,3 +473,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
             {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
         )
         _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
+
+    async def _async_delete_redundant_sensors(self, unique_id):
+        if entity_id := self._ent_reg.async_get_entity_id("sensor", DOMAIN, unique_id):
+            self._ent_reg.async_remove(entity_id)

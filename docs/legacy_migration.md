@@ -1,6 +1,6 @@
 ---
 title: Legacy Migration
-nav_order: 13
+nav_order: 20
 ---
 
 # Legacy Migration

@@ -133,6 +133,8 @@ CONST_UTC_TIMEZONE = "UTC"
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_OFFSET = "!!"
 DOMAIN = "o365"
+ENTITY_ID_FORMAT_SENSOR = "sensor.{}"
+ENTITY_ID_FORMAT_TODO = "todo.{}"
 
 EVENT_HA_EVENT = "ha_event"
 EVENT_COMPLETED_TASK = "completed_task"
@@ -206,11 +208,10 @@ PERM_MINIMUM_SEND = [
 PERM_SHARED = ".Shared"
 
 SENSOR_AUTO_REPLY = "auto_reply"
-SENSOR_ENTITY_ID_FORMAT = "sensor.{}"
 SENSOR_EMAIL = "inbox"
 SENSOR_TEAMS_STATUS = "teams_status"
 SENSOR_TEAMS_CHAT = "teams_chat"
-SENSOR_TODO = "todo"
+TODO_TODO = "todo"
 TOKEN_FILENAME = "o365{0}.token"  # nosec
 TOKEN_FILE_MISSING = "missing"
 YAML_CALENDARS = "{0}_calendars{1}.yaml"
