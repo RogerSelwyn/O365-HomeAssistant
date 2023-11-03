@@ -206,7 +206,7 @@ def build_query_query(mail_folder, sensor_conf):
 
 def _add_to_query(query, qtype, attribute_name, attribute_value, check_value=True):
     if attribute_value is None or check_value is None:
-        return
+        return query
 
     if qtype == "ge":
         query.chain("and").on_attribute(attribute_name).greater_equal(attribute_value)
