@@ -165,11 +165,6 @@ class O365TodoList(O365Entity, TodoListEntity):
             )
 
     @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:clipboard-check-outline"
-
-    @property
     def state(self):
         """Todo state."""
         return self._state
