@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.4.4 (2023/11/03)
+### 🐛 Fixes
+- [Fix setup issue v4.4.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4bf6f6774b5b89201b4e81ed79f75909d226414b) - @RogerSelwyn
+
+### 🔖 Release
+- [Bump to v4.4.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/36b69937c038c88b5a09da7363a35056800043e5) - @RogerSelwyn
+
 ## v4.4.3 (2023/11/02)
 ### 🐛 Fixes
 - [Fix invalid task handling (as a result of code re-org)](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b91b1fd319319bca703614c6de14154ecccba14d) - @RogerSelwyn
