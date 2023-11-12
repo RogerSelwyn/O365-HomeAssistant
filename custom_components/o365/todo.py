@@ -24,13 +24,13 @@ from .const import (
     ATTR_TASK_ID,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
-    CONF_COORDINATOR,
+    CONF_COORDINATOR_SENSORS,
     CONF_DUE_HOURS_BACKWARD_TO_GET,
     CONF_DUE_HOURS_FORWARD_TO_GET,
     CONF_ENABLE_UPDATE,
     CONF_ENTITY_KEY,
     CONF_ENTITY_TYPE,
-    CONF_KEYS,
+    CONF_KEYS_SENSORS,
     CONF_PERMISSIONS,
     CONF_SHOW_COMPLETED,
     CONF_TASK_LIST,
@@ -75,7 +75,7 @@ async def async_setup_platform(
     if not is_authenticated:
         return False
 
-    coordinator = conf[CONF_COORDINATOR]
+    coordinator = conf[CONF_COORDINATOR_SENSORS]
     todoentities = [
         O365TodoList(
             hass,
@@ -87,7 +87,7 @@ async def async_setup_platform(
             key[CONF_ENTITY_KEY],
             key[CONF_UNIQUE_ID],
         )
-        for key in conf[CONF_KEYS]
+        for key in conf[CONF_KEYS_SENSORS]
         if key[CONF_ENTITY_TYPE] == TODO_TODO
     ]
     async_add_entities(todoentities, False)

@@ -10,22 +10,23 @@ from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
 # from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import CONF_ACCOUNT  # CONF_TASK_LIST,; CONF_TODO,
+from .const import CONF_AUTO_REPLY_SENSORS  # TODO_TODO,
 from .const import (
     CONF_ACCOUNT_NAME,
-    CONF_AUTO_REPLY_SENSORS,  # TODO_TODO,
     CONF_CHAT_SENSORS,
-    CONF_COORDINATOR,
+    CONF_COORDINATOR_EMAIL,
+    CONF_COORDINATOR_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_ENTITY_KEY,
     CONF_ENTITY_TYPE,
-    CONF_KEYS,
+    CONF_KEYS_EMAIL,
+    CONF_KEYS_SENSORS,
     CONF_PERMISSIONS,
     CONF_SENSOR_CONF,
     DOMAIN,
     PERM_MINIMUM_CHAT_WRITE,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     SENSOR_AUTO_REPLY,
-    SENSOR_EMAIL,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
 )
@@ -53,36 +54,24 @@ async def async_setup_platform(
     if not is_authenticated:
         return False
 
-    coordinator = conf[CONF_COORDINATOR]
+    sensor_entities = _sensor_entities(conf)
+    email_entities = _email_entities(conf)
+    entities = sensor_entities + email_entities
+
+    async_add_entities(entities, False)
+    await _async_setup_register_services(conf)
+
+    return True
+
+
+def _sensor_entities(conf):
+    sensor_coordinator = conf[CONF_COORDINATOR_SENSORS]
     sensorentities = []
-    for key in conf[CONF_KEYS]:
-        if key[CONF_ENTITY_TYPE] in SENSOR_EMAIL:
-            sensorentities.append(
-                O365MailSensor(
-                    coordinator,
-                    conf,
-                    key[CONF_SENSOR_CONF],
-                    key[CONF_NAME],
-                    key[CONF_ENTITY_KEY],
-                    key[CONF_UNIQUE_ID],
-                )
-            )
-        # elif key[CONF_ENTITY_TYPE] == TODO_TODO:
-        #     sensorentities.append(
-        #         O365TasksSensor(
-        #             coordinator,
-        #             key[CONF_TODO],
-        #             key[CONF_NAME],
-        #             key[CONF_TASK_LIST],
-        #             conf,
-        #             key[CONF_ENTITY_KEY],
-        #             key[CONF_UNIQUE_ID],
-        #         )
-        #     )
-        elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_CHAT:
+    for key in conf[CONF_KEYS_SENSORS]:
+        if key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_CHAT:
             sensorentities.append(
                 O365TeamsChatSensor(
-                    coordinator,
+                    sensor_coordinator,
                     key[CONF_NAME],
                     key[CONF_ENTITY_KEY],
                     conf,
@@ -92,7 +81,7 @@ async def async_setup_platform(
         elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_STATUS:
             sensorentities.append(
                 O365TeamsStatusSensor(
-                    coordinator,
+                    sensor_coordinator,
                     key[CONF_NAME],
                     key[CONF_ENTITY_KEY],
                     conf,
@@ -102,18 +91,29 @@ async def async_setup_platform(
         elif key[CONF_ENTITY_TYPE] == SENSOR_AUTO_REPLY:
             sensorentities.append(
                 O365AutoReplySensor(
-                    coordinator,
+                    sensor_coordinator,
                     key[CONF_NAME],
                     key[CONF_ENTITY_KEY],
                     conf,
                     key[CONF_UNIQUE_ID],
                 )
             )
+    return sensorentities
 
-    async_add_entities(sensorentities, False)
-    await _async_setup_register_services(conf)
 
-    return True
+def _email_entities(conf):
+    email_coordinator = conf[CONF_COORDINATOR_EMAIL]
+    return [
+        O365MailSensor(
+            email_coordinator,
+            conf,
+            key[CONF_SENSOR_CONF],
+            key[CONF_NAME],
+            key[CONF_ENTITY_KEY],
+            key[CONF_UNIQUE_ID],
+        )
+        for key in conf[CONF_KEYS_EMAIL]
+    ]
 
 
 async def _async_setup_register_services(config):

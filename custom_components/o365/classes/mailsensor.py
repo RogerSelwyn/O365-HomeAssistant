@@ -43,6 +43,7 @@ class O365MailSensor(O365Entity, SensorEntity):
         self.html_body = sensor_conf.get(CONF_HTML_BODY)
         self._state = None
         self._extra_attributes = None
+        self._update_status()
 
     @property
     def icon(self):
@@ -60,12 +61,15 @@ class O365MailSensor(O365Entity, SensorEntity):
         return self._extra_attributes
 
     def _handle_coordinator_update(self) -> None:
+        self._update_status()
+        self.async_write_ha_state()
+
+    def _update_status(self) -> None:
         data = self.coordinator.data[self.entity_key][ATTR_DATA]
         attrs = self._get_attributes(data)
         attrs.sort(key=itemgetter("received"), reverse=True)
         self._state = len(attrs)
         self._extra_attributes = {ATTR_DATA: attrs}
-        self.async_write_ha_state()
 
     def _get_attributes(self, data):
         return [

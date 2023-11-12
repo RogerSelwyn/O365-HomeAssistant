@@ -9,10 +9,12 @@ from .const import (
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_CONFIG_TYPE,
-    CONF_COORDINATOR,
+    CONF_COORDINATOR_EMAIL,
+    CONF_COORDINATOR_SENSORS,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
-    CONF_KEYS,
+    CONF_KEYS_EMAIL,
+    CONF_KEYS_SENSORS,
     CONF_PERMISSIONS,
     CONF_QUERY_SENSORS,
     CONF_STATUS_SENSORS,
@@ -20,7 +22,7 @@ from .const import (
     CONF_TRACK_NEW_CALENDAR,
     DOMAIN,
 )
-from .coordinator import O365SensorCordinator
+from .coordinator import O365EmailCordinator, O365SensorCordinator
 
 
 async def do_setup(hass, config, account, account_name, conf_type, perms):
@@ -51,11 +53,16 @@ async def do_setup(hass, config, account, account_name, conf_type, perms):
         hass.data[DOMAIN] = {}
     hass.data[DOMAIN][account_name] = account_config
 
-    coordinator = O365SensorCordinator(hass, account_config)
-    keys = await coordinator.async_setup_entries()
-    await coordinator.async_config_entry_first_refresh()
-    hass.data[DOMAIN][account_name][CONF_KEYS] = keys
-    hass.data[DOMAIN][account_name][CONF_COORDINATOR] = coordinator
+    sensor_coordinator = O365SensorCordinator(hass, account_config)
+    sensor_keys = await sensor_coordinator.async_setup_entries()
+    await sensor_coordinator.async_config_entry_first_refresh()
+    email_coordinator = O365EmailCordinator(hass, account_config)
+    email_keys = await email_coordinator.async_setup_entries()
+    await email_coordinator.async_config_entry_first_refresh()
+    hass.data[DOMAIN][account_name][CONF_KEYS_SENSORS] = sensor_keys
+    hass.data[DOMAIN][account_name][CONF_COORDINATOR_SENSORS] = sensor_coordinator
+    hass.data[DOMAIN][account_name][CONF_KEYS_EMAIL] = email_keys
+    hass.data[DOMAIN][account_name][CONF_COORDINATOR_EMAIL] = email_coordinator
 
     _load_platforms(hass, account_name, config, account_config)
 
