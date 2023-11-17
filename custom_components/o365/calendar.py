@@ -256,9 +256,10 @@ class O365CalendarEntity(CalendarEntity):
         """Extra state attributes."""
         attributes = {
             ATTR_DATA: self._data_attribute,
-            ATTR_COLOR: self.data.calendar.color,
         }
-        if self.data.calendar.hex_color:
+        if hasattr(self.data.calendar, ATTR_COLOR):
+            attributes[ATTR_COLOR] = self.data.calendar.color
+        if hasattr(self.data.calendar, ATTR_HEX_COLOR) and self.data.calendar.hex_color:
             attributes[ATTR_HEX_COLOR] = self.data.calendar.hex_color
         if self._event:
             attributes[ATTR_ALL_DAY] = (
