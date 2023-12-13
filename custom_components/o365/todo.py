@@ -12,16 +12,16 @@ from homeassistant.util import dt
 
 from .classes.entity import O365Entity
 from .const import (
-    ATTR_ALL_TASKS,
+    ATTR_ALL_TODOS,
     ATTR_COMPLETED,
     ATTR_CREATED,
     ATTR_DATA,
     ATTR_DESCRIPTION,
     ATTR_DUE,
-    ATTR_OVERDUE_TASKS,
+    ATTR_OVERDUE_TODOS,
     ATTR_REMINDER,
     ATTR_SUBJECT,
-    ATTR_TASK_ID,
+    ATTR_TODO_ID,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_COORDINATOR_SENSORS,
@@ -39,12 +39,12 @@ from .const import (
     CONF_TRACK_NEW,
     DATETIME_FORMAT,
     DOMAIN,
-    EVENT_COMPLETED_TASK,
-    EVENT_DELETE_TASK,
+    EVENT_COMPLETED_TODO,
+    EVENT_DELETE_TODO,
     EVENT_HA_EVENT,
-    EVENT_NEW_TASK,
-    EVENT_UNCOMPLETED_TASK,
-    EVENT_UPDATE_TASK,
+    EVENT_NEW_TODO,
+    EVENT_UNCOMPLETED_TODO,
+    EVENT_UPDATE_TODO,
     PERM_MINIMUM_TASKS_WRITE,
     PERM_TASKS_READWRITE,
     TODO_TODO,
@@ -205,7 +205,7 @@ class O365TodoList(O365Entity, TodoListEntity):
             if task.completed and task.completed > self.task_last_completed:
                 _raise_event_external(
                     hass,
-                    EVENT_COMPLETED_TASK,
+                    EVENT_COMPLETED_TODO,
                     task.task_id,
                     ATTR_COMPLETED,
                     task.completed,
@@ -214,7 +214,7 @@ class O365TodoList(O365Entity, TodoListEntity):
                     task_last_completed = task.completed
             if task.created and task.created > self.task_last_created:
                 _raise_event_external(
-                    hass, EVENT_NEW_TASK, task.task_id, ATTR_CREATED, task.created
+                    hass, EVENT_NEW_TODO, task.task_id, ATTR_CREATED, task.created
                 )
                 if task.created > task_last_created:
                     task_last_created = task.created
@@ -229,7 +229,7 @@ class O365TodoList(O365Entity, TodoListEntity):
         all_tasks = []
         overdue_tasks = []
         for item in tasks:
-            task = {ATTR_SUBJECT: item.subject, ATTR_TASK_ID: item.task_id}
+            task = {ATTR_SUBJECT: item.subject, ATTR_TODO_ID: item.task_id}
             if item.body:
                 task[ATTR_DESCRIPTION] = item.body
             if self._show_completed:
@@ -244,7 +244,7 @@ class O365TodoList(O365Entity, TodoListEntity):
                 if due < dt.utcnow().date():
                     overdue_task = {
                         ATTR_SUBJECT: item.subject,
-                        ATTR_TASK_ID: item.task_id,
+                        ATTR_TODO_ID: item.task_id,
                         ATTR_DUE: due,
                     }
                     if item.is_reminder_on:
@@ -256,9 +256,9 @@ class O365TodoList(O365Entity, TodoListEntity):
 
             all_tasks.append(task)
 
-        extra_attributes = {ATTR_ALL_TASKS: all_tasks}
+        extra_attributes = {ATTR_ALL_TODOS: all_tasks}
         if overdue_tasks:
-            extra_attributes[ATTR_OVERDUE_TASKS] = overdue_tasks
+            extra_attributes[ATTR_OVERDUE_TODOS] = overdue_tasks
         return extra_attributes
 
     async def async_create_todo_item(self, item: TodoItem) -> None:
@@ -274,7 +274,7 @@ class O365TodoList(O365Entity, TodoListEntity):
 
         new_task = self.todolist.new_task()
         await self._async_save_task(new_task, subject, description, due, reminder)
-        self._raise_event(EVENT_NEW_TASK, new_task.task_id)
+        self._raise_event(EVENT_NEW_TODO, new_task.task_id)
         self.task_last_created = new_task.created
         await self.coordinator.async_refresh()
         return True
@@ -284,7 +284,7 @@ class O365TodoList(O365Entity, TodoListEntity):
         task = await self.hass.async_add_executor_job(self.todolist.get_task, item.uid)
         if item.summary and item.summary != task.subject:
             await self.async_update_todo(
-                task_id=item.uid, subject=item.summary, task=task
+                todo_id=item.uid, subject=item.summary, task=task
             )
         if item.status:
             completed = None
@@ -297,7 +297,7 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def async_update_todo(
         self,
-        task_id,
+        todo_id,
         subject=None,
         description=None,
         due=None,
@@ -310,47 +310,47 @@ class O365TodoList(O365Entity, TodoListEntity):
 
         if not task:
             task = await self.hass.async_add_executor_job(
-                self.todolist.get_task, task_id
+                self.todolist.get_task, todo_id
             )
         await self._async_save_task(task, subject, description, due, reminder)
-        self._raise_event(EVENT_UPDATE_TASK, task_id)
+        self._raise_event(EVENT_UPDATE_TODO, todo_id)
         await self.coordinator.async_refresh()
         return True
 
     async def async_delete_todo_items(self, uids: list[str]) -> None:
         """Delete items from the To-do list."""
-        for task_id in uids:
-            await self.async_delete_todo(task_id)
+        for todo_id in uids:
+            await self.async_delete_todo(todo_id)
 
-    async def async_delete_todo(self, task_id):
+    async def async_delete_todo(self, todo_id):
         """Delete task for this task list."""
         if not self._validate_task_permissions():
             return False
 
-        task = await self.hass.async_add_executor_job(self.todolist.get_task, task_id)
+        task = await self.hass.async_add_executor_job(self.todolist.get_task, todo_id)
         await self.hass.async_add_executor_job(task.delete)
-        self._raise_event(EVENT_DELETE_TASK, task_id)
+        self._raise_event(EVENT_DELETE_TODO, todo_id)
         await self.coordinator.async_refresh()
         return True
 
-    async def async_complete_todo(self, task_id, completed, task=None):
+    async def async_complete_todo(self, todo_id, completed, task=None):
         """Complete task for this task list."""
         if not self._validate_task_permissions():
             return False
 
         if not task:
             task = await self.hass.async_add_executor_job(
-                self.todolist.get_task, task_id
+                self.todolist.get_task, todo_id
             )
         if completed:
-            await self._async_complete_task(task, task_id)
+            await self._async_complete_task(task, todo_id)
         else:
-            await self._async_uncomplete_task(task, task_id)
+            await self._async_uncomplete_task(task, todo_id)
 
         await self.coordinator.async_refresh()
         return True
 
-    async def _async_complete_task(self, task, task_id):
+    async def _async_complete_task(self, task, todo_id):
         if task.completed:
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
@@ -358,10 +358,10 @@ class O365TodoList(O365Entity, TodoListEntity):
             )
         task.mark_completed()
         self.hass.async_add_executor_job(task.save)
-        self._raise_event(EVENT_COMPLETED_TASK, task_id)
+        self._raise_event(EVENT_COMPLETED_TODO, todo_id)
         self.task_last_completed = dt.utcnow()
 
-    async def _async_uncomplete_task(self, task, task_id):
+    async def _async_uncomplete_task(self, task, todo_id):
         if not task.completed:
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
@@ -369,7 +369,7 @@ class O365TodoList(O365Entity, TodoListEntity):
             )
         task.mark_uncompleted()
         self.hass.async_add_executor_job(task.save)
-        self._raise_event(EVENT_UNCOMPLETED_TASK, task_id)
+        self._raise_event(EVENT_UNCOMPLETED_TODO, todo_id)
 
     async def _async_save_task(self, task, subject, description, due, reminder):
         # sourcery skip: raise-from-previous-error
@@ -401,12 +401,12 @@ class O365TodoList(O365Entity, TodoListEntity):
 
         await self.hass.async_add_executor_job(task.save)
 
-    def _raise_event(self, event_type, task_id):
+    def _raise_event(self, event_type, todo_id):
         self.hass.bus.fire(
             f"{DOMAIN}_{event_type}",
-            {ATTR_TASK_ID: task_id, EVENT_HA_EVENT: True},
+            {ATTR_TODO_ID: todo_id, EVENT_HA_EVENT: True},
         )
-        _LOGGER.debug("%s - %s", event_type, task_id)
+        _LOGGER.debug("%s - %s", event_type, todo_id)
 
     def _validate_task_permissions(self):
         return self._validate_permissions(
@@ -415,12 +415,12 @@ class O365TodoList(O365Entity, TodoListEntity):
         )
 
 
-def _raise_event_external(hass, event_type, task_id, time_type, task_datetime):
+def _raise_event_external(hass, event_type, todo_id, time_type, task_datetime):
     hass.bus.fire(
         f"{DOMAIN}_{event_type}",
-        {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
+        {ATTR_TODO_ID: todo_id, time_type: task_datetime, EVENT_HA_EVENT: False},
     )
-    _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
+    _LOGGER.debug("%s - %s - %s", event_type, todo_id, task_datetime)
 
 
 def build_todo_query(key, todo):

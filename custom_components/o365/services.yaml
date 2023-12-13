@@ -303,7 +303,7 @@ update_todo:
       integration: o365
       domain: todo
   fields:
-    task_id:
+    todo_id:
       name: ToDo ID
       description: ID for the todo, can be found as an attribute on your todo
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -345,7 +345,7 @@ delete_todo:
       integration: o365
       domain: todo
   fields:
-    task_id:
+    todo_id:
       name: ToDo ID
       description: ID for the todo, can be found as an attribute on your todo
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -363,7 +363,7 @@ complete_todo:
       integration: o365
       domain: todo
   fields:
-    task_id:
+    todo_id:
       name: Todo ID
       description: ID for the todo, can be found as an attribute on your todo
       example: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

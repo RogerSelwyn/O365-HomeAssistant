@@ -80,27 +80,28 @@ data:
       type: Required
 ```
 
-## Task Services
+## To-Do Services
 
-These services must be targeted at a `task` sensor. 
+These O365 services must be targeted at a `todo` sensor. Alternatively the core To-Do services (e.g.`todo.add_item`) can be used. The core services do not support reminder date/time setting. 
+The intention is to phase out the O365 services once the core services provide full functionality.
 
-### o365.new_task
-Create a new To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
-### o365.update_task
-Update a To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
-### o365.delete_task
-Delete a To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
-### o365.complete_task
-(Un)complete a To-Do Task - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
-### o365.scan_for_task_lists
-Scan for new task lists and add to o365_tasks.yaml - No parameters.
+### o365.new_todo
+Create a new To-Do - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.update_todo
+Update a To-Do - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.delete_todo
+Delete a To-Do - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.complete_todo
+(Un)complete a To-Do - All parameters are shown in the available parameter list on the Developer Tools/Services tab.
+### o365.scan_for_todo_lists
+Scan for new for to-do lists and add to o365_tasks.yaml - No parameters.
 
-#### Example create task service call
+#### Example create to-do service call
 
 ```yaml
-service: o365.new_task
+service: o365.new_todo
 target:
-  entity_id: sensor.hass_primary
+  entity_id: todo.hass_primary
 data:
   subject: Pick up the mail
   description: Walk to the post box and collect the mail

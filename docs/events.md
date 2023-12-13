@@ -33,24 +33,24 @@ context:
   user_id: null
 ```
 
-##  Task Events
+##  To-Do Events
 
 Events will be raised for the following items.
 
-- o365_new_task - New task created either by the O365 integration or via some external app
-- o365_update_task - Update of a task via the O365 integration
-- o365_delete_task - Deletion of a task via the O365 integration
-- o365_completed_task - Task marked complete either by the O365 integration or via some external app (`show_completed` must be enabled for task list in `o365_tasks_xxxx.yaml`)
-- o365_uncompleted_task - Task marked incomplete via the O365 integration
+- o365_new_todo - New to-do created either by the O365 integration or via some external app
+- o365_update_todo - Update of a to-do via the O365 integration
+- o365_delete_todo - Deletion of a to-do via the O365 integration
+- o365_completed_todo - To-do marked complete either by the O365 integration or via some external app (`show_completed` must be enabled for to-do list in `o365_tasks_xxxx.yaml`)
+- o365_uncompleted_todo - To-do marked incomplete via the O365 integration
 
-It should be noted that actions occurring external to HA are identified via a 30-second poll, so will very likely be delayed by up to that time. Any new task or completed task occurring within 5 minutes before HA restart will very likely have a new event sent after the restart.
+It should be noted that actions occurring external to HA are identified via a 30-second poll, so will very likely be delayed by up to that time. Any new or completed to-do occurring within 5 minutes before HA restart will very likely have a new event sent after the restart.
 
 The events have the following general structure. A `created` or `completed` attribute will be included where the action happened outside HA:
 
 ```yaml
-event_type: o365_new_task
+event_type: o365_new_todo
 data:
-  task_id: >-
+  todo_id: >-
     AAMkAGQwYzQ5ZjZjLTQyYmItNDJmNy04NDNjLTJjYWY3NzMyMDBGAAAAAAC9VxHxYFTdSrdCHSJkXtJ-BwCoiRErLbiNRJDCFyMjq4khAAbWN3xqAACoiRErLbiNRJDCFyMjq4khAAcZSXKvAAA=
   created: "2023-02-19T15:36:05.436266+00:00"
   ha_event: false

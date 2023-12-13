@@ -24,7 +24,7 @@ from .const import (
     ATTR_STATE,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
-    ATTR_TASKS,
+    ATTR_TODOS,
     ATTR_TOPIC,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
@@ -162,12 +162,10 @@ class O365SensorCordinator(DataUpdateCoordinator):
             else:
                 name = tasklist.get(CONF_NAME)
             try:
-                todo = (
-                    await self.hass.async_add_executor_job(  # pylint: disable=no-member
-                        ft.partial(
-                            tasks.get_folder,
-                            folder_id=task_list_id,
-                        )
+                todo = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+                    ft.partial(
+                        tasks.get_folder,
+                        folder_id=task_list_id,
                     )
                 )
                 unique_id = f"{task_list_id}_{self._account_name}"
@@ -306,7 +304,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         if entity_key in self._data:
             error = self._data[entity_key][ATTR_ERROR]
         else:
-            self._data[entity_key] = {ATTR_TASKS: {}, ATTR_STATE: 0}
+            self._data[entity_key] = {ATTR_TODOS: {}, ATTR_STATE: 0}
             error = False
         data, error = await self._async_todos_update_query(key, error)
         if not error:
@@ -496,14 +494,6 @@ def _build_entity_id(hass, entity_id_format, name):
         name,
         hass=hass,
     )
-
-
-# def _raise_event(hass, event_type, task_id, time_type, task_datetime):
-#     hass.bus.fire(
-#         f"{DOMAIN}_{event_type}",
-#         {ATTR_TASK_ID: task_id, time_type: task_datetime, EVENT_HA_EVENT: False},
-#     )
-#     _LOGGER.debug("%s - %s - %s", event_type, task_id, task_datetime)
 
 
 async def _async_delete_redundant_sensors(ent_reg, unique_id):

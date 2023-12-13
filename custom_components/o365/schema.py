@@ -9,9 +9,11 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
-from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
-from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module
+from O365.calendar import (
+    AttendeeType,  # pylint: disable=no-name-in-module
+    EventSensitivity,  # pylint: disable=no-name-in-module
+    EventShowAs,  # pylint: disable=no-name-in-module
+)
 from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
@@ -43,7 +45,7 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     ATTR_SHOW_AS,
     ATTR_START,
     ATTR_SUBJECT,
-    ATTR_TASK_ID,
+    ATTR_TODO_ID,
     ATTR_TYPE,
     ATTR_ZIP_ATTACHMENTS,
     ATTR_ZIP_NAME,
@@ -259,7 +261,7 @@ TASK_SERVICE_NEW_SCHEMA = {
 }
 
 TASK_SERVICE_UPDATE_SCHEMA = {
-    vol.Required(ATTR_TASK_ID): cv.string,
+    vol.Required(ATTR_TODO_ID): cv.string,
     vol.Optional(ATTR_SUBJECT): cv.string,
     vol.Optional(ATTR_DESCRIPTION): cv.string,
     vol.Optional(ATTR_DUE): cv.string,
@@ -267,10 +269,10 @@ TASK_SERVICE_UPDATE_SCHEMA = {
 }
 
 TASK_SERVICE_DELETE_SCHEMA = {
-    vol.Required(ATTR_TASK_ID): cv.string,
+    vol.Required(ATTR_TODO_ID): cv.string,
 }
 TASK_SERVICE_COMPLETE_SCHEMA = {
-    vol.Required(ATTR_TASK_ID): cv.string,
+    vol.Required(ATTR_TODO_ID): cv.string,
     vol.Required(ATTR_COMPLETED): bool,
 }
 

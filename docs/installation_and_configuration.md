@@ -19,7 +19,7 @@ nav_order: 4
     * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary (deprecated) configuration method) will be created under the config directory in the `o365_storage` directory.
     * If todo_sensors is enabled then `o365_tasks_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.
 1. [Configure Calendars](./calendar_configuration.md)
-1. [Configure Tasks](./tasks_configuration.md) (if required)
+1. [Configure To-Dos](./todos_configuration.md) (if required)
 1. Restart your Home Assistant instance.
 
 **Note** If your installation does not complete authentication, or the sensors are not created, please go back and ensure you have accurately followed the steps detailed, also look in the logs to see if there are any errors. You can also look at the [errors page](./errors.md) for some other possibilities.
@@ -55,7 +55,7 @@ o365:
         - name: "User Chat"
       todo_sensors:
         enabled: False
-        enable_update: False # set this to true if you want to be able to create new tasks
+        enable_update: False # set this to true if you want to be able to create new todos
     - account_name: Account2
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
@@ -168,7 +168,7 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `enabled` | `boolean` | `True` | True=Enables To-Do Lists, **False**=Disables To-Do Lists.
-`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services to create/update/delete tasks
+`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services to create/update/delete to-dos
 
 #### auto_reply_sensors 
 
