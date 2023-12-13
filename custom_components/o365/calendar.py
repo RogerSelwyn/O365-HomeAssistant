@@ -7,7 +7,6 @@ from datetime import date, datetime, timedelta
 from operator import attrgetter
 from typing import Any
 
-import voluptuous as vol
 from homeassistant.components.calendar import (
     EVENT_DESCRIPTION,
     EVENT_END,
@@ -21,7 +20,7 @@ from homeassistant.components.calendar import (
     is_offset_reached,
 )
 from homeassistant.const import CONF_NAME
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_platform, entity_registry
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
@@ -92,9 +91,7 @@ from .utils.utils import clean_html
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(
-    hass, config, add_entities, discovery_info=None
-):  # pylint: disable=unused-argument
+async def async_setup_platform(hass, config, add_entities, discovery_info=None):  # pylint: disable=unused-argument
     """Set up the O365 platform."""
     if discovery_info is None:
         return None
@@ -451,9 +448,13 @@ class O365CalendarEntity(CalendarEntity):
         if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
             PERM_MINIMUM_CALENDAR_WRITE
         ):
-            raise vol.Invalid(
-                f"Not authorisied to {PERM_CALENDARS_READWRITE} calendar event "
-                + f"- requires permission: {error_message}"
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="not_authorised_to_event",
+                translation_placeholders={
+                    "calendar": PERM_CALENDARS_READWRITE,
+                    "error_message": error_message,
+                },
             )
 
         return True
@@ -739,7 +740,10 @@ class CalendarServices:
 
 
 def _group_calendar_log(entity_id):
-    raise vol.Invalid(
-        "O365 Python does not have capability "
-        + f"to update/respond to group calendar events: {entity_id}"
+    raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="o365_group_calendar_error",
+        translation_placeholders={
+            "entity_id": entity_id,
+        },
     )

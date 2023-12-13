@@ -3,10 +3,10 @@
 import logging
 from datetime import datetime, timedelta
 
-import voluptuous as vol
 from homeassistant.components.todo import TodoItem, TodoListEntity
 from homeassistant.components.todo.const import TodoItemStatus, TodoListEntityFeature
 from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_platform
 from homeassistant.util import dt
 
@@ -60,9 +60,7 @@ from .utils.filemgmt import update_task_list_file
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(
-    hass, config, async_add_entities, discovery_info=None
-):  # pylint: disable=unused-argument
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
         return None
@@ -112,7 +110,7 @@ async def _async_setup_task_services(hass, config, perms):
 
     sensor_services = O365TodoEntityServices(hass)
     hass.services.async_register(
-        DOMAIN, "scan_for_task_lists", sensor_services.async_scan_for_task_lists
+        DOMAIN, "scan_for_todo_lists", sensor_services.async_scan_for_task_lists
     )
 
     platform = entity_platform.async_get_current_platform()
@@ -350,7 +348,10 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def _async_complete_task(self, task, task_id):
         if task.completed:
-            raise vol.Invalid("ToDo is already completed")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="todo_completed",
+            )
         task.mark_completed()
         self.hass.async_add_executor_job(task.save)
         self._raise_event(EVENT_COMPLETED_TASK, task_id)
@@ -358,7 +359,10 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def _async_uncomplete_task(self, task, task_id):
         if not task.completed:
-            raise vol.Invalid("ToDo has not been completed previously")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="todo_not_completed",
+            )
         task.mark_uncompleted()
         self.hass.async_add_executor_job(task.save)
         self._raise_event(EVENT_UNCOMPLETED_TASK, task_id)
@@ -377,8 +381,13 @@ class O365TodoList(O365Entity, TodoListEntity):
                 else:
                     task.due = dt.parse_date(due)
             except ValueError:
-                error = f"Due date {due} is not in valid format YYYY-MM-DD"
-                raise vol.Invalid(error)  # pylint: disable=raise-missing-from
+                raise ServiceValidationError(  # pylint: disable=raise-missing-from
+                    translation_domain=DOMAIN,
+                    translation_key="due_date_invalid",
+                    translation_placeholders={
+                        "due": due,
+                    },
+                )
 
         if reminder:
             task.reminder = reminder

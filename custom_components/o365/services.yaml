@@ -257,7 +257,7 @@ remove_calendar_event:
       selector:
         text:
 
-new_task:
+new_todo:
   name: Create a ToDo
   description: Create a new ToDo
   target:
@@ -293,7 +293,7 @@ new_task:
       selector:
         text:
 
-update_task:
+update_todo:
   name: Update a ToDo
   description: Update a ToDo
   target:
@@ -335,7 +335,7 @@ update_task:
       selector:
         text:
 
-delete_task:
+delete_todo:
   name: Delete a ToDo
   description: Delete a ToDo
   target:
@@ -353,7 +353,7 @@ delete_task:
       selector:
         text:
 
-complete_task:
+complete_todo:
   name: Complete a ToDo
   description: Complete a ToDo
   target:

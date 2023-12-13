@@ -1,8 +1,8 @@
 """Generic O465 Sensor Entity."""
-import voluptuous as vol
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..const import ATTR_DATA, CONF_PERMISSIONS
+from ..const import ATTR_DATA, CONF_PERMISSIONS, DOMAIN
 
 
 class O365Entity(CoordinatorEntity):
@@ -39,8 +39,12 @@ class O365Entity(CoordinatorEntity):
         if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
             minimum_perm_list
         ):
-            raise vol.Invalid(
-                f"Not authorisied requires permission: {required_permission}"
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="not_authorised",
+                translation_placeholders={
+                    "required_permission": required_permission,
+                },
             )
 
         return True

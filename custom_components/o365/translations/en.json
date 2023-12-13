@@ -1,6 +1,6 @@
 {
     "issues": {
-       "deprecated_legacy_configuration": {
+        "deprecated_legacy_configuration": {
             "title": "Deprecated Secondary/Legacy configuration method",
             "description": "Secondary/Legacy configuration method is now deprecated and will be removed in a future release. Please migrate to the Primary configuration method. Click 'Learn More' for details on configuration. A potential configuration has been placed in the o365_storage folder."
         },
@@ -12,7 +12,7 @@
                     "minimum_permissions": "Minimum permissions not granted for account: {account_name}",
                     "missing_token_file": "Token file is missing after successful authentication, check log for file system errors",
                     "token_file_error": "Token file retrieval error, check log for errors from O365"
-                    },
+                },
                 "step": {
                     "request_default": {
                         "title": "Authorization Required - {account_name}",
@@ -28,6 +28,26 @@
                     }
                 }
             }
+        }
+    },
+    "exceptions": {
+        "o365_group_calendar_error": {
+            "message": "O365 Python does not have capability to update/respond to group calendar events: {entity_id}"
+        },
+        "not_authorised_to_event": {
+            "message": "Not authorisied to {calendar} calendar event - requires permission: {error_message}"
+        },
+        "not_authorised": {
+            "message": "Not authorisied requires permission: {required_permission}"
+        },
+        "todo_completed": {
+            "message": "ToDo is already completed"
+        },
+        "todo_not_completed": {
+            "message": "ToDo has not been completed previously"
+        },
+        "due_date_invalid": {
+            "message": "Due date {due} is not in valid format YYYY-MM-DD"
         }
     }
 }
