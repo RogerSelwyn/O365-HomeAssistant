@@ -160,6 +160,8 @@ class O365TodoList(O365Entity, TodoListEntity):
                 TodoListEntityFeature.CREATE_TODO_ITEM
                 | TodoListEntityFeature.UPDATE_TODO_ITEM
                 | TodoListEntityFeature.DELETE_TODO_ITEM
+                | TodoListEntityFeature.SET_DUE_DATE_ON_ITEM
+                | TodoListEntityFeature.SET_DESCRIPTION_ON_ITEM
             )
 
     @property
@@ -261,7 +263,9 @@ class O365TodoList(O365Entity, TodoListEntity):
 
     async def async_create_todo_item(self, item: TodoItem) -> None:
         """Add an item to the To-do list."""
-        await self.async_new_todo(subject=item.summary)
+        await self.async_new_todo(
+            subject=item.summary, description=item.description, due=item.due
+        )
 
     async def async_new_todo(self, subject, description=None, due=None, reminder=None):
         """Create a new task for this task list."""
@@ -375,19 +379,22 @@ class O365TodoList(O365Entity, TodoListEntity):
             task.body = description
 
         if due:
-            try:
-                if len(due) > 10:
-                    task.due = dt.parse_datetime(due).date()
-                else:
-                    task.due = dt.parse_date(due)
-            except ValueError:
-                raise ServiceValidationError(  # pylint: disable=raise-missing-from
-                    translation_domain=DOMAIN,
-                    translation_key="due_date_invalid",
-                    translation_placeholders={
-                        "due": due,
-                    },
-                )
+            if isinstance(due, str):
+                try:
+                    if len(due) > 10:
+                        task.due = dt.parse_datetime(due).date()
+                    else:
+                        task.due = dt.parse_date(due)
+                except ValueError:
+                    raise ServiceValidationError(  # pylint: disable=raise-missing-from
+                        translation_domain=DOMAIN,
+                        translation_key="due_date_invalid",
+                        translation_placeholders={
+                            "due": due,
+                        },
+                    )
+            else:
+                task.due = due
 
         if reminder:
             task.reminder = reminder
