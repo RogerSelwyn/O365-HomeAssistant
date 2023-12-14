@@ -9,10 +9,10 @@ from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
 
 # from .classes.taskssensor import O365TasksSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
-from .const import CONF_ACCOUNT  # CONF_TASK_LIST,; CONF_TODO,
-from .const import CONF_AUTO_REPLY_SENSORS  # TODO_TODO,
 from .const import (
+    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_COORDINATOR_EMAIL,
     CONF_COORDINATOR_SENSORS,
@@ -39,9 +39,7 @@ from .schema import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_platform(
-    hass, config, async_add_entities, discovery_info=None
-):  # pylint: disable=unused-argument
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):  # pylint: disable=unused-argument
     """O365 platform definition."""
     if discovery_info is None:
         return None

@@ -39,7 +39,7 @@ from .const import (
     O365_STORAGE_TOKEN,
     TOKEN_FILE_MISSING,
     TOKEN_FILENAME,
-    YAML_CALENDARS,
+    YAML_CALENDARS_FILENAME,
 )
 from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
 from .setup import do_setup
@@ -233,8 +233,8 @@ def _copy_token_file(hass, account_name):
     if os.path.exists(old_filepath):
         shutil.copy(src=old_filepath, dst=new_filepath)
 
-    old_file = YAML_CALENDARS.format(DOMAIN, "")
-    new_file = YAML_CALENDARS.format(DOMAIN, f"_{account_name}")
+    old_file = YAML_CALENDARS_FILENAME.format(DOMAIN, "")
+    new_file = YAML_CALENDARS_FILENAME.format(DOMAIN, f"_{account_name}")
     old_filepath = build_config_file_path(hass, old_file)
     new_filepath = build_config_file_path(hass, new_file)
     if os.path.exists(old_filepath):

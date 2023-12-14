@@ -9,14 +9,10 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from O365.calendar import (  # pylint: disable=no-name-in-module
-    AttendeeType,  # pylint: disable=no-name-in-module
-    EventSensitivity,  # pylint: disable=no-name-in-module
-    EventShowAs,  # pylint: disable=no-name-in-module
-)
-from O365.mailbox import (  # pylint: disable=no-name-in-module, import-error
-    ExternalAudience,  # pylint: disable=no-name-in-module, import-error
-)
+from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
+from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
+from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module; pylint: disable=no-name-in-module
+from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module, import-error; pylint: disable=no-name-in-module, import-error
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
 from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_TO_GET,
@@ -87,12 +83,12 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
-    CONF_TASK_LIST_ID,
     CONF_TODO_SENSORS,
     CONF_TRACK,
     CONF_TRACK_NEW,
     CONF_TRACK_NEW_CALENDAR,
     CONF_URL,
+    CONF_YAML_TASK_LIST_ID,
     EventResponse,
 )
 
@@ -255,14 +251,14 @@ CALENDAR_SERVICE_REMOVE_SCHEMA = {
 }
 
 
-TASK_SERVICE_NEW_SCHEMA = {
+TODO_SERVICE_NEW_SCHEMA = {
     vol.Required(ATTR_SUBJECT): cv.string,
     vol.Optional(ATTR_DESCRIPTION): cv.string,
     vol.Optional(ATTR_DUE): cv.string,
     vol.Optional(ATTR_REMINDER): cv.datetime,
 }
 
-TASK_SERVICE_UPDATE_SCHEMA = {
+TODO_SERVICE_UPDATE_SCHEMA = {
     vol.Required(ATTR_TODO_ID): cv.string,
     vol.Optional(ATTR_SUBJECT): cv.string,
     vol.Optional(ATTR_DESCRIPTION): cv.string,
@@ -270,10 +266,10 @@ TASK_SERVICE_UPDATE_SCHEMA = {
     vol.Optional(ATTR_REMINDER): cv.datetime,
 }
 
-TASK_SERVICE_DELETE_SCHEMA = {
+TODO_SERVICE_DELETE_SCHEMA = {
     vol.Required(ATTR_TODO_ID): cv.string,
 }
-TASK_SERVICE_COMPLETE_SCHEMA = {
+TODO_SERVICE_COMPLETE_SCHEMA = {
     vol.Required(ATTR_TODO_ID): cv.string,
     vol.Required(ATTR_COMPLETED): bool,
 }
@@ -289,7 +285,7 @@ AUTO_REPLY_SERVICE_ENABLE_SCHEMA = {
 AUTO_REPLY_SERVICE_DISABLE_SCHEMA = {}
 
 
-CALENDAR_ENTITY_SCHEMA = vol.Schema(
+YAML_CALENDAR_ENTITY_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
         vol.Required(CONF_DEVICE_ID): cv.string,
@@ -302,19 +298,19 @@ CALENDAR_ENTITY_SCHEMA = vol.Schema(
     }
 )
 
-CALENDAR_DEVICE_SCHEMA = vol.Schema(
+YAML_CALENDAR_DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_CAL_ID): cv.string,
         vol.Required(CONF_ENTITIES, None): vol.All(
-            cv.ensure_list, [CALENDAR_ENTITY_SCHEMA]
+            cv.ensure_list, [YAML_CALENDAR_ENTITY_SCHEMA]
         ),
     },
     extra=vol.ALLOW_EXTRA,
 )
 
-TASK_LIST_SCHEMA = vol.Schema(
+YAML_TASK_LIST_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_TASK_LIST_ID): cv.string,
+        vol.Required(CONF_YAML_TASK_LIST_ID): cv.string,
         vol.Required(CONF_NAME): cv.string,
         vol.Optional(CONF_TRACK, default=True): cv.boolean,
         vol.Optional(CONF_SHOW_COMPLETED, default=False): cv.boolean,

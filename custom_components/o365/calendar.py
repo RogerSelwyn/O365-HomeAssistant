@@ -63,15 +63,15 @@ from .const import (
     LEGACY_ACCOUNT_NAME,
     PERM_CALENDARS_READWRITE,
     PERM_MINIMUM_CALENDAR_WRITE,
-    YAML_CALENDARS,
+    YAML_CALENDARS_FILENAME,
     EventResponse,
 )
 from .schema import (
-    CALENDAR_DEVICE_SCHEMA,
     CALENDAR_SERVICE_CREATE_SCHEMA,
     CALENDAR_SERVICE_MODIFY_SCHEMA,
     CALENDAR_SERVICE_REMOVE_SCHEMA,
     CALENDAR_SERVICE_RESPOND_SCHEMA,
+    YAML_CALENDAR_DEVICE_SCHEMA,
 )
 from .utils.calendar_utils import (
     add_call_data_to_event,
@@ -116,9 +116,9 @@ async def async_setup_platform(hass, config, add_entities, discovery_info=None):
 
 
 def _setup_add_entities(hass, account, add_entities, conf, update_supported):
-    yaml_filename = build_yaml_filename(conf, YAML_CALENDARS)
+    yaml_filename = build_yaml_filename(conf, YAML_CALENDARS_FILENAME)
     yaml_filepath = build_config_file_path(hass, yaml_filename)
-    calendars = load_yaml_file(yaml_filepath, CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA)
+    calendars = load_yaml_file(yaml_filepath, CONF_CAL_ID, YAML_CALENDAR_DEVICE_SCHEMA)
     cal_ids = {}
 
     for cal_id, calendar in calendars.items():

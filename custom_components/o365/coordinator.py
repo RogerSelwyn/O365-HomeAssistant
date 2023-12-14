@@ -38,15 +38,15 @@ from .const import (
     CONF_MAIL_FOLDER,
     CONF_MAX_ITEMS,
     CONF_O365_MAIL_FOLDER,
+    CONF_O365_TASK_FOLDER,
     CONF_QUERY,
     CONF_QUERY_SENSORS,
     CONF_SENSOR_CONF,
     CONF_STATUS_SENSORS,
-    CONF_TASK_LIST,
-    CONF_TASK_LIST_ID,
-    CONF_TODO,
     CONF_TODO_SENSORS,
     CONF_TRACK,
+    CONF_YAML_TASK_LIST,
+    CONF_YAML_TASK_LIST_ID,
     DOMAIN,
     ENTITY_ID_FORMAT_SENSOR,
     ENTITY_ID_FORMAT_TODO,
@@ -56,9 +56,9 @@ from .const import (
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
     TODO_TODO,
-    YAML_TASK_LISTS,
+    YAML_TASK_LISTS_FILENAME,
 )
-from .schema import TASK_LIST_SCHEMA
+from .schema import YAML_TASK_LIST_SCHEMA
 from .todo import O365TodoEntityServices, build_todo_query
 from .utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
 
@@ -136,58 +136,58 @@ class O365SensorCordinator(DataUpdateCoordinator):
         keys = []
         if todo_sensors and todo_sensors.get(CONF_ENABLED):
             sensor_services = O365TodoEntityServices(self.hass)
-            await sensor_services.async_scan_for_task_lists(None)
+            await sensor_services.async_scan_for_todo_lists(None)
 
-            yaml_filename = build_yaml_filename(self._config, YAML_TASK_LISTS)
+            yaml_filename = build_yaml_filename(self._config, YAML_TASK_LISTS_FILENAME)
             yaml_filepath = build_config_file_path(self.hass, yaml_filename)
-            task_dict = load_yaml_file(
-                yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
+            o365_task_dict = load_yaml_file(
+                yaml_filepath, CONF_YAML_TASK_LIST_ID, YAML_TASK_LIST_SCHEMA
             )
-            task_lists = list(task_dict.values())
-            keys = await self._async_todo_entities(task_lists)
+            o365_task_lists = list(o365_task_dict.values())
+            keys = await self._async_todo_entities(o365_task_lists)
 
         return keys
 
-    async def _async_todo_entities(self, task_lists):
+    async def _async_todo_entities(self, o365_task_lists):
         keys = []
-        tasks = self._account.tasks()
-        for tasklist in task_lists:
-            track = tasklist.get(CONF_TRACK)
+        o365_tasks = self._account.tasks()
+        for o365_tasklist in o365_task_lists:
+            track = o365_tasklist.get(CONF_TRACK)
             if not track:
                 continue
 
-            task_list_id = tasklist.get(CONF_TASK_LIST_ID)
+            o365_task_list_id = o365_tasklist.get(CONF_YAML_TASK_LIST_ID)
             if self._account_name != LEGACY_ACCOUNT_NAME:
-                name = f"{tasklist.get(CONF_NAME)} {self._account_name}"
+                name = f"{o365_tasklist.get(CONF_NAME)} {self._account_name}"
             else:
-                name = tasklist.get(CONF_NAME)
+                name = o365_tasklist.get(CONF_NAME)
             try:
-                todo = await self.hass.async_add_executor_job(  # pylint: disable=no-member
+                o365_task = await self.hass.async_add_executor_job(  # pylint: disable=no-member
                     ft.partial(
-                        tasks.get_folder,
-                        folder_id=task_list_id,
+                        o365_tasks.get_folder,
+                        folder_id=o365_task_list_id,
                     )
                 )
-                unique_id = f"{task_list_id}_{self._account_name}"
+                unique_id = f"{o365_task_list_id}_{self._account_name}"
                 new_key = {
                     CONF_ENTITY_KEY: _build_entity_id(
                         self.hass, ENTITY_ID_FORMAT_TODO, name
                     ),
                     CONF_UNIQUE_ID: unique_id,
-                    CONF_TODO: todo,
+                    CONF_O365_TASK_FOLDER: o365_task,
                     CONF_NAME: name,
-                    CONF_TASK_LIST: tasklist,
+                    CONF_YAML_TASK_LIST: o365_tasklist,
                     CONF_ENTITY_TYPE: TODO_TODO,
                 }
 
                 keys.append(new_key)
-                # To be deleted in mid 2024 after majority have migtated
+                # To be deleted in mid 2024 after majority have migrated
                 # to HA 2023.11 and O365 version 4.5
                 await _async_delete_redundant_sensors(self._ent_reg, unique_id)
 
             except HTTPError:
                 _LOGGER.warning(
-                    "Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
+                    "O365 Task list not found for: %s - Please remove from O365_tasks_%s.yaml",
                     name,
                     self._account_name,
                 )
@@ -316,21 +316,21 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def _async_todos_update_query(self, key, error):
         data = None
-        todo = key[CONF_TODO]
-        full_query = build_todo_query(key, todo)
+        o365_task = key[CONF_O365_TASK_FOLDER]
+        full_query = build_todo_query(key, o365_task)
         name = key[CONF_NAME]
 
         try:
             data = await self.hass.async_add_executor_job(  # pylint: disable=no-member
-                ft.partial(todo.get_tasks, batch=100, query=full_query)
+                ft.partial(o365_task.get_tasks, batch=100, query=full_query)
             )
             if error:
-                _LOGGER.info("Task list reconnected for: %s", name)
+                _LOGGER.info("O365 Task list reconnected for: %s", name)
                 error = False
         except HTTPError:
             if not error:
                 _LOGGER.error(
-                    "Task list not found for: %s - Has it been deleted?",
+                    "O365 Task list not found for: %s - Has it been deleted?",
                     name,
                 )
                 error = True

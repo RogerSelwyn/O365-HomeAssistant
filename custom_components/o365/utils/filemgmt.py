@@ -12,15 +12,15 @@ from ..const import (
     CONF_CONFIG_TYPE,
     CONF_DEVICE_ID,
     CONF_ENTITIES,
-    CONF_TASK_LIST_ID,
     CONF_TRACK,
+    CONF_YAML_TASK_LIST_ID,
     CONST_CONFIG_TYPE_LIST,
     DOMAIN,
     O365_STORAGE,
-    YAML_CALENDARS,
-    YAML_TASK_LISTS,
+    YAML_CALENDARS_FILENAME,
+    YAML_TASK_LISTS_FILENAME,
 )
-from ..schema import CALENDAR_DEVICE_SCHEMA, TASK_LIST_SCHEMA
+from ..schema import YAML_CALENDAR_DEVICE_SCHEMA, YAML_TASK_LIST_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def load_yaml_file(path, item_id, item_schema):
 
 def _get_calendar_info(calendar, track_new_devices):
     """Convert data from O365 into DEVICE_SCHEMA."""
-    return CALENDAR_DEVICE_SCHEMA(
+    return YAML_CALENDAR_DEVICE_SCHEMA(
         {
             CONF_CAL_ID: calendar.calendar_id,
             CONF_ENTITIES: [
@@ -64,10 +64,10 @@ def _get_calendar_info(calendar, track_new_devices):
 
 def update_calendar_file(config, calendar, hass, track_new_devices):
     """Update the calendar file."""
-    path = build_yaml_filename(config, YAML_CALENDARS)
+    path = build_yaml_filename(config, YAML_CALENDARS_FILENAME)
     yaml_filepath = build_config_file_path(hass, path)
     existing_calendars = load_yaml_file(
-        yaml_filepath, CONF_CAL_ID, CALENDAR_DEVICE_SCHEMA
+        yaml_filepath, CONF_CAL_ID, YAML_CALENDAR_DEVICE_SCHEMA
     )
     cal = _get_calendar_info(calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
@@ -78,30 +78,30 @@ def update_calendar_file(config, calendar, hass, track_new_devices):
         out.close()
 
 
-def _get_task_list_info(task_list, track_new_devices):
+def _get_task_list_info(yaml_task_list, track_new_devices):
     """Convert data from O365 into DEVICE_SCHEMA."""
-    return TASK_LIST_SCHEMA(
+    return YAML_TASK_LIST_SCHEMA(
         {
-            CONF_TASK_LIST_ID: task_list.folder_id,
-            CONF_NAME: task_list.name,
+            CONF_YAML_TASK_LIST_ID: yaml_task_list.folder_id,
+            CONF_NAME: yaml_task_list.name,
             CONF_TRACK: track_new_devices,
         }
     )
 
 
-def update_task_list_file(config, task_list, hass, track_new_devices):
+def update_task_list_file(config, yaml_task_list, hass, track_new_devices):
     """Update the calendar file."""
-    path = build_yaml_filename(config, YAML_TASK_LISTS)
+    path = build_yaml_filename(config, YAML_TASK_LISTS_FILENAME)
     yaml_filepath = build_config_file_path(hass, path)
     existing_task_lists = load_yaml_file(
-        yaml_filepath, CONF_TASK_LIST_ID, TASK_LIST_SCHEMA
+        yaml_filepath, CONF_YAML_TASK_LIST_ID, YAML_TASK_LIST_SCHEMA
     )
-    task_list = _get_task_list_info(task_list, track_new_devices)
-    if task_list[CONF_TASK_LIST_ID] in existing_task_lists:
+    yaml_task_list = _get_task_list_info(yaml_task_list, track_new_devices)
+    if yaml_task_list[CONF_YAML_TASK_LIST_ID] in existing_task_lists:
         return
     with open(yaml_filepath, "a", encoding="UTF8") as out:
         out.write("\n")
-        yaml.dump([task_list], out, default_flow_style=False, encoding="UTF8")
+        yaml.dump([yaml_task_list], out, default_flow_style=False, encoding="UTF8")
         out.close()
 
 
