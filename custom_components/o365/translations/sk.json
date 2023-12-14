@@ -25,9 +25,29 @@
                         "title": "Je potrebná autorizácia - {account_name}",
                         "description": "Ak chcete prepojiť svoj účet O365, kliknite na odkaz, prihláste sa a autorizujte:\n\n[Link O365 account]({auth_url}){failed_permissions}",
                         "submit": "Úspešne som autorizoval"
-                    }
+                	}
+                   }
                 }
             }
+        },
+    "exceptions": {
+        "o365_group_calendar_error": {
+            "message": "O365 Python nemá schopnosť aktualizovať/odpovedať na udalosti skupinového kalendára: {entity_id}"
+        },
+        "not_authorised_to_event": {
+            "message": "Nie je na to oprávnený {calendar} udalosť v kalendári – vyžaduje povolenie: {error_message}"
+        },
+        "not_authorised": {
+            "message": "Neoprávnené požadované povolenie: {required_permission}"
+        },
+        "todo_completed": {
+            "message": "Úloha je už dokončená"
+        },
+        "todo_not_completed": {
+            "message": "ToDo ešte nebolo dokončené"
+        },
+        "due_date_invalid": {
+            "message": "Do dátumu {due} nie je v platnom formáte RRRR-MM-DD"
         }
     }
 }
