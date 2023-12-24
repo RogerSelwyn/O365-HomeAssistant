@@ -1,6 +1,6 @@
 {
     "issues": {
-       "deprecated_legacy_configuration": {
+        "deprecated_legacy_configuration": {
             "title": "Zastaraná sekundárna/stará metóda konfigurácie",
             "description": "Sekundárna/stará metóda konfigurácie je teraz zastaraná a bude odstránená v budúcom vydaní. Prejdite na primárnu metódu konfigurácie. Kliknutím na „Viac informácií“ získate podrobnosti o konfigurácii. Potenciálna konfigurácia bola umiestnená do priečinka o365_storage."
         },
@@ -12,7 +12,7 @@
                     "minimum_permissions": "Minimálne povolenia nie sú udelené pre účet: {account_name}",
                     "missing_token_file": "Po úspešnom overení chýba súbor tokenu, skontrolujte denník kvôli chybám systému súborov",
                     "token_file_error": "Chyba pri načítaní súboru tokenu, skontrolujte protokol, či neobsahuje chyby od O365"
-                    },
+                },
                 "step": {
                     "request_default": {
                         "title": "Je potrebná autorizácia - {account_name}",
@@ -25,11 +25,11 @@
                         "title": "Je potrebná autorizácia - {account_name}",
                         "description": "Ak chcete prepojiť svoj účet O365, kliknite na odkaz, prihláste sa a autorizujte:\n\n[Link O365 account]({auth_url}){failed_permissions}",
                         "submit": "Úspešne som autorizoval"
-                	}
-                   }
+                    }
                 }
             }
-        },
+        }
+    },
     "exceptions": {
         "o365_group_calendar_error": {
             "message": "O365 Python nemá schopnosť aktualizovať/odpovedať na udalosti skupinového kalendára: {entity_id}"
