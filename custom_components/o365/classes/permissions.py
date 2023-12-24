@@ -141,6 +141,19 @@ class Permissions:
             alternate_perm in self.permissions for alternate_perm in minimum_perm[1]
         )
 
+    def report_perms(self):
+        """Report on permissions status."""
+        for permission in self.requested_permissions:
+            if permission == PERM_OFFLINE_ACCESS:
+                continue
+            if permission not in self.permissions:
+                _LOGGER.warning(
+                    "O365 config requests permission: '%s'. Not available in token '%s' for account '%s'.",
+                    permission,
+                    self.token_filename,
+                    self._config[CONF_ACCOUNT_NAME],
+                )
+
     def _build_token_filename(self):
         """Create the token file name."""
         config_file = (

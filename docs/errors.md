@@ -29,6 +29,9 @@ nav_order: 19
 * **Token corrupt for account - please delete and re-authenticate.**
   * You will need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
 
+* **O365 config requests permission: 'xxxxxx.xxxxxxx'. Not available in token 'o365_xxxxxxxx.token' for account 'xxxxxxxx'**
+Validate your Azure permissions match those required as detailed on the [permissions page](./permissions.md). If they are correct, you will need to delete your token and reauthenticate as described on the same page.
+
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
 
 # Installation issues
