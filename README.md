@@ -22,7 +22,10 @@ This project would not be possible without the wonderful [python-o365 project](h
 ## [Buy Me A Beer 🍻](https://buymeacoffee.com/rogtp)
 I work on this integration because I like things to work well for myself and others. Whilst I have now made significant changes to the integration, it would not be as it stands today without the major work to create it put in by @PTST. Please don't feel you are obligated to donate, but of course it is appreciated.
 
-<a href="https://www.buymeacoffee.com/rogtp" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+<a href="https://www.buymeacoffee.com/rogtp" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a> 
+<a href="https://www.paypal.com/donate/?hosted_button_id=XZ4NQYJ7ZSCQ2Y">
+  <img src="https://github.com/RogerSelwyn/actions/blob/e82dab9e5643bbb82e182215a748a3024e3e7eac/images/paypal-donate-button.png" alt="Donate with PayPal" height="40"/>
+</a>
 
 # Documentation
 
