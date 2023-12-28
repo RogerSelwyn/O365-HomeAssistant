@@ -19,8 +19,10 @@ This integration enables:
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
 
-## [Buy Me A ~~Coffee~~ Beer 🍻](https://buymeacoffee.com/rogtp)
+## [Buy Me A Beer 🍻](https://buymeacoffee.com/rogtp)
 I work on this integration because I like things to work well for myself and others. Whilst I have now made significant changes to the integration, it would not be as it stands today without the major work to create it put in by @PTST. Please don't feel you are obligated to donate, but of course it is appreciated.
+
+<a href="https://www.buymeacoffee.com/rogtp" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 # Documentation
 
