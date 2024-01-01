@@ -4,7 +4,7 @@
 
 # Office 365 Integration for Home Assistant
 
-## Note that v4.5.0 onwards requires HA 2023.11 or greater. If you are installing on an older version of HA via HACS, you may need to install and then downgrade to an older version.
+## Note that v4.5.0 onwards requires HA 2023.12 or greater. If you are installing on an older version of HA via HACS, you may need to install and then downgrade to an older version.
 
 *This is a fork of the original integration by @PTST which has now been archived.*
 
