@@ -1,5 +1,41 @@
 # Changelog
 
+## v4.5.2 (2024/01/01)
+# 💥 Breaking Changes - Requires HA 2023.12
+**This release adds support for the new ToDo entity in HA 2023.11. However it also removes the equivalent sensor entity previously created.**
+**This release adds support for the new ServiceValidationError in HA 2023.12.**
+
+- [Task services, service attributes and events renamed to todo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d9a208291963a7e0a03a548b8b3708ae335d7922) - @RogerSelwyn
+- [Implementation of support for Todo entities released in HA 2023.11](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/177) - @RogerSelwyn
+- [Use new ServiceValidationError available in 2023.12](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4292e46f54cca6993420f21536f1e49c29f20ac3) - @RogerSelwyn
+
+### ✨ Enhancements
+- [Add support for due date and description setting in HA ToDo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e624bd5dcc7bcc5e56e3ddf3b318a860acb95c06) - @RogerSelwyn
+
+### 🐛 Fixes
+- [Enable install onto older versions of HA](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/86b0e81054459e29146668a2b15070176de0f1f8) - @RogerSelwyn
+- [Fix setup issue v4.4.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0be5cd6028e50788cb0b0bcfeda8662fca62b46b) - @RogerSelwyn
+- [Fix color attribute handling for group calendars](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4d640d02fc542880ed2f81d1ca1d5a46d79b421f) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Delete sensor entities that have been replaced by ToDo entities](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/80ba0f6b5291d6694eefcc76a0949565b2350c25) - @RogerSelwyn
+- [Custom icon no longer needed for ToDo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f5db5bc9014316a19a6178b691a4427422e29f3c) - @RogerSelwyn
+- [Break out email into seperate coordinator for performance](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3dc89a0b191718a7fc513acd87bc886dc2b366e3) - @RogerSelwyn
+- [Show datetime selecter for reminder on To Do](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/18af3ce9ffe8f61b667857affcf1a92b4cba47ac) - @RogerSelwyn
+- [Remove linting errors](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8fa0c923a1a343d82641666818c60e40bff83e4d) - @RogerSelwyn
+- [Clarify attribute naming for future maintainability](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e0d73eece639034c9646186940d31585bae19368) - @RogerSelwyn
+- [Add warning to highlight permission differences](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/29fadf061d0bcf3548763f8697c752baf6aee187) - @RogerSelwyn
+- [Update sk.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2be07eba3d8576bb34490e46c8fd4cf94d2397b2) - @misa1515
+- [json file formatting](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0750ea0b222c42d7a098089d6a8ea2889f111b81) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update todo docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/978c9984a7403bca22b4627faa87e65e68569014) - @RogerSelwyn
+
+### 🔖 Release
+- [Release 4.5.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d2c96f153e3a7031c0420c99d0afc2182665d800) - @RogerSelwyn
+
+
+
 ## v4.4.4 (2023/11/03)
 ### 🐛 Fixes
 - [Fix setup issue v4.4.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4bf6f6774b5b89201b4e81ed79f75909d226414b) - @RogerSelwyn
