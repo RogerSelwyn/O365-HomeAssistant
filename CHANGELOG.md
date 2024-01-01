@@ -20,8 +20,8 @@
 ### 🔨 Maintenance
 - [Delete sensor entities that have been replaced by ToDo entities](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/80ba0f6b5291d6694eefcc76a0949565b2350c25) - @RogerSelwyn
 - [Custom icon no longer needed for ToDo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f5db5bc9014316a19a6178b691a4427422e29f3c) - @RogerSelwyn
-- [Break out email into seperate coordinator for performance](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3dc89a0b191718a7fc513acd87bc886dc2b366e3) - @RogerSelwyn
-- [Show datetime selecter for reminder on To Do](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/18af3ce9ffe8f61b667857affcf1a92b4cba47ac) - @RogerSelwyn
+- [Break out email into separate coordinator for performance](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3dc89a0b191718a7fc513acd87bc886dc2b366e3) - @RogerSelwyn
+- [Show datetime selector for reminder on To Do](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/18af3ce9ffe8f61b667857affcf1a92b4cba47ac) - @RogerSelwyn
 - [Remove linting errors](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8fa0c923a1a343d82641666818c60e40bff83e4d) - @RogerSelwyn
 - [Clarify attribute naming for future maintainability](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e0d73eece639034c9646186940d31585bae19368) - @RogerSelwyn
 - [Add warning to highlight permission differences](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/29fadf061d0bcf3548763f8697c752baf6aee187) - @RogerSelwyn
@@ -34,7 +34,9 @@
 ### 🔖 Release
 - [Release 4.5.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d2c96f153e3a7031c0420c99d0afc2182665d800) - @RogerSelwyn
 
-
+## Past Changes
+<details>
+  <summary>Changes 2022</summary>
 
 ## v4.4.4 (2023/11/03)
 ### 🐛 Fixes
@@ -328,6 +330,10 @@
 - [Update sensor.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/38967f9a0b8d29e039110bb98627d8e4024cd833) - @RogerSelwyn
 - [Update docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3ff2927d13bb908ce9aec5a11611eb19edc9bde8) - @RogerSelwyn
 - [Bump to v4.0.8](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a5164a6ab20ed932530ce13b3c8d2d63ebe48aca) - @RogerSelwyn
+
+</details>
+<details>
+  <summary>Changes 2022</summary>
 
 ## v4.0.7 (2022/12/22)
 ### Fixes
@@ -652,6 +658,10 @@
 - [Bump to 2.2.8 Beta 3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1c3a4f3e034f6a554f4fd032933db7deab8e6307) - @RogerSelwyn
 - [Auto update manifest.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c8d28ff0da03651e7d2ce964a235b3467f6a70a1) - @actions-user
 
+</details>
+<details>
+  <summary>Changes 2021</summary>
+
 ## v2.2.7 (2021/12/12)
 ### Fixes
 - [Fix device_state_attributes warning](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4ba056b01c8dcc824cd39256d0751009ce49740a) - @RogerSelwyn
@@ -737,11 +747,14 @@
 - [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/262b82f9648cb705eefd37b9ccbab7edbed77b02) - @RogerSelwyn
 
 
-## Earlier
+</details>
+<details>
+  <summary>Earlier</summary>
+
 ### Maintenance
 - [Updated to remove deprecation warning on base_url use](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/afb9e98203c405cfdb41b98c3bb46aedc946279f) - @RogerSelwyn
 - [Fix for all day_event](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/debf019e085d445fae1749f31c872592bd32ad7d) - @PTST
 - [Now actually implements the offsets](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3fc4c9af68435156e77e03cf0aaf97bfbd2d20a8) - @PTST
 - [Black formatting](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d61a26d607ff080b880d02854de4476cbeec9587) - @PTST
-
+</details>
 
