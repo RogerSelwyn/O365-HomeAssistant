@@ -1,5 +1,13 @@
 # Changelog
 
+## v4.5.3 (2024/01/03)
+### 🐛 Fixes
+- [Fix non-update of description and due date](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dda07d4d9a5172c1d7adf4f92de55b985678faf6) - @RogerSelwyn
+- [Fix non-display of description and due date](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e0d93b25fd3decc7d1e973e922321d6585d9ddbf) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.5.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/15f9b247c25112a21ccd3e1012ec31c515547579) - @RogerSelwyn
+
 ## v4.5.2 (2024/01/01)
 # 💥 Breaking Changes - Requires HA 2023.12
 **This release adds support for the new ToDo entity in HA 2023.11. However it also removes the equivalent sensor entity previously created.**
