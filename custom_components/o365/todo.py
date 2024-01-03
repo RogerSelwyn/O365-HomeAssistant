@@ -202,7 +202,13 @@ class O365TodoList(O365Entity, TodoListEntity):
                 else TodoItemStatus.NEEDS_ACTION
             )
             self._todo_items.append(
-                TodoItem(uid=todo.task_id, summary=todo.subject, status=completed)
+                TodoItem(
+                    uid=todo.task_id,
+                    summary=todo.subject,
+                    status=completed,
+                    description=todo.body,
+                    due=todo.due,
+                )
             )
 
             self._extra_attributes = self._update_extra_state_attributes(todos)
