@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.5.4 (2024/01/04)
+### ✨ Enhancements
+- [Add ability to supress body in email sensors](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e7570b111bea6542d3d82eaf3f235175bc194bf4) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Hide pylint abstract-method](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4a1df9baa5ecff4230cfcb07c82b5d714356e898) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.5.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/56e1840488d86648a28ae88b42ca845c33fdf5e1) - @RogerSelwyn
+
 ## v4.5.3 (2024/01/03)
 ### 🐛 Fixes
 - [Fix non-update of description and due date](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dda07d4d9a5172c1d7adf4f92de55b985678faf6) - @RogerSelwyn
