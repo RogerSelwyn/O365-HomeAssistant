@@ -137,7 +137,7 @@ async def _async_setup_task_services(hass, config, perms):
         )
 
 
-class O365TodoList(O365Entity, TodoListEntity):
+class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-method
     """O365 ToDo processing."""
 
     def __init__(
