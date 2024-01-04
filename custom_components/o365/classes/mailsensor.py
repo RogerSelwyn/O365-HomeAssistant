@@ -21,6 +21,7 @@ from ..const import (
     CONF_IMPORTANCE,
     CONF_IS_UNREAD,
     CONF_MAIL_FROM,
+    CONF_SHOW_BODY,
     CONF_SUBJECT_CONTAINS,
     CONF_SUBJECT_IS,
     DATETIME_FORMAT,
@@ -39,8 +40,9 @@ class O365MailSensor(O365Entity, SensorEntity):
     def __init__(self, coordinator, config, sensor_conf, name, entity_id, unique_id):
         """Initialise the O365 Sensor."""
         super().__init__(coordinator, config, name, entity_id, SENSOR_EMAIL, unique_id)
-        self.download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
-        self.html_body = sensor_conf.get(CONF_HTML_BODY)
+        self._download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
+        self._html_body = sensor_conf.get(CONF_HTML_BODY)
+        self._show_body = sensor_conf.get(CONF_SHOW_BODY)
         self._state = None
         self._extra_attributes = None
         self._update_status()
@@ -73,7 +75,9 @@ class O365MailSensor(O365Entity, SensorEntity):
 
     def _get_attributes(self, data):
         return [
-            get_email_attributes(x, self.download_attachments, self.html_body)
+            get_email_attributes(
+                x, self._download_attachments, self._html_body, self._show_body
+            )
             for x in data
         ]
 
@@ -141,12 +145,12 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
 def _build_base_query(mail_folder, sensor_conf):
     """Build base query for mail."""
     download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
+    show_body = sensor_conf.get(CONF_SHOW_BODY)
     query = mail_folder.new_query()
     query = query.select(
         "sender",
         "from",
         "subject",
-        "body",
         "receivedDateTime",
         "toRecipients",
         "ccRecipients",
@@ -154,6 +158,10 @@ def _build_base_query(mail_folder, sensor_conf):
         "importance",
         "is_read",
     )
+    if show_body:
+        query = query.select(
+            "body",
+        )
     if download_attachments:
         query = query.select(
             "attachments",
