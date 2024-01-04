@@ -54,7 +54,7 @@
 
 ## Past Changes
 <details>
-  <summary>Changes 2022</summary>
+  <summary>Changes 2023</summary>
 
 ## v4.4.4 (2023/11/03)
 ### 🐛 Fixes
