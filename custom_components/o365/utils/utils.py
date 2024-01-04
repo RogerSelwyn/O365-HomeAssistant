@@ -39,7 +39,7 @@ def _safe_html(html):
     return html
 
 
-def get_email_attributes(mail, download_attachments, html_body, show_body):
+def get_email_attributes(mail, download_attachments, html_body):
     """Get the email attributes."""
     data = {
         "subject": mail.subject,
@@ -51,9 +51,7 @@ def get_email_attributes(mail, download_attachments, html_body, show_body):
         "importance": mail.importance.value,
         "is_read": mail.is_read,
     }
-
-    if show_body:
-        data["body"] = _safe_html(mail.body) if html_body else clean_html(mail.body)
+    data["body"] = _safe_html(mail.body) if html_body else clean_html(mail.body)
     if download_attachments:
         data["attachments"] = [x.name for x in mail.attachments]
 

@@ -79,7 +79,6 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     CONF_QUERY_SENSORS,
     CONF_SEARCH,
     CONF_SHARED_MAILBOX,
-    CONF_SHOW_BODY,
     CONF_SHOW_COMPLETED,
     CONF_STATUS_SENSORS,
     CONF_SUBJECT_CONTAINS,
@@ -101,7 +100,6 @@ EMAIL_SENSOR = vol.Schema(
         vol.Optional(CONF_IS_UNREAD): bool,
         vol.Optional(CONF_DOWNLOAD_ATTACHMENTS, default=True): bool,
         vol.Optional(CONF_HTML_BODY, default=False): bool,
-        vol.Optional(CONF_SHOW_BODY, default=True): bool,
     }
 )
 STATUS_SENSOR = vol.Schema(
@@ -134,7 +132,6 @@ QUERY_SENSOR = vol.Schema(
         vol.Exclusive(CONF_SUBJECT_IS, "subject_*"): cv.string,
         vol.Optional(CONF_DOWNLOAD_ATTACHMENTS, default=True): bool,
         vol.Optional(CONF_HTML_BODY, default=False): bool,
-        vol.Optional(CONF_SHOW_BODY, default=True): bool,
     }
 )
 TODO_SENSOR = vol.Schema(
@@ -324,15 +321,6 @@ YAML_TASK_LIST_SCHEMA = vol.Schema(
 
 REQUEST_AUTHORIZATION_DEFAULT_SCHEMA = {vol.Required(CONF_URL): cv.string}
 
-CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
-    vol.Required(ATTR_CHAT_ID): cv.string,
-    vol.Required(ATTR_MESSAGE): cv.string,
-}
-
-CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
-    vol.Required(ATTR_CHAT_ID): cv.string,
-    vol.Required(ATTR_MESSAGE): cv.string,
-}
 CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
     vol.Required(ATTR_CHAT_ID): cv.string,
     vol.Required(ATTR_MESSAGE): cv.string,

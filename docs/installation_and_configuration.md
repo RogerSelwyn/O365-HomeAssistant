@@ -26,16 +26,6 @@ nav_order: 4
 
 ## Configuration examples
 
-### Minimal configuration
-```yaml
-# Example configuration.yaml with the minimum required to validate connection to O365
-o365:
-  accounts:
-    - account_name: Account1 # Do not use email address or spaces
-      client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
-      client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-```
-
 ### Primary configuration format (as of v3.x.x) - Preferred because it provides improved security and allows for multiple accounts.
 ```yaml
 # Example configuration.yaml entry for multiple accounts
@@ -142,7 +132,6 @@ Key | Type | Required | Description
 `is_unread` | `boolean` | `False` | True=Only get unread, False=Only get read, Not set=Get all
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 `html_body` | `boolean` | `False` | True=Output HTML body, **False**=Output plain text body
-`show_body` | `boolean` | `False` | **True**=Output body, False=Do not output body (unless `html_body` is true)
 
 #### query_sensors
 
@@ -159,7 +148,6 @@ Key | Type | Required | Description
 `subject_is` | `string` | `False` | Only get emails where the subject equals exactly this string (Mutually exclusive with `subject_contains`)
 `download_attachments` | `boolean` | `False` | **True**=Download attachments, False=Don't download attachments
 `html_body` | `boolean` | `False` | True=Output HTML body, **False**=Output plain text body
-`show_body` | `boolean` | `False` | **True**=Output body, False=Do not output body (unless `html_body` is true)
 `body_contains` | `string` | `False` | Only get emails where the body contains this string
 
 #### status_sensors (not for personal accounts)
