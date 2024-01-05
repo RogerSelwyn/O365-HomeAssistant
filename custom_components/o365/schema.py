@@ -145,20 +145,6 @@ TODO_SENSOR = vol.Schema(
     }
 )
 
-LEGACY_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_CLIENT_ID): cv.string,
-        vol.Required(CONF_CLIENT_SECRET): cv.string,
-        vol.Optional(CONF_TRACK_NEW_CALENDAR, default=True): bool,
-        vol.Optional(CONF_ENABLE_UPDATE, default=True): bool,
-        vol.Optional(CONF_ALT_AUTH_METHOD, default=False): bool,
-        vol.Optional(CONF_EMAIL_SENSORS): [EMAIL_SENSOR],
-        vol.Optional(CONF_QUERY_SENSORS): [QUERY_SENSOR],
-        vol.Optional(CONF_STATUS_SENSORS): [STATUS_SENSOR],
-        vol.Optional(CONF_CHAT_SENSORS): [CHAT_SENSOR],
-        vol.Optional(CONF_AUTO_REPLY_SENSORS): [AUTO_REPLY_SENSOR],
-    }
-)
 MULTI_ACCOUNT_SCHEMA = vol.Schema(
     {
         CONF_ACCOUNTS: vol.Schema(

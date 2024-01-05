@@ -1,10 +1,7 @@
 """Main initialisation code."""
-import copy
 import functools as ft
 import json
 import logging
-import os
-import shutil
 
 import yaml
 from homeassistant.const import CONF_ENABLED
@@ -23,27 +20,19 @@ from .const import (
     CONF_CLIENT_ID,
     CONF_CLIENT_SECRET,
     CONF_CONFIG_TYPE,
-    CONF_EMAIL_SENSORS,
     CONF_FAILED_PERMISSIONS,
     CONF_GROUPS,
-    CONF_QUERY_SENSORS,
     CONF_SHARED_MAILBOX,
     CONF_STATUS_SENSORS,
     CONF_TODO_SENSORS,
-    CONST_CONFIG_TYPE_DICT,
     CONST_CONFIG_TYPE_LIST,
     CONST_PRIMARY,
     CONST_UTC_TIMEZONE,
     DOMAIN,
-    LEGACY_ACCOUNT_NAME,
-    O365_STORAGE_TOKEN,
     TOKEN_FILE_MISSING,
-    TOKEN_FILENAME,
-    YAML_CALENDARS_FILENAME,
 )
-from .schema import LEGACY_SCHEMA, MULTI_ACCOUNT_SCHEMA
+from .schema import MULTI_ACCOUNT_SCHEMA
 from .setup import do_setup
-from .utils.filemgmt import build_config_file_path
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,77 +40,14 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup(hass, config):
     """Set up the O365 platform."""
     conf = config.get(DOMAIN, {})
-    if CONF_ACCOUNTS not in conf:
-        await _async_legacy_migration_repair(hass)
-        accounts = [LEGACY_SCHEMA(conf)]
-        conf_type = CONST_CONFIG_TYPE_DICT
-        _write_out_config(hass, accounts)
-    else:
-        accounts = MULTI_ACCOUNT_SCHEMA(conf)[CONF_ACCOUNTS]
-        conf_type = CONST_CONFIG_TYPE_LIST
+
+    accounts = MULTI_ACCOUNT_SCHEMA(conf)[CONF_ACCOUNTS]
+    conf_type = CONST_CONFIG_TYPE_LIST
 
     for account in accounts:
         await _async_setup_account(hass, account, conf_type)
 
     return True
-
-
-async def _async_legacy_migration_repair(hass):
-    url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
-    message = (
-        "Secondary/Legacy configuration method is now deprecated and will be "
-        + "removed in first release in 2024. Please migrate to the Primary configuration "
-        + "method documented here - "
-        + f"{url}"
-    )
-    _LOGGER.warning(message)
-    # Register a repair issue
-    async_create_issue(
-        hass,
-        DOMAIN,
-        "deprecated_legacy_configuration",
-        # breaks_in_ha_version="2023.4.0",  # Warning first added in 2022.11.0
-        is_fixable=False,
-        learn_more_url=url,
-        severity=IssueSeverity.WARNING,
-        translation_key="deprecated_legacy_configuration",
-    )
-
-
-def _write_out_config(hass, accounts):
-    """Remove when legacy is removed in first release 2024."""
-    yaml_filepath = build_config_file_path(hass, "o365_converted_configuration.yaml")
-    account_name = LEGACY_ACCOUNT_NAME
-    account = copy.deepcopy(accounts[0])
-    account[CONF_ACCOUNT_NAME] = account_name
-    account.move_to_end(CONF_ACCOUNT_NAME, False)
-    account[CONF_CLIENT_ID] = "xxxxx"
-    account[CONF_CLIENT_SECRET] = "xxxxx"
-    account = dict(account)
-    _remove_ordered_dict(account, CONF_EMAIL_SENSORS)
-    _remove_ordered_dict(account, CONF_QUERY_SENSORS)
-    _remove_ordered_dict(account, CONF_STATUS_SENSORS)
-    _remove_ordered_dict(account, CONF_CHAT_SENSORS)
-    config = {"o365": {"accounts": [account]}}
-    with open(yaml_filepath, "w", encoding="UTF8") as out:
-        out.write("\n")
-        yaml.dump(
-            config,
-            out,
-            Dumper=_IncreaseIndent,
-            default_flow_style=False,
-            encoding="UTF8",
-        )
-        out.close()
-    _copy_token_file(hass, account_name)
-
-
-def _remove_ordered_dict(account, sensor):
-    if sensor in account:
-        sensors = account[sensor]
-        new_sensors = [dict(item) for item in sensors]
-        account[sensor] = new_sensors
-    return account
 
 
 async def _async_setup_account(hass, account_conf, conf_type):
@@ -226,22 +152,6 @@ def _validate_shared_schema(account_name, main_account, config):
     return not error
 
 
-def _copy_token_file(hass, account_name):
-    old_file = TOKEN_FILENAME.format("")
-    new_file = TOKEN_FILENAME.format(f"_{account_name}")
-    old_filepath = build_config_file_path(hass, f"{O365_STORAGE_TOKEN}/{old_file}")
-    new_filepath = build_config_file_path(hass, f"{O365_STORAGE_TOKEN}/{new_file}")
-    if os.path.exists(old_filepath):
-        shutil.copy(src=old_filepath, dst=new_filepath)
-
-    old_file = YAML_CALENDARS_FILENAME.format(DOMAIN, "")
-    new_file = YAML_CALENDARS_FILENAME.format(DOMAIN, f"_{account_name}")
-    old_filepath = build_config_file_path(hass, old_file)
-    new_filepath = build_config_file_path(hass, new_file)
-    if os.path.exists(old_filepath):
-        shutil.copy(src=old_filepath, dst=new_filepath)
-
-
 async def _async_authorization_repair(
     hass,
     account_conf,
@@ -258,7 +168,6 @@ async def _async_authorization_repair(
         else "Token doesn't have all required permissions;"
     )
     _LOGGER.warning("%s %s", message, base_message)
-    # url = "https://rogerselwyn.github.io/O365-HomeAssistant/legacy_migration.html"
     data = {
         CONF_ACCOUNT_CONF: account_conf,
         CONF_ACCOUNT: account,
