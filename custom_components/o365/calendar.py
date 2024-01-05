@@ -21,7 +21,7 @@ from homeassistant.components.calendar import (
 )
 from homeassistant.const import CONF_NAME
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
-from homeassistant.helpers import entity_platform, entity_registry
+from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
 from requests.exceptions import HTTPError, RetryError
@@ -229,7 +229,6 @@ class O365CalendarEntity(CalendarEntity):
         self.data = self._init_data(account, calendar_id, entity)
         self._calendar_id = calendar_id
         self._device_id = device_id
-        self._uid_checked = False
         if update_supported:
             self._attr_supported_features = (
                 CalendarEntityFeature.CREATE_EVENT | CalendarEntityFeature.DELETE_EVENT
@@ -278,20 +277,9 @@ class O365CalendarEntity(CalendarEntity):
     @property
     def unique_id(self):
         """Entity unique id."""
-        unique_id = (
+        return (
             f"{self._calendar_id}_{self._config[CONF_ACCOUNT_NAME]}_{self._device_id}"
         )
-        if not self._uid_checked:
-            self._check_unique_id(unique_id)
-        return unique_id
-
-    # To be removed at start of 2024, temporary fudge to correct wrong UIDs
-    def _check_unique_id(self, unique_id):
-        ent_reg = entity_registry.async_get(self.hass)
-        entry = ent_reg.async_get(self.entity_id)
-        if entry and entry.unique_id != unique_id:
-            ent_reg.async_update_entity(self.entity_id, new_unique_id=unique_id)
-            self._uid_checked = True
 
     async def async_get_events(self, hass, start_date, end_date):
         """Get events."""
