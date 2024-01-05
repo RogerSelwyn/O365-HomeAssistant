@@ -16,7 +16,7 @@ nav_order: 4
 1. Restart your Home Assistant instance again to enable your configuration.
 1. A notification will be shown in the Repairs dialogue of your HA instance. Follow the instructions on this notification (or see [Authentication](./authentication.md)) to establish the link between this integration and the Azure app
     * A persistent token will be created in the hidden directory config/o365_storage/.O365-token-cache
-    * The `o365_calendars_<account_name>.yaml` (or `o365_calendars.yaml` for secondary (deprecated) configuration method) will be created under the config directory in the `o365_storage` directory.
+    * The `o365_calendars_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.
     * If todo_sensors is enabled then `o365_tasks_<account_name>.yaml` will be created under the config directory in the `o365_storage` directory.
 1. [Configure Calendars](./calendar_configuration.md)
 1. [Configure To-Dos](./todos_configuration.md) (if required)
@@ -26,9 +26,8 @@ nav_order: 4
 
 ## Configuration examples
 
-### Primary configuration format (as of v3.x.x) - Preferred because it provides improved security and allows for multiple accounts.
+### Configuration format 
 ```yaml
-# Example configuration.yaml entry for multiple accounts
 o365:
   accounts:
     - account_name: Account1 # Do not use email address or spaces
@@ -60,36 +59,8 @@ o365:
       client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
       client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
 ```
-### Secondary (DEPRECATED) configuration format - Less preferred and can only use for a single account.
-```yaml
-# Example configuration.yaml entry for single account
-o365:
-  client_id: "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx"
-  client_secret: "xx.xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  alt_auth_method: False
-  enable_update: False
-  email_sensor:
-    - name: inbox
-      max_items: 2
-      is_unread: True
-      download_attachments: False
-  query_sensors:
-    - name: "Example"
-      folder: "Inbox/Test_Inbox" #Default is Inbox
-      from: "mail@example.com"
-      subject_contains: "Example subject"
-      has_attachment: True
-      max_items: 2
-      is_unread: True
-  status_sensors: # Cannot be used for personal accounts
-    - name: "User Teams Status"
-  chat_sensors: # Cannot be used for personal accounts
-    - name: "User Chat"
-```
 
 ### Configuration variables
-
-#### Primary format
 
 Key | Type | Required | Description
 -- | -- | -- | --
@@ -109,18 +80,6 @@ Key | Type | Required | Description
 `auto_reply_sensors` | `object<auto_reply_sensors>` | `False` | Auto-reply sensor options *Not for use on shared mailboxes*
 `shared_mailbox` | `string` | `False` | Email address or ID of shared mailbox *Only available for calendar and email sensors*
 
-#### Secondary format
-
-Key | Type | Required | Description
--- | -- | -- | --
-`client_id` | `string` | `True` | Client ID from your O365 application.
-`client_secret` | `string` | `True` | Client Secret from your O365 application.
-`alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](./authentication.md)
-`enable_update` | `boolean` | `False` | If True (**default is True**), this will enable the various services that allow the sending of emails and updates to calendars
-`track_new_calendar` | `boolean` | `False` | If True (default), will automatically generate a calendar_entity when a new calendar is detected. The system scans for new calendars only on startup.
-`email_sensors` | `list<email_sensors>` | `False` | List of email_sensor config entries
-`query_sensors` | `list<query_sensors>` | `False` | List of query_sensor config entries
-`status_sensors` | `list<status_sensors>` | `False` | List of status_sensor config entries. *Not for use on personal accounts*
 
 #### email_sensors
 

@@ -4,11 +4,10 @@ nav_order: 5
 ---
 
 # Authentication
- _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
 
 The Primary method of authentication is the simplest to configure and requires no access from the internet to your HA instance, therefore is the most secure method. It has slightly more steps to follow when authenticating.
 
-The alternate method is more complex to set up, since the Azure App that is created in the prerequisites section must be configured to enable authentication from your HA instance whether located in your home network or utilising a cloud service such as Nabu Casa. The actual authentication is slightly simpler with fewer steps.
+The alternate method is more complex to set up, since the Azure App that is created in the prerequisites' section must be configured to enable authentication from your HA instance whether located in your home network or utilising a cloud service such as Nabu Casa. The actual authentication is slightly simpler with fewer steps.
 
 During setup, the difference in configuration between each method is the value of the redirect URI on your Azure App. The authentication steps for each method are shown below.
 

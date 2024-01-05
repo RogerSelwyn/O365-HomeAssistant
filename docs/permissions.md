@@ -36,8 +36,8 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
    | Chat     | Chat.ReadWrite        | Y | *Read and write user chat messages* | Not for personal accounts/shared mailboxes |
    | ToDo     | Tasks.Read            |   | *Read user's tasks and task lists* | Not for shared mailboxes |
    | ToDo     | Tasks.ReadWrite       | Y | *Create, read, update, and delete user’s tasks and task lists* | Not for shared mailboxes |
-   | Group Calendar | Group.Read.All  |   | *Read all groups* | Not supported in legacy installs or shared mailboxes |
-   | Group Calendar | Group.ReadWrite.All | Y | *Read and write all groups* | Not supported in legacy installs or shared mailboxes |
+   | Group Calendar | Group.Read.All  |   | *Read all groups* | Not supported in shared mailboxes |
+   | Group Calendar | Group.ReadWrite.All | Y | *Read and write all groups* | Not supported in shared mailboxes |
    | AutoReply | MailboxSettings.ReadWrite |   | *Read and write user mailbox settings* | Not for shared mailboxes |
    
 **Note** It should be noted that these are the permissions that are requested at authentication time (as appropriate for each sensor configured). When `enable_update` is configured to `true` all the associated `ReadWrite` permissions are requested as well, however you do not need to add `ReadWrite` for any sensor type where you do not what update permissions, it will still act as a Read Only sensor. This excludes the AutoReply option which is only `ReadWrite`.

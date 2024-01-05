@@ -22,8 +22,6 @@ To allow authentication, you first need to register your application at Azure Ap
 
    An alternate method of authentication is available which requires internet access to your HA instance if preferred. The alternate method is simpler to use when authenticating, but is more complex to set up correctly. See [Authentication](./authentication.md) section for more details.
 
-   _**NOTE:** As of version 3.2.0, the primary (default) and alternate authentication methods have essentially reversed. The primary (default) method now DOES NOT require direct access to your HA instance from the internet while the alternate method DOES require direct access. If you previously did NOT set 'alt_auth_flow' or had it set to False, please set 'alt_auth_method' to True and remove 'alt_auth_flow' from your config. This will only be necessary upon re-authentication._
-
 4. From the Overview page, copy the Application (client) ID.
 
 5. Under "Certificates & secrets", generate a new client secret. Set the expiration as desired.  This appears to be limited to 2 years. Copy the **Value** of the client secret now (not the ID), it will be hidden later on.  If you lose track of the secret, return here to generate a new one.
