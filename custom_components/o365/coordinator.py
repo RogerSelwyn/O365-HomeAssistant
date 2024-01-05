@@ -390,13 +390,20 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     CONF_ENTITY_KEY: _build_entity_id(
                         self.hass, ENTITY_ID_FORMAT_SENSOR, name
                     ),
-                    CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
+                    CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}_{name}",
                     CONF_SENSOR_CONF: sensor_conf,
                     CONF_O365_MAIL_FOLDER: mail_folder,
                     CONF_NAME: name,
                     CONF_ENTITY_TYPE: SENSOR_EMAIL,
                     CONF_QUERY: build_inbox_query(mail_folder, sensor_conf),
                 }
+
+                # Renames unique id to ensure uniqueness - To be deleted in early 2025
+                entity = self._ent_reg.async_get(new_key[CONF_ENTITY_KEY])
+                if entity.unique_id == f"{mail_folder.folder_id}_{self._account_name}":
+                    self._ent_reg.async_update_entity(
+                        new_key[CONF_ENTITY_KEY], new_unique_id=new_key[CONF_UNIQUE_ID]
+                    )
 
                 keys.append(new_key)
         return keys
@@ -413,13 +420,21 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     CONF_ENTITY_KEY: _build_entity_id(
                         self.hass, ENTITY_ID_FORMAT_SENSOR, name
                     ),
-                    CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}",
+                    CONF_UNIQUE_ID: f"{mail_folder.folder_id}_{self._account_name}_{name}",
                     CONF_SENSOR_CONF: sensor_conf,
                     CONF_O365_MAIL_FOLDER: mail_folder,
                     CONF_NAME: name,
                     CONF_ENTITY_TYPE: SENSOR_EMAIL,
                     CONF_QUERY: build_query_query(mail_folder, sensor_conf),
                 }
+
+                # Renames unique id to ensure uniqueness - To be deleted in early 2025
+                entity = self._ent_reg.async_get(new_key[CONF_ENTITY_KEY])
+                if entity.unique_id == f"{mail_folder.folder_id}_{self._account_name}":
+                    self._ent_reg.async_update_entity(
+                        new_key[CONF_ENTITY_KEY], new_unique_id=new_key[CONF_UNIQUE_ID]
+                    )
+
                 keys.append(new_key)
         return keys
 
