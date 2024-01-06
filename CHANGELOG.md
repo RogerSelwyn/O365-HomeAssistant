@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.6.1 (2024/01/06)
+### 🐛 Fixes
+- [Fix unique_id error for new email sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8a110221822207b634ff71d222d7cb068a707925) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.6.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/594a0cec04006685e7e016e01288bba111125929) - @RogerSelwyn
+
 ## v4.6.0 (2024/01/06)
 ### 💥 Breaking Changes
 - [Remove support for deprecated legacy config method](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b57bbe30cb418eb304450c013d17af4a52e72d03) - @RogerSelwyn
