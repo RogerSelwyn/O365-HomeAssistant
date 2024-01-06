@@ -400,7 +400,11 @@ class O365EmailCordinator(DataUpdateCoordinator):
 
                 # Renames unique id to ensure uniqueness - To be deleted in early 2025
                 entity = self._ent_reg.async_get(new_key[CONF_ENTITY_KEY])
-                if entity.unique_id == f"{mail_folder.folder_id}_{self._account_name}":
+                if (
+                    entity
+                    and entity.unique_id
+                    == f"{mail_folder.folder_id}_{self._account_name}"
+                ):
                     self._ent_reg.async_update_entity(
                         new_key[CONF_ENTITY_KEY], new_unique_id=new_key[CONF_UNIQUE_ID]
                     )
@@ -430,7 +434,11 @@ class O365EmailCordinator(DataUpdateCoordinator):
 
                 # Renames unique id to ensure uniqueness - To be deleted in early 2025
                 entity = self._ent_reg.async_get(new_key[CONF_ENTITY_KEY])
-                if entity.unique_id == f"{mail_folder.folder_id}_{self._account_name}":
+                if (
+                    entity
+                    and entity.unique_id
+                    == f"{mail_folder.folder_id}_{self._account_name}"
+                ):
                     self._ent_reg.async_update_entity(
                         new_key[CONF_ENTITY_KEY], new_unique_id=new_key[CONF_UNIQUE_ID]
                     )
