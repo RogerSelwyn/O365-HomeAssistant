@@ -146,6 +146,7 @@ EVENT_UPDATE_TODO = "update_todo"
 
 EVENT_CREATE_CALENDAR_EVENT = "create_calendar_event"
 EVENT_MODIFY_CALENDAR_EVENT = "modify_calendar_event"
+EVENT_MODIFY_CALENDAR_RECURRENCES = "modify_calendar_recurrences"
 EVENT_REMOVE_CALENDAR_EVENT = "remove_calendar_event"
 EVENT_REMOVE_CALENDAR_RECURRENCES = "remove_calendar_recurrences"
 EVENT_RESPOND_CALENDAR_EVENT = "respond_calendar_event"

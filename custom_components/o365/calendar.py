@@ -57,6 +57,7 @@ from .const import (
     EVENT_CREATE_CALENDAR_EVENT,
     EVENT_HA_EVENT,
     EVENT_MODIFY_CALENDAR_EVENT,
+    EVENT_MODIFY_CALENDAR_RECURRENCES,
     EVENT_REMOVE_CALENDAR_EVENT,
     EVENT_REMOVE_CALENDAR_RECURRENCES,
     EVENT_RESPOND_CALENDAR_EVENT,
@@ -231,7 +232,9 @@ class O365CalendarEntity(CalendarEntity):
         self._device_id = device_id
         if update_supported:
             self._attr_supported_features = (
-                CalendarEntityFeature.CREATE_EVENT | CalendarEntityFeature.DELETE_EVENT
+                CalendarEntityFeature.CREATE_EVENT
+                | CalendarEntityFeature.DELETE_EVENT
+                | CalendarEntityFeature.UPDATE_EVENT
             )
 
     def _init_data(self, account, calendar_id, entity):
@@ -319,6 +322,32 @@ class O365CalendarEntity(CalendarEntity):
             rrule=rrule,
         )
 
+    async def async_update_event(
+        self,
+        uid: str,
+        event: dict[str, Any],
+        recurrence_id: str | None = None,
+        recurrence_range: str | None = None,
+    ) -> None:
+        """Update an event on the calendar."""
+        start = event[EVENT_START]
+        end = event[EVENT_END]
+        is_all_day = not isinstance(start, datetime)
+        subject = event[EVENT_SUMMARY]
+        body = event.get(EVENT_DESCRIPTION)
+        rrule = event.get(EVENT_RRULE)
+        await self.async_modify_calendar_event(
+            event_id=uid,
+            recurrence_id=recurrence_id,
+            recurrence_range=recurrence_range,
+            subject=subject,
+            start=start,
+            end=end,
+            body=body,
+            is_all_day=is_all_day,
+            rrule=rrule,
+        )
+
     async def async_delete_event(
         self,
         uid: str,
@@ -343,7 +372,14 @@ class O365CalendarEntity(CalendarEntity):
         self.async_schedule_update_ha_state(True)
 
     async def async_modify_calendar_event(
-        self, event_id, subject=None, start=None, end=None, **kwargs
+        self,
+        event_id,
+        recurrence_id,
+        recurrence_range,
+        subject=None,
+        start=None,
+        end=None,
+        **kwargs,
     ):
         """Modify the event."""
 
@@ -354,10 +390,27 @@ class O365CalendarEntity(CalendarEntity):
             _group_calendar_log(self.entity_id)
             return
 
+        if recurrence_range:
+            await self._async_update_calendar_event(
+                recurrence_id,
+                EVENT_MODIFY_CALENDAR_RECURRENCES,
+                subject,
+                start,
+                end,
+                **kwargs,
+            )
+        else:
+            await self._async_update_calendar_event(
+                event_id, EVENT_MODIFY_CALENDAR_EVENT, subject, start, end, **kwargs
+            )
+
+    async def _async_update_calendar_event(
+        self, event_id, ha_event, subject, start, end, **kwargs
+    ):
         event = await self._async_get_event_from_calendar(event_id)
         event = add_call_data_to_event(event, subject, start, end, **kwargs)
         await self.hass.async_add_executor_job(event.save)
-        self._raise_event(EVENT_MODIFY_CALENDAR_EVENT, event_id)
+        self._raise_event(ha_event, event_id)
         self.async_schedule_update_ha_state(True)
 
     async def async_remove_calendar_event(
