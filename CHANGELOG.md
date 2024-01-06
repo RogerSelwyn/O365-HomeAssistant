@@ -1,5 +1,24 @@
 # Changelog
 
+## v4.6.0 (2024/01/06)
+### 💥 Breaking Changes
+- [Remove support for deprecated legacy config method](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b57bbe30cb418eb304450c013d17af4a52e72d03) - @RogerSelwyn
+
+### ✨ Enhancements
+- [Add support for updating events via HA Calendar pane](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c321f976e9ac5c4cb5a9f02881fa4ba30a36cc6d) - @RogerSelwyn
+
+### 🐛 Fixes
+- [Ensure uniqueness of email sensor unique_id](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c02f9ba9997d482a16e897b3aff96595496dfdbc) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Remove redundant code](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d35f39b849b9e275eb9aa5e1226368b4c3c6bb26) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update docs for removal of legacy config format](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/491f03721ca5e2fbd542cc0817d547fa15908c0e) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.6.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/96d10959aee4affd9a5abea310c7d1069544b195) - @RogerSelwyn
+  
 ## v4.5.4 (2024/01/04)
 ### ✨ Enhancements
 - [Add ability to supress body in email sensors](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e7570b111bea6542d3d82eaf3f235175bc194bf4) - @RogerSelwyn
