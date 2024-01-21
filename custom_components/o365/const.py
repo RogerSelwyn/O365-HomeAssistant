@@ -140,7 +140,7 @@ ENTITY_ID_FORMAT_TODO = "todo.{}"
 EVENT_HA_EVENT = "ha_event"
 EVENT_COMPLETED_TODO = "completed_todo"
 EVENT_DELETE_TODO = "delete_todo"
-EVENT_NEW_TODO = "new_todok"
+EVENT_NEW_TODO = "new_todo"
 EVENT_UNCOMPLETED_TODO = "uncompleted_todo"
 EVENT_UPDATE_TODO = "update_todo"
 
