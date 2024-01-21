@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.6.2 (2024/01/21)
+### 🐛 Fixes
+- [Fix error in sending event for new_todo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/42858754edaa7aa232aa8df90d9e8e05ca813c13) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.6.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d4b621d692e384b34721eeee4e8fcc30b32bcf05) - @RogerSelwyn
+
 ## v4.6.1 (2024/01/06)
 ### 🐛 Fixes
 - [Fix unique_id error for new email sensor](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8a110221822207b634ff71d222d7cb068a707925) - @RogerSelwyn
