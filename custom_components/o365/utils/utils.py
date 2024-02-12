@@ -50,6 +50,12 @@ def get_email_attributes(mail, download_attachments, html_body, show_body):
         "has_attachments": mail.has_attachments,
         "importance": mail.importance.value,
         "is_read": mail.is_read,
+        "flag": {
+            "is_flagged": mail.flag.is_flagged,
+            "is_completed": mail.flag.is_completed,
+            "due_date": mail.flag.due_date,
+            "completion_date": mail.flag.completition_date,
+        },
     }
 
     if show_body or html_body:

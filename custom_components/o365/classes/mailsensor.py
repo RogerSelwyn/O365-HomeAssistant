@@ -158,6 +158,7 @@ def _build_base_query(mail_folder, sensor_conf):
         "has_attachments",
         "importance",
         "is_read",
+        "flag",
     )
     if show_body or html_body:
         query = query.select(
