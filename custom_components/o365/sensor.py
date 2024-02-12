@@ -21,9 +21,11 @@ from .const import (
     CONF_KEYS_SENSORS,
     CONF_PERMISSIONS,
     CONF_SENSOR_CONF,
+    CONF_STATUS_SENSORS,
     DOMAIN,
     PERM_MINIMUM_CHAT_WRITE,
     PERM_MINIMUM_MAILBOX_SETTINGS,
+    PERM_MINIMUM_PRESENCE_WRITE,
     SENSOR_AUTO_REPLY,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
@@ -32,6 +34,7 @@ from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
     AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
     CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
+    STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -114,8 +117,26 @@ def _email_entities(conf):
 
 async def _async_setup_register_services(config):
     perms = config[CONF_PERMISSIONS]
+    await _async_setup_status_services(config, perms)
     await _async_setup_chat_services(config, perms)
     await _async_setup_mailbox_services(config, perms)
+
+
+async def _async_setup_status_services(config, perms):
+    status_sensors = config.get(CONF_STATUS_SENSORS)
+    if not status_sensors:
+        return
+    status_sensor = status_sensors[0]
+    if not status_sensor or not status_sensor.get(CONF_ENABLE_UPDATE):
+        return
+
+    platform = entity_platform.async_get_current_platform()
+    if perms.validate_minimum_permission(PERM_MINIMUM_PRESENCE_WRITE):
+        platform.async_register_entity_service(
+            "update_user_status",
+            STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA,
+            "update_user_status",
+        )
 
 
 async def _async_setup_chat_services(config, perms):

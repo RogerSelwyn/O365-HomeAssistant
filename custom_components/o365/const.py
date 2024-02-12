@@ -10,11 +10,13 @@ class EventResponse(Enum):
     Decline = "decline"  # pylint: disable=invalid-name
 
 
+ATTR_ACTIVITY = "activity"
 ATTR_ALL_DAY = "all_day"
 ATTR_ALL_TODOS = "all_todos"
 ATTR_ATTACHMENTS = "attachments"
 ATTR_ATTENDEES = "attendees"
 ATTR_AUTOREPLIESSETTINGS = "autorepliessettings"
+ATTR_AVAILABILITY = "availability"
 ATTR_BODY = "body"
 ATTR_CATEGORIES = "categories"
 ATTR_CHAT_ID = "chat_id"
@@ -30,6 +32,7 @@ ATTR_EMAIL = "email"
 ATTR_END = "end"
 ATTR_ERROR = "error"
 ATTR_EVENT_ID = "event_id"
+ATTR_EXPIRATIONDURATION = "expiration_duration"
 ATTR_EXTERNAL_AUDIENCE = "external_audience"
 ATTR_EXTERNALREPLY = "external_reply"
 ATTR_FROM_DISPLAY_NAME = "from_display_name"
@@ -52,6 +55,7 @@ ATTR_SENSITIVITY = "sensitivity"
 ATTR_SHOW_AS = "show_as"
 ATTR_START = "start"
 ATTR_STATE = "state"
+ATTR_STATUS = "status"
 ATTR_SUBJECT = "subject"
 ATTR_SUMMARY = "summary"
 ATTR_TODOS = "todos"
@@ -151,6 +155,7 @@ EVENT_REMOVE_CALENDAR_EVENT = "remove_calendar_event"
 EVENT_REMOVE_CALENDAR_RECURRENCES = "remove_calendar_recurrences"
 EVENT_RESPOND_CALENDAR_EVENT = "respond_calendar_event"
 EVENT_SEND_CHAT_MESSAGE = "send_chat_message"
+EVENT_UPDATE_USER_STATUS = "update_user_status"
 
 LEGACY_ACCOUNT_NAME = "converted"
 O365_STORAGE = "o365_storage"
@@ -173,13 +178,15 @@ PERM_MAIL_SEND = "Mail.Send"
 PERM_MAIL_SEND_SHARED = "Mail.Send.Shared"
 PERM_OFFLINE_ACCESS = "offline_access"
 PERM_PRESENCE_READ = "Presence.Read"
+PERM_PRESENCE_READWRITE = "Presence.ReadWrite"
 PERM_TASKS_READ = "Tasks.Read"
 PERM_TASKS_READWRITE = "Tasks.ReadWrite"
 PERM_USER_READ = "User.Read"
 PERM_MINIMUM_CHAT = [PERM_CHAT_READ, [PERM_CHAT_READWRITE]]
 PERM_MINIMUM_CHAT_WRITE = [PERM_CHAT_READWRITE, []]
 PERM_MINIMUM_GROUP = [PERM_GROUP_READ_ALL, [PERM_GROUP_READWRITE_ALL]]
-PERM_MINIMUM_PRESENCE = [PERM_PRESENCE_READ, []]
+PERM_MINIMUM_PRESENCE = [PERM_PRESENCE_READ, [PERM_PRESENCE_READWRITE]]
+PERM_MINIMUM_PRESENCE_WRITE = [PERM_PRESENCE_READWRITE, []]
 PERM_MINIMUM_TASKS = [PERM_TASKS_READ, [PERM_TASKS_READWRITE]]
 PERM_MINIMUM_TASKS_WRITE = [PERM_TASKS_READWRITE, []]
 PERM_MINIMUM_USER = [PERM_USER_READ, []]

@@ -114,6 +114,7 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
+`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services update user status
 
 #### chat_sensors (not for personal accounts)
 

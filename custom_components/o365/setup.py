@@ -8,6 +8,7 @@ from .const import (
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
+    CONF_CLIENT_ID,
     CONF_CONFIG_TYPE,
     CONF_COORDINATOR_EMAIL,
     CONF_COORDINATOR_SENSORS,
@@ -36,6 +37,7 @@ async def do_setup(hass, config, account, account_name, conf_type, perms):
     enable_update = config.get(CONF_ENABLE_UPDATE, True)
 
     account_config = {
+        CONF_CLIENT_ID: config.get(CONF_CLIENT_ID),
         CONF_ACCOUNT: account,
         CONF_EMAIL_SENSORS: email_sensors,
         CONF_QUERY_SENSORS: query_sensors,

@@ -15,7 +15,7 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
   * AutoReply - For Auto reply/Out of Office message configuration
 
 
-  If you intend to send emails use calendar update functionality, then set [enable_update](./installation_and_configuration.md#configuration_variables) at the top level to `true`. For To-do List set [enable_update](installation_and_configuration.md#todo_lists) to true. Then for any sensor type, add the relevant `ReadWrite` permission as denoted by a `Y` in the update column.
+  If you intend to send emails use calendar update functionality, then set [enable_update](./installation_and_configuration.md#configuration_variables) at the top level to `true`. For other sensors set [enable_update](installation_and_configuration.md) to true for each sensor supporting it. Then for any sensor type, add the relevant `ReadWrite` permission as denoted by a `Y` in the update column.
    
 
    | Feature  | Permissions           | Update | O365 Description                      | Notes |
@@ -32,6 +32,7 @@ Under "API Permissions" click Add a permission, then Microsoft Graph, then Deleg
    | Email    | Mail.Read.Shared      |   | *Read user and shared mail* | For shared mailboxes |
    | Email    | Mail.Send.Shared      | Y | *Send mail on behalf of others* | For shared mailboxes |
    | Status   | Presence.Read         |   | *Read user's presence information* | Not for personal accounts/shared mailboxes |
+   | Status   | Presence.ReadWrite    | Y | *Read and write a user's presence information* | Not for personal accounts/shared mailboxes |
    | Chat     | Chat.Read             |   | *Read user chat messages* | Not for personal accounts/shared mailboxes |
    | Chat     | Chat.ReadWrite        | Y | *Read and write user chat messages* | Not for personal accounts/shared mailboxes |
    | ToDo     | Tasks.Read            |   | *Read user's tasks and task lists* | Not for shared mailboxes |

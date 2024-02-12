@@ -62,7 +62,31 @@ context:
   parent_id: null
   user_id: null
 ```
-##  Chat Events
+##  Teams Status Events
+
+Events will be raised for the following items.
+
+- o365_update_user_status - User teams presence updated
+
+The events have the following general structure:
+
+```yaml
+event_type: o365_update_user_status
+data:
+  name: Joe Teams Status
+  status:
+    availability: Available
+    activity: Available
+  ha_event: true
+origin: LOCAL
+time_fired: "2024-02-12T18:22:36.694771+00:00"
+context:
+  id: 01HPF8X14PYZ1QRZ8V199JSQTQ
+  parent_id: null
+  user_id: null
+```
+
+##  Teams Chat Events
 
 Events will be raised for the following items.
 

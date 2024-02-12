@@ -9,15 +9,22 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_ENABLED, CONF_NAME
-from O365.calendar import AttendeeType  # pylint: disable=no-name-in-module
-from O365.calendar import EventSensitivity  # pylint: disable=no-name-in-module
-from O365.calendar import EventShowAs  # pylint: disable=no-name-in-module; pylint: disable=no-name-in-module
-from O365.mailbox import ExternalAudience  # pylint: disable=no-name-in-module, import-error; pylint: disable=no-name-in-module, import-error
+from O365.calendar import (  # pylint: disable=no-name-in-module
+    AttendeeType,
+    EventSensitivity,
+    EventShowAs,
+)
+from O365.mailbox import (  # pylint: disable=no-name-in-module, import-error
+    ExternalAudience,
+)
+from O365.teams import Activity, Availability
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
-from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_TO_GET,
+from .const import (
+    ATTR_ACTIVITY,
     ATTR_ATTACHMENTS,
     ATTR_ATTENDEES,
+    ATTR_AVAILABILITY,
     ATTR_BODY,
     ATTR_CATEGORIES,
     ATTR_CHAT_ID,
@@ -27,6 +34,7 @@ from .const import (  # CONF_DUE_HOURS_BACKWARD_TO_GET,; CONF_DUE_HOURS_FORWARD_
     ATTR_EMAIL,
     ATTR_END,
     ATTR_EVENT_ID,
+    ATTR_EXPIRATIONDURATION,
     ATTR_EXTERNAL_AUDIENCE,
     ATTR_EXTERNALREPLY,
     ATTR_IMPORTANCE,
@@ -107,6 +115,7 @@ EMAIL_SENSOR = vol.Schema(
 STATUS_SENSOR = vol.Schema(
     {
         vol.Required(CONF_NAME): cv.string,
+        vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
     }
 )
 CHAT_SENSOR = vol.Schema(
@@ -239,6 +248,12 @@ CALENDAR_SERVICE_REMOVE_SCHEMA = {
     vol.Required(ATTR_EVENT_ID): cv.string,
 }
 
+
+STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA = {
+    vol.Required(ATTR_AVAILABILITY): vol.Coerce(Availability),
+    vol.Required(ATTR_ACTIVITY): vol.Coerce(Activity),
+    vol.Optional(ATTR_EXPIRATIONDURATION): cv.string,
+}
 
 TODO_SERVICE_NEW_SCHEMA = {
     vol.Required(ATTR_SUBJECT): cv.string,

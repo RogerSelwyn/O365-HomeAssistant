@@ -3,22 +3,30 @@
 import logging
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.const import ATTR_NAME
 
 from ..const import (
+    ATTR_ACTIVITY,
+    ATTR_AVAILABILITY,
     ATTR_CHAT_ID,
     ATTR_CONTENT,
     ATTR_DATA,
     ATTR_FROM_DISPLAY_NAME,
     ATTR_IMPORTANCE,
     ATTR_STATE,
+    ATTR_STATUS,
     ATTR_SUBJECT,
     ATTR_SUMMARY,
     CONF_ACCOUNT,
+    CONF_CLIENT_ID,
     DOMAIN,
     EVENT_HA_EVENT,
     EVENT_SEND_CHAT_MESSAGE,
+    EVENT_UPDATE_USER_STATUS,
     PERM_CHAT_READWRITE,
     PERM_MINIMUM_CHAT_WRITE,
+    PERM_MINIMUM_PRESENCE_WRITE,
+    PERM_PRESENCE_READWRITE,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
 )
@@ -34,6 +42,7 @@ class O365TeamsSensor(O365Entity):
         """Initialise the Teams Sensor."""
         super().__init__(cordinator, config, name, entity_id, entity_type, unique_id)
         self.teams = self._config[CONF_ACCOUNT].teams()
+        self._application_id = self._config[CONF_CLIENT_ID]
 
     @property
     def icon(self):
@@ -58,6 +67,33 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
             config,
             SENSOR_TEAMS_STATUS,
             unique_id,
+        )
+
+    def update_user_status(self, availability, activity, expiration_duration=None):
+        """Update the users teams status."""
+        if not self._validate_status_permissions():
+            return False
+
+        status = self.teams.set_my_presence(
+            self._application_id, availability, activity, expiration_duration
+        )
+        self._raise_event(
+            EVENT_UPDATE_USER_STATUS,
+            {ATTR_AVAILABILITY: status.availability, ATTR_ACTIVITY: status.activity},
+        )
+        return False
+
+    def _raise_event(self, event_type, status):
+        self.hass.bus.fire(
+            f"{DOMAIN}_{event_type}",
+            {ATTR_NAME: self._name, ATTR_STATUS: status, EVENT_HA_EVENT: True},
+        )
+        _LOGGER.debug("%s - %s - %s", self._name, event_type, status)
+
+    def _validate_status_permissions(self):
+        return self._validate_permissions(
+            PERM_MINIMUM_PRESENCE_WRITE,
+            f"Not authorised to update status - requires permission: {PERM_PRESENCE_READWRITE}",
         )
 
 

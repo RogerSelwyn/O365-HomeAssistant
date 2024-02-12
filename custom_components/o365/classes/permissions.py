@@ -43,6 +43,7 @@ from ..const import (
     PERM_MINIMUM_USER,
     PERM_OFFLINE_ACCESS,
     PERM_PRESENCE_READ,
+    PERM_PRESENCE_READWRITE,
     PERM_SHARED,
     PERM_TASKS_READ,
     PERM_TASKS_READWRITE,
@@ -275,7 +276,10 @@ class Permissions:
     def _build_status_permissions(self):
         status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
         if len(status_sensors) > 0:
-            self._requested_permissions.append(PERM_PRESENCE_READ)
+            if status_sensors[0][CONF_ENABLE_UPDATE]:
+                self._requested_permissions.append(PERM_PRESENCE_READWRITE)
+            else:
+                self._requested_permissions.append(PERM_PRESENCE_READ)
 
     def _build_chat_permissions(self):
         chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
