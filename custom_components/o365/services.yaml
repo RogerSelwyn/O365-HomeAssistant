@@ -468,6 +468,7 @@ send_chat_message:
 
 update_user_status:
   name: Update user Teams status
+  description: "Update the user's Teams status"
   target:
     device:
       integration: o365
