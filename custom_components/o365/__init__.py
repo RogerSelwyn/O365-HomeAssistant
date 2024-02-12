@@ -3,6 +3,7 @@ import functools as ft
 import json
 import logging
 
+import voluptuous as vol
 import yaml
 from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue
@@ -34,6 +35,7 @@ from .const import (
 from .schema import MULTI_ACCOUNT_SCHEMA
 from .setup import do_setup
 
+CONFIG_SCHEMA = vol.Schema({DOMAIN: MULTI_ACCOUNT_SCHEMA}, extra=vol.ALLOW_EXTRA)
 _LOGGER = logging.getLogger(__name__)
 
 
