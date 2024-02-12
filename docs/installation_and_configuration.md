@@ -129,6 +129,7 @@ Key | Type | Required | Description
 -- | -- | -- | --
 `enabled` | `boolean` | `True` | True=Enables To-Do Lists, **False**=Disables To-Do Lists.
 `enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services to create/update/delete to-dos
+`track_new` | `boolean` | `False` | If True (default), will automatically generate a todo_entity when a new to-do list is detected. The system scans for new to-do lists only on startup.
 
 #### auto_reply_sensors 
 
