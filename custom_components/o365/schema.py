@@ -8,7 +8,7 @@ from homeassistant.components.notify import (
     ATTR_TARGET,
     ATTR_TITLE,
 )
-from homeassistant.const import CONF_ENABLED, CONF_NAME
+from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME
 from O365.calendar import (  # pylint: disable=no-name-in-module
     AttendeeType,
     EventSensitivity,
@@ -113,10 +113,14 @@ EMAIL_SENSOR = vol.Schema(
     }
 )
 STATUS_SENSOR = vol.Schema(
-    {
-        vol.Required(CONF_NAME): cv.string,
-        vol.Optional(CONF_ENABLE_UPDATE, default=False): bool,
-    }
+    vol.All(
+        {
+            vol.Required(CONF_NAME): cv.string,
+            vol.Optional(CONF_ENABLE_UPDATE, None): bool,
+            vol.Optional(CONF_EMAIL, None): cv.string,
+        },
+        cv.has_at_most_one_key(CONF_ENABLE_UPDATE, CONF_EMAIL),
+    )
 )
 CHAT_SENSOR = vol.Schema(
     {

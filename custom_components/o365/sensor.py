@@ -2,7 +2,7 @@
 
 import logging
 
-from homeassistant.const import CONF_NAME, CONF_UNIQUE_ID
+from homeassistant.const import CONF_EMAIL, CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_platform
 
 from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
@@ -85,6 +85,7 @@ def _sensor_entities(conf):
                     key[CONF_ENTITY_KEY],
                     conf,
                     key[CONF_UNIQUE_ID],
+                    key[CONF_EMAIL],
                 )
             )
         elif key[CONF_ENTITY_TYPE] == SENSOR_AUTO_REPLY:
@@ -126,8 +127,10 @@ async def _async_setup_status_services(config, perms):
     status_sensors = config.get(CONF_STATUS_SENSORS)
     if not status_sensors:
         return
-    status_sensor = status_sensors[0]
-    if not status_sensor or not status_sensor.get(CONF_ENABLE_UPDATE):
+
+    if not any(
+        status_sensor.get(CONF_ENABLE_UPDATE) for status_sensor in status_sensors
+    ):
         return
 
     platform = entity_platform.async_get_current_platform()

@@ -40,6 +40,9 @@
         "not_authorised": {
             "message": "Not authorisied requires permission: {required_permission}"
         },
+        "not_possible": {
+            "message": "Not possible to update another user's status: {email}"
+        },
         "todo_completed": {
             "message": "ToDo is already completed"
         },

@@ -3,7 +3,7 @@ import functools as ft
 import logging
 from datetime import datetime, timedelta
 
-from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
+from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -31,6 +31,7 @@ from .const import (
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
     CONF_DOWNLOAD_ATTACHMENTS,
+    CONF_EMAIL_ACCOUNT,
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_UPDATE,
     CONF_ENTITY_KEY,
@@ -89,14 +90,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
-        status_keys = self._status_sensors()
+        status_keys = await self._async_status_sensors()
         chat_keys = self._chat_sensors()
         todo_keys = await self._async_todo_sensors()
         auto_reply_entities = await self._async_auto_reply_sensors()
         self._keys = chat_keys + status_keys + todo_keys + auto_reply_entities
         return self._keys
 
-    def _status_sensors(self):
+    async def _async_status_sensors(self):
         status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
         keys = []
         for sensor_conf in status_sensors:
@@ -108,7 +109,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
                 CONF_UNIQUE_ID: f"{name}_{self._account_name}",
                 CONF_NAME: name,
                 CONF_ENTITY_TYPE: SENSOR_TEAMS_STATUS,
+                CONF_EMAIL: sensor_conf.get(CONF_EMAIL),
             }
+            if sensor_conf.get(CONF_EMAIL):
+                email_account = await self.hass.async_add_executor_job(
+                    self._account.directory().get_user,
+                    sensor_conf.get(CONF_EMAIL),
+                )
+                new_key[CONF_EMAIL_ACCOUNT] = email_account.object_id
 
             keys.append(new_key)
         return keys
@@ -230,8 +238,15 @@ class O365SensorCordinator(DataUpdateCoordinator):
     async def _async_teams_status_update(self, key):
         """Update state."""
         entity_key = key[CONF_ENTITY_KEY]
+        email_account = key.get(CONF_EMAIL_ACCOUNT)
+        if not email_account:
+            if data := await self.hass.async_add_executor_job(
+                self._account.teams().get_my_presence
+            ):
+                self._data[entity_key] = {ATTR_STATE: data.activity}
+            return
         if data := await self.hass.async_add_executor_job(
-            self._account.teams().get_my_presence
+            self._account.teams().get_user_presence, email_account
         ):
             self._data[entity_key] = {ATTR_STATE: data.activity}
 

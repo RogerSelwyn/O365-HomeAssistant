@@ -114,7 +114,8 @@ Key | Type | Required | Description
 Key | Type | Required | Description
 -- | -- | -- | --
 `name` | `string` | `True` | The name of the sensor.
-`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services update user status
+`enable_update` | `boolean` | `False` | If True (**default is False**), this will enable the services to update user status. `email address` key must not be present.
+`email_address` | `string` | `False` | Enter email address to monitor status for. `enable_update` key must not be present.
 
 #### chat_sensors (not for personal accounts)
 

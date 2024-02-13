@@ -40,6 +40,9 @@
         "not_authorised": {
             "message": "Neoprávnené požadované povolenie: {required_permission}"
         },
+        "not_possible": {
+            "message": "Nie je možné aktualizovať stav iného používateľa: {email}"
+        },
         "todo_completed": {
             "message": "Úloha je už dokončená"
         },

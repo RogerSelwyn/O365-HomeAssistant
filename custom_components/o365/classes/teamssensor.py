@@ -3,7 +3,8 @@
 import logging
 
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import ATTR_NAME
+from homeassistant.const import ATTR_NAME, CONF_EMAIL
+from homeassistant.exceptions import ServiceValidationError
 
 from ..const import (
     ATTR_ACTIVITY,
@@ -58,7 +59,7 @@ class O365TeamsSensor(O365Entity):
 class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
     """O365 Teams sensor processing."""
 
-    def __init__(self, coordinator, name, entity_id, config, unique_id):
+    def __init__(self, coordinator, name, entity_id, config, unique_id, email):
         """Initialise the Teams Sensor."""
         super().__init__(
             coordinator,
@@ -68,9 +69,19 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
             SENSOR_TEAMS_STATUS,
             unique_id,
         )
+        self._email = email
 
     def update_user_status(self, availability, activity, expiration_duration=None):
         """Update the users teams status."""
+        if self._email:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="not_possible",
+                translation_placeholders={
+                    CONF_EMAIL: self._email,
+                },
+            )
+
         if not self._validate_status_permissions():
             return False
 

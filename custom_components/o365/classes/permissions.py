@@ -3,7 +3,7 @@ import json
 import logging
 import os
 
-from homeassistant.const import CONF_ENABLED
+from homeassistant.const import CONF_EMAIL, CONF_ENABLED
 
 from ..const import (
     CONF_ACCOUNT_NAME,
@@ -39,10 +39,12 @@ from ..const import (
     PERM_MINIMUM_MAIL,
     PERM_MINIMUM_MAILBOX_SETTINGS,
     PERM_MINIMUM_PRESENCE,
+    PERM_MINIMUM_PRESENCE_ALL,
     PERM_MINIMUM_TASKS,
     PERM_MINIMUM_USER,
     PERM_OFFLINE_ACCESS,
     PERM_PRESENCE_READ,
+    PERM_PRESENCE_READ_ALL,
     PERM_PRESENCE_READWRITE,
     PERM_SHARED,
     PERM_TASKS_READ,
@@ -185,7 +187,13 @@ class Permissions:
     def _build_status_min_permissions(self):
         status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
         if len(status_sensors) > 0:
-            self._minimum_permissions.append(PERM_MINIMUM_PRESENCE)
+            if any(status_sensor.get(CONF_EMAIL) for status_sensor in status_sensors):
+                self._minimum_permissions.append(PERM_MINIMUM_PRESENCE_ALL)
+            if any(
+                status_sensor.get(CONF_EMAIL) is None
+                for status_sensor in status_sensors
+            ):
+                self._minimum_permissions.append(PERM_MINIMUM_PRESENCE)
 
     def _build_chat_min_permissions(self):
         chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
@@ -276,10 +284,15 @@ class Permissions:
     def _build_status_permissions(self):
         status_sensors = self._config.get(CONF_STATUS_SENSORS, [])
         if len(status_sensors) > 0:
-            if status_sensors[0][CONF_ENABLE_UPDATE]:
+            if any(
+                status_sensor.get(CONF_ENABLE_UPDATE)
+                for status_sensor in status_sensors
+            ):
                 self._requested_permissions.append(PERM_PRESENCE_READWRITE)
             else:
                 self._requested_permissions.append(PERM_PRESENCE_READ)
+            if any(status_sensor.get(CONF_EMAIL) for status_sensor in status_sensors):
+                self._requested_permissions.append(PERM_PRESENCE_READ_ALL)
 
     def _build_chat_permissions(self):
         chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
