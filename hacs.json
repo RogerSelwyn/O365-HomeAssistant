@@ -1,5 +1,5 @@
 {
-    "name": "Office 365 Integration",
+    "name": "Office 365",
     "zip_release": true,
     "filename": "o365.zip",
     "homeassistant": "2022.5.0",
