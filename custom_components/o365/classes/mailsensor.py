@@ -13,6 +13,7 @@ from ..const import (
     ATTR_EXTERNALREPLY,
     ATTR_INTERNALREPLY,
     ATTR_START,
+    ATTR_STATE,
     CONF_ACCOUNT,
     CONF_BODY_CONTAINS,
     CONF_DOWNLOAD_ATTACHMENTS,
@@ -98,6 +99,11 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
     def icon(self):
         """Entity icon."""
         return "mdi:reply-all"
+
+    @property
+    def native_value(self):
+        """Sensor state."""
+        return self.coordinator.data[self.entity_key][ATTR_STATE]
 
     @property
     def extra_state_attributes(self):
