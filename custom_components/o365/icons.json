@@ -20,7 +20,6 @@
             "auto_reply": {
                 "default": "mdi:reply-all",
                 "state": {
-                    "alwaysEnabled": "mdi:reply-all",
                     "disabled": "mdi:reply-outline",
                     "scheduled": "mdi:reply"
                 }
