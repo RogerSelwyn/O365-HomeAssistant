@@ -149,3 +149,25 @@ data:
   chat_id: xxxxxxxxxxxxxxxxxxxxxxxxx
   message: Hello world
 ```
+
+## Status Services
+
+These services must be targeted at a `status` sensor. They can only target the logged-in user's status.
+
+### o365.update_user_status
+Update Teams status for the logged in client. This will not override a status that is set via the MS Teams client. Allowable pairings of availability and activity are show in the [MS Graph Documentation](https://learn.microsoft.com/en-us/graph/api/presence-setpresence?view=graph-rest-1.0&tabs=http#request-body). The expiration/duration field is also documented on the same page. It defaults to 5 minutes.
+
+#### Example update status service call
+
+```yaml
+service: o365.update_user_status
+data:
+  availability: Busy
+  activity: InACall
+  expiration_duration: PT1H
+target:
+  entity_id: sensor.roger_teams_status
+```
+
+
+https://learn.microsoft.com/en-us/graph/api/presence-setpresence?view=graph-rest-1.0&tabs=http#request-body
