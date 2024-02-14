@@ -38,6 +38,8 @@ from .entity import O365Entity
 class O365MailSensor(O365Entity, SensorEntity):
     """O365 generic Mail Sensor class."""
 
+    _attr_translation_key = "mail"
+
     def __init__(self, coordinator, config, sensor_conf, name, entity_id, unique_id):
         """Initialise the O365 Sensor."""
         super().__init__(coordinator, config, name, entity_id, SENSOR_EMAIL, unique_id)
@@ -47,11 +49,6 @@ class O365MailSensor(O365Entity, SensorEntity):
         self._state = None
         self._extra_attributes = None
         self._update_status()
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:microsoft-outlook"
 
     @property
     def native_value(self):
@@ -86,6 +83,8 @@ class O365MailSensor(O365Entity, SensorEntity):
 class O365AutoReplySensor(O365Entity, SensorEntity):
     """O365 Auto Reply sensor processing."""
 
+    _attr_translation_key = "auto_reply"
+
     def __init__(self, coordinator, name, entity_id, config, unique_id):
         """Initialise the Auto reply Sensor."""
         super().__init__(
@@ -94,11 +93,6 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
         self._config = config
         account = self._config[CONF_ACCOUNT]
         self.mailbox = account.mailbox()
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:reply-all"
 
     @property
     def native_value(self):

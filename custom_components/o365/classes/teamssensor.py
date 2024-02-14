@@ -39,16 +39,13 @@ _LOGGER = logging.getLogger(__name__)
 class O365TeamsSensor(O365Entity):
     """O365 Teams sensor processing."""
 
+    _attr_translation_key = "teams"
+
     def __init__(self, cordinator, name, entity_id, config, entity_type, unique_id):
         """Initialise the Teams Sensor."""
         super().__init__(cordinator, config, name, entity_id, entity_type, unique_id)
         self.teams = self._config[CONF_ACCOUNT].teams()
         self._application_id = self._config[CONF_CLIENT_ID]
-
-    @property
-    def icon(self):
-        """Entity icon."""
-        return "mdi:microsoft-teams"
 
     @property
     def native_value(self):

@@ -1,0 +1,36 @@
+{
+    "services": {
+        "scan_for_calendars": "mdi:calendar-sync",
+        "scan_for_todo_lists": "mdi:clipboard-list",
+        "respond_calendar_event": "mdi:calendar-arrow-left",
+        "create_calendar_event": "mdi:calendar-plus",
+        "modify_calendar_event": "mdi:calendar-edit",
+        "remove_calendar_event": "mdi:calendar-remove",
+        "new_todo": "mdi:clipboard-list",
+        "update_todo": "mdi:clipboard-list",
+        "delete_todo": "mdi:clipboard-list",
+        "complete_todo": "mdi:clipboard-list",
+        "auto_reply_enable": "mdi:microsoft-outlook",
+        "auto_reply_disable": "mdi:microsoft-outlook",
+        "send_chat_message": "mdi:microsoft-teams",
+        "update_user_status": "mdi:microsoft-teams"
+    },
+    "entity": {
+        "sensor": {
+            "auto_reply": {
+                "default": "mdi:reply-all",
+                "state": {
+                    "alwaysEnabled": "mdi:reply-all",
+                    "disabled": "mdi:reply-outline",
+                    "scheduled": "mdi:reply"
+                }
+            },
+            "mail": {
+                "default": "mdi:microsoft-outlook"
+            },
+            "teams": {
+                "default": "mdi:microsoft-teams"
+            }
+        }
+    }
+}
