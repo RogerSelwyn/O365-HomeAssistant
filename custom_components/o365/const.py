@@ -157,6 +157,7 @@ EVENT_REMOVE_CALENDAR_RECURRENCES = "remove_calendar_recurrences"
 EVENT_RESPOND_CALENDAR_EVENT = "respond_calendar_event"
 EVENT_SEND_CHAT_MESSAGE = "send_chat_message"
 EVENT_UPDATE_USER_STATUS = "update_user_status"
+EVENT_UPDATE_USER_PREFERRED_STATUS = "update_user_preferred_status"
 
 LEGACY_ACCOUNT_NAME = "converted"
 O365_STORAGE = "o365_storage"

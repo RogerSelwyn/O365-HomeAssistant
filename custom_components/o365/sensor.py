@@ -34,6 +34,7 @@ from .schema import (
     AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
     AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
     CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
+    STATUS_SERVICE_UPDATE_USER_PERERRED_STATUS_SCHEMA,
     STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA,
 )
 
@@ -139,6 +140,11 @@ async def _async_setup_status_services(config, perms):
             "update_user_status",
             STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA,
             "update_user_status",
+        )
+        platform.async_register_entity_service(
+            "update_user_preferred_status",
+            STATUS_SERVICE_UPDATE_USER_PERERRED_STATUS_SCHEMA,
+            "update_user_preferred_status",
         )
 
 

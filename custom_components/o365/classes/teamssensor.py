@@ -6,6 +6,8 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import ATTR_NAME, CONF_EMAIL
 from homeassistant.exceptions import ServiceValidationError
 
+from O365.teams import PreferredActivity, PreferredAvailability
+
 from ..const import (
     ATTR_ACTIVITY,
     ATTR_AVAILABILITY,
@@ -23,6 +25,7 @@ from ..const import (
     DOMAIN,
     EVENT_HA_EVENT,
     EVENT_SEND_CHAT_MESSAGE,
+    EVENT_UPDATE_USER_PREFERRED_STATUS,
     EVENT_UPDATE_USER_STATUS,
     PERM_CHAT_READWRITE,
     PERM_MINIMUM_CHAT_WRITE,
@@ -87,6 +90,34 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
         )
         self._raise_event(
             EVENT_UPDATE_USER_STATUS,
+            {ATTR_AVAILABILITY: status.availability, ATTR_ACTIVITY: status.activity},
+        )
+        return False
+
+    def update_user_preferred_status(self, availability, expiration_duration=None):
+        """Update the users teams status."""
+        if self._email:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="not_possible",
+                translation_placeholders={
+                    CONF_EMAIL: self._email,
+                },
+            )
+
+        if not self._validate_status_permissions():
+            return False
+
+        activity = (
+            availability
+            if availability != PreferredAvailability.OFFLINE
+            else PreferredActivity.OFFWORK
+        )
+        status = self.teams.set_my_user_preferred_presence(
+            availability, activity, expiration_duration
+        )
+        self._raise_event(
+            EVENT_UPDATE_USER_PREFERRED_STATUS,
             {ATTR_AVAILABILITY: status.availability, ATTR_ACTIVITY: status.activity},
         )
         return False

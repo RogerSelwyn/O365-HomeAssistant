@@ -519,3 +519,42 @@ update_user_status:
       required: false
       selector:
         text:
+
+update_user_preferred_status:
+  name: Update user preferred Teams status
+  description: "Update the user's preferred Teams status"
+  target:
+    device:
+      integration: o365
+    entity:
+      integration: o365
+      domain: sensor
+  fields:
+    availability:
+      name: Availability
+      description: "The base presence information"
+      example: Busy
+      required: true
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: "Available"
+              value: "Available"
+            - label: "Busy"
+              value: "Busy"
+            - label: "Do Not Disturb"
+              value: "DoNotDisturb"
+            - label: "Be Right Back"
+              value: "BeRightBack"
+            - label: "Away"
+              value: "Away"
+            - label: "Offline"
+              value: "Offline"
+    expiration_duration:
+      name: Expiration Duration
+      description: "The expiration of the app presence session. The value is represented in ISO 8601 format for durations"
+      example: PT1H
+      required: false
+      selector:
+        text:

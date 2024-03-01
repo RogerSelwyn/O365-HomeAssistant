@@ -13,7 +13,8 @@
         "auto_reply_enable": "mdi:microsoft-outlook",
         "auto_reply_disable": "mdi:microsoft-outlook",
         "send_chat_message": "mdi:microsoft-teams",
-        "update_user_status": "mdi:microsoft-teams"
+        "update_user_status": "mdi:microsoft-teams",
+        "update_user_preferred_status": "mdi:microsoft-teams"
     },
     "entity": {
         "sensor": {

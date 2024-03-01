@@ -9,6 +9,7 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME
+
 from O365.calendar import (  # pylint: disable=no-name-in-module
     AttendeeType,
     EventSensitivity,
@@ -17,7 +18,7 @@ from O365.calendar import (  # pylint: disable=no-name-in-module
 from O365.mailbox import (  # pylint: disable=no-name-in-module, import-error
     ExternalAudience,
 )
-from O365.teams import Activity, Availability
+from O365.teams import Activity, Availability, PreferredAvailability
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
 from .const import (
@@ -252,10 +253,14 @@ CALENDAR_SERVICE_REMOVE_SCHEMA = {
     vol.Required(ATTR_EVENT_ID): cv.string,
 }
 
-
 STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA = {
     vol.Required(ATTR_AVAILABILITY): vol.Coerce(Availability),
     vol.Required(ATTR_ACTIVITY): vol.Coerce(Activity),
+    vol.Optional(ATTR_EXPIRATIONDURATION): cv.string,
+}
+
+STATUS_SERVICE_UPDATE_USER_PERERRED_STATUS_SCHEMA = {
+    vol.Required(ATTR_AVAILABILITY): vol.Coerce(PreferredAvailability),
     vol.Optional(ATTR_EXPIRATIONDURATION): cv.string,
 }
 
