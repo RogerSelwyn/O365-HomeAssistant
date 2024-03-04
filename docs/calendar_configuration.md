@@ -61,3 +61,13 @@ To configure a Group Calendar, add an extra section to `o365_calendars_<account_
       start_offset: 0
       track: true
   ```
+
+## Exclude
+
+To exclude calendar items from being displayed, e.g. cancelled events, the exclude attribute can be used. This takes straight strings or can be configured with a regex for more complex exclusions.
+
+```yaml
+    exclude:
+     - "Cancelled"
+     - "^In.*Junk$"
+```
