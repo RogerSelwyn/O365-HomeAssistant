@@ -1,5 +1,38 @@
 # Changelog
 
+## v4.7.0 (2024/03/06)
+### ✨ Enhancements
+- [Add flag status to emails](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/caa14025f05620813a30982141ce09ba92637ede) - @RogerSelwyn
+- [Add support for updating user Teams status](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/293bc5236c1a1684458cf4ad8f87b740086c919e) - @RogerSelwyn
+- [Add ability to monitor another user's Teams status](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5dac2f832667173c1b69a328370e99fbb457a0e8) - @RogerSelwyn
+- [Add support for icons.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/76588df288fd8155fef97fe7775cbd965de3846e) - @RogerSelwyn
+- [Add set user preferred status service](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/481caad2743554767eef3afa734bd6b79a7fbe52) - @RogerSelwyn
+- [Add task status as a status attribute](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/429d30425f21b53bb3bbeb0237f7bc9485ad2eab) - @RogerSelwyn
+
+### 🐛 Fixes
+- [Add missing service description](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a27db7b416df4c896f22e4aec73fc74fdd34234a) - @RogerSelwyn
+- [Add missing CONFIG_SCHEMA](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4523fbcfd74948727f9c92f7e5e367fdad4a17d7) - @RogerSelwyn
+- [Fix display of auto-reply state](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/52a40821f636db3208ab6641f63c8ce87dd1f632) - @RogerSelwyn
+- [Fix hassfest error in icons.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9d528fc94047273e8c14d7523bf37e16b0ef4dfe) - @RogerSelwyn
+
+### 🔨 Maintenance
+- [Remove `Integration` from name](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b566ce149aa589bf13cc94e1379e9788632d6828) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Bump O365 to 2.0.33](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/335e36d1cbfee43d6ae23a06f7f7c20988513cb9) - @RogerSelwyn
+- [Bump O365 to 2.0.34](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ad1a625244c705e9922120321797dca09266ee0e) - @actions-user
+
+### 📚 Documentation
+- [Add documentation for `track_new` for To-Do lists](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f9cc1b8f2dead8306ff372e534b5167fadb1fa3f) - @RogerSelwyn
+- [Update todo.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1f22bc5a5581bce7f9030d4c8f8cab62d7093f30) - @uSlackr
+- [Update todo.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/735abbfe73fe0544b5c5834555a835f19b109a6b) - @RogerSelwyn
+- [Update services documentation for user status setting](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ab554291c38d91fcf7be8f21da2fc9064cddebc1) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ac43e4c3d7eb982a651ab73507aee0d6c7a700ed) - @RogerSelwyn
+- [Add example for exclude attribute](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b14c4140ece7696e2e814f656f82111221da944d) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.7.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/64dfb15d9d851040ab862146da3886de8c7f1948) - @RogerSelwyn
+
 ## v4.6.2 (2024/01/21)
 ### 🐛 Fixes
 - [Fix error in sending event for new_todo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/42858754edaa7aa232aa8df90d9e8e05ca813c13) - @RogerSelwyn
