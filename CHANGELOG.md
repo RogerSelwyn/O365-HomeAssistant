@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.7.1 (2024/03/25)
+### 🐛 Fixes
+- [Enable clearing of ToDo description from HA ToDo panel](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/68660eb213844476dca3cc0fd334ba7aef439dff) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.7.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b10a7afdee132599793f2d122fd2e559d2eb5305) - @RogerSelwyn
+
 ## v4.7.0 (2024/03/06)
 ### ✨ Enhancements
 - [Add flag status to emails](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/caa14025f05620813a30982141ce09ba92637ede) - @RogerSelwyn
