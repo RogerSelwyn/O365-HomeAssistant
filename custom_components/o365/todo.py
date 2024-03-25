@@ -304,8 +304,8 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
             self.todolist.get_task, item.uid
         )
         if (
-            (item.summary and item.summary != o365_task.subject)
-            or (item.description and item.description != o365_task.body)
+            item.summary != o365_task.subject
+            or item.description != o365_task.body
             or (item.due and item.due != o365_task.due)
         ):
             await self.async_update_todo(
@@ -314,6 +314,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
                 description=item.description,
                 due=item.due,
                 o365_task=o365_task,
+                hatodo=True,
             )
         if item.status:
             completed = None
@@ -332,6 +333,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
         due=None,
         reminder=None,
         o365_task=None,
+        hatodo=False,
     ):
         """Update a task for this task list."""
         if not self._validate_task_permissions():
@@ -341,7 +343,9 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
             o365_task = await self.hass.async_add_executor_job(
                 self.todolist.get_task, todo_id
             )
-        await self._async_save_task(o365_task, subject, description, due, reminder)
+        await self._async_save_task(
+            o365_task, subject, description, due, reminder, hatodo
+        )
         self._raise_event(EVENT_UPDATE_TODO, todo_id)
         await self.coordinator.async_refresh()
         return True
@@ -402,11 +406,13 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
         self.hass.async_add_executor_job(o365_task.save)
         self._raise_event(EVENT_UNCOMPLETED_TODO, todo_id)
 
-    async def _async_save_task(self, o365_task, subject, description, due, reminder):
+    async def _async_save_task(
+        self, o365_task, subject, description, due, reminder, hatodo=False
+    ):
         # sourcery skip: raise-from-previous-error
-        if subject:
+        if subject or hatodo:
             o365_task.subject = subject
-        if description:
+        if description or hatodo:
             o365_task.body = description
 
         if due:
