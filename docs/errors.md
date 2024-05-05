@@ -20,6 +20,9 @@ nav_order: 19
   * Where this error mentions `Presence.Read` or `Chat.Read` it probably means you have tried to configure a Teams Presence or Chat sensor when your account is a Personal Account (such as @outlook.com)
   * For other items, it means you have changed your configuration to require new permissions. You will likely need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
 
+ * **The user could not be authenticated as the grant is expired. The user must sign in again.**
+   *  Create a new secret and update your O365 configuration. Then delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
+
 * **Client secret expired for account: xxxxxxxx. Create new client id in Azure App.**
   * The Client Secret on your Azure App has expired. Create a new secret and update your O365 configuration.
 
