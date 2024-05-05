@@ -21,7 +21,7 @@ nav_order: 19
   * For other items, it means you have changed your configuration to require new permissions. You will likely need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
 
  * **The user could not be authenticated as the grant is expired. The user must sign in again.**
-   *  Create a new secret and update your O365 configuration. Then delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
+   *  Create a new secret and update your O365 configuration. Then delete your token and reauthenticate. Please check the [token page](./token.md) for more details.
 
 * **Client secret expired for account: xxxxxxxx. Create new client id in Azure App.**
   * The Client Secret on your Azure App has expired. Create a new secret and update your O365 configuration.
@@ -30,7 +30,7 @@ nav_order: 19
   * Ensure the configured secret is the client secret __value__, not the client secret ID
 
 * **Token corrupt for account - please delete and re-authenticate.**
-  * You will need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
+  * You will need to delete your token and reauthenticate. Please check the [token page](./token.md) for more details.
 
 * **O365 config requests permission: 'xxxxxx.xxxxxxx'. Not available in token 'o365_xxxxxxxx.token' for account 'xxxxxxxx'**
 Validate your Azure permissions match those required as detailed on the [permissions page](./permissions.md). If they are correct, you will need to delete your token and reauthenticate as described on the same page.

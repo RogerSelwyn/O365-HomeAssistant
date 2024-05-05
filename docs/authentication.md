@@ -36,4 +36,4 @@ After setting up configuration.yaml with the key set to _True_ and restarting Ho
 If you are using Multi-factor Authentication (MFA), you may find you also need to add `https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize` to your redirect URIs.
 
 ## Re-authentication
-If you need to re-authenticate for any reason, for instance if you have changed features (such as enabling update) and haven't had the repair notification, you should delete the relevant token from the `<config>/o365_storage/.O365-token-cache` directory. When you restart HA, you will then be prompted to re-authenticate with O365 which will store a new token.
+If you need to re-authenticate for any reason, for instance if you have changed features (such as enabling update) and haven't had the repair notification, you should delete the token as described on the [token page](./token.md).

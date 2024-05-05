@@ -59,4 +59,4 @@ If you decide to enable new features in the integration, or decide to change fro
 
 `Minimum required permissions not granted: ['Tasks.Read', ['Tasks.ReadWrite']]`
 
-You will need to delete the relevant token from the `<config>/o365_storage/.O365-token-cache` directory. When you restart HA, you will then be prompted to re-authenticate with O365 which will store a new token with the new permission.
+You will need to delete as detailed on the [token page](./token.md)
