@@ -18,7 +18,7 @@ nav_order: 19
 
 * **No token, or token doesn't have all required permissions; requesting authorization for account: Account1 Minimum required permissions not granted: ['Presence.Read', []]**
   * Where this error mentions `Presence.Read` or `Chat.Read` it probably means you have tried to configure a Teams Presence or Chat sensor when your account is a Personal Account (such as @outlook.com)
-  * For other items, it means you have changed your configuration to require new permissions. You will likely need to delete your token and reauthenticate. Please check the [permissions page](./permissions.md) for more details.
+  * For other items, it means you have changed your configuration to require new permissions. You will likely need to delete your token and reauthenticate. Please check the [token page](./token.md) for more details.
 
  * **The user could not be authenticated as the grant is expired. The user must sign in again.**
    *  Create a new secret and update your O365 configuration. Then delete your token and reauthenticate. Please check the [token page](./token.md) for more details.
@@ -33,7 +33,7 @@ nav_order: 19
   * You will need to delete your token and reauthenticate. Please check the [token page](./token.md) for more details.
 
 * **O365 config requests permission: 'xxxxxx.xxxxxxx'. Not available in token 'o365_xxxxxxxx.token' for account 'xxxxxxxx'**
-Validate your Azure permissions match those required as detailed on the [permissions page](./permissions.md). If they are correct, you will need to delete your token and reauthenticate as described on the same page.
+Validate your Azure permissions match those required as detailed on the [permissions page](./permissions.md). If they are correct, you will need to delete your token and reauthenticate as described on the [token page](./token.md).
 
 **_Please note that any changes made to your Azure app settings takes a few minutes to propagate. Please wait around 5 minutes between changes to your settings and any auth attempts from Home Assistant._**
 
