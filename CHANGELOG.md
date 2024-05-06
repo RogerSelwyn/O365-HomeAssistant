@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.7.2 (2024/05/06)
+### 🐛 Fixes
+- [Handle situation where chat member has no display_name](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2cc463d097ed6fc74c5dc8713542b3d9557378d2) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Update hacs.json](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a2dd88024aa8dcabd2a2b24d8b1e80e8f3c53365) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.7.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5e01e9e8a10dce13fe1854f7734dd8aeb0cce6ad) - @RogerSelwyn
+
 ## v4.7.1 (2024/03/25)
 ### 🐛 Fixes
 - [Enable clearing of ToDo description from HA ToDo panel](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/68660eb213844476dca3cc0fd334ba7aef439dff) - @RogerSelwyn
