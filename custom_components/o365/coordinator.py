@@ -1,4 +1,5 @@
 """Sensor processing."""
+
 import functools as ft
 import logging
 from datetime import datetime, timedelta
@@ -309,7 +310,14 @@ class O365SensorCordinator(DataUpdateCoordinator):
         if chat.object_id in self._chat_members and chat.chat_type != "oneOnOne":
             return self._chat_members[chat.object_id]
         members = await self.hass.async_add_executor_job(chat.get_members)
-        memberlist = [member.display_name for member in members]
+        memberlist = []
+        for member in members:
+            if member.display_name:
+                memberlist.append(member.display_name)
+            elif member.email:
+                memberlist.append(member.email)
+            else:
+                memberlist.append("Name Unknown")
         self._chat_members[chat.object_id] = memberlist
         return memberlist
 
