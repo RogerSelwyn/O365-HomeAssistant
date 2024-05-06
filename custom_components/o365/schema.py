@@ -30,6 +30,7 @@ from .const import (
     ATTR_CATEGORIES,
     ATTR_CHAT_ID,
     ATTR_COMPLETED,
+    ATTR_CONTENT_TYPE,
     ATTR_DESCRIPTION,
     ATTR_DUE,
     ATTR_EMAIL,
@@ -337,13 +338,5 @@ REQUEST_AUTHORIZATION_DEFAULT_SCHEMA = {vol.Required(CONF_URL): cv.string}
 CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
     vol.Required(ATTR_CHAT_ID): cv.string,
     vol.Required(ATTR_MESSAGE): cv.string,
-}
-
-CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
-    vol.Required(ATTR_CHAT_ID): cv.string,
-    vol.Required(ATTR_MESSAGE): cv.string,
-}
-CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
-    vol.Required(ATTR_CHAT_ID): cv.string,
-    vol.Required(ATTR_MESSAGE): cv.string,
+    vol.Optional(ATTR_CONTENT_TYPE, default="text"): cv.String,
 }

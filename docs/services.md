@@ -148,6 +148,7 @@ target:
 data:
   chat_id: xxxxxxxxxxxxxxxxxxxxxxxxx
   message: Hello world
+  content_type: text
 ```
 
 ## Status Services

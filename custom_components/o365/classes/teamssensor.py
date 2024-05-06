@@ -168,7 +168,7 @@ class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
             attributes[ATTR_DATA] = self.coordinator.data[self.entity_key][ATTR_DATA]
         return attributes
 
-    def send_chat_message(self, chat_id, message):
+    def send_chat_message(self, chat_id, message, content_type="text"):
         """Send a message to the specified chat."""
         if not self._validate_chat_permissions():
             return False
@@ -176,7 +176,7 @@ class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
         chats = self.teams.get_my_chats()
         for chat in chats:
             if chat.object_id == chat_id:
-                message = chat.send_message(content=message)
+                message = chat.send_message(content=message, content_type=content_type)
                 self._raise_event(EVENT_SEND_CHAT_MESSAGE, chat_id)
                 return True
         _LOGGER.warning("Chat %s not found for send message", chat_id)
