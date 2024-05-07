@@ -1,4 +1,5 @@
 """Constants."""
+
 from enum import Enum
 
 
@@ -22,6 +23,7 @@ ATTR_CATEGORIES = "categories"
 ATTR_CHAT_ID = "chat_id"
 ATTR_CHAT_TYPE = "chat_type"
 ATTR_COMPLETED = "completed"
+ATTR_CONTENT_TYPE = "content_type"
 ATTR_CREATED = "created"
 ATTR_COLOR = "color"
 ATTR_CONTENT = "content"
@@ -136,6 +138,9 @@ CONST_CONFIG_TYPE_LIST = "list"
 CONST_GROUP = "group:"
 CONST_PRIMARY = "$o365-primary$"
 CONST_UTC_TIMEZONE = "UTC"
+
+CONTENT_TYPES = ["text", "html"]
+
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_OFFSET = "!!"
 DOMAIN = "o365"

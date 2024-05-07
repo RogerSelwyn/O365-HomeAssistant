@@ -465,6 +465,19 @@ send_chat_message:
       required: true
       selector:
         text:
+    content_type:
+      name: Content Type
+      description: The type of content to send, html if you are sending a HTML message or text for plain text
+      example: text
+      required: false
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: HTML
+              value: html
+            - label: Text
+              value: text
 
 update_user_status:
   name: Update user Teams status
