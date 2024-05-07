@@ -283,7 +283,7 @@ new_todo:
     due:
       name: Due date
       description: When the todo is due by
-      example: "YYYY-MM-DD"
+      example: '"2025-01-01"'
       selector:
         date:
     reminder:

@@ -105,7 +105,7 @@ target:
 data:
   subject: Pick up the mail
   description: Walk to the post box and collect the mail
-  due: 2023-01-01     # Note that due only takes a date, not a time
+  due: "2023-01-01"     # Note that due only takes a date, not a datetime
   reminder: 2023-01-01T12:00:00+0000
 ```
 

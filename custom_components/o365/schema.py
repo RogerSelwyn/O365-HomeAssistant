@@ -9,7 +9,6 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME
-
 from O365.calendar import (  # pylint: disable=no-name-in-module
     AttendeeType,
     EventSensitivity,
@@ -267,16 +266,16 @@ STATUS_SERVICE_UPDATE_USER_PERERRED_STATUS_SCHEMA = {
 TODO_SERVICE_NEW_SCHEMA = {
     vol.Required(ATTR_SUBJECT): cv.string,
     vol.Optional(ATTR_DESCRIPTION): cv.string,
-    vol.Optional(ATTR_DUE): cv.string,
-    vol.Optional(ATTR_REMINDER): cv.datetime,
+    vol.Optional(ATTR_DUE): cv.date,
+    vol.Optional(ATTR_REMINDER): vol.Any(cv.date, cv.datetime),
 }
 
 TODO_SERVICE_UPDATE_SCHEMA = {
     vol.Required(ATTR_TODO_ID): cv.string,
     vol.Optional(ATTR_SUBJECT): cv.string,
     vol.Optional(ATTR_DESCRIPTION): cv.string,
-    vol.Optional(ATTR_DUE): cv.string,
-    vol.Optional(ATTR_REMINDER): cv.datetime,
+    vol.Optional(ATTR_DUE): cv.date,
+    vol.Optional(ATTR_REMINDER): vol.Any(cv.date, cv.datetime),
 }
 
 TODO_SERVICE_DELETE_SCHEMA = {
