@@ -9,7 +9,6 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME
-
 from O365.calendar import (  # pylint: disable=no-name-in-module
     AttendeeType,
     EventSensitivity,
@@ -100,6 +99,7 @@ from .const import (
     CONF_TRACK_NEW_CALENDAR,
     CONF_URL,
     CONF_YAML_TASK_LIST_ID,
+    CONTENT_TYPES,
     EventResponse,
 )
 
@@ -338,5 +338,5 @@ REQUEST_AUTHORIZATION_DEFAULT_SCHEMA = {vol.Required(CONF_URL): cv.string}
 CHAT_SERVICE_SEND_MESSAGE_SCHEMA = {
     vol.Required(ATTR_CHAT_ID): cv.string,
     vol.Required(ATTR_MESSAGE): cv.string,
-    vol.Optional(ATTR_CONTENT_TYPE, default="text"): cv.String,
+    vol.Optional(ATTR_CONTENT_TYPE, default="text"): vol.In(CONTENT_TYPES),
 }

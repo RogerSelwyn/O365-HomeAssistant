@@ -1,4 +1,5 @@
 """Constants."""
+
 from enum import Enum
 
 
@@ -137,6 +138,9 @@ CONST_CONFIG_TYPE_LIST = "list"
 CONST_GROUP = "group:"
 CONST_PRIMARY = "$o365-primary$"
 CONST_UTC_TIMEZONE = "UTC"
+
+CONTENT_TYPES = ["text", "html"]
+
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 DEFAULT_OFFSET = "!!"
 DOMAIN = "o365"
