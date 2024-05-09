@@ -6,7 +6,7 @@ import logging
 from homeassistant.const import CONF_ENABLED
 from homeassistant.helpers import discovery
 
-from .const import (
+from ..const import (
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,

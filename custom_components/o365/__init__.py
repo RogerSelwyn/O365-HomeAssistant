@@ -1,4 +1,5 @@
 """Main initialisation code."""
+
 import functools as ft
 import json
 import logging
@@ -32,8 +33,8 @@ from .const import (
     DOMAIN,
     TOKEN_FILE_MISSING,
 )
+from .helpers.setup import do_setup
 from .schema import MULTI_ACCOUNT_SCHEMA
-from .setup import do_setup
 
 CONFIG_SCHEMA = vol.Schema({DOMAIN: MULTI_ACCOUNT_SCHEMA}, extra=vol.ALLOW_EXTRA)
 _LOGGER = logging.getLogger(__name__)

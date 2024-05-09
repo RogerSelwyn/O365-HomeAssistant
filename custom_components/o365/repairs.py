@@ -1,4 +1,5 @@
 """Repair flows."""
+
 from __future__ import annotations
 
 import functools as ft
@@ -27,8 +28,8 @@ from .const import (
     CONF_URL,
     TOKEN_FILE_MISSING,
 )
+from .helpers.setup import do_setup
 from .schema import REQUEST_AUTHORIZATION_DEFAULT_SCHEMA
-from .setup import do_setup
 
 _LOGGER = logging.getLogger(__name__)
 

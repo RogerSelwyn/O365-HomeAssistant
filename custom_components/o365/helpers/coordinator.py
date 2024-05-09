@@ -11,8 +11,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt
 from requests.exceptions import HTTPError
 
-from .classes.mailsensor import build_inbox_query, build_query_query
-from .const import (
+from ..classes.mailsensor import build_inbox_query, build_query_query
+from ..const import (
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
     ATTR_CHAT_TYPE,
@@ -60,9 +60,9 @@ from .const import (
     TODO_TODO,
     YAML_TASK_LISTS_FILENAME,
 )
-from .schema import YAML_TASK_LIST_SCHEMA
-from .todo import O365TodoEntityServices, build_todo_query
-from .utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
+from ..schema import YAML_TASK_LIST_SCHEMA
+from ..todo import O365TodoEntityServices, build_todo_query
+from ..utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
 
 _LOGGER = logging.getLogger(__name__)
 
