@@ -4,7 +4,6 @@ import logging
 from datetime import datetime, timedelta
 
 from O365.calendar import Attendee  # pylint: disable=no-name-in-module)
-from zoneinfo import ZoneInfo
 
 from ..const import (
     ATTR_ATTENDEES,
