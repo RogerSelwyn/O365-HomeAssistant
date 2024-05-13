@@ -381,8 +381,8 @@ class O365CalendarEntity(CalendarEntity):
     async def async_modify_calendar_event(
         self,
         event_id,
-        recurrence_id,
-        recurrence_range,
+        recurrence_id=None,
+        recurrence_range=None,
         subject=None,
         start=None,
         end=None,
