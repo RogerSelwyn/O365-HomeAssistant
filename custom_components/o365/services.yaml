@@ -63,17 +63,17 @@ create_calendar_event:
     start:
       name: Start
       description: The start time of the event
-      example: "2025-01-01T12:00:00+0000"
+      example: "2025-03-22 20:00:00"
       required: true
       selector:
-        text:
+        datetime:
     end:
       name: End
       description: The end time of the event
-      example: "2025-01-01T12:30:00+0000"
+      example: "2025-03-22 20:30:00"
       required: true
       selector:
-        text:
+        datetime:
     body:
       name: Body
       description: The body text for the event (optional)
@@ -165,15 +165,15 @@ modify_calendar_event:
     start:
       name: Start
       description: The start time of the event
-      example: "2025-01-01T12:00:00+0000"
+      example: "2025-03-22 20:00:00"
       selector:
-        text:
+        datetime:
     end:
       name: End
       description: The end time of the event
-      example: "2025-01-01T12:30:00+0000"
+      example: "2025-03-22 20:30:00"
       selector:
-        text:
+        datetime:
     body:
       name: Body
       description: The body text for the event

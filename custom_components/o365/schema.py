@@ -1,5 +1,10 @@
 """Schema for O365 Integration."""
 
+import datetime
+from collections.abc import Callable
+from itertools import groupby
+from typing import Any
+
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components.notify import (
@@ -9,6 +14,7 @@ from homeassistant.components.notify import (
     ATTR_TITLE,
 )
 from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME
+from homeassistant.util import dt as dt_util
 from O365.calendar import (  # pylint: disable=no-name-in-module
     AttendeeType,
     EventSensitivity,
@@ -102,6 +108,38 @@ from .const import (
     CONTENT_TYPES,
     EventResponse,
 )
+
+
+def _has_consistent_timezone(*keys: Any) -> Callable[[dict[str, Any]], dict[str, Any]]:
+    """Verify that all datetime values have a consistent timezone."""
+
+    def validate(obj: dict[str, Any]) -> dict[str, Any]:
+        """Test that all keys that are datetime values have the same timezone."""
+        tzinfos = []
+        for key in keys:
+            if not (value := obj.get(key)) or not isinstance(value, datetime.datetime):
+                return obj
+            tzinfos.append(value.tzinfo)
+        uniq_values = groupby(tzinfos)
+        if len(list(uniq_values)) > 1:
+            raise vol.Invalid("Expected all values to have the same timezone")
+        return obj
+
+    return validate
+
+
+def _as_local_timezone(*keys: Any) -> Callable[[dict[str, Any]], dict[str, Any]]:
+    """Convert all datetime values to the local timezone."""
+
+    def validate(obj: dict[str, Any]) -> dict[str, Any]:
+        """Convert all keys that are datetime values to local timezone."""
+        for k in keys:
+            if (value := obj.get(k)) and isinstance(value, datetime.datetime):
+                obj[k] = dt_util.as_local(value)
+        return obj
+
+    return validate
+
 
 EMAIL_SENSOR = vol.Schema(
     {
@@ -221,33 +259,44 @@ CALENDAR_SERVICE_ATTENDEE_SCHEMA = vol.Schema(
     }
 )
 
-CALENDAR_SERVICE_CREATE_SCHEMA = {
-    vol.Required(ATTR_SUBJECT): cv.string,
-    vol.Required(ATTR_START): cv.datetime,
-    vol.Required(ATTR_END): cv.datetime,
-    vol.Optional(ATTR_BODY): cv.string,
-    vol.Optional(ATTR_LOCATION): cv.string,
-    vol.Optional(ATTR_CATEGORIES): [cv.string],
-    vol.Optional(ATTR_SENSITIVITY): vol.Coerce(EventSensitivity),
-    vol.Optional(ATTR_SHOW_AS): vol.Coerce(EventShowAs),
-    vol.Optional(ATTR_IS_ALL_DAY): bool,
-    vol.Optional(ATTR_ATTENDEES): [CALENDAR_SERVICE_ATTENDEE_SCHEMA],
-}
+CALENDAR_SERVICE_CREATE_SCHEMA = vol.All(
+    cv.make_entity_service_schema(
+        {
+            vol.Required(ATTR_SUBJECT): cv.string,
+            vol.Required(ATTR_START): cv.datetime,
+            vol.Required(ATTR_END): cv.datetime,
+            vol.Optional(ATTR_BODY): cv.string,
+            vol.Optional(ATTR_LOCATION): cv.string,
+            vol.Optional(ATTR_CATEGORIES): [cv.string],
+            vol.Optional(ATTR_SENSITIVITY): vol.Coerce(EventSensitivity),
+            vol.Optional(ATTR_SHOW_AS): vol.Coerce(EventShowAs),
+            vol.Optional(ATTR_IS_ALL_DAY): bool,
+            vol.Optional(ATTR_ATTENDEES): [CALENDAR_SERVICE_ATTENDEE_SCHEMA],
+        }
+    ),
+    _has_consistent_timezone(ATTR_START, ATTR_END),
+    _as_local_timezone(ATTR_START, ATTR_END),
+)
 
-
-CALENDAR_SERVICE_MODIFY_SCHEMA = {
-    vol.Required(ATTR_EVENT_ID): cv.string,
-    vol.Optional(ATTR_START): cv.datetime,
-    vol.Optional(ATTR_END): cv.datetime,
-    vol.Required(ATTR_SUBJECT): cv.string,
-    vol.Optional(ATTR_BODY): cv.string,
-    vol.Optional(ATTR_LOCATION): cv.string,
-    vol.Optional(ATTR_CATEGORIES): [cv.string],
-    vol.Optional(ATTR_SENSITIVITY): vol.Coerce(EventSensitivity),
-    vol.Optional(ATTR_SHOW_AS): vol.Coerce(EventShowAs),
-    vol.Optional(ATTR_IS_ALL_DAY): bool,
-    vol.Optional(ATTR_ATTENDEES): [CALENDAR_SERVICE_ATTENDEE_SCHEMA],
-}
+CALENDAR_SERVICE_MODIFY_SCHEMA = vol.All(
+    cv.make_entity_service_schema(
+        {
+            vol.Required(ATTR_EVENT_ID): cv.string,
+            vol.Optional(ATTR_START): cv.datetime,
+            vol.Optional(ATTR_END): cv.datetime,
+            vol.Required(ATTR_SUBJECT): cv.string,
+            vol.Optional(ATTR_BODY): cv.string,
+            vol.Optional(ATTR_LOCATION): cv.string,
+            vol.Optional(ATTR_CATEGORIES): [cv.string],
+            vol.Optional(ATTR_SENSITIVITY): vol.Coerce(EventSensitivity),
+            vol.Optional(ATTR_SHOW_AS): vol.Coerce(EventShowAs),
+            vol.Optional(ATTR_IS_ALL_DAY): bool,
+            vol.Optional(ATTR_ATTENDEES): [CALENDAR_SERVICE_ATTENDEE_SCHEMA],
+        }
+    ),
+    _has_consistent_timezone(ATTR_START, ATTR_END),
+    _as_local_timezone(ATTR_START, ATTR_END),
+)
 
 
 CALENDAR_SERVICE_REMOVE_SCHEMA = {
