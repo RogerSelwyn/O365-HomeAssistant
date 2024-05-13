@@ -56,7 +56,7 @@ from .schema import (
     TODO_SERVICE_NEW_SCHEMA,
     TODO_SERVICE_UPDATE_SCHEMA,
 )
-from .utils.filemgmt import update_task_list_file
+from .utils.filemgmt import async_update_task_list_file
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -500,7 +500,7 @@ class O365TodoEntityServices:
                 todolists = await self._hass.async_add_executor_job(todos.list_folders)
                 track = todo_sensor.get(CONF_TRACK_NEW)
                 for todo in todolists:
-                    update_task_list_file(
+                    await async_update_task_list_file(
                         config,
                         todo,
                         self._hass,

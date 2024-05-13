@@ -149,8 +149,11 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
             yaml_filename = build_yaml_filename(self._config, YAML_TASK_LISTS_FILENAME)
             yaml_filepath = build_config_file_path(self.hass, yaml_filename)
-            o365_task_dict = load_yaml_file(
-                yaml_filepath, CONF_YAML_TASK_LIST_ID, YAML_TASK_LIST_SCHEMA
+            o365_task_dict = await self.hass.async_add_executor_job(
+                load_yaml_file,
+                yaml_filepath,
+                CONF_YAML_TASK_LIST_ID,
+                YAML_TASK_LIST_SCHEMA,
             )
             o365_task_lists = list(o365_task_dict.values())
             keys = await self._async_todo_entities(o365_task_lists)
@@ -220,7 +223,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
         return keys
 
     async def _async_update_data(self):
-        _LOGGER.debug("Doing sensor update for: %s", self._account_name)
+        _LOGGER.debug(
+            "Doing %s sensor update(s) for: %s", len(self._keys), self._account_name
+        )
 
         for key in self._keys:
             entity_type = key[CONF_ENTITY_TYPE]
@@ -503,7 +508,9 @@ class O365EmailCordinator(DataUpdateCoordinator):
         return mail_folder
 
     async def _async_update_data(self):
-        _LOGGER.debug("Doing email update for: %s", self._account_name)
+        _LOGGER.debug(
+            "Doing %s email update(s) for: %s", len(self._keys), self._account_name
+        )
 
         for key in self._keys:
             await self._async_email_update(key)

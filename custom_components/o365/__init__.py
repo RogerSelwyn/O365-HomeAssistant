@@ -64,6 +64,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
         return
 
     perms = Permissions(hass, account_conf, conf_type)
+    await perms.async_permissions_setup()
     perms.report_perms()
     token_backend = await hass.async_add_executor_job(
         ft.partial(

@@ -1,4 +1,5 @@
 """Permissions processes."""
+
 import json
 import logging
 import os
@@ -76,6 +77,7 @@ class Permissions:
         self.token_filename = self._build_token_filename()
         self.token_path = build_config_file_path(self._hass, O365_STORAGE_TOKEN)
         self._permissions = []
+        self._group_permissions_required = None
 
     @property
     def minimum_permissions(self):
@@ -110,10 +112,16 @@ class Permissions:
     @property
     def permissions(self):
         """Return the permission set."""
-        if not self._permissions:
-            self._permissions = self._get_permissions()
-
         return self._permissions
+
+    async def async_permissions_setup(self):
+        """Setup permissions for later use."""
+        self._permissions = await self._hass.async_add_executor_job(
+            self._get_permissions
+        )
+        self._group_permissions_required = (
+            await self._async_identify_if_group_permisions_required()
+        )
 
     def validate_permissions(self):
         """Validate the permissions."""
@@ -211,7 +219,7 @@ class Permissions:
             self._minimum_permissions.append(PERM_MINIMUM_MAILBOX_SETTINGS)
 
     def _build_group_min_permssions(self):
-        if self._group_permissions_required():
+        if self._group_permissions_required:
             self._minimum_permissions.append(PERM_MINIMUM_GROUP)
 
     def _add_shared(self, minimum_permissions):
@@ -230,12 +238,13 @@ class Permissions:
         minimum_permissions[1] = alt_permissions
         return minimum_permissions
 
-    def _group_permissions_required(self):
+    async def _async_identify_if_group_permisions_required(self):
         """Return if group permissions are required."""
         yaml_filename = build_yaml_filename(
             self._config, YAML_CALENDARS_FILENAME, self._conf_type
         )
-        calendars = load_yaml_file(
+        calendars = await self._hass.async_add_executor_job(
+            load_yaml_file,
             build_config_file_path(self._hass, yaml_filename),
             CONF_CAL_ID,
             YAML_CALENDAR_DEVICE_SCHEMA,

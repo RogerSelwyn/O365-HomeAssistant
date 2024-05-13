@@ -1,4 +1,5 @@
 """File management processes."""
+
 import logging
 import os
 
@@ -62,12 +63,12 @@ def _get_calendar_info(calendar, track_new_devices):
     )
 
 
-def update_calendar_file(config, calendar, hass, track_new_devices):
+async def async_update_calendar_file(config, calendar, hass, track_new_devices):
     """Update the calendar file."""
     path = build_yaml_filename(config, YAML_CALENDARS_FILENAME)
     yaml_filepath = build_config_file_path(hass, path)
-    existing_calendars = load_yaml_file(
-        yaml_filepath, CONF_CAL_ID, YAML_CALENDAR_DEVICE_SCHEMA
+    existing_calendars = await hass.async_add_executor_job(
+        load_yaml_file, yaml_filepath, CONF_CAL_ID, YAML_CALENDAR_DEVICE_SCHEMA
     )
     cal = _get_calendar_info(calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
@@ -89,12 +90,12 @@ def _get_task_list_info(yaml_task_list, track_new_devices):
     )
 
 
-def update_task_list_file(config, yaml_task_list, hass, track_new_devices):
+async def async_update_task_list_file(config, yaml_task_list, hass, track_new_devices):
     """Update the calendar file."""
     path = build_yaml_filename(config, YAML_TASK_LISTS_FILENAME)
     yaml_filepath = build_config_file_path(hass, path)
-    existing_task_lists = load_yaml_file(
-        yaml_filepath, CONF_YAML_TASK_LIST_ID, YAML_TASK_LIST_SCHEMA
+    existing_task_lists = await hass.async_add_executor_job(
+        load_yaml_file, yaml_filepath, CONF_YAML_TASK_LIST_ID, YAML_TASK_LIST_SCHEMA
     )
     yaml_task_list = _get_task_list_info(yaml_task_list, track_new_devices)
     if yaml_task_list[CONF_YAML_TASK_LIST_ID] in existing_task_lists:

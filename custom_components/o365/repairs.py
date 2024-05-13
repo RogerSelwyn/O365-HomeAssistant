@@ -63,6 +63,7 @@ class AuthorizationRepairFlow(RepairsFlow):
         user_input: dict[str, str] | None = None,  # pylint: disable=unused-argument
     ) -> data_entry_flow.FlowResult:
         """Handle the first step of a fix flow."""
+        await self._permissions.async_permissions_setup()
         if self._alt_config:
             return await self.async_step_request_alt()
 
