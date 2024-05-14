@@ -1,5 +1,18 @@
 # Changelog
 
+## v4.7.4 (2024/05/13)
+### 🐛 Fixes
+- [Fix broken create/update of events - Changed datetime format](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a1e55b538497dbabe4d777b18e5d7457249dd8a6) - @RogerSelwyn
+- [Fix error when updating event using o365 service](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/14f23a60493585b740961e2482fc262569613c20) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Parallel run setup of sensors and mail](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2b23ee5313331fa9af20630eed93ae67183de2cb) - @RogerSelwyn
+- [Minor code re-organisation](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4e6fc50459049ce5fe36b9c7ddd0793e461a1161) - @RogerSelwyn
+- [Move file management calls to be outside the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3f10991569cdf538372f16891af92ba7edb21d02) - @RogerSelwyn
+
+### 🔖 Release
+- [Release 4.7.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/cf507c3f7cc76a6166a49b20a4764c159178e2a9) - @RogerSelwyn
+
 ## v4.7.3 (2024/05/07)
 ### ✨ Enhancements
 - [Add support to send Teams messages as HTML contents](https://github.com/RogerSelwyn/O365-HomeAssistant/pull/224) - @pantherale0
