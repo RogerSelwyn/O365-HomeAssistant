@@ -64,7 +64,7 @@ o365:
 
 Key | Type | Required | Description
 -- | -- | -- | --
-`account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. `calendar.calendar_account1`
+`account_name` | `string` | `True` | Uniquely identifying name for the account. Calendars entity names will be suffixed with this. `calendar.calendar_account1`. Do not use email address or spaces.
 `client_id` | `string` | `True` | Client ID from your O365 application.
 `client_secret` | `string` | `True` | Client Secret from your O365 application.
 `alt_auth_method` | `boolean` | `False` | If False (default), authentication is not dependent on internet access to your HA instance. [See Authentication](./authentication.md)
