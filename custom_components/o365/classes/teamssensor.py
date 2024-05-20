@@ -5,7 +5,10 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import ATTR_NAME, CONF_EMAIL
 from homeassistant.exceptions import ServiceValidationError
-from O365.teams import PreferredActivity, PreferredAvailability
+from O365.teams import (  # pylint: disable=import-error, no-name-in-module
+    PreferredActivity,
+    PreferredAvailability,
+)
 
 from ..const import (
     ATTR_ACTIVITY,
@@ -27,8 +30,6 @@ from ..const import (
     EVENT_UPDATE_USER_PREFERRED_STATUS,
     EVENT_UPDATE_USER_STATUS,
     PERM_CHAT_READWRITE,
-    PERM_MINIMUM_CHAT_WRITE,
-    PERM_MINIMUM_PRESENCE_WRITE,
     PERM_PRESENCE_READWRITE,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
@@ -130,7 +131,7 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
 
     def _validate_status_permissions(self):
         return self._validate_permissions(
-            PERM_MINIMUM_PRESENCE_WRITE,
+            PERM_PRESENCE_READWRITE,
             f"Not authorised to update status - requires permission: {PERM_PRESENCE_READWRITE}",
         )
 
@@ -190,6 +191,6 @@ class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
 
     def _validate_chat_permissions(self):
         return self._validate_permissions(
-            PERM_MINIMUM_CHAT_WRITE,
+            PERM_CHAT_READWRITE,
             f"Not authorised to send message - requires permission: {PERM_CHAT_READWRITE}",
         )

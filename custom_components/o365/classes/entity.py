@@ -1,4 +1,5 @@
 """Generic O465 Sensor Entity."""
+
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -35,15 +36,15 @@ class O365Entity(CoordinatorEntity):
         """Entity unique id."""
         return self._unique_id
 
-    def _validate_permissions(self, minimum_perm_list, required_permission):
-        if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
-            minimum_perm_list
+    def _validate_permissions(self, required_permission, required_permission_error):
+        if not self._config[CONF_PERMISSIONS].validate_authorization(
+            required_permission
         ):
             raise ServiceValidationError(
                 translation_domain=DOMAIN,
                 translation_key="not_authorised",
                 translation_placeholders={
-                    "required_permission": required_permission,
+                    "required_permission": required_permission_error,
                 },
             )
 

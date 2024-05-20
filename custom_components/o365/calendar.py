@@ -64,7 +64,6 @@ from .const import (
     EVENT_RESPOND_CALENDAR_EVENT,
     LEGACY_ACCOUNT_NAME,
     PERM_CALENDARS_READWRITE,
-    PERM_MINIMUM_CALENDAR_WRITE,
     YAML_CALENDARS_FILENAME,
     EventResponse,
 )
@@ -106,9 +105,7 @@ async def async_setup_platform(hass, config, add_entities, discovery_info=None):
 
     update_supported = bool(
         conf[CONF_ENABLE_UPDATE]
-        and conf[CONF_PERMISSIONS].validate_minimum_permission(
-            PERM_MINIMUM_CALENDAR_WRITE
-        )
+        and conf[CONF_PERMISSIONS].validate_authorization(PERM_CALENDARS_READWRITE)
     )
     cal_ids = await _async_setup_add_entities(
         hass, account, add_entities, conf, update_supported
@@ -493,8 +490,8 @@ class O365CalendarEntity(CalendarEntity):
         return await self.hass.async_add_executor_job(calendar.get_event, event_id)
 
     def _validate_permissions(self, error_message):
-        if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
-            PERM_MINIMUM_CALENDAR_WRITE
+        if not self._config[CONF_PERMISSIONS].validate_authorization(
+            PERM_CALENDARS_READWRITE
         ):
             raise ServiceValidationError(
                 translation_domain=DOMAIN,

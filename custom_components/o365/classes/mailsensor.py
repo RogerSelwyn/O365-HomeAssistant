@@ -1,4 +1,5 @@
 """O365 mail sensors."""
+
 import datetime
 from operator import itemgetter
 
@@ -27,7 +28,6 @@ from ..const import (
     CONF_SUBJECT_IS,
     DATETIME_FORMAT,
     PERM_MAILBOX_SETTINGS,
-    PERM_MINIMUM_MAILBOX_SETTINGS,
     SENSOR_AUTO_REPLY,
     SENSOR_EMAIL,
 )
@@ -136,7 +136,7 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
 
     def _validate_autoreply_permissions(self):
         return self._validate_permissions(
-            PERM_MINIMUM_MAILBOX_SETTINGS,
+            PERM_MAILBOX_SETTINGS,
             "Not authorisied to update auto reply - requires permission: "
             + f"{PERM_MAILBOX_SETTINGS}",
         )

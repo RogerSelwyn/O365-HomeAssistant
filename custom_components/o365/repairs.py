@@ -147,7 +147,7 @@ class AuthorizationRepairFlow(RepairsFlow):
             errors[CONF_URL] = "token_file_error"
             return errors
 
-        permissions, self._failed_permissions = self._permissions.validate_permissions()
+        permissions, self._failed_permissions = self._permissions.check_authorizations()
         if permissions == TOKEN_FILE_MISSING:
             errors[CONF_URL] = "missing_token_file"
             return errors

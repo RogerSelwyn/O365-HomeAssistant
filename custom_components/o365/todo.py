@@ -46,7 +46,6 @@ from .const import (
     EVENT_NEW_TODO,
     EVENT_UNCOMPLETED_TODO,
     EVENT_UPDATE_TODO,
-    PERM_MINIMUM_TASKS_WRITE,
     PERM_TASKS_READWRITE,
     TODO_TODO,
 )
@@ -115,7 +114,7 @@ async def _async_setup_task_services(hass, config, perms):
     )
 
     platform = entity_platform.async_get_current_platform()
-    if perms.validate_minimum_permission(PERM_MINIMUM_TASKS_WRITE):
+    if perms.validate_authorization(PERM_TASKS_READWRITE):
         platform.async_register_entity_service(
             "new_todo",
             TODO_SERVICE_NEW_SCHEMA,
@@ -447,7 +446,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
 
     def _validate_task_permissions(self):
         return self._validate_permissions(
-            PERM_MINIMUM_TASKS_WRITE,
+            PERM_TASKS_READWRITE,
             f"Not authorised to create new ToDo - requires permission: {PERM_TASKS_READWRITE}",
         )
 

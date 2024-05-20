@@ -42,6 +42,7 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass, config):
     """Set up the O365 platform."""
+    _LOGGER.debug("Startup")
     conf = config.get(DOMAIN, {})
 
     accounts = MULTI_ACCOUNT_SCHEMA(conf)[CONF_ACCOUNTS]
@@ -50,6 +51,7 @@ async def async_setup(hass, config):
     for account in accounts:
         await _async_setup_account(hass, account, conf_type)
 
+    _LOGGER.debug("Finish")
     return True
 
 
@@ -60,41 +62,20 @@ async def _async_setup_account(hass, account_conf, conf_type):
     )
     account_name = account_conf.get(CONF_ACCOUNT_NAME, CONST_PRIMARY)
     main_resource = account_conf.get(CONF_SHARED_MAILBOX)
+    _LOGGER.debug("Validate shared")
     if not _validate_shared_schema(account_name, main_resource, account_conf):
         return
 
+    _LOGGER.debug("Permissions setup")
     perms = Permissions(hass, account_conf, conf_type)
     await perms.async_permissions_setup()
-    perms.report_perms()
-    token_backend = await hass.async_add_executor_job(
-        ft.partial(
-            FileSystemTokenBackend,
-            token_path=perms.token_path,
-            token_filename=perms.token_filename,
-        )
+    permissions, failed_permissions = perms.check_authorizations()
+    account, is_authenticated = await _async_try_authentication(
+        hass, perms, credentials, main_resource, account_name
     )
-    account = await hass.async_add_executor_job(
-        ft.partial(
-            Account,
-            credentials,
-            token_backend=token_backend,
-            timezone=CONST_UTC_TIMEZONE,
-            main_resource=main_resource,
-        )
-    )
-    try:
-        is_authenticated = account.is_authenticated
-    except json.decoder.JSONDecodeError as err:
-        _LOGGER.warning(
-            "Token corrupt for account - please delete and re-authenticate: %s. Error - %s",
-            account_name,
-            err,
-        )
-        return
 
-    permissions, failed_permissions = perms.validate_permissions()
-    check_token = None
     if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
+        _LOGGER.debug("do setup")
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:
             await do_setup(hass, account_conf, account, account_name, conf_type, perms)
@@ -108,6 +89,39 @@ async def _async_setup_account(hass, account_conf, conf_type):
             failed_permissions,
             permissions,
         )
+
+
+async def _async_try_authentication(
+    hass, perms, credentials, main_resource, account_name
+):
+    _LOGGER.debug("Setup token")
+    token_backend = await hass.async_add_executor_job(
+        ft.partial(
+            FileSystemTokenBackend,
+            token_path=perms.token_path,
+            token_filename=perms.token_filename,
+        )
+    )
+    _LOGGER.debug("Setup account")
+    account = await hass.async_add_executor_job(
+        ft.partial(
+            Account,
+            credentials,
+            token_backend=token_backend,
+            timezone=CONST_UTC_TIMEZONE,
+            main_resource=main_resource,
+        )
+    )
+    try:
+        return account, account.is_authenticated
+
+    except json.decoder.JSONDecodeError as err:
+        _LOGGER.warning(
+            "Token corrupt for account - please delete and re-authenticate: %s. Error - %s",
+            account_name,
+            err,
+        )
+        return account, False
 
 
 async def _async_check_token(hass, account, account_name):

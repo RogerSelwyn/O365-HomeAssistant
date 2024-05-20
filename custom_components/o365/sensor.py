@@ -23,9 +23,9 @@ from .const import (
     CONF_SENSOR_CONF,
     CONF_STATUS_SENSORS,
     DOMAIN,
-    PERM_MINIMUM_CHAT_WRITE,
-    PERM_MINIMUM_MAILBOX_SETTINGS,
-    PERM_MINIMUM_PRESENCE_WRITE,
+    PERM_CHAT_READWRITE,
+    PERM_MAILBOX_SETTINGS,
+    PERM_PRESENCE_READWRITE,
     SENSOR_AUTO_REPLY,
     SENSOR_TEAMS_CHAT,
     SENSOR_TEAMS_STATUS,
@@ -135,7 +135,7 @@ async def _async_setup_status_services(config, perms):
         return
 
     platform = entity_platform.async_get_current_platform()
-    if perms.validate_minimum_permission(PERM_MINIMUM_PRESENCE_WRITE):
+    if perms.validate_authorization(PERM_PRESENCE_READWRITE):
         platform.async_register_entity_service(
             "update_user_status",
             STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA,
@@ -157,7 +157,7 @@ async def _async_setup_chat_services(config, perms):
         return
 
     platform = entity_platform.async_get_current_platform()
-    if perms.validate_minimum_permission(PERM_MINIMUM_CHAT_WRITE):
+    if perms.validate_authorization(PERM_CHAT_READWRITE):
         platform.async_register_entity_service(
             "send_chat_message",
             CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
@@ -173,7 +173,7 @@ async def _async_setup_mailbox_services(config, perms):
         return
 
     platform = entity_platform.async_get_current_platform()
-    if perms.validate_minimum_permission(PERM_MINIMUM_MAILBOX_SETTINGS):
+    if perms.validate_authorization(PERM_MAILBOX_SETTINGS):
         platform.async_register_entity_service(
             "auto_reply_enable",
             AUTO_REPLY_SERVICE_ENABLE_SCHEMA,

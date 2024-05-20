@@ -1,4 +1,5 @@
 """Notification processing."""
+
 import logging
 import os
 import zipfile
@@ -25,24 +26,21 @@ from .const import (
     DOMAIN,
     LEGACY_ACCOUNT_NAME,
     PERM_MAIL_SEND,
-    PERM_MINIMUM_SEND,
 )
 from .schema import NOTIFY_SERVICE_BASE_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_get_service(
-    hass, config, discovery_info=None
-):  # pylint: disable=unused-argument
+async def async_get_service(hass, config, discovery_info=None):  # pylint: disable=unused-argument
     """Get the service."""
     if discovery_info is None:
         return
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    if account.is_authenticated and conf[CONF_PERMISSIONS].validate_minimum_permission(
-        PERM_MINIMUM_SEND
+    if account.is_authenticated and conf[CONF_PERMISSIONS].validate_authorization(
+        PERM_MAIL_SEND
     ):
         return O365EmailService(account, hass, conf)
 
@@ -76,9 +74,7 @@ class O365EmailService(BaseNotificationService):
 
     async def async_send_message(self, message="", **kwargs):
         """Send an async message to a user."""
-        if not self._config[CONF_PERMISSIONS].validate_minimum_permission(
-            PERM_MINIMUM_SEND
-        ):
+        if not self._config[CONF_PERMISSIONS].validate_authorization(PERM_MAIL_SEND):
             _LOGGER.error(
                 "Not authorisied to send mail - requires permission: %s", PERM_MAIL_SEND
             )
