@@ -82,14 +82,12 @@ class Permissions:
         """Return the permission set."""
         return self._permissions
 
-    async def async_permissions_setup(self):
-        """Setup permissions for later use."""
+    async def async_check_authorizations(self):
+        """Report on permissions status."""
         self._permissions = await self._hass.async_add_executor_job(
             self._get_permissions
         )
 
-    def check_authorizations(self):
-        """Report on permissions status."""
         if self.permissions == TOKEN_FILE_MISSING:
             return TOKEN_FILE_MISSING, None
         failed_permissions = []

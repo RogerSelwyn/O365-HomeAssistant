@@ -68,8 +68,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
 
     _LOGGER.debug("Permissions setup")
     perms = Permissions(hass, account_conf, conf_type)
-    await perms.async_permissions_setup()
-    permissions, failed_permissions = perms.check_authorizations()
+    permissions, failed_permissions = await perms.async_check_authorizations()
     account, is_authenticated = await _async_try_authentication(
         hass, perms, credentials, main_resource, account_name
     )

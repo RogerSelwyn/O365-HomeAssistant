@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import functools as ft
 import logging
 
@@ -63,7 +64,6 @@ class AuthorizationRepairFlow(RepairsFlow):
         user_input: dict[str, str] | None = None,  # pylint: disable=unused-argument
     ) -> data_entry_flow.FlowResult:
         """Handle the first step of a fix flow."""
-        await self._permissions.async_permissions_setup()
         if self._alt_config:
             return await self.async_step_request_alt()
 
@@ -147,7 +147,10 @@ class AuthorizationRepairFlow(RepairsFlow):
             errors[CONF_URL] = "token_file_error"
             return errors
 
-        permissions, self._failed_permissions = self._permissions.check_authorizations()
+        (
+            permissions,
+            self._failed_permissions,
+        ) = await self._permissions.async_check_authorizations()
         if permissions == TOKEN_FILE_MISSING:
             errors[CONF_URL] = "missing_token_file"
             return errors
