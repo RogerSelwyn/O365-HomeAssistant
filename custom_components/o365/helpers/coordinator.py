@@ -489,6 +489,8 @@ class O365EmailCordinator(DataUpdateCoordinator):
         self, mail_folder_conf, mailbox, sensor_type
     ):
         mail_folder = mailbox
+        _LOGGER.debug("Get folder %s - start", mail_folder_conf)
+
         for folder in mail_folder_conf.split("/"):
             mail_folder = await self.hass.async_add_executor_job(
                 ft.partial(
@@ -496,6 +498,7 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     folder_name=folder,
                 )
             )
+            _LOGGER.debug("Get folder %s - process - %s", mail_folder_conf, mail_folder)
             if not mail_folder:
                 _LOGGER.error(
                     "Folder - %s - not found from %s config entry - %s - entity not created",
@@ -505,6 +508,7 @@ class O365EmailCordinator(DataUpdateCoordinator):
                 )
                 return None
 
+        _LOGGER.debug("Get folder %s - finish ", mail_folder_conf)
         return mail_folder
 
     async def _async_update_data(self):
