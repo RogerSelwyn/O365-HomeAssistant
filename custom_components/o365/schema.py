@@ -23,7 +23,11 @@ from O365.calendar import (  # pylint: disable=no-name-in-module
 from O365.mailbox import (  # pylint: disable=no-name-in-module, import-error
     ExternalAudience,
 )
-from O365.teams import Activity, Availability, PreferredAvailability
+from O365.teams import (  # pylint: disable=import-error, no-name-in-module
+    Activity,
+    Availability,
+    PreferredAvailability,
+)
 from O365.utils import ImportanceLevel  # pylint: disable=no-name-in-module
 
 from .const import (
