@@ -284,7 +284,7 @@ CALENDAR_SERVICE_MODIFY_SCHEMA = vol.All(
             vol.Required(ATTR_EVENT_ID): cv.string,
             vol.Optional(ATTR_START): cv.datetime,
             vol.Optional(ATTR_END): cv.datetime,
-            vol.Required(ATTR_SUBJECT): cv.string,
+            vol.Optional(ATTR_SUBJECT): cv.string,
             vol.Optional(ATTR_BODY): cv.string,
             vol.Optional(ATTR_LOCATION): cv.string,
             vol.Optional(ATTR_CATEGORIES): [cv.string],
