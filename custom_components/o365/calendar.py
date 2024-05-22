@@ -541,14 +541,20 @@ class O365CalendarData:
         self._error = False
 
     async def _async_get_calendar(self, hass):
-        self.calendar = await hass.async_add_executor_job(
-            ft.partial(self._schedule.get_calendar, calendar_id=self.calendar_id)
-        )
+        try:
+            self.calendar = await hass.async_add_executor_job(
+                ft.partial(self._schedule.get_calendar, calendar_id=self.calendar_id)
+            )
+            return True
+        except (HTTPError, RetryError, ConnectionError) as err:
+            _LOGGER.warning("Error getting calendar events - %s", err)
+            return False
 
     async def async_o365_get_events(self, hass, start_date, end_date):
         """Get the events."""
         if not self.calendar:
-            await self._async_get_calendar(hass)
+            if not await self._async_get_calendar(hass):
+                return []
 
         events = await self._async_calendar_schedule_get_events(
             hass, self.calendar, start_date, end_date
@@ -619,8 +625,8 @@ class O365CalendarData:
                     include_recurring=True,
                 )
             )
-        except RetryError:
-            _LOGGER.warning("Retry error getting calendar events")
+        except (HTTPError, RetryError, ConnectionError) as err:
+            _LOGGER.warning("Error getting calendar events - %s", err)
             return None
 
     async def async_get_events(self, hass, start_date, end_date):
