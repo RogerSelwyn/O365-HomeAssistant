@@ -306,7 +306,8 @@ class O365CalendarEntity(CalendarEntity):
             dt.utcnow() + timedelta(hours=self._end_offset),
         )
 
-        self._data_attribute = [format_event_data(x) for x in results]
+        if results is not None:
+            self._data_attribute = [format_event_data(x) for x in results]
         self._event = event
 
     async def async_create_event(self, **kwargs: Any) -> None:
@@ -559,6 +560,8 @@ class O365CalendarData:
         events = await self._async_calendar_schedule_get_events(
             hass, self.calendar, start_date, end_date
         )
+        if events is None:
+            return None
 
         events = self._filter_events(events)
         events = self._sort_events(events)
