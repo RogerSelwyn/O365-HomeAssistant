@@ -25,7 +25,7 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt
-from requests.exceptions import HTTPError, RetryError
+from requests.exceptions import HTTPError, RetryError, ConnectionError
 
 from .const import (
     ATTR_ALL_DAY,
