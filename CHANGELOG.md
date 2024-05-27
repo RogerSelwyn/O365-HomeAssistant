@@ -1,5 +1,51 @@
 # Changelog
 
+## v4.8.0 (2024/05/27)
+💥 Breaking Changes (Potentially)
+**Note** I've decided with this release to remove a whole raft of complex logic around minimum permissions. When I took this on and made permissions more granular I maintained a capability such that if you set the configuration to enable updates, but actually only granted read permissions on the Azure App the integration would still create the sensors.
+
+To be honest, this is a pain to maintain and makes the code confusing. Since it is now possible to set the permissions you require to the right level of granularity via the configuration, I've removed this code complexity.
+
+I have maintained an ability whereby if the config is set to have Read only permissions, but the Azure app has been granted ReadWrite, then the Read functionality will still work. This enables the situation where the same Azure App is used in multiple configurations with different permission sets.
+
+I've tested as thoroughly as I can, butI've set this as Beta for now, so a slow take up picks up any remaining bugs. If you get an error in your logs along the lines of `Minimum required permissions: 'Calendars.ReadWrite'. Not available in token 'o365_primary.token' for account 'primary'`, then check your configuration to ensure it matches what you intended and what your Azure App permissions enable.
+
+- [Remove complex logic around minimum permissions](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/aaffd73da7e492bc33d76af57f96fd80f9e18b38) - @RogerSelwyn
+
+The below fix may break your setup, the `enable_update` parameter at the top level was incorrectly defaulting to True, when it should be False. If you were relying on the default, you will have to add `enable_update: true` to your config.
+
+- [Correct default of calendar enable_update to False](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/64a113696ce2ebecbfdc14a495c6fc89c6b1cfa9) - @RogerSelwyn
+
+### ✨ Enhancements
+- [Add ability to disable calendar](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/72d66178745267de3417154c4e7a9af07c0db21c) - @RogerSelwyn
+
+The rational for adding this enhancement is that the integration is becoming to unwieldy, so I'm moving to a point where I break it out into 3 integrations, calendar, email and other. These could all use the same azure app, but would potentially run from ui based setup (running both yaml and UI is a pain). The first one I would break out is calendar, which is I think how this integration started. So to create a painless transition, there is a need to be able to disable calendar in this integration.
+
+### 🐛 Fixes
+- [Correct modify calendar schema](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/341e1ac1448adf0b419ebdeda0acbf1eca640180) - @RogerSelwyn
+- [Correct modify todo service](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/83d6c34cb0f2deebe564f6fa74e1c88fbd45c6c1) - @RogerSelwyn
+- [Fix error in repair permissions checks](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/190dc7ed36c04df21c433bb6086bbad40dd7fa40) - @RogerSelwyn
+- [Remove unrequired import](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d23a20158441ee50565ca928399969e030bae6c9) - @RogerSelwyn
+- [Fix handle failed retrieval of events](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f4ff89497fb7e593a558f81b164a0978b4eda58c) - @RogerSelwyn
+- [Trapping of connection error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8b8c06deb3ecc2aa53e5e35f6dd50f11d56fd194) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Remove unrequired import](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f6bdc31406d4d6015db38d4daf9a75afc0f848b1) - @RogerSelwyn
+- [Update requirements_release.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4636c377094671cafee1ac6da878878b06cdd058) - @RogerSelwyn
+- [Create lint.yaml](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4804930c0814b02f9680041aa613c83cd13a1965) - @RogerSelwyn
+- [Add extra debugging](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1c25de0e9264704260c2195ef47a266626eec818) - @RogerSelwyn
+- [Capture errors from calendar retrieval](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1cd8ae2153bbc9f84eb61aa38c154cca6092f167) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update CHANGELOG.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6b62939face0088fa19f9c5da0f6f62ed407181f) - @RogerSelwyn
+- [Update installation_and_configuration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dfa1cc266c1e1422b80f7cc60e4f6fa80525166c) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Bump ruff](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/baf03486f0090d48f154444ef6a3975fab1f74fb) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.8.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6bf79b739349fc2fab17515bfe0317400e0b2081) - @RogerSelwyn
+
 ## v4.7.4 (2024/05/13)
 ### 🐛 Fixes
 - [Fix broken create/update of events - Changed datetime format](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a1e55b538497dbabe4d777b18e5d7457249dd8a6) - @RogerSelwyn
