@@ -39,7 +39,7 @@ async def do_setup(hass, config, account, account_name, conf_type, perms):
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
     auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
-    enable_update = config.get(CONF_ENABLE_UPDATE, True)
+    enable_update = config.get(CONF_ENABLE_UPDATE, False)
 
     account_config = {
         CONF_CLIENT_ID: config.get(CONF_CLIENT_ID),
