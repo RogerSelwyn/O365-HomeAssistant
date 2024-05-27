@@ -13,6 +13,7 @@ from ..const import (
     CONF_BASIC_CALENDAR,
     CONF_CHAT_SENSORS,
     CONF_EMAIL_SENSORS,
+    CONF_ENABLE_CALENDAR,
     CONF_ENABLE_UPDATE,
     CONF_GROUPS,
     CONF_QUERY_SENSORS,
@@ -172,6 +173,9 @@ class Permissions:
         return permissions
 
     def _build_calendar_permissions(self):
+        if not self._config.get(CONF_ENABLE_CALENDAR, True):
+            return
+
         if self._config.get(CONF_BASIC_CALENDAR, False):
             if self._enable_update:
                 _LOGGER.warning(

@@ -16,6 +16,7 @@ from ..const import (
     CONF_COORDINATOR_EMAIL,
     CONF_COORDINATOR_SENSORS,
     CONF_EMAIL_SENSORS,
+    CONF_ENABLE_CALENDAR,
     CONF_ENABLE_UPDATE,
     CONF_KEYS_EMAIL,
     CONF_KEYS_SENSORS,
@@ -39,7 +40,8 @@ async def do_setup(hass, config, account, account_name, conf_type, perms):
     chat_sensors = config.get(CONF_CHAT_SENSORS, [])
     todo_sensors = config.get(CONF_TODO_SENSORS, [])
     auto_reply_sensors = config.get(CONF_AUTO_REPLY_SENSORS, [])
-    enable_update = config.get(CONF_ENABLE_UPDATE, True)
+    enable_update = config.get(CONF_ENABLE_UPDATE, False)
+    enable_calendar = config.get(CONF_ENABLE_CALENDAR, True)
 
     account_config = {
         CONF_CLIENT_ID: config.get(CONF_CLIENT_ID),
@@ -51,6 +53,7 @@ async def do_setup(hass, config, account, account_name, conf_type, perms):
         CONF_TODO_SENSORS: todo_sensors,
         CONF_AUTO_REPLY_SENSORS: auto_reply_sensors,
         CONF_ENABLE_UPDATE: enable_update,
+        CONF_ENABLE_CALENDAR: enable_calendar,
         CONF_TRACK_NEW_CALENDAR: config.get(CONF_TRACK_NEW_CALENDAR, True),
         CONF_ACCOUNT_NAME: config.get(CONF_ACCOUNT_NAME, ""),
         CONF_CONFIG_TYPE: conf_type,
@@ -97,11 +100,12 @@ async def _async_email_setup(hass, account_config):
 
 
 def _load_platforms(hass, account_name, config, account_config):
-    hass.async_create_task(
-        discovery.async_load_platform(
-            hass, "calendar", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
+    if account_config[CONF_ENABLE_CALENDAR]:
+        hass.async_create_task(
+            discovery.async_load_platform(
+                hass, "calendar", DOMAIN, {CONF_ACCOUNT_NAME: account_name}, config
+            )
         )
-    )
     if account_config[CONF_ENABLE_UPDATE]:
         hass.async_create_task(
             discovery.async_load_platform(

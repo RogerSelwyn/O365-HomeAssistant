@@ -6,7 +6,7 @@ nav_order: 3
 # Permissions
 
 Under "API Permissions" click Add a permission, then Microsoft Graph, then Delegated permission, and add the permissions as detailed in the list and table below:
-  * Calendar - The core permissions required for calendars to work *Note the requirement for `.Shared` permissions for shared mailboxes*
+  * Calendar - For calendars *Note the requirement for `.Shared` permissions for shared mailbox calendars*
   * Email - For an email_sensor or a query_sensor *Note the requirement for `.Shared` permissions for shared mailboxes*
   * Status - For a status_sensor
   * Chat - For a chat_sensor
