@@ -47,6 +47,13 @@ def load_yaml_file(path, item_id, item_schema):
     return items
 
 
+def _write_yaml_file(yaml_filepath, cal):
+    with open(yaml_filepath, "a", encoding="UTF8") as out:
+        out.write("\n")
+        yaml.dump([cal], out, default_flow_style=False, encoding="UTF8")
+        out.close()
+
+
 def _get_calendar_info(calendar, track_new_devices):
     """Convert data from O365 into DEVICE_SCHEMA."""
     return YAML_CALENDAR_DEVICE_SCHEMA(
@@ -73,10 +80,7 @@ async def async_update_calendar_file(config, calendar, hass, track_new_devices):
     cal = _get_calendar_info(calendar, track_new_devices)
     if cal[CONF_CAL_ID] in existing_calendars:
         return
-    with open(yaml_filepath, "a", encoding="UTF8") as out:
-        out.write("\n")
-        yaml.dump([cal], out, default_flow_style=False, encoding="UTF8")
-        out.close()
+    await hass.async_add_executor_job(_write_yaml_file, yaml_filepath, cal)
 
 
 def _get_task_list_info(yaml_task_list, track_new_devices):
