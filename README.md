@@ -2,6 +2,11 @@
 
 ![GitHub release](https://img.shields.io/github/v/release/RogerSelwyn/O365-HomeAssistant) [![maintained](https://img.shields.io/maintenance/yes/2024.svg)](#) [![maintainer](https://img.shields.io/badge/maintainer-%20%40RogerSelwyn-blue.svg)](https://github.com/RogerSelwyn) [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![Community Forum](https://img.shields.io/badge/community-forum-brightgreen.svg)](https://community.home-assistant.io/t/office-365-calendar-access)
 
+# 💥💥💥 Views Wanted 💥💥💥
+I'm considering breaking up the monolithic O365 integration into smaller, more manageable items. If you have a view, please comment here:
+
+[O365 --> MS365 - A potential big change - your views needed](https://github.com/RogerSelwyn/O365-HomeAssistant/discussions/234)
+
 # Office 365 Integration for Home Assistant
 
 *This is a fork of the original integration by @PTST which has now been archived.*
