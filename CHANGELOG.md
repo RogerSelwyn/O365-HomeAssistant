@@ -1,5 +1,16 @@
 # Changelog
 
+## v4.8.1 (2024/06/06)
+### 🧰 Maintenance
+- [Move writing of calendar file outside the thread](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1279922fa84634187660a676e376ee8e5202f0bc) - @RogerSelwyn
+- [Remove use of `DEFAULT_TIME_ZONE` constant](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/66d876705e523d88a2d9a12dfe4aba70e966dffa) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/35abd416e0e8bc636b0896e9b71db464c351b91f) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.8.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d9d9e237617ef008fc71c93da2607241f2f840f5) - @RogerSelwyn
+
 ## v4.8.0 (2024/05/27)
 💥 Breaking Changes (Potentially)
 **Note** I've decided with this release to remove a whole raft of complex logic around minimum permissions. When I took this on and made permissions more granular I maintained a capability such that if you set the configuration to enable updates, but actually only granted read permissions on the Azure App the integration would still create the sensors.
