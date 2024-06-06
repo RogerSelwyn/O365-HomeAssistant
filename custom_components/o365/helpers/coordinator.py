@@ -8,7 +8,7 @@ from homeassistant.const import CONF_EMAIL, CONF_ENABLED, CONF_NAME, CONF_UNIQUE
 from homeassistant.helpers import entity_registry
 from homeassistant.helpers.entity import async_generate_entity_id
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.util import dt
+from homeassistant.util import dt as dt_util
 from requests.exceptions import HTTPError
 
 from ..classes.mailsensor import build_inbox_query, build_query_query
@@ -85,7 +85,9 @@ class O365SensorCordinator(DataUpdateCoordinator):
         self._account_name = config[CONF_ACCOUNT_NAME]
         self._keys = []
         self._data = {}
-        self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
+        self._zero_date = datetime(
+            1, 1, 1, 0, 0, 0, tzinfo=dt_util.get_default_time_zone()
+        )
         self._chat_members = {}
         self._ent_reg = entity_registry.async_get(hass)
 
@@ -395,7 +397,9 @@ class O365EmailCordinator(DataUpdateCoordinator):
         self._account_name = config[CONF_ACCOUNT_NAME]
         self._keys = []
         self._data = {}
-        self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
+        self._zero_date = datetime(
+            1, 1, 1, 0, 0, 0, tzinfo=dt_util.get_default_time_zone()
+        )
         self._chat_members = {}
         self._ent_reg = entity_registry.async_get(hass)
 

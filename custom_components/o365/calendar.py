@@ -24,8 +24,8 @@ from homeassistant.const import CONF_NAME
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.util import dt
-from requests.exceptions import HTTPError, RetryError, ConnectionError
+from homeassistant.util import dt as dt_util
+from requests.exceptions import HTTPError, RetryError
 
 from .const import (
     ATTR_ALL_DAY,
@@ -302,8 +302,8 @@ class O365CalendarEntity(CalendarEntity):
             self._offset_reached = is_offset_reached(start, offset)
         results = await self.data.async_o365_get_events(
             self.hass,
-            dt.utcnow() + timedelta(hours=self._start_offset),
-            dt.utcnow() + timedelta(hours=self._end_offset),
+            dt_util.utcnow() + timedelta(hours=self._start_offset),
+            dt_util.utcnow() + timedelta(hours=self._end_offset),
         )
 
         if results is not None:
@@ -588,7 +588,9 @@ class O365CalendarData:
         for event in events:
             event.start_sort = event.start
             if event.is_all_day:
-                event.start_sort = dt.as_utc(dt.start_of_local_day(event.start))
+                event.start_sort = dt_util.as_utc(
+                    dt_util.start_of_local_day(event.start)
+                )
 
         events.sort(key=attrgetter("start_sort"))
 
@@ -661,7 +663,7 @@ class O365CalendarData:
 
     async def async_update(self, hass):
         """Do the update."""
-        start_of_day_utc = dt.as_utc(dt.start_of_local_day())
+        start_of_day_utc = dt_util.as_utc(dt_util.start_of_local_day())
         results = await self.async_o365_get_events(
             hass,
             start_of_day_utc,
@@ -740,31 +742,35 @@ class O365CalendarData:
     @staticmethod
     def is_started(vevent):
         """Is it over."""
-        return dt.utcnow() >= O365CalendarData.to_datetime(get_start_date(vevent))
+        return dt_util.utcnow() >= O365CalendarData.to_datetime(get_start_date(vevent))
 
     @staticmethod
     def is_finished(vevent):
         """Is it over."""
-        return dt.utcnow() >= O365CalendarData.to_datetime(get_end_date(vevent))
+        return dt_util.utcnow() >= O365CalendarData.to_datetime(get_end_date(vevent))
 
     @staticmethod
     def to_datetime(obj):
         """To datetime."""
         if isinstance(obj, datetime):
             date_obj = (
-                obj.replace(tzinfo=dt.DEFAULT_TIME_ZONE) if obj.tzinfo is None else obj
+                obj.replace(tzinfo=dt_util.get_default_time_zone())
+                if obj.tzinfo is None
+                else obj
             )
         elif isinstance(obj, date):
-            date_obj = dt.start_of_local_day(
-                dt.dt.datetime.combine(obj, dt.dt.time.min)
+            date_obj = dt_util.start_of_local_day(
+                dt_util.dt.datetime.combine(obj, dt_util.dt.time.min)
             )
         elif "date" in obj:
-            date_obj = dt.start_of_local_day(
-                dt.dt.datetime.combine(dt.parse_date(obj["date"]), dt.dt.time.min)
+            date_obj = dt_util.start_of_local_day(
+                dt_util.dt.datetime.combine(
+                    dt_util.parse_date(obj["date"]), dt_util.dt.time.min
+                )
             )
         else:
-            date_obj = dt.as_local(dt.parse_datetime(obj["dateTime"]))
-        return dt.as_utc(date_obj)
+            date_obj = dt_util.as_local(dt_util.parse_datetime(obj["dateTime"]))
+        return dt_util.as_utc(date_obj)
 
 
 class CalendarServices:

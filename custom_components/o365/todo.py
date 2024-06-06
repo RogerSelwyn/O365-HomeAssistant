@@ -8,7 +8,7 @@ from homeassistant.components.todo.const import TodoItemStatus, TodoListEntityFe
 from homeassistant.const import CONF_ENABLED, CONF_NAME, CONF_UNIQUE_ID
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_platform
-from homeassistant.util import dt
+from homeassistant.util import dt as dt_util
 
 from .classes.entity import O365Entity
 from .const import (
@@ -156,9 +156,11 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
         self.todolist = o365_task_folder
         self._show_completed = yaml_task_list.get(CONF_SHOW_COMPLETED)
 
-        self.todo_last_created = dt.utcnow() - timedelta(minutes=5)
-        self.todo_last_completed = dt.utcnow() - timedelta(minutes=5)
-        self._zero_date = datetime(1, 1, 1, 0, 0, 0, tzinfo=dt.DEFAULT_TIME_ZONE)
+        self.todo_last_created = dt_util.utcnow() - timedelta(minutes=5)
+        self.todo_last_completed = dt_util.utcnow() - timedelta(minutes=5)
+        self._zero_date = datetime(
+            1, 1, 1, 0, 0, 0, tzinfo=dt_util.get_default_time_zone()
+        )
         self._state = None
         self._todo_items = None
         self._extra_attributes = None
@@ -259,7 +261,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
             if item.due:
                 due = item.due.date()
                 todo[ATTR_DUE] = due
-                if due < dt.utcnow().date():
+                if due < dt_util.utcnow().date():
                     overdue_todo = {
                         ATTR_SUBJECT: item.subject,
                         ATTR_TODO_ID: item.task_id,
@@ -393,7 +395,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
         o365_task.mark_completed()
         self.hass.async_add_executor_job(o365_task.save)
         self._raise_event(EVENT_COMPLETED_TODO, todo_id)
-        self.todo_last_completed = dt.utcnow()
+        self.todo_last_completed = dt_util.utcnow()
 
     async def _async_uncomplete_task(self, o365_task, todo_id):
         if not o365_task.completed:
@@ -418,9 +420,9 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
             if isinstance(due, str):
                 try:
                     if len(due) > 10:
-                        o365_task.due = dt.parse_datetime(due).date()
+                        o365_task.due = dt_util.parse_datetime(due).date()
                     else:
-                        o365_task.due = dt.parse_date(due)
+                        o365_task.due = dt_util.parse_date(due)
                 except ValueError:
                     raise ServiceValidationError(  # pylint: disable=raise-missing-from
                         translation_domain=DOMAIN,
@@ -469,12 +471,12 @@ def build_todo_query(key, todo):
     start_offset = o365_task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
     end_offset = o365_task.get(CONF_DUE_HOURS_FORWARD_TO_GET)
     if start_offset:
-        start = dt.utcnow() + timedelta(hours=start_offset)
+        start = dt_util.utcnow() + timedelta(hours=start_offset)
         query.chain("and").on_attribute("due").greater_equal(
             start.strftime("%Y-%m-%dT%H:%M:%S")
         )
     if end_offset:
-        end = dt.utcnow() + timedelta(hours=end_offset)
+        end = dt_util.utcnow() + timedelta(hours=end_offset)
         query.chain("and").on_attribute("due").less_equal(
             end.strftime("%Y-%m-%dT%H:%M:%S")
         )
