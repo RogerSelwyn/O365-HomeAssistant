@@ -209,7 +209,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
                     summary=todo.subject,
                     status=completed,
                     description=todo.body,
-                    due=todo.due,
+                    due=todo.due.date() if todo.due else None,
                 )
             )
 
