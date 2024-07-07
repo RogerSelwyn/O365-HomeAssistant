@@ -47,10 +47,10 @@ def load_yaml_file(path, item_id, item_schema):
     return items
 
 
-def _write_yaml_file(yaml_filepath, cal):
+def _write_yaml_file(yaml_filepath, yaml_list):
     with open(yaml_filepath, "a", encoding="UTF8") as out:
         out.write("\n")
-        yaml.dump([cal], out, default_flow_style=False, encoding="UTF8")
+        yaml.dump([yaml_list], out, default_flow_style=False, encoding="UTF8")
         out.close()
 
 
@@ -104,10 +104,7 @@ async def async_update_task_list_file(config, yaml_task_list, hass, track_new_de
     yaml_task_list = _get_task_list_info(yaml_task_list, track_new_devices)
     if yaml_task_list[CONF_YAML_TASK_LIST_ID] in existing_task_lists:
         return
-    with open(yaml_filepath, "a", encoding="UTF8") as out:
-        out.write("\n")
-        yaml.dump([yaml_task_list], out, default_flow_style=False, encoding="UTF8")
-        out.close()
+    await hass.async_add_executor_job(_write_yaml_file, yaml_filepath, yaml_task_list)
 
 
 def build_config_file_path(hass, filepath):
