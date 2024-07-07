@@ -1,5 +1,20 @@
 # Changelog
 
+## v4.8.2 (2024/07/07)
+### 🐛 Fixes
+- [Fix incorrect Due date shown for To Do](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/11e65fead77edb6f585a1f81f825ba9871499b93) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Remove use of internal attribute](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3d17973987985c36dd9ca1a02f3a535c8499dc9d) - @RogerSelwyn
+- [Remove update of tasks yaml file from the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4133107efd74844493f0840502a7835f18cd31aa) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Bump O365 to 2.0.36](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/424b93d17e5cf731cb666f2e5d128197ae6d93ab) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/3620109d36ca941e57a499fe965b059e162960be) - @actions-user
+
+### 🔖 Release
+- [Release v4.8.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2b17c173219ef0f531154f0b632ca488c3bfbaef) - @RogerSelwyn
+
 ## v4.8.1 (2024/06/06)
 ### 🧰 Maintenance
 - [Move writing of calendar file outside the thread](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1279922fa84634187660a676e376ee8e5202f0bc) - @RogerSelwyn
