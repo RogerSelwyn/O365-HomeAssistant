@@ -240,6 +240,7 @@ class O365CalendarEntity(CalendarEntity):
                 | CalendarEntityFeature.DELETE_EVENT
                 | CalendarEntityFeature.UPDATE_EVENT
             )
+        self._error = None
 
     def _init_data(self, account, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
@@ -294,17 +295,30 @@ class O365CalendarEntity(CalendarEntity):
 
     async def async_update(self):
         """Do the update."""
-        await self.data.async_update(self.hass)
-        event = deepcopy(self.data.event)
+        # Get today's event for HA Core.
+        try:
+            await self.data.async_update(self.hass)
+            event = deepcopy(self.data.event)
+        except (HTTPError, RetryError, ConnectionError) as err:
+            self._log_error("Error getting calendar events for day", err)
+            return
+
         if event:
             event.summary, offset = extract_offset(event.summary, DEFAULT_OFFSET)
             start = O365CalendarData.to_datetime(event.start)
             self._offset_reached = is_offset_reached(start, offset)
-        results = await self.data.async_o365_get_events(
-            self.hass,
-            dt_util.utcnow() + timedelta(hours=self._start_offset),
-            dt_util.utcnow() + timedelta(hours=self._end_offset),
-        )
+
+        # Get events for extra attributes.
+        try:
+            results = await self.data.async_o365_get_events(
+                self.hass,
+                dt_util.utcnow() + timedelta(hours=self._start_offset),
+                dt_util.utcnow() + timedelta(hours=self._end_offset),
+            )
+        except (HTTPError, RetryError, ConnectionError) as err:
+            self._log_error("Error getting calendar events for data", err)
+            return
+        self._error = False
 
         if results is not None:
             self._data_attribute = [format_event_data(x) for x in results]
@@ -440,6 +454,13 @@ class O365CalendarEntity(CalendarEntity):
             await self._async_delete_calendar_event(
                 event_id, EVENT_REMOVE_CALENDAR_EVENT
             )
+
+    def _log_error(self, error, err):
+        if not self._error:
+            _LOGGER.warning("%s - %s", error, err)
+            self._error = True
+        else:
+            _LOGGER.debug("Repeat error - %s - %s", error, err)
 
     async def _async_delete_calendar_event(self, event_id, ha_event):
         event = await self._async_get_event_from_calendar(event_id)
