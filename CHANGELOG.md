@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.8.3 (2024/08/05)
+### 🐛 Fixes
+- [Capture errors from fetching events so as not to provide empty data attributes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c94e7c98731a1ff427aa61fc61766a2ce176680c) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.8.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/636f8716ba32542f01a5a9a615a854703843577b) - @RogerSelwyn
+
 ## v4.8.2 (2024/07/07)
 ### 🐛 Fixes
 - [Fix incorrect Due date shown for To Do](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/11e65fead77edb6f585a1f81f825ba9871499b93) - @RogerSelwyn
