@@ -10,6 +10,7 @@
                 "error": {
                     "invalid_url": "Chyba, pôvodná adresa URL sa nezdá byť platným presmerovaním spoločnosti Microsoft",
                     "minimum_permissions": "Minimálne povolenia nie sú udelené pre účet: {account_name}",
+                    "corrupted_token_file": "Súbor tokenu je po úspešnej autentifikácii poškodený, skontrolujte denník, či neobsahuje chyby systému súborovs",
                     "missing_token_file": "Po úspešnom overení chýba súbor tokenu, skontrolujte denník kvôli chybám systému súborov",
                     "token_file_error": "Chyba pri načítaní súboru tokenu, skontrolujte protokol, či neobsahuje chyby od O365"
                 },

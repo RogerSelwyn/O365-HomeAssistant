@@ -31,6 +31,7 @@ from .const import (
     CONST_PRIMARY,
     CONST_UTC_TIMEZONE,
     DOMAIN,
+    TOKEN_CORRUPTED,
     TOKEN_FILE_MISSING,
 )
 from .helpers.setup import do_setup
@@ -73,7 +74,12 @@ async def _async_setup_account(hass, account_conf, conf_type):
         hass, perms, credentials, main_resource, account_name
     )
 
-    if is_authenticated and permissions and permissions != TOKEN_FILE_MISSING:
+    if (
+        is_authenticated
+        and permissions
+        and permissions != TOKEN_FILE_MISSING
+        and permissions != TOKEN_CORRUPTED
+    ):
         _LOGGER.debug("do setup")
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:

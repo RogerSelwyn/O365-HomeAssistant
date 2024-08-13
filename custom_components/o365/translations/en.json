@@ -10,6 +10,7 @@
                 "error": {
                     "invalid_url": "Error, the originating url does not seem to be a valid microsoft redirect",
                     "minimum_permissions": "Minimum permissions not granted for account: {account_name}",
+                    "corrupted_token_file": "Token file is corrupted after successful authentication, check log for file system errors",
                     "missing_token_file": "Token file is missing after successful authentication, check log for file system errors",
                     "token_file_error": "Token file retrieval error, check log for errors from O365"
                 },

@@ -192,6 +192,7 @@ SENSOR_EMAIL = "inbox"
 SENSOR_TEAMS_STATUS = "teams_status"
 SENSOR_TEAMS_CHAT = "teams_chat"
 TODO_TODO = "todo"
+TOKEN_CORRUPTED = "corrupted"
 TOKEN_FILENAME = "o365{0}.token"  # nosec
 TOKEN_FILE_MISSING = "missing"
 YAML_CALENDARS_FILENAME = "{0}_calendars{1}.yaml"
