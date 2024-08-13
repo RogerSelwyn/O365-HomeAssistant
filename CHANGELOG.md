@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.8.4 (2024/08/13)
+### 🐛 Fixes
+- [Handle corrupted token file gracefully](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d3021dcb02a9951657d819a169a5802ca1d175fc) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.8.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/af1944bde46911b0a0657edb08ed29905dd94dce) - @RogerSelwyn
+
 ## v4.8.3 (2024/08/05)
 ### 🐛 Fixes
 - [Capture errors from fetching events so as not to provide empty data attributes](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c94e7c98731a1ff427aa61fc61766a2ce176680c) - @RogerSelwyn
