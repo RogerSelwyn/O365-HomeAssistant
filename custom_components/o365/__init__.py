@@ -31,7 +31,7 @@ from .const import (
     CONST_PRIMARY,
     CONST_UTC_TIMEZONE,
     DOMAIN,
-    TOKEN_CORRUPTED,
+    TOKEN_FILE_CORRUPTED,
     TOKEN_FILE_MISSING,
 )
 from .helpers.setup import do_setup
@@ -70,16 +70,12 @@ async def _async_setup_account(hass, account_conf, conf_type):
     _LOGGER.debug("Permissions setup")
     perms = Permissions(hass, account_conf, conf_type)
     permissions, failed_permissions = await perms.async_check_authorizations()
+
     account, is_authenticated = await _async_try_authentication(
-        hass, perms, credentials, main_resource, account_name
+        hass, perms, credentials, main_resource
     )
 
-    if (
-        is_authenticated
-        and permissions
-        and permissions != TOKEN_FILE_MISSING
-        and permissions != TOKEN_CORRUPTED
-    ):
+    if is_authenticated and permissions is True:
         _LOGGER.debug("do setup")
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:
@@ -96,9 +92,7 @@ async def _async_setup_account(hass, account_conf, conf_type):
         )
 
 
-async def _async_try_authentication(
-    hass, perms, credentials, main_resource, account_name
-):
+async def _async_try_authentication(hass, perms, credentials, main_resource):
     _LOGGER.debug("Setup token")
     token_backend = await hass.async_add_executor_job(
         ft.partial(
@@ -120,12 +114,7 @@ async def _async_try_authentication(
     try:
         return account, account.is_authenticated
 
-    except json.decoder.JSONDecodeError as err:
-        _LOGGER.warning(
-            "Token corrupt for account - please delete and re-authenticate: %s. Error - %s",
-            account_name,
-            err,
-        )
+    except json.decoder.JSONDecodeError:
         return account, False
 
 
@@ -185,11 +174,14 @@ async def _async_authorization_repair(
     token_missing,
 ):
     base_message = f"requesting authorization for account: {account_name}"
-    message = (
-        "No token file found;"
-        if token_missing == TOKEN_FILE_MISSING
-        else "Token doesn't have all required permissions;"
-    )
+
+    if token_missing == TOKEN_FILE_MISSING:
+        message = "No token file found;"
+    elif token_missing == TOKEN_FILE_CORRUPTED:
+        message = "Token file corrupted;"
+    else:
+        message = "Token doesn't have all required permissions;"
+
     _LOGGER.warning("%s %s", message, base_message)
     data = {
         CONF_ACCOUNT_CONF: account_conf,

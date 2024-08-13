@@ -26,7 +26,7 @@ from .const import (
     CONF_CONFIG_TYPE,
     CONF_FAILED_PERMISSIONS,
     CONF_URL,
-    TOKEN_CORRUPTED,
+    TOKEN_FILE_CORRUPTED,
     TOKEN_FILE_MISSING,
 )
 from .helpers.setup import do_setup
@@ -154,7 +154,7 @@ class AuthorizationRepairFlow(RepairsFlow):
         if permissions == TOKEN_FILE_MISSING:
             errors[CONF_URL] = "missing_token_file"
             return errors
-        if permissions == TOKEN_CORRUPTED:
+        if permissions == TOKEN_FILE_CORRUPTED:
             errors[CONF_URL] = "corrupted_token_file"
             return errors
 

@@ -40,8 +40,9 @@ from ..const import (
     PERM_TASKS_READ,
     PERM_TASKS_READWRITE,
     PERM_USER_READ,
-    TOKEN_CORRUPTED,
+    TOKEN_FILE_CORRUPTED,
     TOKEN_FILE_MISSING,
+    TOKEN_FILE_PERMISSIONS,
     TOKEN_FILENAME,
 )
 from ..utils.filemgmt import build_config_file_path
@@ -90,8 +91,11 @@ class Permissions:
             self._get_permissions
         )
 
-        if self.permissions == TOKEN_FILE_MISSING:
-            return TOKEN_FILE_MISSING, None
+        if (
+            self._permissions == TOKEN_FILE_MISSING
+            or self.permissions == TOKEN_FILE_CORRUPTED
+        ):
+            return self._permissions, None
         failed_permissions = []
         for permission in self.requested_permissions:
             if permission == PERM_OFFLINE_ACCESS:
@@ -106,7 +110,7 @@ class Permissions:
                 self.token_filename,
                 self._config[CONF_ACCOUNT_NAME],
             )
-            return False, failed_permissions
+            return TOKEN_FILE_PERMISSIONS, failed_permissions
 
         return True, None
 
@@ -173,7 +177,7 @@ class Permissions:
                 permissions = json.loads(raw)["scope"]
         except json.decoder.JSONDecodeError as err:
             _LOGGER.warning("Token corrupted at %s - %s", full_token_path, err)
-            return TOKEN_CORRUPTED
+            return TOKEN_FILE_CORRUPTED
 
         return permissions
 
