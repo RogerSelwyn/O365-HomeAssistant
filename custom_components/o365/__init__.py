@@ -1,6 +1,5 @@
 """Main initialisation code."""
 
-import functools as ft
 import json
 import logging
 
@@ -71,8 +70,8 @@ async def _async_setup_account(hass, account_conf, conf_type):
     perms = Permissions(hass, account_conf, conf_type)
     permissions, failed_permissions = await perms.async_check_authorizations()
 
-    account, is_authenticated = await _async_try_authentication(
-        hass, perms, credentials, main_resource
+    account, is_authenticated = await hass.async_add_executor_job(
+        _try_authentication, perms, credentials, main_resource
     )
 
     if is_authenticated and permissions is True:
@@ -92,25 +91,20 @@ async def _async_setup_account(hass, account_conf, conf_type):
         )
 
 
-async def _async_try_authentication(hass, perms, credentials, main_resource):
+def _try_authentication(perms, credentials, main_resource):
     _LOGGER.debug("Setup token")
-    token_backend = await hass.async_add_executor_job(
-        ft.partial(
-            FileSystemTokenBackend,
-            token_path=perms.token_path,
-            token_filename=perms.token_filename,
-        )
+    token_backend = FileSystemTokenBackend(
+        token_path=perms.token_path,
+        token_filename=perms.token_filename,
     )
     _LOGGER.debug("Setup account")
-    account = await hass.async_add_executor_job(
-        ft.partial(
-            Account,
-            credentials,
-            token_backend=token_backend,
-            timezone=CONST_UTC_TIMEZONE,
-            main_resource=main_resource,
-        )
+    account = Account(
+        credentials,
+        token_backend=token_backend,
+        timezone=CONST_UTC_TIMEZONE,
+        main_resource=main_resource,
     )
+
     try:
         return account, account.is_authenticated
 
