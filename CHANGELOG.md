@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.8.5 (2024/09/04)
+### 🐛 Fixes
+- [Fix issue of o365 library accessing token within the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/210ef0ac22131a19ff513d9170ad913f992b760e) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Bring code into line with MS365 integrations](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/be75195aa51fea09e583176a539644d910c42451) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.8.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/de9f3b0fe38041e5d195d959a9114c923965d609) - @RogerSelwyn
+
 ## v4.8.4 (2024/08/13)
 ### 🐛 Fixes
 - [Handle corrupted token file gracefully](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d3021dcb02a9951657d819a169a5802ca1d175fc) - @RogerSelwyn
