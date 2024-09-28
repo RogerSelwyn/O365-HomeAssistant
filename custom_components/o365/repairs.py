@@ -165,6 +165,7 @@ class AuthorizationRepairFlow(RepairsFlow):
             self.hass,
             self._conf,
             self._account,
+            True,
             self._account_name,
             self._conf_type,
             self._permissions,

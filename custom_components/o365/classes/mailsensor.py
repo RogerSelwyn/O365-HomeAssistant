@@ -91,8 +91,12 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
             coordinator, config, name, entity_id, SENSOR_AUTO_REPLY, unique_id
         )
         self._config = config
-        account = self._config[CONF_ACCOUNT]
-        self.mailbox = account.mailbox()
+        self._account = self._config[CONF_ACCOUNT]
+        self.mailbox = None
+
+    async def async_init(self, hass):
+        """async initialise."""
+        self.mailbox = await hass.async_add_executor_job(self._account.mailbox)
 
     @property
     def native_value(self):
@@ -111,7 +115,7 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
             ATTR_END: ars.scheduled_enddatetime.strftime(DATETIME_FORMAT),
         }
 
-    def auto_reply_enable(
+    async def async_auto_reply_enable(
         self,
         external_reply,
         internal_reply,
@@ -123,16 +127,21 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
         if not self._validate_autoreply_permissions():
             return
 
-        self.mailbox.set_automatic_reply(
-            internal_reply, external_reply, start, end, external_audience
+        await self.hass.async_add_executor_job(
+            self.mailbox.set_automatic_reply,
+            internal_reply,
+            external_reply,
+            start,
+            end,
+            external_audience,
         )
 
-    def auto_reply_disable(self):
+    async def async_auto_reply_disable(self):
         """Disable out of office autoreply."""
         if not self._validate_autoreply_permissions():
             return
 
-        self.mailbox.set_disable_reply()
+        await self.hass.async_add_executor_job(self.mailbox.set_disable_reply)
 
     def _validate_autoreply_permissions(self):
         return self._validate_permissions(
@@ -142,12 +151,12 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
         )
 
 
-def _build_base_query(mail_folder, sensor_conf):
+async def _async_build_base_query(hass, mail_folder, sensor_conf):
     """Build base query for mail."""
     download_attachments = sensor_conf.get(CONF_DOWNLOAD_ATTACHMENTS)
     show_body = sensor_conf.get(CONF_SHOW_BODY)
     html_body = sensor_conf.get(CONF_HTML_BODY)
-    query = mail_folder.new_query()
+    query = await hass.async_add_executor_job(mail_folder.new_query)
     query = query.select(
         "sender",
         "from",
@@ -171,9 +180,9 @@ def _build_base_query(mail_folder, sensor_conf):
     return query
 
 
-def build_inbox_query(mail_folder, sensor_conf):
+async def async_build_inbox_query(hass, mail_folder, sensor_conf):
     """Build query for email sensor."""
-    query = _build_base_query(mail_folder, sensor_conf)
+    query = await _async_build_base_query(hass, mail_folder, sensor_conf)
 
     is_unread = sensor_conf.get(CONF_IS_UNREAD)
 
@@ -183,9 +192,9 @@ def build_inbox_query(mail_folder, sensor_conf):
     return query
 
 
-def build_query_query(mail_folder, sensor_conf):
+async def async_build_query_query(hass, mail_folder, sensor_conf):
     """Build query for query sensor."""
-    query = _build_base_query(mail_folder, sensor_conf)
+    query = await _async_build_base_query(hass, mail_folder, sensor_conf)
     query.order_by("receivedDateTime", ascending=False)
 
     body_contains = sensor_conf.get(CONF_BODY_CONTAINS)

@@ -1,5 +1,6 @@
 """O365 teams sensors."""
 
+import functools as ft
 import logging
 
 from homeassistant.components.sensor import SensorEntity
@@ -71,7 +72,9 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
         )
         self._email = email
 
-    def update_user_status(self, availability, activity, expiration_duration=None):
+    async def async_update_user_status(
+        self, availability, activity, expiration_duration=None
+    ):
         """Update the users teams status."""
         if self._email:
             raise ServiceValidationError(
@@ -85,8 +88,12 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
         if not self._validate_status_permissions():
             return False
 
-        status = self.teams.set_my_presence(
-            self._application_id, availability, activity, expiration_duration
+        status = await self.hass.async_add_executor_job(
+            self.teams.set_my_presence,
+            self._application_id,
+            availability,
+            activity,
+            expiration_duration,
         )
         self._raise_event(
             EVENT_UPDATE_USER_STATUS,
@@ -94,7 +101,9 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
         )
         return False
 
-    def update_user_preferred_status(self, availability, expiration_duration=None):
+    async def async_update_user_preferred_status(
+        self, availability, expiration_duration=None
+    ):
         """Update the users teams status."""
         if self._email:
             raise ServiceValidationError(
@@ -113,8 +122,11 @@ class O365TeamsStatusSensor(O365TeamsSensor, SensorEntity):
             if availability != PreferredAvailability.OFFLINE
             else PreferredActivity.OFFWORK
         )
-        status = self.teams.set_my_user_preferred_presence(
-            availability, activity, expiration_duration
+        status = await self.hass.async_add_executor_job(
+            self.teams.set_my_user_preferred_presence,
+            availability,
+            activity,
+            expiration_duration,
         )
         self._raise_event(
             EVENT_UPDATE_USER_PREFERRED_STATUS,
@@ -168,15 +180,19 @@ class O365TeamsChatSensor(O365TeamsSensor, SensorEntity):
             attributes[ATTR_DATA] = self.coordinator.data[self.entity_key][ATTR_DATA]
         return attributes
 
-    def send_chat_message(self, chat_id, message, content_type):
+    async def async_send_chat_message(self, chat_id, message, content_type):
         """Send a message to the specified chat."""
         if not self._validate_chat_permissions():
             return False
 
-        chats = self.teams.get_my_chats()
+        chats = await self.hass.async_add_executor_job(self.teams.get_my_chats)
         for chat in chats:
             if chat.object_id == chat_id:
-                message = chat.send_message(content=message, content_type=content_type)
+                message = await self.hass.async_add_executor_job(
+                    ft.partial(
+                        chat.send_message, content=message, content_type=content_type
+                    )
+                )
                 self._raise_event(EVENT_SEND_CHAT_MESSAGE, chat_id)
                 return True
         _LOGGER.warning("Chat %s not found for send message", chat_id)

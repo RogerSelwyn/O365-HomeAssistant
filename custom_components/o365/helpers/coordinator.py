@@ -11,7 +11,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 from requests.exceptions import HTTPError
 
-from ..classes.mailsensor import build_inbox_query, build_query_query
+from ..classes.mailsensor import async_build_inbox_query, async_build_query_query
 from ..const import (
     ATTR_AUTOREPLIESSETTINGS,
     ATTR_CHAT_ID,
@@ -164,7 +164,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
 
     async def _async_todo_entities(self, o365_task_lists):
         keys = []
-        o365_tasks = self._account.tasks()
+        o365_tasks = await self.hass.async_add_executor_job(self._account.tasks)
         for o365_tasklist in o365_task_lists:
             track = o365_tasklist.get(CONF_TRACK)
             if not track:
@@ -392,6 +392,7 @@ class O365EmailCordinator(DataUpdateCoordinator):
             # Polling interval. Will only be polled if there are subscribers.
             update_interval=timedelta(seconds=30),
         )
+        self._hass = hass
         self._config = config
         self._account = config[CONF_ACCOUNT]
         self._account_name = config[CONF_ACCOUNT_NAME]
@@ -427,7 +428,9 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     CONF_O365_MAIL_FOLDER: mail_folder,
                     CONF_NAME: name,
                     CONF_ENTITY_TYPE: SENSOR_EMAIL,
-                    CONF_QUERY: build_inbox_query(mail_folder, sensor_conf),
+                    CONF_QUERY: await async_build_inbox_query(
+                        self._hass, mail_folder, sensor_conf
+                    ),
                 }
 
                 # Renames unique id to ensure uniqueness - To be deleted in early 2025
@@ -461,7 +464,9 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     CONF_O365_MAIL_FOLDER: mail_folder,
                     CONF_NAME: name,
                     CONF_ENTITY_TYPE: SENSOR_EMAIL,
-                    CONF_QUERY: build_query_query(mail_folder, sensor_conf),
+                    CONF_QUERY: await async_build_query_query(
+                        self._hass, mail_folder, sensor_conf
+                    ),
                 }
 
                 # Renames unique id to ensure uniqueness - To be deleted in early 2025
@@ -480,14 +485,14 @@ class O365EmailCordinator(DataUpdateCoordinator):
 
     async def _async_get_mail_folder(self, sensor_conf, sensor_type):
         """Get the configured folder."""
-        mailbox = self._account.mailbox()
+        mailbox = await self.hass.async_add_executor_job(self._account.mailbox)
         _LOGGER.debug("Get mail folder: %s", sensor_conf.get(CONF_NAME))
         if mail_folder_conf := sensor_conf.get(CONF_MAIL_FOLDER):
             return await self._async_get_configured_mail_folder(
                 mail_folder_conf, mailbox, sensor_type
             )
 
-        return mailbox.inbox_folder()
+        return await self.hass.async_add_executor_job(mailbox.inbox_folder)
 
     async def _async_get_configured_mail_folder(
         self, mail_folder_conf, mailbox, sensor_type

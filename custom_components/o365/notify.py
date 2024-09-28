@@ -22,6 +22,7 @@ from .const import (
     ATTR_ZIP_NAME,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
+    CONF_IS_AUTHENTICATED,
     CONF_PERMISSIONS,
     DOMAIN,
     LEGACY_ACCOUNT_NAME,
@@ -39,7 +40,8 @@ async def async_get_service(hass, config, discovery_info=None):  # pylint: disab
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    if account.is_authenticated and conf[CONF_PERMISSIONS].validate_authorization(
+    is_authenticated = conf[CONF_IS_AUTHENTICATED]
+    if is_authenticated and conf[CONF_PERMISSIONS].validate_authorization(
         PERM_MAIL_SEND
     ):
         return O365EmailService(account, hass, conf)
@@ -95,7 +97,7 @@ class O365EmailService(BaseNotificationService):
             resp = await self.hass.async_add_executor_job(self.account.get_current_user)
             target = resp.mail
 
-        new_message = self.account.new_message()
+        new_message = self.hass.async_add_executor_job(self.account.new_message)
         message = self._build_message(data, message, new_message.attachments)
         self._build_attachments(data, new_message.attachments)
         new_message.to.add(target)

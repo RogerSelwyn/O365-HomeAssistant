@@ -8,7 +8,6 @@ from homeassistant.helpers import entity_platform
 from .classes.mailsensor import O365AutoReplySensor, O365MailSensor
 from .classes.teamssensor import O365TeamsChatSensor, O365TeamsStatusSensor
 from .const import (
-    CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
     CONF_AUTO_REPLY_SENSORS,
     CONF_CHAT_SENSORS,
@@ -17,6 +16,7 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_ENTITY_KEY,
     CONF_ENTITY_TYPE,
+    CONF_IS_AUTHENTICATED,
     CONF_KEYS_EMAIL,
     CONF_KEYS_SENSORS,
     CONF_PERMISSIONS,
@@ -48,13 +48,12 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
-    account = conf[CONF_ACCOUNT]
 
-    is_authenticated = account.is_authenticated
+    is_authenticated = conf[CONF_IS_AUTHENTICATED]
     if not is_authenticated:
         return False
 
-    sensor_entities = _sensor_entities(conf)
+    sensor_entities = await _async_sensor_entities(conf, hass)
     email_entities = _email_entities(conf)
     entities = sensor_entities + email_entities
 
@@ -64,7 +63,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     return True
 
 
-def _sensor_entities(conf):
+async def _async_sensor_entities(conf, hass):
     sensor_coordinator = conf[CONF_COORDINATOR_SENSORS]
     sensorentities = []
     for key in conf[CONF_KEYS_SENSORS]:
@@ -90,15 +89,15 @@ def _sensor_entities(conf):
                 )
             )
         elif key[CONF_ENTITY_TYPE] == SENSOR_AUTO_REPLY:
-            sensorentities.append(
-                O365AutoReplySensor(
-                    sensor_coordinator,
-                    key[CONF_NAME],
-                    key[CONF_ENTITY_KEY],
-                    conf,
-                    key[CONF_UNIQUE_ID],
-                )
+            entity = O365AutoReplySensor(
+                sensor_coordinator,
+                key[CONF_NAME],
+                key[CONF_ENTITY_KEY],
+                conf,
+                key[CONF_UNIQUE_ID],
             )
+            await entity.async_init(hass)
+            sensorentities.append(entity)
     return sensorentities
 
 
@@ -139,12 +138,12 @@ async def _async_setup_status_services(config, perms):
         platform.async_register_entity_service(
             "update_user_status",
             STATUS_SERVICE_UPDATE_USER_STATUS_SCHEMA,
-            "update_user_status",
+            "async_update_user_status",
         )
         platform.async_register_entity_service(
             "update_user_preferred_status",
             STATUS_SERVICE_UPDATE_USER_PERERRED_STATUS_SCHEMA,
-            "update_user_preferred_status",
+            "async_update_user_preferred_status",
         )
 
 
@@ -161,7 +160,7 @@ async def _async_setup_chat_services(config, perms):
         platform.async_register_entity_service(
             "send_chat_message",
             CHAT_SERVICE_SEND_MESSAGE_SCHEMA,
-            "send_chat_message",
+            "async_send_chat_message",
         )
 
 
@@ -177,10 +176,10 @@ async def _async_setup_mailbox_services(config, perms):
         platform.async_register_entity_service(
             "auto_reply_enable",
             AUTO_REPLY_SERVICE_ENABLE_SCHEMA,
-            "auto_reply_enable",
+            "async_auto_reply_enable",
         )
         platform.async_register_entity_service(
             "auto_reply_disable",
             AUTO_REPLY_SERVICE_DISABLE_SCHEMA,
-            "auto_reply_disable",
+            "async_auto_reply_disable",
         )

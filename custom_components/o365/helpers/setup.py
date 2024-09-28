@@ -18,6 +18,7 @@ from ..const import (
     CONF_EMAIL_SENSORS,
     CONF_ENABLE_CALENDAR,
     CONF_ENABLE_UPDATE,
+    CONF_IS_AUTHENTICATED,
     CONF_KEYS_EMAIL,
     CONF_KEYS_SENSORS,
     CONF_PERMISSIONS,
@@ -32,7 +33,9 @@ from .coordinator import O365EmailCordinator, O365SensorCordinator
 _LOGGER = logging.getLogger(__name__)
 
 
-async def do_setup(hass, config, account, account_name, conf_type, perms):
+async def do_setup(
+    hass, config, account, is_authenticated, account_name, conf_type, perms
+):
     """Run the setup after we have everything configured."""
     email_sensors = config.get(CONF_EMAIL_SENSORS, [])
     query_sensors = config.get(CONF_QUERY_SENSORS, [])
@@ -46,6 +49,7 @@ async def do_setup(hass, config, account, account_name, conf_type, perms):
     account_config = {
         CONF_CLIENT_ID: config.get(CONF_CLIENT_ID),
         CONF_ACCOUNT: account,
+        CONF_IS_AUTHENTICATED: is_authenticated,
         CONF_EMAIL_SENSORS: email_sensors,
         CONF_QUERY_SENSORS: query_sensors,
         CONF_STATUS_SENSORS: status_sensors,

@@ -78,7 +78,15 @@ async def _async_setup_account(hass, account_conf, conf_type):
         _LOGGER.debug("do setup")
         check_token = await _async_check_token(hass, account, account_name)
         if check_token:
-            await do_setup(hass, account_conf, account, account_name, conf_type, perms)
+            await do_setup(
+                hass,
+                account_conf,
+                account,
+                is_authenticated,
+                account_name,
+                conf_type,
+                perms,
+            )
     else:
         await _async_authorization_repair(
             hass,

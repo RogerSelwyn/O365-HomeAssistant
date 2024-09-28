@@ -46,6 +46,7 @@ from .const import (
     CONF_EXCLUDE,
     CONF_HOURS_BACKWARD_TO_GET,
     CONF_HOURS_FORWARD_TO_GET,
+    CONF_IS_AUTHENTICATED,
     CONF_MAX_RESULTS,
     CONF_PERMISSIONS,
     CONF_SEARCH,
@@ -100,7 +101,8 @@ async def async_setup_platform(hass, config, add_entities, discovery_info=None):
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
     account = conf[CONF_ACCOUNT]
-    if not account.is_authenticated:
+    is_authenticated = conf[CONF_IS_AUTHENTICATED]
+    if not is_authenticated:
         return False
 
     update_supported = bool(
@@ -143,6 +145,7 @@ async def _async_setup_add_entities(
                     conf,
                     update_supported,
                 )
+                await cal.data.async_calendar_data_init(hass)
             except HTTPError:
                 _LOGGER.warning(
                     "No permission for calendar, please remove - Name: %s; Device: %s;",
@@ -231,7 +234,7 @@ class O365CalendarEntity(CalendarEntity):
         self.entity_id = entity_id
         self._offset_reached = False
         self._data_attribute = []
-        self.data = self._init_data(account, calendar_id, entity)
+        self.data = self._init_data(calendar_id, entity)
         self._calendar_id = calendar_id
         self._device_id = device_id
         if update_supported:
@@ -242,12 +245,12 @@ class O365CalendarEntity(CalendarEntity):
             )
         self._error = None
 
-    def _init_data(self, account, calendar_id, entity):
+    def _init_data(self, calendar_id, entity):
         max_results = entity.get(CONF_MAX_RESULTS)
         search = entity.get(CONF_SEARCH)
         exclude = entity.get(CONF_EXCLUDE)
         return O365CalendarData(
-            account,
+            self._account,
             self.entity_id,
             calendar_id,
             search,
@@ -547,20 +550,28 @@ class O365CalendarData:
         limit=999,
     ):
         """Initialise the O365 Calendar Data."""
+        self._account = account
         self._limit = limit
         self.group_calendar = calendar_id.startswith(CONST_GROUP)
         self.calendar_id = calendar_id
-        if self.group_calendar:
-            self._schedule = None
-            self.calendar = account.schedule(resource=self.calendar_id)
-        else:
-            self._schedule = account.schedule()
-            self.calendar = None
+        self._schedule = None
+        self.calendar = None
         self._search = search
         self._exclude = exclude
         self.event = None
         self._entity_id = entity_id
         self._error = False
+
+    async def async_calendar_data_init(self, hass):
+        """Async init of calendar data."""
+        if self.group_calendar:
+            self._schedule = None
+            self.calendar = await hass.async_add_executor_job(
+                ft.partial(self._account.schedule, resource=self.calendar_id)
+            )
+        else:
+            self._schedule = await hass.async_add_executor_job(self._account.schedule)
+            self.calendar = None
 
     async def _async_get_calendar(self, hass):
         try:
@@ -621,7 +632,7 @@ class O365CalendarData:
         self, hass, calendar_schedule, start_date, end_date
     ):
         """Get the events for the calendar."""
-        query = calendar_schedule.new_query()
+        query = await hass.async_add_executor_job(calendar_schedule.new_query)
         query = query.select(
             "subject",
             "body",
@@ -806,7 +817,9 @@ class CalendarServices:
         for config in self._hass.data[DOMAIN]:
             config = self._hass.data[DOMAIN][config]
             if CONF_ACCOUNT in config:
-                schedule = config[CONF_ACCOUNT].schedule()
+                schedule = await self._hass.async_add_executor_job(
+                    config[CONF_ACCOUNT].schedule
+                )
                 calendars = await self._hass.async_add_executor_job(
                     schedule.list_calendars
                 )

@@ -31,6 +31,7 @@ from .const import (
     CONF_ENABLE_UPDATE,
     CONF_ENTITY_KEY,
     CONF_ENTITY_TYPE,
+    CONF_IS_AUTHENTICATED,
     CONF_KEYS_SENSORS,
     CONF_O365_TASK_FOLDER,
     CONF_PERMISSIONS,
@@ -67,9 +68,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     account_name = discovery_info[CONF_ACCOUNT_NAME]
     conf = hass.data[DOMAIN][account_name]
-    account = conf[CONF_ACCOUNT]
 
-    is_authenticated = account.is_authenticated
+    is_authenticated = conf[CONF_IS_AUTHENTICATED]
     if not is_authenticated:
         return False
 
