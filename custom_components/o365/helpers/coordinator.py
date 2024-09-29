@@ -61,7 +61,7 @@ from ..const import (
     YAML_TASK_LISTS_FILENAME,
 )
 from ..schema import YAML_TASK_LIST_SCHEMA
-from ..todo import O365TodoEntityServices, build_todo_query
+from ..todo import O365TodoEntityServices, async_build_todo_query
 from ..utils.filemgmt import build_config_file_path, build_yaml_filename, load_yaml_file
 
 _LOGGER = logging.getLogger(__name__)
@@ -347,7 +347,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
     async def _async_todos_update_query(self, key, error):
         data = None
         o365_task = key[CONF_O365_TASK_FOLDER]
-        full_query = build_todo_query(key, o365_task)
+        full_query = await async_build_todo_query(self.hass, key, o365_task)
         name = key[CONF_NAME]
 
         try:

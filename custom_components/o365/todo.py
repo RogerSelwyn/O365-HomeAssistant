@@ -292,7 +292,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
         if not self._validate_task_permissions():
             return False
 
-        new_o365_task = self.todolist.new_task()
+        new_o365_task = await self.hass.async_add_executor_job(self.todolist.new_task)
         await self._async_save_task(new_o365_task, subject, description, due, reminder)
         self._raise_event(EVENT_NEW_TODO, new_o365_task.task_id)
         self.todo_last_created = new_o365_task.created
@@ -392,7 +392,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
                 translation_domain=DOMAIN,
                 translation_key="todo_completed",
             )
-        o365_task.mark_completed()
+        self.hass.async_add_executor_job(o365_task.mark_completed)
         self.hass.async_add_executor_job(o365_task.save)
         self._raise_event(EVENT_COMPLETED_TODO, todo_id)
         self.todo_last_completed = dt_util.utcnow()
@@ -403,7 +403,7 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
                 translation_domain=DOMAIN,
                 translation_key="todo_not_completed",
             )
-        o365_task.mark_uncompleted()
+        self.hass.async_add_executor_job(o365_task.mark_uncompleted)
         self.hass.async_add_executor_job(o365_task.save)
         self._raise_event(EVENT_UNCOMPLETED_TODO, todo_id)
 
@@ -461,11 +461,11 @@ def _raise_event_external(hass, event_type, todo_id, time_type, task_datetime):
     _LOGGER.debug("%s - %s - %s", event_type, todo_id, task_datetime)
 
 
-def build_todo_query(key, todo):
+async def async_build_todo_query(hass, key, todo):
     """Build query for ToDo."""
     o365_task = key[CONF_YAML_TASK_LIST]
     show_completed = o365_task[CONF_SHOW_COMPLETED]
-    query = todo.new_query()
+    query = await hass.async_add_executor_job(todo.new_query)
     if not show_completed:
         query = query.on_attribute("status").unequal("completed")
     start_offset = o365_task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
@@ -496,7 +496,9 @@ class O365TodoEntityServices:
             config = self._hass.data[DOMAIN][config]
             todo_sensor = config.get(CONF_TODO_SENSORS)
             if todo_sensor and CONF_ACCOUNT in config and todo_sensor.get(CONF_ENABLED):
-                todos = config[CONF_ACCOUNT].tasks()
+                todos = await self.hass.async_add_executor_job(
+                    config[CONF_ACCOUNT].tasks
+                )
 
                 todolists = await self._hass.async_add_executor_job(todos.list_folders)
                 track = todo_sensor.get(CONF_TRACK_NEW)
