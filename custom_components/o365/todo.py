@@ -496,7 +496,7 @@ class O365TodoEntityServices:
             config = self._hass.data[DOMAIN][config]
             todo_sensor = config.get(CONF_TODO_SENSORS)
             if todo_sensor and CONF_ACCOUNT in config and todo_sensor.get(CONF_ENABLED):
-                todos = await self.hass.async_add_executor_job(
+                todos = await self._hass.async_add_executor_job(
                     config[CONF_ACCOUNT].tasks
                 )
 
