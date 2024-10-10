@@ -5,6 +5,9 @@ nav_order: 2
 
 # Prerequisites
 
+## Note - Personal accounts
+Since the middle of 2024, Microsoft has mandated that any new app registrations must be created within an Entra ID directory. You will need to sign up for [Azure](https://azure.microsoft.com/en-gb/free) on a pay as you go basis, where Microsoft Entra ID is indicated as always being free.
+
 ## Getting the client ID and client secret
 To allow authentication, you first need to register your application at Azure App Registrations:
 
