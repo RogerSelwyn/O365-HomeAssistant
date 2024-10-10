@@ -97,7 +97,7 @@ class O365EmailService(BaseNotificationService):
             resp = await self.hass.async_add_executor_job(self.account.get_current_user)
             target = resp.mail
 
-        new_message = self.hass.async_add_executor_job(self.account.new_message)
+        new_message = await self.hass.async_add_executor_job(self.account.new_message)
         message = self._build_message(data, message, new_message.attachments)
         self._build_attachments(data, new_message.attachments)
         new_message.to.add(target)
