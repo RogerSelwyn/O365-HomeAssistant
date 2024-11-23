@@ -1,5 +1,28 @@
 # Changelog
 
+## v4.8.7 (2024/11/23)
+### 🐛 Fixes
+- [Ensure all calls to O365 library methods are async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bc3e3fddc2e0689e7ec34807777d8ade633402b7) - @RogerSelwyn
+- [Correct more O365 library call to async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/40b16b759c52703424d2c1676762e4a1a7f55a7f) - @RogerSelwyn
+- [Fix typo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4a253b2faa2e57928a27dece7fe0c288cde92bcb) - @RogerSelwyn
+- [Don't update todo is status is being changed](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6187f92015aed7259a0b80f7e29429801b972231) - @RogerSelwyn
+- [Fix error in notification send](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2587e0c787b1519df14b1aacb2e1348e02a8385f) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Bump HA dependency](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/945e2cc19fae2733d5be927ebcd11cbbe9925fbe) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Bump python-o365 to 2.0.38](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b1b6480d7ab00190c95093ad834a9abcd599f7e4) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8620bdef11d046bd724d95c5acb2ed266a6b2f3d) - @actions-user
+
+### 📚 Documentation
+- [Add show_body config attribute](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ad0adf40e7b9dc7bb0711671ec83789f605a85ea) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/1aade71209d1f980dc6a5908196bce6cf6f62802) - @RogerSelwyn
+- [Update docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/98c83c2f1ba5f41e85aa83a10d856b04569beabb) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.8.7](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/46d5c93df441db9fba0c73b0d902516f6cf9ceb1) - @RogerSelwyn
+
 ## v4.8.5 (2024/09/04)
 ### 🐛 Fixes
 - [Fix issue of o365 library accessing token within the event loop](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/210ef0ac22131a19ff513d9170ad913f992b760e) - @RogerSelwyn
