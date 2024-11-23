@@ -5,7 +5,7 @@
 - [Ensure all calls to O365 library methods are async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bc3e3fddc2e0689e7ec34807777d8ade633402b7) - @RogerSelwyn
 - [Correct more O365 library call to async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/40b16b759c52703424d2c1676762e4a1a7f55a7f) - @RogerSelwyn
 - [Fix typo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/4a253b2faa2e57928a27dece7fe0c288cde92bcb) - @RogerSelwyn
-- [Don't update todo is status is being changed](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6187f92015aed7259a0b80f7e29429801b972231) - @RogerSelwyn
+- [Don't update todo if status is being changed](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6187f92015aed7259a0b80f7e29429801b972231) - @RogerSelwyn
 - [Fix error in notification send](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2587e0c787b1519df14b1aacb2e1348e02a8385f) - @RogerSelwyn
 
 ### 🧰 Maintenance
