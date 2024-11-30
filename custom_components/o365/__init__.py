@@ -33,6 +33,7 @@ from .const import (
     TOKEN_FILE_CORRUPTED,
     TOKEN_FILE_MISSING,
 )
+from .helpers.migration import MigrationServices
 from .helpers.setup import do_setup
 from .schema import MULTI_ACCOUNT_SCHEMA
 
@@ -51,6 +52,7 @@ async def async_setup(hass, config):
     for account in accounts:
         await _async_setup_account(hass, account, conf_type)
 
+    await _async_setup_migration_service(hass, conf)
     _LOGGER.debug("Finish")
     return True
 
@@ -205,6 +207,13 @@ async def _async_authorization_repair(
         translation_placeholders={
             CONF_ACCOUNT_NAME: account_name,
         },
+    )
+
+
+async def _async_setup_migration_service(hass, config):
+    migration_services = MigrationServices(hass, config)
+    hass.services.async_register(
+        DOMAIN, "migrate_config", migration_services.async_migrate_config
     )
 
 

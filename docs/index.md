@@ -15,3 +15,5 @@ This integration enables:
 7. Setting Auto Reply/Out of Office response
 
 This project would not be possible without the wonderful [python-o365 project](https://github.com/O365/python-o365).
+
+Details on how to migration to the new `MS365` integrations can be found here - [Migration](migration.md)
