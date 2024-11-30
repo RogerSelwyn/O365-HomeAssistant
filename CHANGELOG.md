@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.9.0 (2024/11/30)
+### ✨ Enhancements
+- [Add support for migration to MS365 integrations](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8a64b0334c6bcfffe49d77a5c3d21b5bac02b6e4) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6fd5fd2fdec8baa5084f46c7129c507bb5b31d08) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v4.9.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/71c50bd550b8089c72ebed30f550b702706ddf0f) - @RogerSelwyn
+
 ## v4.8.7 (2024/11/23)
 ### 🐛 Fixes
 - [Ensure all calls to O365 library methods are async](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/bc3e3fddc2e0689e7ec34807777d8ade633402b7) - @RogerSelwyn
