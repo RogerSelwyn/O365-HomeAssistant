@@ -23,6 +23,15 @@ The service will attempt to create config entries for any sensors that would hav
 
 You should see that all your configuration has been retained. You should only need to click Next/Submit to reach the dialogue where you can request Microsoft authentication. When successfully authenticated, your entities will be created and enabled. *Note* your entities will have new names, but can be renamed to replace existing O365 entities if needed, so that automations/etc don't need to be modified.
 
+* Calendars - One entry for each O365 account
+* Mail
+ * One entry for each Inbox/Query O365 sensor. They are now treated equally. 
+ * AutoReply - This will be associated with one of your mail entries
+* Teams
+ * A combined entry for O365 chat/status which do not an alternate email to monitor for status. 
+ * A separate entry for each O365 status sensor that has an alternate email to monitor
+* To Dos - One entry for each O365 account
+
 The calendars.yaml, tasks.yaml (now named todos.yaml) and token files will be in the new `ms365_storage` folder in your configuration. 
 
 When you have migrated over the following can be removed:
