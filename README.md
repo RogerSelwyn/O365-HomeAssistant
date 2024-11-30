@@ -38,3 +38,6 @@ I work on this integration because I like things to work well for myself and oth
 The full documentation is available here - [O365 Documentation](https://rogerselwyn.github.io/O365-HomeAssistant/)
 
 Nice video from fixtse showing how to install the O365 integration to Home Assistant. Also providing some Lovelace cards for displaying content from O365 - [O365 Card for Home Assistant](https://github.com/fixtse/o365-card)
+
+# Migration
+Details on how to migration to the new MS365 integrations can be found here - [Migration](https://rogerselwyn.github.io/O365-HomeAssistant/migration.html)
