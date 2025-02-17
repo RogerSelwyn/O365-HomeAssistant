@@ -7,13 +7,18 @@ nav_order: 19
 
 ##  Migration Service
 
-The `o365.migrate_config` enables the migration from the Office 365 Integration for Home Assistant to the new Microsoft 365 suite of integrations. The new suite is made up of:
+The `o365.migrate_config` service enables the migration from the Office 365 Integration for Home Assistant to the new Microsoft 365 suite of integrations. The new suite is made up of:
 * [MS365 Calendar](https://github.com/RogerSelwyn/MS365-Calendar)
 * [MS365 Mail](https://github.com/RogerSelwyn/MS365-Mail)
 * [MS365-Teams](https://github.com/RogerSelwyn/MS365-Teams)
 * [MS365-ToDo](https://github.com/RogerSelwyn/MS365-ToDo)
 
 For the service to function fully it requires the relevant MS365 integrations to have been installed on the Home Assistant server. Currently, they will need to be installed HACS custom integrations. Requests have been raised to add them to the Default integration list, but they may not make it there until some time into the new year.
+
+### Note
+You will need to be on consitent versions of the integrations in order to minimise errors:
+* O365 <  5.0.0 - Needs MS365 <  1.3.0
+* O365 >= 5.0.0 - Needs MS365 >= 1.3.0
 
 ### o365.migrate_config
 The service will attempt to create config entries for any sensors that would have been created via the O365 YAML based configuration. You will see repair requests for them to be re-configured to authenticate to Microsoft. To do this:
