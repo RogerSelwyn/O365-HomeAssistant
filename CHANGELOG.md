@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0 (2025/02/17)
+### 💥 Breaking Changes
+- [Update in support of python-o365 change to MSAL](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/81ce1774d62ac588d8e4c74680e8f09dbab7a55c) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ee9d56982feec90601000532fe6de5f551a8aa67) - @actions-user
+
+### 📚 Documentation
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d54ee04480f1802e6daa891f892afddc98f96b79) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/c3886352a696f61a49abcbecfb2c5571bc8fc347) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.0.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7a92af9669c2102b418f12605605b7d40c96333c) - @RogerSelwyn
+
 ## v4.9.0 (2024/11/30)
 ### ✨ Enhancements
 - [Add support for migration to MS365 integrations](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8a64b0334c6bcfffe49d77a5c3d21b5bac02b6e4) - @RogerSelwyn
