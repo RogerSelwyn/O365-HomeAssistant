@@ -22,6 +22,7 @@ from ..const import (
     CONF_TODO_SENSORS,
     CONST_CONFIG_TYPE_LIST,
     O365_STORAGE_TOKEN,
+    PERM_BASE_PERMISSIONS,
     PERM_CALENDARS_READ,
     PERM_CALENDARS_READBASIC,
     PERM_CALENDARS_READWRITE,
@@ -32,16 +33,16 @@ from ..const import (
     PERM_MAIL_READ,
     PERM_MAIL_SEND,
     PERM_MAILBOX_SETTINGS,
-    PERM_OFFLINE_ACCESS,
     PERM_PRESENCE_READ,
     PERM_PRESENCE_READ_ALL,
     PERM_PRESENCE_READWRITE,
     PERM_SHARED,
     PERM_TASKS_READ,
     PERM_TASKS_READWRITE,
-    PERM_USER_READ,
+    PERM_USER_READBASIC_ALL,
     TOKEN_FILE_CORRUPTED,
     TOKEN_FILE_MISSING,
+    TOKEN_FILE_OUTDATED,
     TOKEN_FILE_PERMISSIONS,
     TOKEN_FILENAME,
 )
@@ -70,7 +71,7 @@ class Permissions:
     def requested_permissions(self):
         """Return the required scope."""
         if not self._requested_permissions:
-            self._requested_permissions = [PERM_OFFLINE_ACCESS, PERM_USER_READ]
+            self._requested_permissions = deepcopy(PERM_BASE_PERMISSIONS)
             self._build_calendar_permissions()
             self._build_group_permissions()
             self._build_email_permissions()
@@ -91,15 +92,14 @@ class Permissions:
             self._get_permissions
         )
 
-        if (
-            self._permissions == TOKEN_FILE_MISSING
-            or self.permissions == TOKEN_FILE_CORRUPTED
-        ):
+        if self._permissions in [
+            TOKEN_FILE_MISSING,
+            TOKEN_FILE_CORRUPTED,
+            TOKEN_FILE_OUTDATED,
+        ]:
             return self._permissions, None
         failed_permissions = []
         for permission in self.requested_permissions:
-            if permission == PERM_OFFLINE_ACCESS:
-                continue
             if not self.validate_authorization(permission):
                 failed_permissions.append(permission)
 
@@ -140,15 +140,14 @@ class Permissions:
 
     def _check_higher_permissions(self, permission):
         operation = permission.split(".")[1]
-        # If Operation is Send there are no alternatives
         # If Operation is ReadBasic then Read or ReadWrite will also work
         # If Operation is Read then ReadWrite will also work
-        if operation == "Send":
-            newops = []
-        elif operation == "ReadBasic":
-            newops = ["Read", "ReadWrite"]
-        else:
-            newops = ["ReadWrite"]
+        newops = [operation]
+        if operation == "ReadBasic":
+            newops = newops + ["Read", "ReadWrite"]
+        elif operation == "Read":
+            newops = newops + ["ReadWrite"]
+
         for newop in newops:
             newperm = deepcopy(permission).replace(operation, newop)
             if newperm in self.permissions:
@@ -174,11 +173,18 @@ class Permissions:
         try:
             with open(full_token_path, "r", encoding="UTF-8") as file_handle:
                 raw = file_handle.read()
-                permissions = json.loads(raw)["scope"]
+                permissions = next(iter(json.loads(raw)["AccessToken"].values()))[
+                    "target"
+                ].split()
         except json.decoder.JSONDecodeError as err:
             _LOGGER.warning("Token corrupted at %s - %s", full_token_path, err)
             return TOKEN_FILE_CORRUPTED
-
+        except KeyError:
+            _LOGGER.warning(
+                "Legacy token found at %s, it has been deleted", full_token_path
+            )
+            self.delete_token()
+            return TOKEN_FILE_OUTDATED
         return permissions
 
     def _build_calendar_permissions(self):
@@ -230,6 +236,7 @@ class Permissions:
                 self._requested_permissions.append(PERM_PRESENCE_READ)
             if any(status_sensor.get(CONF_EMAIL) for status_sensor in status_sensors):
                 self._requested_permissions.append(PERM_PRESENCE_READ_ALL)
+                self._requested_permissions.append(PERM_USER_READBASIC_ALL)
 
     def _build_chat_permissions(self):
         chat_sensors = self._config.get(CONF_CHAT_SENSORS, [])
@@ -246,3 +253,9 @@ class Permissions:
                 self._requested_permissions.append(PERM_TASKS_READWRITE)
             else:
                 self._requested_permissions.append(PERM_TASKS_READ)
+
+    def delete_token(self):
+        """Delete the token."""
+        full_token_path = os.path.join(self.token_path, self.token_filename)
+        if os.path.exists(full_token_path):
+            os.remove(full_token_path)

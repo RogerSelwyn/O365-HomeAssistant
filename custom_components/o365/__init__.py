@@ -32,6 +32,7 @@ from .const import (
     DOMAIN,
     TOKEN_FILE_CORRUPTED,
     TOKEN_FILE_MISSING,
+    TOKEN_FILE_OUTDATED,
 )
 from .helpers.migration import MigrationServices
 from .helpers.setup import do_setup
@@ -124,7 +125,7 @@ def _try_authentication(perms, credentials, main_resource):
 
 async def _async_check_token(hass, account, account_name):
     try:
-        await hass.async_add_executor_job(account.get_current_user)
+        await hass.async_add_executor_job(account.get_current_user_data)
         return True
     except InvalidClientError as err:
         if "client secret" in err.description and "expired" in err.description:
@@ -137,6 +138,22 @@ async def _async_check_token(hass, account, account_name):
                 "Token error for account: %s. Error - %s", account_name, err.description
             )
         return False
+    except RuntimeError as err:
+        if "Refresh token operation failed: invalid_grant" in err.args:
+            _LOGGER.warning(
+                "Token has expired for account: '%s'. "
+                + "Please delete token, reboot and re-authenticate.",
+                account_name,
+            )
+            return False
+        elif "Refresh token operation failed: invalid_client" in err.args:
+            _LOGGER.warning(
+                "Invalid Client ID for account: '%s'. "
+                + "Please delete token, reboot and re-authenticate.",
+                account_name,
+            )
+            return False
+        raise err
 
 
 def _validate_shared_schema(account_name, main_account, config):
@@ -183,6 +200,8 @@ async def _async_authorization_repair(
         message = "No token file found;"
     elif token_missing == TOKEN_FILE_CORRUPTED:
         message = "Token file corrupted;"
+    elif token_missing == TOKEN_FILE_OUTDATED:
+        message = "Token file is outdated, it has been deleted;"
     else:
         message = "Token doesn't have all required permissions;"
 

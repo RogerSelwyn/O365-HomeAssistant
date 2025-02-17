@@ -53,10 +53,9 @@ class AuthorizationRepairFlow(RepairsFlow):
         self._account_name = self._conf.get(CONF_ACCOUNT_NAME)
         self._callback_url = get_callback_url(hass, self._alt_config)
         self._permissions = Permissions(hass, self._conf, self._conf_type)
-        scope = self._permissions.requested_permissions
-        self._url, self._state = self._account.con.get_authorization_url(
-            requested_scopes=scope, redirect_uri=self._callback_url
-        )
+        self._scope = self._permissions.requested_permissions
+        self._flow = None
+        self._url = None
         self._callback_view = None
 
     async def async_step_init(
@@ -64,6 +63,13 @@ class AuthorizationRepairFlow(RepairsFlow):
         user_input: dict[str, str] | None = None,  # pylint: disable=unused-argument
     ) -> data_entry_flow.FlowResult:
         """Handle the first step of a fix flow."""
+        self._url, self._flow = await self.hass.async_add_executor_job(
+            ft.partial(
+                self._account.con.get_authorization_url,
+                requested_scopes=self._scope,
+                redirect_uri=self._callback_url,
+            )
+        )
         if self._alt_config:
             return await self.async_step_request_alt()
 
@@ -137,7 +143,7 @@ class AuthorizationRepairFlow(RepairsFlow):
             ft.partial(
                 self._account.con.request_token,
                 url,
-                state=self._state,
+                flow=self._flow,
                 redirect_uri=self._callback_url,
             )
         )
