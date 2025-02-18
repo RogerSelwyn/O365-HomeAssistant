@@ -98,11 +98,21 @@ async def _async_sensor_entities(conf, hass):
             )
             await entity.async_init(hass)
             sensorentities.append(entity)
+            _LOGGER.warning(
+                "The O365 Auto Reply sensors are now deprecated - please migrate to MS365 Mail "
+                + "- for more details on how to do this see "
+                + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
+            )
     return sensorentities
 
 
 def _email_entities(conf):
     email_coordinator = conf[CONF_COORDINATOR_EMAIL]
+    _LOGGER.warning(
+        "The O365 Email sensors are now deprecated - please migrate to MS365 Mail "
+        + "- for more details on how to do this see "
+        + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
+    )
     return [
         O365MailSensor(
             email_coordinator,

@@ -115,6 +115,11 @@ async def async_setup_platform(hass, config, add_entities, discovery_info=None):
     hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
     await _async_setup_register_services(hass, update_supported)
 
+    _LOGGER.warning(
+        "The O365 Calendar sensors are now deprecated - please migrate to MS365 Calendar "
+        + "- for more details on how to do this see "
+        + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
+    )
     return True
 
 

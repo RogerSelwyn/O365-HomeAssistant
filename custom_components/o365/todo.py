@@ -91,6 +91,11 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(todoentities, False)
     await _async_setup_register_services(hass, conf)
 
+    _LOGGER.warning(
+        "The O365 Todo sensors are now deprecated - please migrate to MS365 To Do "
+        + "- for more details on how to do this see "
+        + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
+    )
     return True
 
 

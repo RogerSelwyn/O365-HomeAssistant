@@ -44,6 +44,11 @@ async def async_get_service(hass, config, discovery_info=None):  # pylint: disab
     if is_authenticated and conf[CONF_PERMISSIONS].validate_authorization(
         PERM_MAIL_SEND
     ):
+        _LOGGER.warning(
+            "The O365 Notify service is now deprecated - please migrate to MS365 Mail "
+            + "- for more details on how to do this see "
+            + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
+        )
         return O365EmailService(account, hass, conf)
 
     return
