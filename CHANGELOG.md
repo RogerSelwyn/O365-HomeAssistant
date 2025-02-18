@@ -1,5 +1,15 @@
 # Changelog
 
+## v5.1.0 (2025/02/18)
+### 🧰 Maintenance
+- [Add deprecation warning for Calendar, Mail and ToDo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d13bd3838a2ebfcaf945395fbf8ed2c04d59b69d) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update migration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/278e708b895e68744dce92183aabc798647bcb22) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.1.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dd0710391d0bbf4511af3c8fb069a7dddcfc183f) - @RogerSelwyn
+
 ## v5.0.0 (2025/02/17)
 ### 💥 Breaking Changes
 - [Update in support of python-o365 change to MSAL](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/81ce1774d62ac588d8e4c74680e8f09dbab7a55c) - @RogerSelwyn
