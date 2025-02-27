@@ -399,8 +399,8 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
                 translation_domain=DOMAIN,
                 translation_key="todo_completed",
             )
-        self.hass.async_add_executor_job(o365_task.mark_completed)
-        self.hass.async_add_executor_job(o365_task.save)
+        await self.hass.async_add_executor_job(o365_task.mark_completed)
+        await self.hass.async_add_executor_job(o365_task.save)
         self._raise_event(EVENT_COMPLETED_TODO, todo_id)
         self.todo_last_completed = dt_util.utcnow()
 
@@ -410,8 +410,8 @@ class O365TodoList(O365Entity, TodoListEntity):  # pylint: disable=abstract-meth
                 translation_domain=DOMAIN,
                 translation_key="todo_not_completed",
             )
-        self.hass.async_add_executor_job(o365_task.mark_uncompleted)
-        self.hass.async_add_executor_job(o365_task.save)
+        await self.hass.async_add_executor_job(o365_task.mark_uncompleted)
+        await self.hass.async_add_executor_job(o365_task.save)
         self._raise_event(EVENT_UNCOMPLETED_TODO, todo_id)
 
     async def _async_save_task(
