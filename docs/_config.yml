@@ -15,3 +15,5 @@ gh_edit_repository: "https://github.com/RogerSelwyn/O365-HomeAssistant" # the gi
 gh_edit_branch: "master" # the branch that your docs is served from
 gh_edit_source: docs # the source that your files originate from
 gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
+
+footer_content: "To learn about migration to the new MS365 integrations click here - <a href=\"https://rogerselwyn.github.io/O365-HomeAssistant/migration\">Migration</a>"
