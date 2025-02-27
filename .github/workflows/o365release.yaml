@@ -26,3 +26,4 @@ jobs:
         uses: "rogerselwyn/actions/release-notes@main"
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
