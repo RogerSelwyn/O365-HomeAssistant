@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.1.1 (2025/02/27)
+### 🐛 Fixes
+- [Fix tasks not being marked as complete/uncomplete via HA](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/59343f4991543b38ec011cdfdb5e8975334748a8) - @RogerSelwyn
+
+### 🧰 Maintenance
+- [Workflow ordering](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b4f7ab018a7939a450cfaa4281a054a19943b1c4) - @RogerSelwyn
+- [Use master branch](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/f85142c2927111a8811dc9a7aa8a84381792f066) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e1b6783314802e270322624c890839f118ec43ae) - @RogerSelwyn
+- [Update the docs](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2fc2212e2fd8eca5d4639dc6063b27fd954b677d) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e92c873929b15eeb4ee51de9f83eceb277b2b797) - @RogerSelwyn
+
+
+
+
 ## v5.1.0 (2025/02/18)
 ### 🧰 Maintenance
 - [Add deprecation warning for Calendar, Mail and ToDo](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d13bd3838a2ebfcaf945395fbf8ed2c04d59b69d) - @RogerSelwyn
