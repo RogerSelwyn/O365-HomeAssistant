@@ -2,6 +2,11 @@
 
 [![GitHub release](https://img.shields.io/github/v/release/RogerSelwyn/O365-HomeAssistant)](https://github.com/RogerSelwyn/O365-HomeAssistant/releases/latest) [![maintained](https://img.shields.io/maintenance/yes/2025.svg)](#) [![maintainer](https://img.shields.io/badge/maintainer-%20%40RogerSelwyn-blue.svg)](https://github.com/RogerSelwyn) [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![Community Forum](https://img.shields.io/badge/community-forum-brightgreen.svg)](https://community.home-assistant.io/t/office-365-calendar-access)
 
+# Deprecation Notice:
+The Calendar, Mail Notification and To Do entities and services are now deprecated in the O365 integration. Teams will also be deprecated in the near future at which point all development on O365 will stop unless it is required to support migration to the MS365 integrations.
+
+Details on how to migration to the new MS365 integrations can be found here - [Migration](https://rogerselwyn.github.io/O365-HomeAssistant/migration.html)
+
 # Note: 
 
 This integration is slowly moving towards EOL. I have already created integrations which will replace it - MS365-Calendar/Mail/Teams/ToDo, these can be used now using HACS Custom. When these are available on HACS Default I will then stop work on O365-HomeAssistant. 
