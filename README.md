@@ -9,7 +9,7 @@ Details on how to migration to the new MS365 integrations can be found here - [M
 
 # Note: 
 
-This integration is slowly moving towards EOL. I have already created integrations which will replace it - MS365-Calendar/Mail/Teams/ToDo, these can be used now using HACS Custom. When these are available on HACS Default I will then stop work on O365-HomeAssistant. 
+This integration is very close to EOL. I have already created integrations which will replace it - MS365-Calendar/Mail/Teams/ToDo, these can now be found on HACS. 
 
 Many will have seen a warning in the logs - `Detected that custom integration 'o365' uses 'async_config_entry_first_refresh', which is only supported for coordinators with a config entry and will stop working in Home Assistant 2025.11` - this further forces the EOL due to a change in HA Core, which means that the integration will cease to work after the 2025.11 HA release without really significant re-work. Because this integration is setup via YAML, it does not have a `config_entry`, the replacements listed above do.
 
