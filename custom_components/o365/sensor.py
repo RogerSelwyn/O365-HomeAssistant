@@ -77,6 +77,11 @@ async def _async_sensor_entities(conf, hass):
                     key[CONF_UNIQUE_ID],
                 )
             )
+            _LOGGER.warning(
+                "The O365 Teams Chat sensors are now deprecated - please migrate to MS365 Teams "
+                + "- for more details on how to do this see "
+                + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
+            )
         elif key[CONF_ENTITY_TYPE] == SENSOR_TEAMS_STATUS:
             sensorentities.append(
                 O365TeamsStatusSensor(
@@ -87,6 +92,11 @@ async def _async_sensor_entities(conf, hass):
                     key[CONF_UNIQUE_ID],
                     key[CONF_EMAIL],
                 )
+            )
+            _LOGGER.warning(
+                "The O365 Teams Status sensors are now deprecated - please migrate to MS365 Teams "
+                + "- for more details on how to do this see "
+                + "https://rogerselwyn.github.io/O365-HomeAssistant/migration.html"
             )
         elif key[CONF_ENTITY_TYPE] == SENSOR_AUTO_REPLY:
             entity = O365AutoReplySensor(
