@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.2.0 (2025/03/10)
+### 🧰 Maintenance
+- [Add deprecation warning for Teams](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9d94bee6818a5baf64990c2af16b7584251424e9) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/6c33735601e955a2ac89cafd79289ccc7ef9c1f9) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/26fa50a8fc10bfab294a2ef2f6680c0dda6b03e9) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.2.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7c154aeba04f01ec510d9a24c8be60e90a0760a0) - @RogerSelwyn
+
+
+
+
 ## v5.1.1 (2025/02/27)
 ### 🐛 Fixes
 - [Fix tasks not being marked as complete/uncomplete via HA](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/59343f4991543b38ec011cdfdb5e8975334748a8) - @RogerSelwyn
