@@ -1,5 +1,18 @@
 # Changelog
 
+## v5.2.1 (2025/03/14)
+### 🐛 Fixes
+- [Fix issue with token refresh - pin MSAL to 1.13.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/882db03e2038f421e924f05ca9696e5b8aec6c4e) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/732bc34b7fd68242713af7fbd23b3c2cda996f71) - @actions-user
+
+### 🔖 Release
+- [Release v5.2.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/de3b8dd6bbb8e13da2cc08934637ecd05144b392) - @RogerSelwyn
+
+
+
+
 ## v5.2.0 (2025/03/10)
 ### 🧰 Maintenance
 - [Add deprecation warning for Teams](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/9d94bee6818a5baf64990c2af16b7584251424e9) - @RogerSelwyn
