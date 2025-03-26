@@ -146,7 +146,7 @@ class O365AutoReplySensor(O365Entity, SensorEntity):
     def _validate_autoreply_permissions(self):
         return self._validate_permissions(
             PERM_MAILBOX_SETTINGS,
-            "Not authorisied to update auto reply - requires permission: "
+            "Not authorised to update auto reply - requires permission: "
             + f"{PERM_MAILBOX_SETTINGS}",
         )
 

@@ -83,7 +83,7 @@ class O365EmailService(BaseNotificationService):
         """Send an async message to a user."""
         if not self._config[CONF_PERMISSIONS].validate_authorization(PERM_MAIL_SEND):
             _LOGGER.error(
-                "Not authorisied to send mail - requires permission: %s", PERM_MAIL_SEND
+                "Not authorised to send mail - requires permission: %s", PERM_MAIL_SEND
             )
             return
 

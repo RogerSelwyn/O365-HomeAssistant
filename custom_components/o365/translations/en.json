@@ -36,10 +36,10 @@
             "message": "O365 Python does not have capability to update/respond to group calendar events: {entity_id}"
         },
         "not_authorised_to_event": {
-            "message": "Not authorisied to {calendar} calendar event - requires permission: {error_message}"
+            "message": "Not authorised to {calendar} calendar event - requires permission: {error_message}"
         },
         "not_authorised": {
-            "message": "Not authorisied requires permission: {required_permission}"
+            "message": "Not authorised requires permission: {required_permission}"
         },
         "not_possible": {
             "message": "Not possible to update another user's status: {email}"
