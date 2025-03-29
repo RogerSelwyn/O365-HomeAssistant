@@ -44,4 +44,4 @@ When you have migrated over the following can be removed:
 * O365 can be uninstalled from HACS
 * The o365_storage folder can be deleted.
 
-If you did not use the migration service, you can delete the O365 application from Azure by clicking on `Applications from personal account` [here](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade).
+If you did not use the migration service and created a new Entra App, you can delete the O365 application from Azure by clicking on `App registrations` or `Applications from personal account` [here](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade).
