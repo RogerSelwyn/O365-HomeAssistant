@@ -39,6 +39,7 @@ You should see that all your configuration has been retained. You should only ne
 
 The calendars.yaml, tasks.yaml (now named todos.yaml) and token files will be in the new `ms365_storage` folder in your configuration. 
 
+### Post migration
 When you have migrated over the following can be removed:
 * O365 can be removed from configuration.yaml
 * O365 can be uninstalled from HACS
