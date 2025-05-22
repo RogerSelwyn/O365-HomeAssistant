@@ -16,7 +16,7 @@
     "O365"
   ],
   "requirements": [
-    "O365>=2.1.1",
+    "O365==2.1.2",
     "BeautifulSoup4>=4.10.0"
   ],
   "version": "v5.2.1"
