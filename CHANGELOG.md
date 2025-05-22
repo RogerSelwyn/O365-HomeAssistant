@@ -1,5 +1,32 @@
 # Changelog
 
+## v5.2.2 (2025/05/22)
+### 🧰 Maintenance
+- [Spelling corrections](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/fd7c237b326741288b45e9ddac74c8d8fa6b2901) - @RogerSelwyn
+- [Unpin MSAL](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2243ac1fce31d53e7d8ca283bda73f91149d870f) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Update ruff to 0.11.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/7de7915c0b52b8d8daffc71921022fe222773bb0) - @RogerSelwyn
+- [Bump python-o365 to 2.1.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ef6df1a3c5eed12ce2a907d9f95a9a8cb9e44ace) - @RogerSelwyn
+- [Pin python-o365==2.1.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/2d2c01239ce63315936702221f2386fb7abb3aa3) - @RogerSelwyn
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/26836d84fe9c6ecf34b742b722bda37cff750396) - @actions-user
+
+### 📚 Documentation
+- [Slight tweak to text since it obviously looks different for personal accounts](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/45c669faf5be0f50cb581dca6dd1e94f954efc41) - @RogerSelwyn
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/41473d84289e386e693c6a31b86d73e75b23f755) - @RogerSelwyn
+- [Update migration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/a20f59ce59e3afa5ce053d0c8a10d65ed8a42bd9) - @RogerSelwyn
+- [Update migration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b24ee36d486b456c947fca84e2b79ee2eb72acd3) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.2.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/82498e2e0874f2d3ea1f0cb9c1a902f4c59fcc9f) - @RogerSelwyn
+
+### Other
+- [Update migration.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/b1c90cc8367ecf3103b72f474b5326bb090df6e0) - @GitHubGoody
+- [build(deps): bump ruff from 0.11.0 to 0.11.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/d26d2ad2c10685de5c60e4b49a758b7f018f25f9) - @dependabot[bot]
+
+
+
+
 ## v5.2.1 (2025/03/14)
 ### 🐛 Fixes
 - [Fix issue with token refresh - pin MSAL to 1.13.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/882db03e2038f421e924f05ca9696e5b8aec6c4e) - @RogerSelwyn
