@@ -580,8 +580,13 @@ class O365CalendarData:
 
     async def _async_get_calendar(self, hass):
         try:
+            schedule = await hass.async_add_executor_job(self._account.schedule)
+            query = await hass.async_add_executor_job(schedule.new_query)
+            query = query.select("name", "id")
             self.calendar = await hass.async_add_executor_job(
-                ft.partial(self._schedule.get_calendar, calendar_id=self.calendar_id)
+                ft.partial(
+                    schedule.get_calendar, calendar_id=self.calendar_id, query=query
+                )
             )
             return True
         except (HTTPError, RetryError, ConnectionError) as err:
@@ -637,6 +642,11 @@ class O365CalendarData:
         self, hass, calendar_schedule, start_date, end_date
     ):
         """Get the events for the calendar."""
+        query_start = await hass.async_add_executor_job(calendar_schedule.new_query)
+        query_start = query_start.on_attribute("start").greater_equal(start_date)
+        query_end = await hass.async_add_executor_job(calendar_schedule.new_query)
+        query_end = query_end.on_attribute("end").less_equal(end_date)
+
         query = await hass.async_add_executor_job(calendar_schedule.new_query)
         query = query.select(
             "subject",
@@ -651,8 +661,7 @@ class O365CalendarData:
             "attendees",
             "series_master_id",
         )
-        query = query.on_attribute("start").greater_equal(start_date)
-        query.chain("and").on_attribute("end").less_equal(end_date)
+
         if self._search is not None:
             query.chain("and").on_attribute("subject").contains(self._search)
         # As at March 2023 not contains is not supported by Graph API
@@ -665,6 +674,8 @@ class O365CalendarData:
                     limit=self._limit,
                     query=query,
                     include_recurring=True,
+                    start_recurring=query_start,
+                    end_recurring=query_end,
                 )
             )
         except (HTTPError, RetryError, ConnectionError) as err:
@@ -825,8 +836,10 @@ class CalendarServices:
                 schedule = await self._hass.async_add_executor_job(
                     config[CONF_ACCOUNT].schedule
                 )
+                query = await self._hass.async_add_executor_job(schedule.new_query)
+                query = query.select("name", "id")
                 calendars = await self._hass.async_add_executor_job(
-                    schedule.list_calendars
+                    ft.partial(schedule.list_calendars, query=query, limit=50)
                 )
                 track = config.get(CONF_TRACK_NEW_CALENDAR, True)
                 for calendar in calendars:
