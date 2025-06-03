@@ -1,5 +1,18 @@
 # Changelog
 
+## v5.3.0 (2025/06/03)
+### 🐛 Fixes
+- [Implement workaround for MS 500 error response](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/46b7ad0396732e383152c7abc655a5d640859710) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/246be98f3dec7816b9eb9056c4c8479e7a8cfc36) - @actions-user
+
+### 🔖 Release
+- [Release v5.3.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/dfdcc82be4afd741a4fc9131709f66f60edcdc44) - @RogerSelwyn
+
+
+
+
 ## v5.2.2 (2025/05/22)
 ### 🧰 Maintenance
 - [Spelling corrections](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/fd7c237b326741288b45e9ddac74c8d8fa6b2901) - @RogerSelwyn
