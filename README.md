@@ -5,7 +5,7 @@
 # Deprecation Notice:
 The Calendar, Mail Notification, Teams and To Do entities and services are now deprecated in the O365 integration. Development on O365 has now stopped unless a change is required to support migration to the MS365 integrations.
 
-Details on how to migration to the new MS365 integrations can be found here - [Migration](https://rogerselwyn.github.io/O365-HomeAssistant/migration.html)
+Details on how to migrate to the new MS365 integrations can be found here - [Migration](https://rogerselwyn.github.io/O365-HomeAssistant/migration.html)
 
 # Note: 
 
