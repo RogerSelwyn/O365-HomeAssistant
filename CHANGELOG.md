@@ -1,5 +1,15 @@
 # Changelog
 
+## v5.3.1 (2025/06/09)
+### 🐛 Fixes
+- [Fix calendar colour missing](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/387e0030dea47a435b383c5f906cec6aa3d40f15) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.3.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/90ffae10c8b4effc27b13342a9687fccdf5d5c95) - @RogerSelwyn
+
+
+
+
 ## v5.3.0 (2025/06/03)
 ### 🐛 Fixes
 - [Implement workaround for MS 500 error response](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/46b7ad0396732e383152c7abc655a5d640859710) - @RogerSelwyn
