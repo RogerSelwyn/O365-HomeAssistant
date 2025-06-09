@@ -1,5 +1,18 @@
 # Changelog
 
+## v5.3.2 (2025/06/09)
+### 🐛 Fixes
+- [Revert part of change in v5.3.1 causing 500 error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ed0832b517fbbfa9855323a126737bf762c0611d) - @RogerSelwyn
+
+### 📚 Documentation
+- [Update README.md](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/895dac826f4c96e039b15719e4aba67c9382a284) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.3.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/35cbb15664f5a7874e7ddcc1b156cc5b29f2bcf8) - @RogerSelwyn
+
+
+
+
 ## v5.3.1 (2025/06/09)
 ### 🐛 Fixes
 - [Fix calendar colour missing](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/387e0030dea47a435b383c5f906cec6aa3d40f15) - @RogerSelwyn
