@@ -34,6 +34,7 @@ from .const import (
     ATTR_EVENT_ID,
     ATTR_HEX_COLOR,
     ATTR_OFFSET,
+    CALENDAR_COLUMNS,
     CALENDAR_ENTITY_ID_FORMAT,
     CONF_ACCOUNT,
     CONF_ACCOUNT_NAME,
@@ -582,7 +583,7 @@ class O365CalendarData:
         try:
             schedule = await hass.async_add_executor_job(self._account.schedule)
             query = await hass.async_add_executor_job(schedule.new_query)
-            query = query.select("name", "id")
+            query = query.select(CALENDAR_COLUMNS)
             self.calendar = await hass.async_add_executor_job(
                 ft.partial(
                     schedule.get_calendar, calendar_id=self.calendar_id, query=query
@@ -837,7 +838,7 @@ class CalendarServices:
                     config[CONF_ACCOUNT].schedule
                 )
                 query = await self._hass.async_add_executor_job(schedule.new_query)
-                query = query.select("name", "id")
+                query = query.select(CALENDAR_COLUMNS)
                 calendars = await self._hass.async_add_executor_job(
                     ft.partial(schedule.list_calendars, query=query, limit=50)
                 )

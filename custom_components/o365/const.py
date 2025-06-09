@@ -71,6 +71,7 @@ AUTH_CALLBACK_PATH_ALT = "/api/o365"
 AUTH_CALLBACK_PATH_DEFAULT = (
     "https://login.microsoftonline.com/common/oauth2/nativeclient"
 )
+CALENDAR_COLUMNS = "name", "id", "canEdit", "color", "hexColor"
 CALENDAR_ENTITY_ID_FORMAT = "calendar.{}"
 CONF_ACCOUNT = "account"
 CONF_ACCOUNTS = "accounts"
