@@ -9,7 +9,7 @@ jobs:
     name: Prepare release asset
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v4"
+      - uses: "actions/checkout@v5"
       - name: Release Asset
         uses: "rogerselwyn/actions/release-asset@main"
         with:
@@ -21,7 +21,7 @@ jobs:
     needs: release_zip_file
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v4"
+      - uses: "actions/checkout@v5"
       - name: Release Notes
         uses: "rogerselwyn/actions/release-notes@main"
         with:
