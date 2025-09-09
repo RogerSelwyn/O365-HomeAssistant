@@ -27,6 +27,10 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util import dt as dt_util
 from requests.exceptions import HTTPError, RetryError
 
+from O365.utils.query import (  # pylint: disable=no-name-in-module, import-error
+    QueryBuilder,
+)
+
 from .const import (
     ATTR_ALL_DAY,
     ATTR_COLOR,
@@ -113,7 +117,7 @@ async def async_setup_platform(hass, config, add_entities, discovery_info=None):
         hass, account, add_entities, conf, update_supported
     )
     hass.data[DOMAIN][account_name][CONF_CAL_IDS] = cal_ids
-    await _async_setup_register_services(hass, update_supported)
+    await _async_setup_register_services(hass, account, update_supported)
 
     _LOGGER.warning(
         "The O365 Calendar sensors are now deprecated - please migrate to MS365 Calendar "
@@ -182,9 +186,9 @@ def _build_entity_id(hass, entity, conf):
     )
 
 
-async def _async_setup_register_services(hass, update_supported):
+async def _async_setup_register_services(hass, account, update_supported):
     platform = entity_platform.async_get_current_platform()
-    calendar_services = CalendarServices(hass)
+    calendar_services = CalendarServices(hass, account)
     await calendar_services.async_scan_for_calendars(None)
 
     if update_supported:
@@ -566,6 +570,7 @@ class O365CalendarData:
         self.event = None
         self._entity_id = entity_id
         self._error = False
+        self._builder = QueryBuilder(protocol=account.protocol)
 
     async def async_calendar_data_init(self, hass):
         """Async init of calendar data."""
@@ -581,8 +586,7 @@ class O365CalendarData:
     async def _async_get_calendar(self, hass):
         try:
             schedule = await hass.async_add_executor_job(self._account.schedule)
-            query = await hass.async_add_executor_job(schedule.new_query)
-            query = query.select("name", "id", "canEdit", "color", "hexColor")
+            query = self._builder.select("name", "id", "canEdit", "color", "hexColor")
             self.calendar = await hass.async_add_executor_job(
                 ft.partial(
                     schedule.get_calendar, calendar_id=self.calendar_id, query=query
@@ -642,13 +646,7 @@ class O365CalendarData:
         self, hass, calendar_schedule, start_date, end_date
     ):
         """Get the events for the calendar."""
-        query_start = await hass.async_add_executor_job(calendar_schedule.new_query)
-        query_start = query_start.on_attribute("start").greater_equal(start_date)
-        query_end = await hass.async_add_executor_job(calendar_schedule.new_query)
-        query_end = query_end.on_attribute("end").less_equal(end_date)
-
-        query = await hass.async_add_executor_job(calendar_schedule.new_query)
-        query = query.select(
+        query = self._builder.select(
             "subject",
             "body",
             "start",
@@ -663,7 +661,7 @@ class O365CalendarData:
         )
 
         if self._search is not None:
-            query.chain("and").on_attribute("subject").contains(self._search)
+            query = query & self._builder.contains("subject", self._search)
         # As at March 2023 not contains is not supported by Graph API
         # if self._exclude is not None:
         #     query.chain("and").on_attribute("subject").negate().contains(self._exclude)
@@ -674,8 +672,8 @@ class O365CalendarData:
                     limit=self._limit,
                     query=query,
                     include_recurring=True,
-                    start_recurring=query_start,
-                    end_recurring=query_end,
+                    start_recurring=self._builder.greater_equal("start", start_date),
+                    end_recurring=self._builder.less_equal("end", end_date),
                 )
             )
         except (HTTPError, RetryError, ConnectionError) as err:
@@ -824,9 +822,10 @@ class O365CalendarData:
 class CalendarServices:
     """Calendar Services."""
 
-    def __init__(self, hass):
+    def __init__(self, hass, account):
         """Initialise the calendar services."""
         self._hass = hass
+        self._account = account
 
     async def async_scan_for_calendars(self, call):  # pylint: disable=unused-argument
         """Scan for new calendars."""
@@ -836,8 +835,8 @@ class CalendarServices:
                 schedule = await self._hass.async_add_executor_job(
                     config[CONF_ACCOUNT].schedule
                 )
-                query = await self._hass.async_add_executor_job(schedule.new_query)
-                query = query.select("name", "id", "canEdit", "color", "hexColor")
+                builder = QueryBuilder(protocol=self._account.protocol)
+                query = builder.select("name", "id", "canEdit", "color", "hexColor")
                 calendars = await self._hass.async_add_executor_job(
                     ft.partial(schedule.list_calendars, query=query, limit=50)
                 )

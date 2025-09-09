@@ -11,6 +11,10 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 from requests.exceptions import HTTPError
 
+from O365.utils.query import (  # pylint: disable=no-name-in-module, import-error  # pylint: disable=no-name-in-module, import-error
+    QueryBuilder,
+)
+
 from ..classes.mailsensor import async_build_inbox_query, async_build_query_query
 from ..const import (
     ATTR_AUTOREPLIESSETTINGS,
@@ -90,6 +94,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
         )
         self._chat_members = {}
         self._ent_reg = entity_registry.async_get(hass)
+        self._builder = QueryBuilder(protocol=self._account.protocol)
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
@@ -347,7 +352,7 @@ class O365SensorCordinator(DataUpdateCoordinator):
     async def _async_todos_update_query(self, key, error):
         data = None
         o365_task = key[CONF_O365_TASK_FOLDER]
-        full_query = await async_build_todo_query(self.hass, key, o365_task)
+        full_query = await async_build_todo_query(self._builder, key)
         name = key[CONF_NAME]
 
         try:
@@ -403,6 +408,7 @@ class O365EmailCordinator(DataUpdateCoordinator):
         )
         self._chat_members = {}
         self._ent_reg = entity_registry.async_get(hass)
+        self._builder = QueryBuilder(protocol=self._account.protocol)
 
     async def async_setup_entries(self):
         """Do the initial setup of the entities."""
@@ -429,7 +435,7 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     CONF_NAME: name,
                     CONF_ENTITY_TYPE: SENSOR_EMAIL,
                     CONF_QUERY: await async_build_inbox_query(
-                        self._hass, mail_folder, sensor_conf
+                        sensor_conf, self._builder
                     ),
                 }
 
@@ -465,7 +471,7 @@ class O365EmailCordinator(DataUpdateCoordinator):
                     CONF_NAME: name,
                     CONF_ENTITY_TYPE: SENSOR_EMAIL,
                     CONF_QUERY: await async_build_query_query(
-                        self._hass, mail_folder, sensor_conf
+                        sensor_conf, self._builder
                     ),
                 }
 

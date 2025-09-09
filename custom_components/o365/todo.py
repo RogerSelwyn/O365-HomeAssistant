@@ -10,6 +10,10 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_platform
 from homeassistant.util import dt as dt_util
 
+from O365.utils.query import (  # pylint: disable=no-name-in-module, import-error
+    QueryBuilder,
+)
+
 from .classes.entity import O365Entity
 from .const import (
     ATTR_ALL_TODOS,
@@ -468,25 +472,23 @@ def _raise_event_external(hass, event_type, todo_id, time_type, task_datetime):
     _LOGGER.debug("%s - %s - %s", event_type, todo_id, task_datetime)
 
 
-async def async_build_todo_query(hass, key, todo):
+async def async_build_todo_query(builder: QueryBuilder, key):
     """Build query for ToDo."""
     o365_task = key[CONF_YAML_TASK_LIST]
     show_completed = o365_task[CONF_SHOW_COMPLETED]
-    query = await hass.async_add_executor_job(todo.new_query)
+    query = builder.select()
     if not show_completed:
-        query = query.on_attribute("status").unequal("completed")
+        query = query & builder.unequal("status", "completed")
     start_offset = o365_task.get(CONF_DUE_HOURS_BACKWARD_TO_GET)
     end_offset = o365_task.get(CONF_DUE_HOURS_FORWARD_TO_GET)
     if start_offset:
         start = dt_util.utcnow() + timedelta(hours=start_offset)
-        query.chain("and").on_attribute("due").greater_equal(
-            start.strftime("%Y-%m-%dT%H:%M:%S")
+        query = query & builder.greater_equal(
+            "due", start.strftime("%Y-%m-%dT%H:%M:%S")
         )
     if end_offset:
         end = dt_util.utcnow() + timedelta(hours=end_offset)
-        query.chain("and").on_attribute("due").less_equal(
-            end.strftime("%Y-%m-%dT%H:%M:%S")
-        )
+        query = query & builder.less_equal("due", end.strftime("%Y-%m-%dT%H:%M:%S"))
     return query
 
 
