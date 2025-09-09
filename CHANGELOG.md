@@ -1,5 +1,22 @@
 # Changelog
 
+## v5.3.3 (2025/09/09)
+### 🐛 Fixes
+- [Support migration to MS365 by providing QueryBuilder support](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/10e5999a1f4a33f9581e8574c9061e334cce87dd) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [bump ruff from 0.11.4 to 0.12.2](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/0ac28dd269dde7e6333b4b61749f5803c75cf541) - @dependabot[bot]
+- [bump ruff from 0.12.2 to 0.12.8](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/8bf0fb73a70e88896611acd32dea70a9f2629411) - @dependabot[bot]
+- [bump actions/checkout from 4 to 5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/e1e45138ccd0e042fe39986beb8ec1688af2e8e0) - @dependabot[bot]
+- [bump actions/stale from 9 to 10](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/061023cb9feedfd2649a62d4175481e7d428563e) - @dependabot[bot]
+- [bump actions/setup-python from 5 to 6](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ad6f1f1cd8e5d08baf519ec4248d29c46fed3c93) - @dependabot[bot]
+
+### 🔖 Release
+- [Release v5.3.3](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/91696ce4a56a85458937d3cfb276e410f1a621f7) - @RogerSelwyn
+
+
+
+
 ## v5.3.2 (2025/06/09)
 ### 🐛 Fixes
 - [Revert part of change in v5.3.1 causing 500 error](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/ed0832b517fbbfa9855323a126737bf762c0611d) - @RogerSelwyn
