@@ -1,5 +1,15 @@
 # Changelog
 
+## v5.3.4 (2025/09/10)
+### 🐛 Fixes
+- [Fix error in ToDo migration](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/444b8fa155b59af4b04bc7cb7dd74ca3b0a7eb13) - @RogerSelwyn
+
+### 🔖 Release
+- [Release v5.3.4](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/80a75b7e567ebf8f4806022b4df348d0515efb85) - @RogerSelwyn
+
+
+
+
 ## v5.3.3 (2025/09/09)
 ### 🐛 Fixes
 - [Support migration to MS365 by providing QueryBuilder support](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/10e5999a1f4a33f9581e8574c9061e334cce87dd) - @RogerSelwyn
