@@ -220,7 +220,7 @@ class MigrationServices:
 
     async def _async_migrate_todos(self, config, base_config_entry):
         todo_sensors = config.get(CONF_TODO_SENSORS, {})
-        if not todo_sensors.get(CONF_ENABLED, False):
+        if not todo_sensors or not todo_sensors.get(CONF_ENABLED, False):
             return
         migrate_domain = "ms365_todo"
         if not self._integration_installed(migrate_domain):
