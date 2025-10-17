@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.3.5 (2025/10/17)
+### 🐛 Fixes
+- [Include oauthlib dependency](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/febda93a41270306c887bf5bfe5e59d271792df1) - @RogerSelwyn
+
+### ⬆️ Dependencies
+- [bump ruff from 0.12.8 to 0.13.0](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/84ef2164fdc7468b6ea98bd3cdca5bdfefdca748) - @dependabot[bot]
+- [bump ruff from 0.13.0 to 0.13.1](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/5c31a77bf4e04276bbd606fe3d4c7b897985baf3) - @dependabot[bot]
+- [Auto update requirements.txt](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/aa94804e29e3bc944536156b2562528d9f5aa9e0) - @actions-user
+
+### 🔖 Release
+- [Release v5.3.5](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/57e92669d9f06ae5c50a1aa4e53b85ae70219b8e) - @RogerSelwyn
+
+
+
+
 ## v5.3.4 (2025/09/10)
 ### 🐛 Fixes
 - [Fix error in ToDo migration](https://github.com/RogerSelwyn/O365-HomeAssistant/commit/444b8fa155b59af4b04bc7cb7dd74ca3b0a7eb13) - @RogerSelwyn
