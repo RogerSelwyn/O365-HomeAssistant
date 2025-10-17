@@ -20,5 +20,5 @@
     "BeautifulSoup4>=4.10.0",
     "oauthlib"
   ],
-  "version": "v5.3.4"
+  "version": "v5.3.5"
 }
