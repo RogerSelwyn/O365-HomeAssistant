@@ -10,8 +10,6 @@ respond_calendar_event:
   name: Respond to an event
   description: "Respond to calendar event/invite"
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: calendar
@@ -47,8 +45,6 @@ create_calendar_event:
   name: Create a new event
   description: Create new calendar event
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: calendar
@@ -143,8 +139,6 @@ modify_calendar_event:
   name: Modify an event
   description: Modify existing calendar event, all properties except event_id are optional.
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: calendar
@@ -243,8 +237,6 @@ remove_calendar_event:
   name: Delete an event
   description: Delete calendar event
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: calendar
@@ -261,8 +253,6 @@ new_todo:
   name: Create a ToDo
   description: Create a new ToDo
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: todo
@@ -297,8 +287,6 @@ update_todo:
   name: Update a ToDo
   description: Update a ToDo
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: todo
@@ -339,8 +327,6 @@ delete_todo:
   name: Delete a ToDo
   description: Delete a ToDo
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: todo
@@ -357,8 +343,6 @@ complete_todo:
   name: Complete a ToDo
   description: Complete a ToDo
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: todo
@@ -378,14 +362,10 @@ complete_todo:
       selector:
         boolean:
 
-
-
 auto_reply_enable:
   name: Auto reply enable
   description: Schedules auto reply
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: sensor
@@ -435,8 +415,6 @@ auto_reply_disable:
   name: Auto reply disable
   description: Disables auto reply
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: sensor
@@ -445,8 +423,6 @@ send_chat_message:
   name: Send chat message
   description: "Send message to a specified chat"
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: sensor
@@ -483,8 +459,6 @@ update_user_status:
   name: Update user Teams status
   description: "Update the user's Teams status"
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: sensor
@@ -537,8 +511,6 @@ update_user_preferred_status:
   name: Update user preferred Teams status
   description: "Update the user's preferred Teams status"
   target:
-    device:
-      integration: o365
     entity:
       integration: o365
       domain: sensor
@@ -575,4 +547,3 @@ update_user_preferred_status:
 migrate_config:
   name: Migrate existing O365 config to MS365
   description: "Create disabled MS365 config entries based on existing O365 config"
-
